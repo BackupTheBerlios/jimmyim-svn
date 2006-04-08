@@ -1,0 +1,12 @@
+JIMMY - Instant Mobile Messenger
+v. pre-alpha
+--------------------------------
+
+JIMMY is an instant multi-protocol messenger written in Java 2 Micro Edition
+primarily targeted to mobile phones.
+
+It supports:
+- Jabber
+- ICQ
+- MSN Messenger
+- Yahoo!
