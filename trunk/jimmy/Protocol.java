@@ -12,6 +12,7 @@ package jimmy;
 /**
  * Astract class to be extended with implementations of various protocols
  * @author Zoran Mesec
+ * version 1.0
  */
 public interface Protocol 
 {
@@ -25,4 +26,14 @@ public interface Protocol
      * @return Returns the servers reply as a stringè.
      */
     public abstract String getReply();
+    /**
+     * This abstract method initializes connection.
+     * 
+     */
+    public abstract void connect();     
+    /**
+     * This abstract method closes the connection that is used for communication with the server.
+     * 
+     */
+    public abstract void disconnect();           
 }
