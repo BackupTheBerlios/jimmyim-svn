@@ -23,7 +23,7 @@ public interface Protocol
     public abstract void sendRequest(String message);
     /**
      * This abstract method receives the reply of the server from the previous sendRequest call.
-     * @return Returns the servers reply as a stringè.
+     * @return Returns the servers reply as a string.
      */
     public abstract String getReply();
     /**
