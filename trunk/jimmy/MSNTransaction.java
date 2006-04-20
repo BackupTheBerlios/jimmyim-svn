@@ -25,7 +25,7 @@ public class MSNTransaction
      */
     public MSNTransaction() 
     {
-        this.trID = 0;
+        this.trID = 1;
         this.arguments = new Vector();
     }
     
