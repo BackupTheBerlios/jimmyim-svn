@@ -17,7 +17,7 @@
  **********************************************************************
  File: jimmy/Jimmy.java
  Version: pre-alpha  Date: 2006/04/08
- Author(s): Matev? Jekovec, Zoran Mesec, Dejan Sakel?ak, Janez Urevc
+ Author(s): Matevz Jekovec, Zoran Mesec, Dejan Sakelsak, Janez Urevc
  */
 
 package jimmy;

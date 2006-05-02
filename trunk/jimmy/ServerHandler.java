@@ -1,12 +1,24 @@
-/*
- * ServerHandler.java
- *
- * Created on Torek, 2006, april 11, 23:48
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
+/* JIMMY - Instant Mobile Messenger
+   Copyright (C) 2006  JIMMY Project
 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ **********************************************************************
+ File: jimmy/ServerHandler.java
+
+ Author(s): Zoran Mesec, Matevz Jekovec
+ */
 package jimmy;
 
 import java.io.*;
@@ -17,48 +29,52 @@ import javax.microedition.io.*;
  */
 public class ServerHandler 
 {
-    private String url;
-    private int port;
-    private SocketConnection sc;
-    private DataOutputStream os;
-    private DataInputStream isr;
+    private String url_;
+    private int port_;
+    private SocketConnection sc_;
+    private DataOutputStream os_;
+    private DataInputStream isr_;
+	
     /**
      * The constructor method.
-     * @param URL URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
-     * @param PORT PORT of the server(inputs as a String). Example: "1863".
+     * @param url URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
+     * @param port Server's port which to connect to. eg. 1863 for MSN.
      */
-    public ServerHandler(String URL, int PORT) 
+	 
+    public ServerHandler(String url, int port) 
     {
-        this.url = URL;
-        this.port = PORT;        
+        url_ = url;
+        port_ = port;        
     }
+	
     /**
      * The constructor method. If no port is used, use this constructor method.
      * @param URL URL of the server.
      */
-    public ServerHandler(String URL) 
+    public ServerHandler(String url) 
     {
-        this.url = URL;
-        this.port = 0;        
-    }    
+        url_ = url;
+        port_ = 0;        
+    }
+	
     /**
-     * Initializes SocketConnection.
+     * Initialize SocketConnection.
      */
     public void connect()
     {
         try
         {
-            if(this.port==0)
+            if(port_ == 0)
             {
-                this.sc = (SocketConnection)Connector.open("socket://" + this.url);
-                this.os = this.sc.openDataOutputStream();
-                this.isr = new DataInputStream(this.sc.openDataInputStream());
+                sc_ = (SocketConnection)Connector.open("socket://" + url_);
+                os_ = sc_.openDataOutputStream();
+                isr_ = new DataInputStream(sc_.openDataInputStream());
             }
             else
             {
-                this.sc = (SocketConnection)Connector.open("socket://" + this.url + ":" + String.valueOf(this.port));
-                this.os = this.sc.openDataOutputStream();
-                this.isr = new DataInputStream(this.sc.openDataInputStream());
+                sc_ = (SocketConnection)Connector.open("socket://" + url_ + ":" + String.valueOf(port_));
+                os_ = sc_.openDataOutputStream();
+                isr_ = new DataInputStream(sc_.openDataInputStream());
             }        
         }
         catch (IOException e)
@@ -66,75 +82,80 @@ public class ServerHandler
             e.printStackTrace();
         }
     }
+	
     /**
-     * method disconnects the SocketConnection of this class.
+     * Disconnect the SocketConnection of this class.
      */
     public void disconnect()
     {
         try 
         {
-            this.isr.close();
-            this.os.close();
-            this.sc.close();
+            isr_.close();
+            os_.close();
+            sc_.close();
         } catch (IOException ex) 
         {
             ex.printStackTrace();
         }
     }
+	
     /**
-     * Sends a message to the remote server with the OutputStream.
-     * @param message Message to be sent with OutputStream to the remote server using SocketConnection.
+     * Send a message to the remote server using the OutputStream.
+     * @param message Message to be sent using the OutputStream to the remote server using SocketConnection.
      */
     public void sendRequest(String message)
     {
         try 
         {
-            //this.os = this.sc.openOutputStream();
+            //os_ = sc_.openOutputStream();
             byte[] data = message.getBytes();
             
-            this.os.write(data);
-            this.os.flush();
+            os_.write(data);
+            os_.flush();
          
         } catch (IOException ex) 
         {
             ex.printStackTrace();
         }
     }
+	
     /**
-     * Disconnects OutputStream.
+     * Close OutputStream.
      */
     public void closeOutput()
     {
         try 
         {
-            this.os.flush();
-            this.os.close();
+            os.flush();
+            os.close();
         } catch (IOException ex) 
         {
             ex.printStackTrace();
         }
     }
+	
     /**
-     * Disconnects OutputStream.
+     * Open OutputStream.
      */
     public void openOutput()
     {
             //this.osw = new OutputStreamWriter(this.os);
 
-    }  
+    }
+	
     /**
-     * Returns next character from the input stream.
-     * @return int representation of a character.
+     * Return the next character from the input stream.
+     * @return int Representation of a character.
      */
     public int getNextCharacter() throws IOException 
     {
-        return isr.read();  
+        return isr_.read();  
     }
     
     
     /**
-     * Accepts a message from the remote server.
-     * @return Returns the message from the remote server as a String.
+     * Accept a message from the remote server.
+     * @return Message from the remote server as a String.
      */
     public String getReply()
     {
@@ -181,17 +202,19 @@ public class ServerHandler
             return null;
         }
     }
+	
     /**
-     * Disonnects InputStream.
+     * Close InputStream.
      */
     public void closeInput()
     {
         try 
         {
-            this.isr.close();
+            isr_.close();
         } catch (IOException ex) 
         {
             ex.printStackTrace();
         }
     }
 }
+

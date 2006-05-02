@@ -16,8 +16,8 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **********************************************************************
  File: jimmy/JimmyUI.java
- Version: pre-alpha  Date: 2006/04/08
- Author(s): Matev? Jekovec
+
+ Author(s): Matevz Jekovec
 */
 
 package jimmy;
