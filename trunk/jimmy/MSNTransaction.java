@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package hello;
+package jimmy;
 
 import java.util.Vector;
 
