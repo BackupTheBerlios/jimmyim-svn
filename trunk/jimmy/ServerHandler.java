@@ -126,8 +126,8 @@ public class ServerHandler
     {
         try 
         {
-            os.flush();
-            os.close();
+            os_.flush();
+            os_.close();
         } catch (IOException ex) 
         {
             ex.printStackTrace();

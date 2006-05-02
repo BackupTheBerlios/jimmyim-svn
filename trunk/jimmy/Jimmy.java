@@ -28,7 +28,7 @@ import javax.microedition.midlet.MIDletStateChangeException;
 
 public class Jimmy extends MIDlet {
 	public static Jimmy jimmy; //Application main object
-	public static String VERSION; //JIMMY version
+	final public static String VERSION	=	"pre-alpha"; //JIMMY version
 	public static Display display; //Display object
 
 	public static JimmyUI ui; //User Interface object
@@ -36,7 +36,6 @@ public class Jimmy extends MIDlet {
 	public static MainMenu mainMenu; //Main menu object
 	
 	protected void startApp() throws MIDletStateChangeException {
-		Jimmy.VERSION = "pre-alpha";
 		Jimmy.jimmy = this;
 		
 		Jimmy.ui = new JimmyUI();

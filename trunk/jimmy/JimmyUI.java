@@ -46,23 +46,23 @@ public class JimmyUI implements CommandListener {
 	final private static Command cmdFind   = new Command("Find",   Command.OK,     1);
 	final private static Command cmdBack   = new Command("Back",   Command.BACK,   2);
 	
-	static private Hashtable commands = new Hashtable(); //commands list
-	static private Displayable lastDisplayable; //displayable object
-	static private JimmyUI jimmyUI; //JimmyUI object
+	static private Hashtable commands_ = new Hashtable(); //commands list
+	static private Displayable lastDisplayable_; //displayable object
+	static private JimmyUI jimmyUI_; //JimmyUI object
 	
 //	 Associate commands and commands codes
 	static
 	{
-		commands.put(cmdOk,     new Integer(CMD_OK)    );
-		commands.put(cmdCancel, new Integer(CMD_CANCEL));
-		commands.put(cmdYes,    new Integer(CMD_YES)   );
-		commands.put(cmdNo,     new Integer(CMD_NO)    );
-		commands.put(cmdFind,   new Integer(CMD_FIND)  );
-		commands.put(cmdBack,   new Integer(CMD_BACK)  );
+		commands_.put(cmdOk,     new Integer(CMD_OK)    );
+		commands_.put(cmdCancel, new Integer(CMD_CANCEL));
+		commands_.put(cmdYes,    new Integer(CMD_YES)   );
+		commands_.put(cmdNo,     new Integer(CMD_NO)    );
+		commands_.put(cmdFind,   new Integer(CMD_FIND)  );
+		commands_.put(cmdBack,   new Integer(CMD_BACK)  );
 	}
 	
 	JimmyUI() {
-		jimmyUI = this;
+		jimmyUI_ = this;
 	}
 	
 	public void commandAction(Command arg0, Displayable arg1) {
