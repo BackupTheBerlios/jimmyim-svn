@@ -30,6 +30,16 @@ public interface Protocol
      * This abstract method initializes connection.
      * 
      */
+    public abstract void login();
+    /**
+     * 
+     * 
+     */    
+    public abstract void logout();
+    /**
+     * 
+     * 
+     */      
     public abstract void connect();     
     /**
      * This abstract method closes the connection that is used for communication with the server.
