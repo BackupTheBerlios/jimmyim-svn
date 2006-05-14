@@ -11,18 +11,21 @@ package hello;
 
 import hello.MSNTransaction;
 import java.io.*;
+import java.util.Vector;
 import javax.microedition.io.*;
 //import hello.MSNServerHandler;
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
  */
-public class MSNProtocol extends Protocol 
+
+public class MSNProtocol
 {
     private String username;
     private String password;
     private int port;
     final String NsURL = "messenger.hotmail.com";
+    final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String NSredirectURL = "baym-cs118.msgr.hotmail.com";
     //final String NexusURL = "nexus.passport.com/rdr/pprdr.asp";
     final int serverPort = 1863;
@@ -33,6 +36,8 @@ public class MSNProtocol extends Protocol
     private ServerHandler NexusHandler;
     private SocketConnection sc;
     private DataOutputStream os;
+    private Vector contacts;
+    private Vector groups;
     //private InputStreamReader isr;
    // private DataInputStream isr;
     
@@ -81,7 +86,6 @@ public class MSNProtocol extends Protocol
                 System.out.println(this.sh.getReply());
                 System.out.println("*************************************");
                 //message = "CVR 2 0x0409 win 4.10 i386 MSNMSGR 5.0.0544 MSMSGS avgustin.ocepek@yahoo.com.au\r\n";
-                
                 this.tr.newTransaction();
                 this.tr.setType("CVR");
                 this.tr.addArgument("0x040c winnt 5.1 i386 MSNMSGR 7.0.0777 msmsgs");
@@ -167,6 +171,7 @@ public class MSNProtocol extends Protocol
                 System.out.println(this.tr.toString());  
                 String rawData = this.sh.getReply();
                 System.out.println(rawData);
+                parseContacts(rawData);
                 
                 int t = rawData.indexOf("LST");
                 
@@ -183,15 +188,49 @@ public class MSNProtocol extends Protocol
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());                           
                 System.out.println(this.sh.getReply());
+                //System.out.println("*************************************aaa");    
+                //System.out.println(this.sh.getReply());           
                 
-                this.logout();
-                /*while(true)
+                System.out.println("*************************************bbb");   
+                StringBuffer challenge2 =new StringBuffer( this.sh.getReply().substring(6 ));
+                challenge2.append(this.ProductKey);
+                System.out.println(challenge2);   
+                System.out.println("*************************************Challenge:");
+
+
+                MD5 md5 = new MD5();
+                String hash = new String(md5.toHex(md5.fingerprint(challenge2.toString().getBytes())));
+                System.out.println(hash);
+                String[] hashTable = new String[4];
+                hashTable[0] = hash.substring(0,8);
+                hashTable[1] = hash.substring(8,16);
+                hashTable[2] = hash.substring(16,24);
+                hashTable[3] = hash.substring(24,hash.length());
+                int[] md5Ints = new int[4];
+                for(int i=0; i<hashTable.length; i++)
+                {
+                    md5Ints[i] = hexToInt(hashTable[i]) &  0x7FFFFFFF;
+                    System.out.println(hashTable[i] + " -> "+md5Ints[i]);
+                }
+                
+                
+                //md5Ints[0] =  & 0x7fffffff;
+                
+                System.out.println("*************************************ee");  
+                int a = 12345 & 0x7fff;
+                System.out.println(a);
+                this.tr.newTransaction();
+                this.tr.setType("QRY");
+                
+
+                //this.logout();
+                while(true)
                 {
                     if(5==3)
                     {
                         break;
                     }
-                }*/              
+                }             
         }
         catch (Exception e)
         {
@@ -203,16 +242,10 @@ public class MSNProtocol extends Protocol
      */
     public void logout()
     {
-        try 
-        {
             System.out.println("*************************************");
             System.out.println("Logging out.");
             this.sh.sendRequest(this.tr.getLogoutString());
-            System.out.println("Logout successful."); 
-        } catch (IOException ex) 
-        {
-            ex.printStackTrace();
-        }
+            System.out.println("Logout successful.");
     }
  /*   /**
      * Sends a message to the remote server with the OutputStream.
@@ -233,6 +266,74 @@ public class MSNProtocol extends Protocol
             //ex.printStackTrace();
         }
     }
+    public int hexToInt(String s)
+    {
+        int[] n = new int[s.length()];
+        char c;
+        int sum = 0;
+        int koef = 1;
+        for(int i=n.length-1; i>=0; i--)
+        {
+            c = s.charAt(i);
+            //System.out.println(c);
+            switch ((char)c)
+            {
+                case 48:
+                    n[i] = 0;
+                    break;
+                case 49:
+                    n[i] = 1;
+                    break;
+                case 50:
+                    n[i] = 2;
+                    break;
+                case 51:
+                    n[i] = 3;
+                    break;
+                case 52:
+                    n[i] = 4;
+                    break;
+                case 53:
+                    n[i] = 5;
+                    break;
+                case 54:
+                    n[i] = 6;
+                    break;
+                case 55:
+                    n[i] = 7;
+                    break;
+                case 56:
+                    n[i] = 8;
+                    break;
+                case 57:
+                    n[i] = 9;
+                    break;                      
+                case 97:
+                    n[i] = 10;
+                    break;
+                case 98:
+                    n[i] = 11;
+                    break;
+                case 99:
+                    n[i] = 12;
+                    break;
+                case 100:
+                    n[i] = 13;
+                    break;
+                case 101:
+                    n[i] = 14;
+                    break;
+                case 102:
+                    n[i] = 15;
+                    break;
+            }
+            
+            sum = sum + n[i]*koef;
+            //System.out.println(sum);
+            koef=koef*16;
+        }
+        return sum;
+    }
     /**
      * Disconnects OutputStream.
      */
@@ -246,6 +347,10 @@ public class MSNProtocol extends Protocol
         {
             ex.printStackTrace();
         }
+    }
+    private void parseContacts(String data)
+    {
+        
     }
    
     String getField( String strKey, String strField )  
