@@ -82,7 +82,13 @@ public class ServerHandler
             e.printStackTrace();
         }
     }
-	
+    /**
+     * Changes URL of the server.
+     */
+    public void changeURL(String newURL)
+    {
+        this.url_ = newURL;
+    }   	
     /**
      * Disconnect the SocketConnection of this class.
      */
