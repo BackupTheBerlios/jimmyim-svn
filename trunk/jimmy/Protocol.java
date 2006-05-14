@@ -30,7 +30,7 @@ public abstract class Protocol
      * This abstract method initializes connection.
      * 
      */
-    public abstract void login();
+    public abstract void login(String username, String passwd);
     /**
      * 
      * 
