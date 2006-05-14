@@ -18,8 +18,7 @@ import javax.microedition.io.*;
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
  */
-
-public class MSNProtocol
+public class MSNProtocol extends Protocol
 {
     private String username;
     private String password;
@@ -169,19 +168,9 @@ public class MSNProtocol
                 this.tr.addArgument("2006-04-14T06:03:32.863-07:00 2006-04-15T06:03:33.177-07:00");                  
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());  
-                System.out.println(this.sh.getReply());
+                parseReply(this.sh.getReply());
                 System.out.println("*************************************zzz");                  
-                String rawData = this.sh.getReply();
-                System.out.println(rawData);
-                
-                int t = rawData.indexOf("LST");
-                
-                if(t !=0)
-                {
-                    System.out.println("parse contacts and groups:" + rawData);              
-                }
-                
-                //parseContacts(rawData);     
+                parseReply(this.sh.getReply()); 
                 
                 System.out.println("*************************************");                
                 this.tr.newTransaction();
@@ -190,16 +179,16 @@ public class MSNProtocol
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());
-                //System.out.println("*************************************aaa");    
-                //System.out.println(this.sh.getReply());           
+                parseReply(this.sh.getReply());
+                System.out.println("*************************************aaa");    
+                System.out.println(this.sh.getReply());           
                 
                 System.out.println("*************************************bbb");   
-                StringBuffer challenge2 =new StringBuffer( this.sh.getReply().substring(6 ));
-                challenge2.append(this.ProductKey);
-                System.out.println(challenge2);   
-                System.out.println("*************************************Challenge:");
+                //StringBuffer challenge2 =new StringBuffer( this.sh.getReply().substring(6 ));
+                parseReply(this.sh.getReply());
 
+                System.out.println("*************************************Challenge:");
+                parseReply(this.sh.getReply());
 
                 /*MD5 md5 = new MD5();
                 String hash = new String(md5.toHex(md5.fingerprint(challenge2.toString().getBytes())));
@@ -349,25 +338,78 @@ public class MSNProtocol
             ex.printStackTrace();
         }
     }
+    
+    public void parseReply(String reply)
+    {
+        String type = reply.substring(0,3);
+        System.out.println(reply);
+        
+        if(type.indexOf("LST")!=-1)
+        {
+            parseContacts(reply);
+        }     
+        if(type.indexOf("LSG")!=-1)
+        {
+            parseGroups(reply);
+        }  
+    }
     private void parseContacts(String data)
     {
          int t = data.indexOf("LST");
          int ind;
          int i;
          char c;
-         StringBuffer sb;
+         StringBuffer contact;
         while(t!=-1)
         {   
+             // parse email
+             contact = new StringBuffer();
             ind = data.indexOf("N=", t);
-            i = ind;
+            i = ind+2;
             while((c=data.charAt(i))!= ' ')
             {
-                System.out.println(c);
+                //System.out.println(c);
+                contact.append(c);
+                i++;
             }
-             t = data.indexOf("LST", t);
+            System.out.println(contact.toString());
+            // parse nickname
+            ind = data.indexOf("F=", t);
+            i = ind+2;
+            while((c=data.charAt(i))!= ' ')
+            {
+                //System.out.println(c);
+                contact.append(c);
+                i++;
+            }            
+            System.out.println("Contact: "+contact.toString());
+            t = data.indexOf("LST", t+3);
         }
     }
-   
+
+    private void parseGroups(String data)
+    {
+        System.out.println("Parsing groups:" + data);
+         int t = data.indexOf("LSG");
+         int ind;
+         int i;
+         char c;
+         StringBuffer group;
+        while(t!=-1)
+        {   
+             // parse email
+            group = new StringBuffer();
+            i = t+4;
+            while((c=data.charAt(i))!= ' ')
+            {
+                //System.out.println(c);
+                group.append(c);
+                i++;
+            }            
+            System.out.println("Group: "+group.toString());
+            t = data.indexOf("LSG", t+3);
+        }
+    }    
     String getField( String strKey, String strField )  
     {
 
@@ -390,4 +432,17 @@ public class MSNProtocol
       return "";
     }
     }    
+   public void disconnect()
+   {
+   
+   }
+   public void connect() 
+   {
+   
+   }
+   public String getReply()
+   {
+      return null;
+   }
+   
 }
