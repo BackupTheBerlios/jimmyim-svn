@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package hello;
+package jimmy;
 
 import java.io.*;
 import javax.microedition.io.*;
@@ -55,12 +55,15 @@ public class MSNServerHandler
             if(port_ == 0)
             {
                 sc_ = (SocketConnection)Connector.open("socket://" + url_);
+                System.out.println("local port:"+sc_.getLocalPort());
+                
                 os_ = sc_.openDataOutputStream();
                 isr_ = new DataInputStream(sc_.openDataInputStream());
             }
             else
             {
                 sc_ = (SocketConnection)Connector.open("socket://" + url_ + ":" + String.valueOf(port_));
+                System.out.println("local port:"+sc_.getLocalPort());
                 os_ = sc_.openDataOutputStream();
                 isr_ = new DataInputStream(sc_.openDataInputStream());
             }        
