@@ -55,7 +55,6 @@ public class MSNServerHandler
             if(port_ == 0)
             {
                 sc_ = (SocketConnection)Connector.open("socket://" + url_);
-                System.out.println("local port:"+sc_.getLocalPort());
                 
                 os_ = sc_.openDataOutputStream();
                 isr_ = new DataInputStream(sc_.openDataInputStream());
@@ -63,7 +62,6 @@ public class MSNServerHandler
             else
             {
                 sc_ = (SocketConnection)Connector.open("socket://" + url_ + ":" + String.valueOf(port_));
-                System.out.println("local port:"+sc_.getLocalPort());
                 os_ = sc_.openDataOutputStream();
                 isr_ = new DataInputStream(sc_.openDataInputStream());
             }        
@@ -91,7 +89,6 @@ public class MSNServerHandler
     }
 	
     /**
-<<<<<<< .mine
      * Changes URL of the server.
      */
     public void changeURL(String newURL)
@@ -101,10 +98,6 @@ public class MSNServerHandler
     /**
      * Sends a message to the remote server with the OutputStream.
      * @param message Message to be sent with OutputStream to the remote server using SocketConnection.
-=======
-     * Send a message to the remote server using the OutputStream.
-     * @param message Message to be sent using the OutputStream to the remote server using SocketConnection.
->>>>>>> .r24
      */
     public void sendRequest(String message)
     {
@@ -167,11 +160,11 @@ public class MSNServerHandler
             byte[] b = new byte[2048];
             this.isr_.read(b);
             StringBuffer sb = new StringBuffer();
-            int it = 0;
-            while(b[it]!= 0)
+            int it;
+            for (it=0; (b[it] != 0) && (it!=b.length); it++)
             {
+                    //System.out.println(it + " " +(char)b[it]);
                     sb.append((char)b[it]);
-                    it++;
             }
             String reply = sb.toString();
             return reply.substring(0,reply.length()-2);
