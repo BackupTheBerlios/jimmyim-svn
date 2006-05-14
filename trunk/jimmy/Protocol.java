@@ -14,7 +14,7 @@ package jimmy;
  * @author Zoran Mesec
  * version 1.0
  */
-public interface Protocol 
+public abstract class Protocol 
 {
     /**
      * Method for sending a request to the server with the specified protocol.
