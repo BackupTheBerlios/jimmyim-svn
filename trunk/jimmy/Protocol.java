@@ -12,38 +12,31 @@ package jimmy;
 /**
  * Astract class to be extended with implementations of various protocols
  * @author Zoran Mesec
+ * @author Matevz Jekovec
  * version 1.0
  */
 public abstract class Protocol 
 {
     /**
-     * Method for sending a request to the server with the specified protocol.
-     * @param message Request string.
-     */
-    public abstract void sendRequest(String message);
-    /**
-     * This abstract method receives the reply of the server from the previous sendRequest call.
-     * @return Returns the servers reply as a string.
-     */
-    public abstract String getReply();
-    /**
-     * This abstract method initializes connection.
+     * This abstract method initializes connection and logs in.
      * 
+     * @param username User ID for login
+     * @param passwd User password for login
+     * @return true if connected and logged in successfully, otherwise false
      */
-    public abstract void login(String username, String passwd);
+    public abstract boolean login(String username, String passwd);
+    
     /**
-     * 
-     * 
-     */    
+     * Log out and close connection. 
+     */
     public abstract void logout();
+    
     /**
+     * Return connection status.
      * 
-     * 
-     */      
-    public abstract void connect();     
-    /**
-     * This abstract method closes the connection that is used for communication with the server.
-     * 
+     * @return Connection status - true if connected, false otherwise
      */
-    public abstract void disconnect();           
+    public boolean isConnected() {return connected_;}
+    
+    protected boolean connected_;
 }
