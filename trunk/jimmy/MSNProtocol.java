@@ -30,7 +30,7 @@ public class MSNProtocol extends Protocol
     final int NexusPort = 443;
     private PassportNexus pn;
     private MSNTransaction tr;
-    private MSNServerHandler sh;
+    private ServerHandler sh;
     private ServerHandler NexusHandler;
     private SocketConnection sc;
     private DataOutputStream os;
@@ -61,13 +61,13 @@ public class MSNProtocol extends Protocol
     /**
      * Initializes SocketConnection.
      */
-    public void login(String username, String password)
+    public boolean login(String username, String password)
     {
         this.username = username;
         this.password= password;          
         try
         {
-                this.sh= new MSNServerHandler(this.NsURL, this.serverPort);
+                this.sh= new ServerHandler(this.NsURL, this.serverPort);
                 this.sh.connect();
             /*this.sc = (SocketConnection)Connector.open("socket://" + this.NsURL + ":" + Integer.toString(this.serverPort));
                 this.os = this.sc.openDataOutputStream();
@@ -159,8 +159,14 @@ public class MSNProtocol extends Protocol
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());                           
                 System.out.println(this.sh.getReply());    //gets the SBS
-                System.out.println("*************************************");             
-                
+                System.out.println("*************************************");
+                String line=this.sh.getReply();
+                System.out.println(line);
+                while(line.length()!=0)
+                {
+                    System.out.println(line);
+                    line=this.sh.getReply();
+                }
                 
                 this.tr.newTransaction();
                 this.tr.setType("SYN");
@@ -219,11 +225,13 @@ public class MSNProtocol extends Protocol
                     {
                         break;
                     }
-                }             
+                }      
+                return true;
         }
         catch (Exception e)
         {
             e.printStackTrace();
+            return false;
         }
     }
     /**
@@ -235,25 +243,6 @@ public class MSNProtocol extends Protocol
             System.out.println("Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
             System.out.println("Logout successful.");
-    }
- /*   /**
-     * Sends a message to the remote server with the OutputStream.
-     * @param message Message to be sent with OutputStream to the remote server using SocketConnection.
-     */
-    public void sendRequest(String message)
-    {
-        try 
-        {
-            //this.os = this.sc.openOutputStream();
-            byte[] data = message.getBytes();
-            
-            this.os.write(data);
-            this.os.flush();
-         
-        } catch (IOException ex) 
-        {
-            //ex.printStackTrace();
-        }
     }
     public int hexToInt(String s)
     {
@@ -353,10 +342,11 @@ public class MSNProtocol extends Protocol
     }
     private void parseContacts(String data)
     {
-            if(this.contacts_ == null)
-            {
+         if(this.contacts_ == null)
+         {
                 this.contacts_ = new Vector();
-            }
+         }
+         System.out.println("Parsing contacs:" + data);
          int t = data.indexOf("LST");
          int ind;
          int i;
@@ -474,10 +464,5 @@ public class MSNProtocol extends Protocol
    public void connect() 
    {
    
-   }
-   public String getReply()
-   {
-      return null;
-   }
-   
+   }   
 }
