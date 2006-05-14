@@ -57,10 +57,15 @@ public class MSNTransaction
         rMessage.append("\r\n");
         return rMessage.toString();
     }
+    
+    public String getLogoutString()
+    {
+        return "OUT";
+    }
     public int getTransactionID()
     {
         return this.trID;
-    }    
+    }   
     
     public static void main(String[] args)
     {
