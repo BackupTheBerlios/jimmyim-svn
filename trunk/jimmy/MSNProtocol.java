@@ -7,9 +7,9 @@
  * and open the template in the editor.
  */
 
-package hello;
+package jimmy;
 
-import hello.MSNTransaction;
+import jimmy.MSNTransaction;
 import java.io.*;
 import java.util.Vector;
 import javax.microedition.io.*;
@@ -169,16 +169,19 @@ public class MSNProtocol
                 this.tr.addArgument("2006-04-14T06:03:32.863-07:00 2006-04-15T06:03:33.177-07:00");                  
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());  
+                System.out.println(this.sh.getReply());
+                System.out.println("*************************************zzz");                  
                 String rawData = this.sh.getReply();
                 System.out.println(rawData);
-                parseContacts(rawData);
                 
                 int t = rawData.indexOf("LST");
                 
                 if(t !=0)
                 {
-                    System.out.println("parse contacts and groups");              
+                    System.out.println("parse contacts and groups:" + rawData);              
                 }
+                
+                //parseContacts(rawData);     
                 
                 System.out.println("*************************************");                
                 this.tr.newTransaction();
@@ -198,7 +201,7 @@ public class MSNProtocol
                 System.out.println("*************************************Challenge:");
 
 
-                MD5 md5 = new MD5();
+                /*MD5 md5 = new MD5();
                 String hash = new String(md5.toHex(md5.fingerprint(challenge2.toString().getBytes())));
                 System.out.println(hash);
                 String[] hashTable = new String[4];
@@ -211,14 +214,12 @@ public class MSNProtocol
                 {
                     md5Ints[i] = hexToInt(hashTable[i]) &  0x7FFFFFFF;
                     System.out.println(hashTable[i] + " -> "+md5Ints[i]);
-                }
+                }*/
                 
                 
                 //md5Ints[0] =  & 0x7fffffff;
                 
                 System.out.println("*************************************ee");  
-                int a = 12345 & 0x7fff;
-                System.out.println(a);
                 this.tr.newTransaction();
                 this.tr.setType("QRY");
                 
@@ -243,7 +244,7 @@ public class MSNProtocol
     public void logout()
     {
             System.out.println("*************************************");
-            System.out.println("Logging out.");
+            System.out.println("Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
             System.out.println("Logout successful.");
     }
@@ -350,7 +351,21 @@ public class MSNProtocol
     }
     private void parseContacts(String data)
     {
-        
+         int t = data.indexOf("LST");
+         int ind;
+         int i;
+         char c;
+         StringBuffer sb;
+        while(t!=-1)
+        {   
+            ind = data.indexOf("N=", t);
+            i = ind;
+            while((c=data.charAt(i))!= ' ')
+            {
+                System.out.println(c);
+            }
+             t = data.indexOf("LST", t);
+        }
     }
    
     String getField( String strKey, String strField )  
