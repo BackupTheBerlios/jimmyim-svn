@@ -13,7 +13,6 @@ import jimmy.MSNTransaction;
 import java.io.*;
 import java.util.Vector;
 import javax.microedition.io.*;
-//import hello.MSNServerHandler;
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
@@ -35,8 +34,8 @@ public class MSNProtocol extends Protocol
     private ServerHandler NexusHandler;
     private SocketConnection sc;
     private DataOutputStream os;
-    private Vector contacts;
-    private Vector groups;
+    private Vector contacts_;
+    private Vector groups_;
     //private InputStreamReader isr;
    // private DataInputStream isr;
     
@@ -56,16 +55,16 @@ public class MSNProtocol extends Protocol
      * @param URL URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
      * @param PORT PORT of the server(inputs as a String). Example: "1863".
      */
-    public MSNProtocol(String username, String password)
+    public MSNProtocol()
     {
-        this.username = username;
-        this.password= password;        
     }
     /**
      * Initializes SocketConnection.
      */
-    public void login()
+    public void login(String username, String password)
     {
+        this.username = username;
+        this.password= password;          
         try
         {
                 this.sh= new MSNServerHandler(this.NsURL, this.serverPort);
@@ -341,24 +340,28 @@ public class MSNProtocol extends Protocol
     
     public void parseReply(String reply)
     {
-        String type = reply.substring(0,3);
         System.out.println(reply);
         
-        if(type.indexOf("LST")!=-1)
+        if(reply.indexOf("LST")!=-1)
         {
             parseContacts(reply);
         }     
-        if(type.indexOf("LSG")!=-1)
+        if(reply.indexOf("LSG")!=-1)
         {
             parseGroups(reply);
         }  
     }
     private void parseContacts(String data)
     {
+            if(this.contacts_ == null)
+            {
+                this.contacts_ = new Vector();
+            }
          int t = data.indexOf("LST");
          int ind;
          int i;
          char c;
+         Contact person;
          StringBuffer contact;
         while(t!=-1)
         {   
@@ -381,14 +384,44 @@ public class MSNProtocol extends Protocol
                 //System.out.println(c);
                 contact.append(c);
                 i++;
-            }            
+            }
+            //person = new Contact();
+            this.contacts_.addElement(contact.toString());
             System.out.println("Contact: "+contact.toString());
+            
+            if(this.groups_ != null)
+            {
+                // parse group id
+                i = data.indexOf("C=", t);
+                while((c=data.charAt(i))!= ' ')
+                {
+                    System.out.println(c);
+                    i++;
+                }
+                i+=2;
+                while((c=data.charAt(i))!= ' ')
+                {
+                    System.out.println(c);
+                    i++;
+                }
+                i+=2;
+                while((c=data.charAt(i))!= ' ')
+                {
+                    System.out.println(c);
+                    i++;
+                }                
+            }
             t = data.indexOf("LST", t+3);
         }
     }
 
     private void parseGroups(String data)
     {
+        if(this.groups_ == null)
+        {
+            this.groups_ = new Vector();
+        }
+
         System.out.println("Parsing groups:" + data);
          int t = data.indexOf("LSG");
          int ind;
@@ -405,8 +438,10 @@ public class MSNProtocol extends Protocol
                 //System.out.println(c);
                 group.append(c);
                 i++;
-            }            
+            }         
+            this.groups_.addElement(group.toString());
             System.out.println("Group: "+group.toString());
+            
             t = data.indexOf("LSG", t+3);
         }
     }    
