@@ -25,20 +25,29 @@ package jimmy;
 import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
+import java.util.Vector;
 
 public class Jimmy extends MIDlet {
-	public static Jimmy jimmy; //Application main object
+	public static Jimmy jimmy_; //Application main object
 	final public static String VERSION	=	"pre-alpha"; //JIMMY version
-	public static Display display; //Display object
+	public static Display display_; //Display object
+	private static Vector protocolList_; //List of active protocols 
 
-	public static JimmyUI ui; //User Interface object
-	public static Splash splash; //Splash screen object
-	public static MainMenu mainMenu; //Main menu object
+	//User interface stuff:
+	public static JimmyUI ui_; //User Interface object
+	public static Splash splash_; //Splash screen object
+	public static MainMenu mainMenu_; //Main menu object
 	
 	protected void startApp() throws MIDletStateChangeException {
-		Jimmy.jimmy = this;
+		jimmy_ = this;
 		
-		Jimmy.ui = new JimmyUI();
+		ui_ = new JimmyUI();
+		
+		protocolList_.addElement(new MSNProtocol());
+		
+		((Protocol)protocolList_.elementAt(0)).login("avgustin.ocepek@yahoo.com.au","0c3p3k");
+		if (((Protocol)protocolList_.elementAt(0)).isConnected() == true)
+			System.out.println("Connected!");
 	}
 
 	protected void pauseApp() {
