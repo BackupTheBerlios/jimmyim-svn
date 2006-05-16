@@ -22,18 +22,21 @@
 package jimmy;
 
 import java.io.*;
+import java.lang.Thread;
 import javax.microedition.io.*;
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
  */
-public class ServerHandler 
+public class ServerHandler extends Thread
 {
     private String url_;
     private int port_;
     private SocketConnection sc_;
     private DataOutputStream os_;
     private DataInputStream isr_;
+    final long sleepTime_ = 250;
+    final int sleepCount_ = 4;
 	
     /**
      * The constructor method.
@@ -113,7 +116,6 @@ public class ServerHandler
     {
         try 
         {
-            //os_ = sc_.openOutputStream();
             byte[] data = message.getBytes();
             
             os_.write(data);
@@ -147,61 +149,43 @@ public class ServerHandler
     {
             //this.osw = new OutputStreamWriter(this.os);
 
-    }
-	
-    /**
-     * Return the next character from the input stream.
-     * @return int Representation of a character.
-     */
-    public int getNextCharacter() throws IOException 
-    {
-        return isr_.read();  
-    }
-    
+    } 
     
     /**
      * Accept a message from the remote server.
      * @return Message from the remote server as a String.
      */
     public String getReply()
-    {
-            StringBuffer sb = new StringBuffer();             
+    {          
         try 
         {
-            boolean eol=false;
-            //this.isr = new InputStreamReader(this.sc.openInputStream());
-            while (true) 
-            {
-                int c = getNextCharacter();
-                if (c<0) 
-                { 
-                    eol=true;
-                    if (sb.length()==0) return null;
-                    break;
-                }
-                if (c==0x0d || c==0x0a) 
-                {
-                    eol=true;
-                    if (c==0x0a) 
-                    {
-                        break;
-                    }
-                }
-                else 
-                {
-                    if (eol) 
-                    {
-                        //afterEol=c;
-                        //inputstream.reset();
-                        break;
-                    }
-                    sb.append((char) c);
-                }
-            } 
-            return sb.toString();
+            byte[] buffer;
             
+            int bs = this.isr_.available(); // stands for buffer size
+            if(bs!=0)
+            {
+                buffer = new byte[bs];
+                this.isr_.read(buffer);
+                return new String(buffer);
+            }
+            else
+            {
+                Thread t = new Thread(this);
+                for(int i=0; i<this.sleepCount_; i++)
+                {
+                    t.sleep(this.sleepTime_);
+                    bs = this.isr_.available();
+                    if(bs!=0)
+                    {
+                        buffer = new byte[bs];
+                        this.isr_.read(buffer);
+                        return new String(buffer);                    
+                    }
+                }
+                return null;
+            }      
         } 
-        catch (IOException ex) 
+        catch (Exception ex) 
         {
             ex.printStackTrace();
 
