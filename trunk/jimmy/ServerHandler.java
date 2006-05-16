@@ -44,7 +44,7 @@ import javax.microedition.io.*;
  */
 public class ServerHandler
 {
-    private String url_;	//server URL without the leading "protol://"
+    private String url_;	//server URL without the leading "protocol://"
     private int outPort_;	//output port we connect to
     private int inPort_;	//input port the connection is made to
     private SocketConnection sc_;	//main connection
