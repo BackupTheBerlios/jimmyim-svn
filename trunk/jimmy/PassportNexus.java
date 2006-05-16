@@ -110,7 +110,7 @@ public class PassportNexus
             username.deleteCharAt(t);
             username.insert(t, "%40");
             
-          String strAuthString = "Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in=" + username.toString() + ",pwd=" + strPassword + "," + strChallenge;
+          String strAuthString = "Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in=" + username.toString() + ",pwd=" + strPassword + "," + strChallenge.substring(0, strChallenge.length()-2);
           System.out.println("Auth String");
           System.out.println(strAuthString);
           //String strAuthString = "Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in=" + username.toString()+ ",pwd=" + strPassword;          
