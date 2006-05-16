@@ -84,6 +84,7 @@ public class ServerHandler
     public void setTimeout(int timeout) {
     	this.timeout_ = timeout;
     }
+    
     /**
      * Open the connection to the specified URL and port passed in the constructor using the SocketConnection class.
      */
@@ -93,6 +94,7 @@ public class ServerHandler
         {
             sc_ = (SocketConnection)Connector.open( "socket://" + url_ +
             		((outPort_ == 0) ? "" : (":" + String.valueOf(outPort_))) );
+            inPort_ = sc_.getLocalPort();
             os_ = sc_.openDataOutputStream();
             is_ = sc_.openDataInputStream();
         }
@@ -178,5 +180,19 @@ public class ServerHandler
             return null;
         }
     }
+    
+    /**
+     * Returns the created input (local) port when an outgoing connection was established.
+     * 
+     * @return Incoming port
+     */
+    public int getInputPort() {return inPort_;}
+    
+    /**
+     * Returns the connection outgoing port passed in the constructor.
+     *  
+     * @return Outgoing port
+     */
+    public int getOutputPort() {return outPort_;}
 }
 
