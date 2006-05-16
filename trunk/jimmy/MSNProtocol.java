@@ -9,10 +9,11 @@
 
 package jimmy;
 
-import jimmy.MSNTransaction;
 import java.io.*;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.*;
+//import com.sun.midp.io.j2me.socket;
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
@@ -35,7 +36,7 @@ public class MSNProtocol extends Protocol
     private SocketConnection sc;
     private DataOutputStream os;
     private Vector contacts_;
-    private Vector groups_;
+    private Hashtable groups_;
     //private InputStreamReader isr;
    // private DataInputStream isr;
     
@@ -57,6 +58,7 @@ public class MSNProtocol extends Protocol
      */
     public MSNProtocol()
     {
+        this.connected_ = false;
     }
     /**
      * Initializes SocketConnection.
@@ -68,12 +70,10 @@ public class MSNProtocol extends Protocol
         try
         {
                 this.sh= new ServerHandler(this.NsURL, this.serverPort);
-                this.sh.connect();
-            /*this.sc = (SocketConnection)Connector.open("socket://" + this.NsURL + ":" + Integer.toString(this.serverPort));
-                this.os = this.sc.openDataOutputStream();
-                this.isr = new DataInputStream(this.sc.openDataInputStream());*/
-                
                 this.tr = new MSNTransaction();
+                /*this.sh.connect();
+                 *this.tr.newTransaction();
+                
                 this.tr.setType("VER");
                 this.tr.addArgument("MSNP11");
                 this.tr.addArgument("MSNP10");
@@ -81,6 +81,12 @@ public class MSNProtocol extends Protocol
                 //String message = "VER 1 MSNP8 CVR0\r\n";
                 this.sh.sendRequest(this.tr.toString());
                 System.out.print(this.tr.toString());
+                
+                /*System.out.println(this.sh.getReply());   
+                System.out.println(this.sh.getReply());
+                System.out.println(this.sh.getReply());
+                System.out.println(this.sh.getReply());
+                System.out.println(this.sh.getReply());
                 System.out.println(this.sh.getReply());
                 System.out.println("*************************************");
                 //message = "CVR 2 0x0409 win 4.10 i386 MSNMSGR 5.0.0544 MSMSGS avgustin.ocepek@yahoo.com.au\r\n";
@@ -104,9 +110,9 @@ public class MSNProtocol extends Protocol
                 System.out.println(this.tr.toString());                           
                 System.out.println(this.sh.getReply());
                 System.out.println("*************************************"); 
-                this.sh.disconnect();
+                this.sh.disconnect();*/
 
-                this.sh.changeURL(this.NSredirectURL);
+                this.sh = new ServerHandler(this.NSredirectURL, this.serverPort);
                 this.sh.connect();
                 
                
@@ -116,29 +122,29 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("MSNP10");
                 this.tr.addArgument("CVR0");
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());    
-                System.out.println("*************************************");
+                //System.out.println(this.tr.toString());                           
+                parseReply(this.sh.getReply());    
+                //System.out.println("*************************************");
                 
                 this.tr.newTransaction();
                 this.tr.setType("CVR");
                 this.tr.addArgument("0x0409 win 5.1 i386 MSNMSGR 7.0.0777 msmsgs");
                 this.tr.addArgument(this.username);
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());    
-                System.out.println("*************************************");       
+                //System.out.println(this.tr.toString());                           
+                parseReply(this.sh.getReply());    
+                //System.out.println("*************************************");       
                 
                 this.tr.newTransaction();
                 this.tr.setType("USR");
                 this.tr.addArgument("TWN I");
                 this.tr.addArgument(this.username); 
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());  
+                //System.out.println(this.tr.toString());  
                 String USRreply = this.sh.getReply();
                 String challenge = USRreply.substring(12);
-                System.out.println(USRreply);    
-                System.out.println("*************************************");               
+                //System.out.println(USRreply);    
+                //System.out.println("*************************************");               
                 
                 //this is where the password stuff fun starts
                 
@@ -157,75 +163,55 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("TWN S");
                 this.tr.addArgument(ticket);
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());    //gets the SBS
-                System.out.println("*************************************");
-                String line=this.sh.getReply();
-                System.out.println(line);
-                while(line.length()!=0)
-                {
-                    System.out.println(line);
-                    line=this.sh.getReply();
-                }
-                
+                //System.out.println(this.tr.toString());                           
+                parseReply(this.sh.getReply());    //gets the SBS
+                //System.out.println("*************************************");                
                 this.tr.newTransaction();
                 this.tr.setType("SYN");
                 this.tr.addArgument("2006-04-14T06:03:32.863-07:00 2006-04-15T06:03:33.177-07:00");                  
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());  
+                //System.out.println(this.tr.toString());  
                 parseReply(this.sh.getReply());
                 System.out.println("*************************************zzz");                  
-                parseReply(this.sh.getReply()); 
+                parseReply(this.sh.getReply());
                 
-                System.out.println("*************************************");                
+                //System.out.println("*************************************sss");                
                 this.tr.newTransaction();
                 this.tr.setType("CHG");
                 this.tr.addArgument("BSY");
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                parseReply(this.sh.getReply());
-                System.out.println("*************************************aaa");    
-                System.out.println(this.sh.getReply());           
-                
-                System.out.println("*************************************bbb");   
-                //StringBuffer challenge2 =new StringBuffer( this.sh.getReply().substring(6 ));
+                //System.out.println(this.tr.toString());                           
+
+                //System.out.println("*************************************aaa");    
                 parseReply(this.sh.getReply());
 
-                System.out.println("*************************************Challenge:");
-                parseReply(this.sh.getReply());
-
-                /*MD5 md5 = new MD5();
-                String hash = new String(md5.toHex(md5.fingerprint(challenge2.toString().getBytes())));
-                System.out.println(hash);
-                String[] hashTable = new String[4];
-                hashTable[0] = hash.substring(0,8);
-                hashTable[1] = hash.substring(8,16);
-                hashTable[2] = hash.substring(16,24);
-                hashTable[3] = hash.substring(24,hash.length());
-                int[] md5Ints = new int[4];
-                for(int i=0; i<hashTable.length; i++)
+                //System.out.println("*************************************Challenge:");
+                String reply =  this.sh.getReply();
+                while(reply != null)
                 {
-                    md5Ints[i] = hexToInt(hashTable[i]) &  0x7FFFFFFF;
-                    System.out.println(hashTable[i] + " -> "+md5Ints[i]);
-                }*/
-                
-                
+                    parseReply(reply);
+                    reply = this.sh.getReply();
+                }    
+                printContacts();
+                //printGroups();
+                //this.logout();
                 //md5Ints[0] =  & 0x7fffffff;
                 
                 System.out.println("*************************************ee");  
                 this.tr.newTransaction();
                 this.tr.setType("QRY");
-                
-
+                this.connected_ = true;
+   
                 //this.logout();
-                while(true)
+                /*while(true)
                 {
+                    parseReply(this.sh.getReply());
                     if(5==3)
                     {
                         break;
                     }
-                }      
+                } */     
                 return true;
         }
         catch (Exception e)
@@ -329,16 +315,23 @@ public class MSNProtocol extends Protocol
     
     public void parseReply(String reply)
     {
-        System.out.println(reply);
-        
+        //System.out.println(reply);
+        if(reply == null)
+        {
+            return;
+        }
+        if(reply.indexOf("LSG")!=-1)
+        {
+            parseGroups(reply);
+        }          
         if(reply.indexOf("LST")!=-1)
         {
             parseContacts(reply);
         }     
-        if(reply.indexOf("LSG")!=-1)
+        if(reply.indexOf("CHL")!=-1)
         {
-            parseGroups(reply);
-        }  
+            parseChallenge(reply);
+        }          
     }
     private void parseContacts(String data)
     {
@@ -346,78 +339,119 @@ public class MSNProtocol extends Protocol
          {
                 this.contacts_ = new Vector();
          }
-         System.out.println("Parsing contacs:" + data);
+         System.out.println("Parsing contacs:");
          int t = data.indexOf("LST");
          int ind;
          int i;
          char c;
          Contact person;
          StringBuffer contact;
+         StringBuffer username;         
+         StringBuffer groupID;
         while(t!=-1)
         {   
-             // parse email
-             contact = new StringBuffer();
-            ind = data.indexOf("N=", t);
-            i = ind+2;
-            while((c=data.charAt(i))!= ' ')
+            i = t;
+            contact = new StringBuffer();
+            username = new StringBuffer();
+            c=data.charAt(i);
+            while(c!= '\n')
             {
-                //System.out.println(c);
                 contact.append(c);
                 i++;
+                c=data.charAt(i);
             }
-            System.out.println(contact.toString());
-            // parse nickname
-            ind = data.indexOf("F=", t);
-            i = ind+2;
-            while((c=data.charAt(i))!= ' ')
-            {
-                //System.out.println(c);
-                contact.append(c);
-                i++;
-            }
-            //person = new Contact();
-            this.contacts_.addElement(contact.toString());
-            System.out.println("Contact: "+contact.toString());
             
-            if(this.groups_ != null)
+            System.out.println("Parsed contact line:"+contact.toString());
+            
+             // parse email
+            ind = contact.toString().indexOf("N=");           
+            i = ind+2;
+            while((c=contact.charAt(i))!= ' ')
+            {
+                //System.out.println(c);
+                username.append(c);
+                i++;
+            }
+            System.out.println("Username:" + username.toString());
+            person = new Contact(username.toString(), this);
+            // parse nickname
+            ind = contact.toString().indexOf("F=");
+            i = ind+2;
+            username = new StringBuffer();
+            while((c=contact.charAt(i))!= ' ')
+            {
+                //System.out.println(c);
+                username.append(c);
+                i++;
+            }
+            System.out.println("Screen name:"+ username.toString());
+            person.setScreenName(username.toString());
+            //person = new Contact();
+            
+            ind = contact.toString().indexOf("C=");
+            ind = contact.toString().indexOf(' ', ind+1);
+            ind = contact.toString().indexOf(' ', ind+1);
+      
+            if(ind!=-1)
+            {
+                i = ind+1;
+                username = new StringBuffer();
+                // read group id
+                while((c=contact.charAt(i))!= '\r')
+                {
+                    //System.out.println(c);
+                    username.append(c);
+                    i++;
+                }
+                System.out.println("Group id:"+ username.toString()); 
+                person.setGroupName((String)this.groups_.get(username.toString()));
+            }
+            this.contacts_.addElement(person);
+            //System.out.println("Contact: "+contact.toString());
+            
+            /*if(this.groups_ != null)
             {
                 // parse group id
                 i = data.indexOf("C=", t);
                 while((c=data.charAt(i))!= ' ')
                 {
-                    System.out.println(c);
+                    System.out.print(c);
                     i++;
                 }
                 i+=2;
+                System.out.println();
                 while((c=data.charAt(i))!= ' ')
                 {
-                    System.out.println(c);
+                    System.out.print(c);
                     i++;
                 }
-                i+=2;
+                i+=1;
+                System.out.println();
+                groupID = new StringBuffer();
                 while((c=data.charAt(i))!= ' ')
                 {
-                    System.out.println(c);
+                    System.out.print(c);
                     i++;
                 }                
-            }
+            }*/
             t = data.indexOf("LST", t+3);
         }
     }
-
     private void parseGroups(String data)
     {
         if(this.groups_ == null)
         {
-            this.groups_ = new Vector();
+            this.groups_ = new Hashtable();
         }
 
-        System.out.println("Parsing groups:" + data);
+         System.out.println("Parsing groups:" + data);
          int t = data.indexOf("LSG");
          int ind;
          int i;
+         
          char c;
          StringBuffer group;
+         StringBuffer groupID;
         while(t!=-1)
         {   
              // parse email
@@ -428,13 +462,41 @@ public class MSNProtocol extends Protocol
                 //System.out.println(c);
                 group.append(c);
                 i++;
-            }         
-            this.groups_.addElement(group.toString());
+            } 
+            i++;
+            groupID = new StringBuffer();
+            while((c=data.charAt(i))!= '\n')
+            {
+                //System.out.println(c);
+                groupID.append(c);
+                i++;
+            }           
+            System.out.println("Group id:"+groupID.toString());
             System.out.println("Group: "+group.toString());
+            this.groups_.put(groupID.toString(), group.toString());
             
             t = data.indexOf("LSG", t+3);
         }
     }    
+    private void parseChallenge(String data)
+    {
+            StringBuffer challenge =new StringBuffer(data.substring(6));
+            MD5 md5 = new MD5();
+            
+            String hash = new String(md5.toHex(md5.fingerprint(challenge.toString().getBytes())));
+            System.out.println(hash);
+            String[] hashTable = new String[4];
+            hashTable[0] = hash.substring(0,8);
+            hashTable[1] = hash.substring(8,16);
+            hashTable[2] = hash.substring(16,24);
+            hashTable[3] = hash.substring(24,hash.length());
+            int[] md5Ints = new int[4];
+            for(int i=0; i<hashTable.length; i++)
+            {
+                md5Ints[i] = hexToInt(hashTable[i]) &  0x7FFFFFFF;
+                System.out.println(hashTable[i] + " -> "+md5Ints[i]);
+            }
+    }        
     String getField( String strKey, String strField )  
     {
 
@@ -465,4 +527,46 @@ public class MSNProtocol extends Protocol
    {
    
    }   
+   void printContacts() 
+   {
+       System.out.println("*********************************************************");
+       System.out.println("START OF CONTACT LISTING");
+       System.out.println("*********************************************************");       
+        if(this.contacts_ ==null)
+        {
+            System.out.println("No contacts available.");
+        }
+        else
+        {
+           Contact c;
+            for(int i = 0; i<this.contacts_.size();i++)
+            {
+               c =(Contact) this.contacts_.elementAt(i);
+                System.out.println("Contact " + i +":" + c.screenName() + ", group:" + c.groupName());
+            }
+        }  
+       System.out.println("*********************************************************");
+       System.out.println("END OF CONTACT LISTING");
+       System.out.println("*********************************************************");        
+   }   
+   void printGroups() 
+   {
+       System.out.println("*********************************************************");
+       System.out.println("START OF GROUP LISTING");
+       System.out.println("*********************************************************");           
+        if(this.groups_ ==null)
+        {
+            System.out.println("No groups available.");
+        }
+        else
+        {
+            /*for(Enumeration en = this.groups_.elements(); en.hasMoreElements() ;en = en.nextElement())
+            {
+                System.out.println("Group " + i +":");
+            }*/
+        }
+       System.out.println("*********************************************************");
+       System.out.println("END OF GROUP LISTING");
+       System.out.println("*********************************************************");           
+   }      
 }
