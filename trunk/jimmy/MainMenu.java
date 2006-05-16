@@ -18,11 +18,11 @@ public class MainMenu implements CommandListener {
 	}
 
 	private void doExit() {
-		try {
-			Jimmy.jimmy.destroyApp(true);
+/*		try {
+			Jimmy.jimmy_.destroyApp(true);
 		} catch (MIDletStateChangeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} */
 	}
 }
