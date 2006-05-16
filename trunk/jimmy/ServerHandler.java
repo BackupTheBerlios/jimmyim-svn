@@ -19,87 +19,98 @@
 
  Author(s): Zoran Mesec, Matevz Jekovec
  */
+
 package jimmy;
 
 import java.io.*;
 import java.lang.Thread;
 import javax.microedition.io.*;
+
 /**
- * This class is used to connect with a remote server using SocketConnection class.
+ * This class is used to connect to a remote server using SocketConnection class.
+ * This is the way how all the communication between the mobile phone and IM servers should be done.
+ * The class always creates read/write type of the connection automatically.
+ * 
+ * Usage:
+ * 1) Class should be created passing the server URL without the "protocol://" prefix and a port which to connect to.
+ *    ServerHandler sh_ = new ServerHandler("messenger.hotmail.com","1863");
+ * 2) sh_.setTimeout(10000); //set timeout to 10 seconds - we have a really bad connection :)
+ * 2) sh_.connect();
+ * 3) sendRequest("VER 1 MSNP8 CVR0\r\n")
+ * 4) String myReply = getReply();
+ * 
  * @author Zoran Mesec
+ * @author Matevz Jekovec
  */
-public class ServerHandler extends Thread
+public class ServerHandler
 {
-    private String url_;
-    private int port_;
-    private SocketConnection sc_;
-    private DataOutputStream os_;
-    private DataInputStream isr_;
-    final long sleepTime_ = 250;
-    final int sleepCount_ = 4;
+    private String url_;	//server URL without the leading "protol://"
+    private int outPort_;	//output port we connect to
+    private int inPort_;	//input port the connection is made to
+    private SocketConnection sc_;	//main connection
+    private DataOutputStream os_;	//output stream linked with sc_
+    private DataInputStream is_;	//input stream linked with sc_
+    private final int SLEEPTIME_ = 50;	//sleep time per iteration in miliseconds
+    private int timeout_ = 5000;	//timeout of getting the reply
 	
     /**
      * The constructor method.
-     * @param url URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
-     * @param port Server's port which to connect to. eg. 1863 for MSN.
+     * 
+     * @param url URL of the server without the leading "protocol://" - No protocol type specified here! eg. messenger.hotmail.com
+     * @param port Server port which to connect to. eg. 1863 for MSN.
      */
-	 
     public ServerHandler(String url, int port) 
     {
         url_ = url;
-        port_ = port;        
+        outPort_ = port;        
     }
 	
     /**
-     * The constructor method. If no port is used, use this constructor method.
+     * The constructor method. If no port is used (ie. use the default port - 80 http), use this constructor method.
+     * 
      * @param URL URL of the server.
      */
     public ServerHandler(String url) 
     {
         url_ = url;
-        port_ = 0;        
+        outPort_ = 0;        
     }
 	
     /**
-     * Initialize SocketConnection.
+     * Set the timeout before stop checking the read buffer.
+     * 
+     * @param timeout Timeout value in miliseconds
+     */
+    public void setTimeout(int timeout) {
+    	this.timeout_ = timeout;
+    }
+    /**
+     * Open the connection to the specified URL and port passed in the constructor using the SocketConnection class.
      */
     public void connect()
     {
         try
         {
-            if(port_ == 0)
-            {
-                sc_ = (SocketConnection)Connector.open("socket://" + url_);
-                os_ = sc_.openDataOutputStream();
-                isr_ = new DataInputStream(sc_.openDataInputStream());
-            }
-            else
-            {
-                sc_ = (SocketConnection)Connector.open("socket://" + url_ + ":" + String.valueOf(port_));
-                os_ = sc_.openDataOutputStream();
-                isr_ = new DataInputStream(sc_.openDataInputStream());
-            }        
+            sc_ = (SocketConnection)Connector.open( "socket://" + url_ +
+            		((outPort_ == 0) ? "" : (":" + String.valueOf(outPort_))) );
+            os_ = sc_.openDataOutputStream();
+            is_ = sc_.openDataInputStream();
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
     }
+    
     /**
-     * Changes URL of the server.
-     */
-    public void changeURL(String newURL)
-    {
-        this.url_ = newURL;
-    }   	
-    /**
-     * Disconnect the SocketConnection of this class.
+     * Disconnect the SocketConnection and IO streams.
      */
     public void disconnect()
     {
         try 
         {
-            isr_.close();
+            is_.close();
+            os_.flush();	//flush the output stream before closing it!
             os_.close();
             sc_.close();
         } catch (IOException ex) 
@@ -110,6 +121,7 @@ public class ServerHandler extends Thread
 	
     /**
      * Send a message to the remote server using the OutputStream.
+     * 
      * @param message Message to be sent using the OutputStream to the remote server using SocketConnection.
      */
     public void sendRequest(String message)
@@ -128,82 +140,42 @@ public class ServerHandler extends Thread
     }
 	
     /**
-     * Close OutputStream.
-     */
-    public void closeOutput()
-    {
-        try 
-        {
-            os_.flush();
-            os_.close();
-        } catch (IOException ex) 
-        {
-            ex.printStackTrace();
-        }
-    }
-	
-    /**
-     * Open OutputStream.
-     */
-    public void openOutput()
-    {
-            //this.osw = new OutputStreamWriter(this.os);
-
-    } 
-    
-    /**
-     * Accept a message from the remote server.
-     * @return Message from the remote server as a String.
+     * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
+     * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)! 
+     *  
+     * @return Message from the remote server as a String. null if timeout has occured
      */
     public String getReply()
     {          
         try 
         {
-            byte[] buffer;
+            byte[] buffer = null;
             
-            int bs = this.isr_.available(); // stands for buffer size
-            if(bs!=0)
-            {
-                buffer = new byte[bs];
-                this.isr_.read(buffer);
-                return new String(buffer);
-            }
-            else
-            {
-                Thread t = new Thread(this);
-                for(int i=0; i<this.sleepCount_; i++)
-                {
-                    t.sleep(this.sleepTime_);
-                    bs = this.isr_.available();
-                    if(bs!=0)
-                    {
+            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
+            if (bs!=0) {
+                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
+                this.is_.read(buffer);	//read the whole buffer in the array
+            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
+                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
+                    Thread.sleep(this.SLEEPTIME_);
+                    if ((bs = this.is_.available()) != 0) {
                         buffer = new byte[bs];
-                        this.isr_.read(buffer);
-                        return new String(buffer);                    
+                        this.is_.read(buffer);
+                        break;
                     }
                 }
-                return null;
-            }      
+        	}
+            
+            if (buffer != null)
+            	return new String(buffer); //buffer was get, return the String
+            else
+            	return null;	//buffer was not get - timeout occured, return null
         } 
         catch (Exception ex) 
         {
             ex.printStackTrace();
 
             return null;
-        }
-    }
-	
-    /**
-     * Close InputStream.
-     */
-    public void closeInput()
-    {
-        try 
-        {
-            isr_.close();
-        } catch (IOException ex) 
-        {
-            ex.printStackTrace();
         }
     }
 }
