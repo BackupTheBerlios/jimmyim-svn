@@ -40,6 +40,6 @@ public class ChatSession {
 	}
 	
 	public void sendMsg(String msg, Contact contact) {
-		protocol_.sendMsg(msg, contact, this)
+		protocol_.sendMsg(msg, contact, this);
 	}
 }
