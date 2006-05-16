@@ -79,4 +79,21 @@ public abstract class Protocol
      * @return Contacts list stored in Vector.
      */
     public Vector getContacts() {return contacts_;}
+    
+    /**
+     * Send a message.
+     * 
+     * @param msg Message in String
+     * @param session Active Chat Session to send the message to
+     */
+    public abstract void sendMsg(String msg, ChatSession session);
+    
+    /**
+     * This method is implemented by convenience.
+     * 
+     * @param msg Message in String
+     * @param user Specific user this message should be sent to
+     * @param session Active Chat Session to send the message to
+     */
+    public abstract void sendMsg(String msg, Contact user, ChatSession session);
 }
