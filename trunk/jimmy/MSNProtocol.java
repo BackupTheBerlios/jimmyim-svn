@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.*;
-//import com.sun.midp.io.j2me.socket;
+
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
@@ -22,6 +22,7 @@ public class MSNProtocol extends Protocol
 {
     private String username;
     private String password;
+    protected Vector chatSessions_;	//list of active chat sessions
     private int port;
     final String NsURL = "messenger.hotmail.com";
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
@@ -36,9 +37,7 @@ public class MSNProtocol extends Protocol
     private SocketConnection sc;
     private DataOutputStream os;
     private Vector contacts_;
-    private Hashtable groups_;
-    //private InputStreamReader isr;
-   // private DataInputStream isr;
+    private Hashtable groupHash_;
     
   final String               DALOGIN                      = "DALogin=";
   final String               DASTATUS                     = "da-status=";
@@ -122,7 +121,7 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("MSNP10");
                 this.tr.addArgument("CVR0");
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 parseReply(this.sh.getReply());    
                 //System.out.println("*************************************");
                 
@@ -131,7 +130,7 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("0x0409 win 5.1 i386 MSNMSGR 7.0.0777 msmsgs");
                 this.tr.addArgument(this.username);
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 parseReply(this.sh.getReply());    
                 //System.out.println("*************************************");       
                 
@@ -140,10 +139,10 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("TWN I");
                 this.tr.addArgument(this.username); 
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());  
+                System.out.println(this.tr.toString());  
                 String USRreply = this.sh.getReply();
                 String challenge = USRreply.substring(12);
-                //System.out.println(USRreply);    
+                System.out.println(USRreply);    
                 //System.out.println("*************************************");               
                 
                 //this is where the password stuff fun starts
@@ -163,14 +162,14 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("TWN S");
                 this.tr.addArgument(ticket);
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 parseReply(this.sh.getReply());    //gets the SBS
                 //System.out.println("*************************************");                
                 this.tr.newTransaction();
                 this.tr.setType("SYN");
                 this.tr.addArgument("2006-04-14T06:03:32.863-07:00 2006-04-15T06:03:33.177-07:00");                  
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());  
+                System.out.println(this.tr.toString());  
                 parseReply(this.sh.getReply());
                 System.out.println("*************************************zzz");                  
                 parseReply(this.sh.getReply());
@@ -181,7 +180,7 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("BSY");
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
 
                 //System.out.println("*************************************aaa");    
                 parseReply(this.sh.getReply());
@@ -315,7 +314,7 @@ public class MSNProtocol extends Protocol
     
     public void parseReply(String reply)
     {
-        //System.out.println(reply);
+        System.out.println(reply);
         if(reply == null)
         {
             return;
@@ -391,10 +390,10 @@ public class MSNProtocol extends Protocol
             ind = contact.toString().indexOf("C=");
             ind = contact.toString().indexOf(' ', ind+1);
             ind = contact.toString().indexOf(' ', ind+1);
-      
             if(ind!=-1)
             {
                 i = ind+1;
+                
                 username = new StringBuffer();
                 // read group id
                 while((c=contact.charAt(i))!= '\r')
@@ -404,7 +403,8 @@ public class MSNProtocol extends Protocol
                     i++;
                 }
                 System.out.println("Group id:"+ username.toString()); 
-                person.setGroupName((String)this.groups_.get(username.toString()));
+                
+                person.setGroupName((String)this.groupHash_.get(new Integer(username.toString().hashCode())));
             }
             this.contacts_.addElement(person);
             //System.out.println("Contact: "+contact.toString());
@@ -439,21 +439,22 @@ public class MSNProtocol extends Protocol
     }
     private void parseGroups(String data)
     {
-        if(this.groups_ == null)
+        if(this.groupHash_ == null)
         {
-            this.groups_ = new Hashtable();
+            this.groupHash_ = new Hashtable();
         }
-
          System.out.println("Parsing groups:" + data);
          int t = data.indexOf("LSG");
          int ind;
          int i;
+         int count=0;
          
          char c;
          StringBuffer group;
          StringBuffer groupID;
-        while(t!=-1)
-        {   
+         while(t!=-1)
+         {   
+             
              // parse email
             group = new StringBuffer();
             i = t+4;
@@ -470,11 +471,13 @@ public class MSNProtocol extends Protocol
                 //System.out.println(c);
                 groupID.append(c);
                 i++;
-            }           
+            }
+            
             System.out.println("Group id:"+groupID.toString());
             System.out.println("Group: "+group.toString());
-            this.groups_.put(groupID.toString(), group.toString());
-            
+            this.groupHash_.put(new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()), group.toString());
+            //this.groupName_.addElement(group.toString());
+            count++;
             t = data.indexOf("LSG", t+3);
         }
     }    
@@ -554,19 +557,24 @@ public class MSNProtocol extends Protocol
        System.out.println("*********************************************************");
        System.out.println("START OF GROUP LISTING");
        System.out.println("*********************************************************");           
-        if(this.groups_ ==null)
+       /*if(this.groupName_ == null)
         {
             System.out.println("No groups available.");
         }
         else
         {
-            /*for(Enumeration en = this.groups_.elements(); en.hasMoreElements() ;en = en.nextElement())
+            for(int i=0; i<this.groupName_.size(); i++)
             {
-                System.out.println("Group " + i +":");
-            }*/
-        }
+                System.out.println("Group " + i +":" + this.groupName_.elementAt(i));
+            }
+        }*/
        System.out.println("*********************************************************");
        System.out.println("END OF GROUP LISTING");
        System.out.println("*********************************************************");           
-   }      
+   } 
+   public Vector getChatSessions() {return chatSessions_;}
+   public ChatSession startChatSession(Contact user)
+   {
+       return null;
+   }
 }
