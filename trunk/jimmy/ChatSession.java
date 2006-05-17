@@ -22,6 +22,7 @@
 
 package jimmy;
 
+import java.util.Vector;
 /**
  * Chat session represents a room (channel) for a chat.
  * Multiple users can join this room (similar to IRC or a conference meeting).
@@ -29,8 +30,10 @@ package jimmy;
  * @author matevz
  */
 public class ChatSession {
-	Protocol protocol_;
-	
+	private Protocol protocol_;
+	private Vector users_;
+        private int id_;
+        
 	public ChatSession(Protocol protocol) {
 		this.protocol_ = protocol;
 	}
@@ -39,7 +42,21 @@ public class ChatSession {
 		protocol_.sendMsg(msg, this);
 	}
 	
+        public void addUser(Contact c)
+        {
+            if(this.users_ == null)
+            {
+                this.users_ = new Vector();
+            }
+            this.users_.addElement(c);
+        }
+        
 	public void sendMsg(String msg, Contact contact) {
 		protocol_.sendMsg(msg, contact, this);
 	}
+        public void setID(int id)
+        {
+            this.id_ = id;
+        }
+        public int getID() {return this.id_;}
 }
