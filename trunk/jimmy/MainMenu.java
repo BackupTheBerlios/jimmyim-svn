@@ -101,7 +101,7 @@ public class MainMenu extends List implements CommandListener {
      * Called when action should be handled
      */
     public void commandAction(Command c, Displayable d) {
-
-
+        if(c==exit)
+            Jimmy.getInstance().exitJimmy();
     }
 }
