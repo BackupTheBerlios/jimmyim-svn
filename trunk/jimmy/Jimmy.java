@@ -59,4 +59,14 @@ public class Jimmy extends MIDlet {
 		// TODO Auto-generated method stub
 
 	}
+    
+        public static Jimmy getInstance(){
+            return jimmy_;
+        }
+    
+        public void exitJimmy(){
+            display_.setCurrent(null);
+            destroyApp(true);
+            notifyDestroyed();
+        }        
 }
