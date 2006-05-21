@@ -24,20 +24,36 @@ package jimmy;
 
 import java.util.Vector;
 
+/**
+ * This class implements the Jabber protocol.
+ * 
+ * @author matevz
+ */
 public class JabberProtocol extends Protocol {
-	ServerHandler sh_;
-	private final String JABBERSERVER="jabber.org";
-	private final int PORT=5222;
+	ServerHandler sh_;	//server handler reference - used for any outgoing/incoming connections
+	private final String DEFAULT_SERVER = "jabber.org";	//default server name - if none set in user account
+	private final int DEFAULT_PORT = 5222;	//default server port - if none set in user account
+	private final String DEFAULT_STREAMS = "http://etherx.jabber.org/streams";	//default Jabber streams address
 	
+	/**
+	 * Constructor method.
+	 */
 	public JabberProtocol() {
 		this.connected_ = false;
 	}
 	
+	/**
+	 * Initializes the connection and logs in using the given account.
+	 */
 	public boolean login(Account account) {
-		String userName = splitString(account.getUser(), '@')[0];
+		//get the first half of the JID (login name)
+		String userName = splitString(account.getUser(), '@')[0]; 
+		//get the second half of the JID (server name)
 		String userServer = splitString(account.getUser(), '@')[1];
-		String server = (account.getServer()!=null) ? account.getServer() : JABBERSERVER; 
-		int port = (account.getPort()!=0) ? account.getPort() : PORT;
+		//get the server name stored in the account - use default server if none set
+		String server = (account.getServer()!=null) ? account.getServer() : DEFAULT_SERVER; 
+		//get the server port stored in the account - use default server port if none set
+		int port = (account.getPort()!=0) ? account.getPort() : DEFAULT_PORT;
 		
 		this.sh_ = new ServerHandler(server, port);
 		this.sh_.connect();
@@ -50,7 +66,7 @@ public class JabberProtocol extends Protocol {
 		//Welcome message
 		oString =
 			"<?xml version='1.0'?>" +
-			"<stream:stream to='" + userServer + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>";
+			"<stream:stream to='" + userServer + "' xmlns='jabber:client' xmlns:stream='" + DEFAULT_STREAMS + "'>";
 		
 		this.sh_.sendRequest(oString);
 		System.out.println("OUT:\n" + oString);
@@ -93,10 +109,16 @@ public class JabberProtocol extends Protocol {
 		return true;
 	}
 	
+	/**
+	 * This method is provided by the convenience. It's the same as the upper one.
+	 */
 	public boolean login(String userID, String password) {
 		return this.login(new Account(userID, password, Protocol.PR_JABBER));
 	}
 
+	/**
+	 * Logs out and closes the connection.
+	 */
 	public void logout() {
 		this.sh_.disconnect();
 		this.connected_ = false;
@@ -128,7 +150,7 @@ public class JabberProtocol extends Protocol {
         String[] result = new String[2];
         int      pos = in.indexOf( ch );
 
-        if( pos != -1 ){
+        if( pos != -1 ) {
             result[0] = in.substring( 0, pos ).trim();
             result[1] = in.substring( pos+1 ).trim();
         } else {
