@@ -33,12 +33,28 @@ import java.util.Vector;
  */
 public abstract class Protocol 
 {
+	//constants for various protocol types used in Account
+	public static final int PR_JABBER=0;
+	public static final int PR_ICQ=1;
+	public static final int PR_MSN=2;
+	public static final int PR_YAHOO=3;
+	
     protected boolean connected_;
     protected Vector chatSessions_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
     
     /**
-     * This abstract method initializes connection and logs in.
+     * Initializes the connection and logs in using the given account.
+     * 
+     * @param account User's account
+     * @return true if connected and logged in successfully, otherwise false
+     */
+    public abstract boolean login(Account account);
+    
+    /**
+     * Initializes the connection and logs in.
+     * It uses the default server name and port for the protocol.
+     * This method is provided for the convenience.
      * 
      * @param username User ID for login
      * @param passwd User password for login

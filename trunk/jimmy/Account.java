@@ -23,15 +23,17 @@
 package jimmy;
 
 /**
+ * This class stores private information about the user login settings.
  *
  * @author slashrsm
  * @author matevz
  */
 public class Account {
-    private String username_;
-    private String password_;
-    private String server_;
-    private int port_;	//server port, 0 to use the default one for the protocol
+    private String username_;	//login username
+    private String password_;	//login password
+    private int protocolType_;	//used protocol - see Protocol.PR_*
+    private String server_;		//login server name (optional)
+    private int port_;	//server port (optional)
     
     /**
      * Creates a new instance of the user account.
@@ -41,9 +43,10 @@ public class Account {
      * @param s Server name which to connect to
      * @param port Server port which to connect to
      */
-    public Account(String u, String p, String s, int port) {
+    public Account(String u, String p, int protocolType, String s, int port) {
         this.username_   = u;
         this.password_   = p;
+        this.protocolType_ = protocolType;
         this.server_     = s;
         this.port_       = port;
     }
@@ -56,15 +59,15 @@ public class Account {
      * @param p Login password
      * @param s Server name which to connect to
      */
-    public Account(String u, String p, String s) {
-    	this(u,p,s,0);
+    public Account(String u, String p, int protocolType) {
+    	this(u, p, protocolType, null, 0);
     }
     
     public void setUser(String u){
         this.username_ = u;
     }
     
-    public void setPass(String p){
+    public void setPassword(String p){
         this.password_ = p;
     }
     
@@ -80,7 +83,7 @@ public class Account {
         return this.username_;
     }
     
-    public String getPass(){
+    public String getPassword(){
        return this.password_;
     }
     

@@ -22,19 +22,24 @@
 
 package jimmy;
 
+import java.util.Vector;
+
 public class JabberProtocol extends Protocol {
 	ServerHandler sh_;
+	private final String JABBERSERVER="jabber.org";
+	private final int PORT=5222;
 	
 	public JabberProtocol() {
 		this.connected_ = false;
 	}
 	
-	public boolean login(String userID, String password) {
-		String userName = splitString(userID, '@')[0];
-		String userServer = splitString(userID, '@')[1];
+	public boolean login(Account account) {
+		String userName = splitString(account.getUser(), '@')[0];
+		String userServer = splitString(account.getUser(), '@')[1];
+		String server = (account.getServer()!=null) ? account.getServer() : JABBERSERVER; 
+		int port = (account.getPort()!=0) ? account.getPort() : PORT;
 		
-		this.sh_ = new ServerHandler("gristle.org", 5222);
-		this.sh_.setTimeout(20000);
+		this.sh_ = new ServerHandler(server, port);
 		this.sh_.connect();
 		if (sh_.isConnected() == false)
 			return false;
@@ -45,7 +50,7 @@ public class JabberProtocol extends Protocol {
 		//Welcome message
 		oString =
 			"<?xml version='1.0'?>" +
-			"<stream:stream to='" + userServer + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+			"<stream:stream to='" + userServer + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>";
 		
 		this.sh_.sendRequest(oString);
 		System.out.println("OUT:\n" + oString);
@@ -55,7 +60,7 @@ public class JabberProtocol extends Protocol {
 		oString = "<iq type='set'>" +
 			"<query xmlns='jabber:iq:auth'>" +
 			"<username>" + userName + "</username>" +
-			"<password>" + password + "</password>" +
+			"<password>" + account.getPassword() + "</password>" +
 			"<resource>globe</resource>" +
 			"</query>" +
 			"</iq>";
@@ -65,23 +70,36 @@ public class JabberProtocol extends Protocol {
 		System.out.println("IN:\n" + sh_.getReply());
 		
 		//Dobi seznam kontaktov
-		oString = "<presence></presence>";
+		oString = "<iq type='get'><query xmlns='jabber:iq:roster'/></iq>";
 		this.sh_.sendRequest(oString);
 		System.out.println("OUT:\n" + oString);
 		System.out.println("IN:\n" + sh_.getReply());
 
-		//Poslji sporocilo
-		oString = "<message from='jimmy@gristle.org' to='thepianoguy@jabber.org' type='chat'> <body>I wish to complain about this parrot what I purchased not half an hour ago from this very boutique.</body> </message> "; //izpise seznam kontaktov
+		//Nastavi se "online"
+		oString = "<presence type=\"available\"/>";// type=\"online\"/>";
 		this.sh_.sendRequest(oString);
 		System.out.println("OUT:\n" + oString);
-		System.out.println("IN:\n" + sh_.getReply());
 		
+		//Poslji sporocilo
+		//oString = "<message from='jimmy@gristle.org' to='thepianoguy@jabber.org' type='chat'> <body>I wish to complain about <b>this</b> parrot what I purchased not half an hour ago from this very boutique.</body> </message> ";
+		//this.sh_.sendRequest(oString);
+		//System.out.println("OUT:\n" + oString);
+//		System.out.println("IN:\n" + sh_.getReply());
+		
+		int i=3;
+		while (i!=6)
+			System.out.println("IN:\n" + sh_.getReply());
+			
 		return true;
+	}
+	
+	public boolean login(String userID, String password) {
+		return this.login(new Account(userID, password, Protocol.PR_JABBER));
 	}
 
 	public void logout() {
-		// TODO Auto-generated method stub
-
+		this.sh_.disconnect();
+		this.connected_ = false;
 	}
 
 	public ChatSession startChatSession(Contact user) {
@@ -94,7 +112,7 @@ public class JabberProtocol extends Protocol {
 
 	}
 
-	public void sendMsg(String msg, Contact user, ChatSession session) {
+	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
 		// TODO Auto-generated method stub
 
 	}
