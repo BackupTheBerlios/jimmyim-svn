@@ -33,13 +33,13 @@ public class Contact {
 	private String screenName_; //user's nick/screen name
 	private String groupName_; //group which this contact is part of
 	
-	/**
-	 * int status_: 0 - offline
-	 *              1 - online
-	 *              2 - away
-	 *              3 - busy
-	 */
-	private int status_; //user status
+	//contact possible status follow
+	public static final byte ST_OFFLINE = 0;
+	public static final byte ST_ONLINE = 1;
+	public static final byte ST_AWAY = 2;
+	public static final byte ST_BUSY = 3;
+	
+	private int status_; //see ST_*
 
 	/**
 	 * Create a new contact.

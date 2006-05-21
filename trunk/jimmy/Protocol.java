@@ -34,10 +34,10 @@ import java.util.Vector;
 public abstract class Protocol 
 {
 	//constants for various protocol types used in Account
-	public static final int PR_JABBER=0;
-	public static final int PR_ICQ=1;
-	public static final int PR_MSN=2;
-	public static final int PR_YAHOO=3;
+	public static final byte PR_JABBER=0;
+	public static final byte PR_ICQ=1;
+	public static final byte PR_MSN=2;
+	public static final byte PR_YAHOO=3;
 	
     protected boolean connected_;
     protected Vector chatSessions_;	//list of active chat sessions
