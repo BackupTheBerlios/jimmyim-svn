@@ -52,6 +52,7 @@ public class ServerHandler
     private DataInputStream is_;	//input stream linked with sc_
     private final int SLEEPTIME_ = 50;	//sleep time per iteration in miliseconds
     private int timeout_ = 5000;	//timeout of getting the reply
+    private boolean connected_ = false;	//connection status
 	
     /**
      * The constructor method.
@@ -63,6 +64,7 @@ public class ServerHandler
     {
         url_ = url;
         outPort_ = port;        
+        connected_ = false;
     }
 	
     /**
@@ -92,15 +94,17 @@ public class ServerHandler
     {
         try
         {
-            sc_ = (SocketConnection)Connector.open( "socket://" + url_ +
+            this.sc_ = (SocketConnection)Connector.open( "socket://" + url_ +
             		((outPort_ == 0) ? "" : (":" + String.valueOf(outPort_))) );
-            inPort_ = sc_.getLocalPort();
-            os_ = sc_.openDataOutputStream();
-            is_ = sc_.openDataInputStream();
-        }
+            this.inPort_ = this.sc_.getLocalPort();
+            this.os_ = this.sc_.openDataOutputStream();
+            this.is_ = this.sc_.openDataInputStream();
+            this.connected_ = true;
+       }
         catch (IOException e)
         {
             e.printStackTrace();
+            connected_ = false;
         }
     }
     
@@ -115,6 +119,7 @@ public class ServerHandler
             os_.flush();	//flush the output stream before closing it!
             os_.close();
             sc_.close();
+            connected_ = false;
         } catch (IOException ex) 
         {
             ex.printStackTrace();
@@ -194,5 +199,10 @@ public class ServerHandler
      * @return Outgoing port
      */
     public int getOutputPort() {return outPort_;}
+    
+    /**
+     * Returns true if the connection is established, false otherwise.
+     */
+    public boolean isConnected() {return connected_;}
 }
 

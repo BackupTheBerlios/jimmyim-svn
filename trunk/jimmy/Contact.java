@@ -28,6 +28,19 @@ package jimmy;
  * @author Matevz Jekovec
  */
 public class Contact {
+	private Protocol protocol_; //reference to the protocol object of this contact
+	private String userID_; //user ID
+	private String screenName_; //user's nick/screen name
+	private String groupName_; //group which this contact is part of
+	
+	/**
+	 * int status_: 0 - offline
+	 *              1 - online
+	 *              2 - away
+	 *              3 - busy
+	 */
+	private int status_; //user status
+
 	/**
 	 * Create a new contact.
 	 * 
@@ -86,19 +99,5 @@ public class Contact {
 	public String screenName() {return screenName_;}
 	public String groupName() {return groupName_;}
 	public int status() {return status_;}
-	public Protocol protocol() {return protocol_;}
-	
-	private String userID_; //user ID
-	private String screenName_; //user's nick/screen name
-	private String groupName_; //group which this contact is part of
-	
-	/**
-	 * int status_: 0 - offline
-	 *              1 - online
-	 *              2 - away
-	 *              3 - busy
-	 */
-	private int status_; //user status
-	
-	private Protocol protocol_; //reference to the protocol object of this contact
+	public Protocol protocol() {return protocol_;}	
 }

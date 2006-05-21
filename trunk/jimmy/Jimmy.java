@@ -25,6 +25,8 @@ package jimmy;
 import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
+
+import java.io.IOException;
 import java.util.Vector;
 
 public class Jimmy extends MIDlet {
@@ -44,10 +46,10 @@ public class Jimmy extends MIDlet {
 		ui_ = new JimmyUI();
 		
 		protocolList_.addElement(new MSNProtocol());
+		protocolList_.addElement(new JabberProtocol());
 		
 		((Protocol)protocolList_.elementAt(0)).login("avgustin.ocepek@yahoo.com.au","0c3p3k");
-		if (((Protocol)protocolList_.elementAt(0)).isConnected() == true)
-			System.out.println("Connected!");
+		((Protocol)protocolList_.elementAt(1)).login("jimmy@gristle.org","jimmy");
 	}
 
 	protected void pauseApp() {
@@ -66,7 +68,13 @@ public class Jimmy extends MIDlet {
     
         public void exitJimmy(){
             display_.setCurrent(null);
-            destroyApp(true);
+            
+           	try {
+				destroyApp(true);
+			} catch (MIDletStateChangeException e) {
+				e.printStackTrace();
+			}
+			
             notifyDestroyed();
         }        
 }

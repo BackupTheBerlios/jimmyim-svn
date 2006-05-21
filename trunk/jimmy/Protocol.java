@@ -89,11 +89,11 @@ public abstract class Protocol
     public abstract void sendMsg(String msg, ChatSession session);
     
     /**
-     * This method is implemented by convenience.
+     * Send a message to a list of contacts.
      * 
      * @param msg Message in String
-     * @param user Specific user this message should be sent to
+     * @param contactsList A list of desired contacts the message should be sent to
      * @param session Active Chat Session to send the message to
      */
-    public abstract void sendMsg(String msg, Contact user, ChatSession session);
+    public abstract void sendMsg(String msg, Vector contactsList, ChatSession session);
 }
