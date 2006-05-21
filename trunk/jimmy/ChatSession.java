@@ -23,40 +23,64 @@
 package jimmy;
 
 import java.util.Vector;
+
 /**
  * Chat session represents a room (channel) for a chat.
- * Multiple users can join this room (similar to IRC or a conference meeting).
+ * Multiple users can join the room (similar to IRC or a conference meeting).
  * 
- * @author matevz
+ * @author Matevz Jekovec
  */
 public class ChatSession {
-	private Protocol protocol_;
-	private Vector users_;
-        private int id_;
-        
+	private Protocol protocol_;	//reference to the associated protocol
+	private Vector contacts_;	//list of the users present in the chat room
+	
+	/**
+	 * Create a new ChatSession.
+	 * 
+	 * @param protocol Reference to the associated protocol
+	 */
 	public ChatSession(Protocol protocol) {
+		this.contacts_ = new Vector();
 		this.protocol_ = protocol;
 	}
 	
-	public void sendMsg(String msg) {
-		protocol_.sendMsg(msg, this);
-	}
-	
-        public void addUser(Contact c)
-        {
-            if(this.users_ == null)
-            {
-                this.users_ = new Vector();
-            }
-            this.users_.addElement(c);
-        }
-        
-	public void sendMsg(String msg, Contact contact) {
-		protocol_.sendMsg(msg, contact, this);
-	}
-        public void setID(int id)
-        {
-            this.id_ = id;
-        }
-        public int getID() {return this.id_;}
+	/**
+	 * Add a user to the list of present users.
+	 * 
+	 * @param c
+	 */
+    public void addContact(Contact c) {
+    	this.contacts_.addElement(c);
+    }
+    
+    /**
+     * Removes a user from the chat session.
+     * 
+     * @param c User's contact
+     * @return true if removal was successful, false if contact wasn't found
+     */
+    public boolean removeContact(Contact c) {
+    	return this.contacts_.removeElement(c);
+    }
+    
+    /**
+     * Return the number of present users in the chat session.
+     * 
+     * @return A number of present users in integer
+     */
+    public int countContacts() {return this.contacts_.size();}
+
+    /**
+     * Return the present users list.
+     * 
+     * @return Users list stored in a vector
+     */
+    public Vector getContactsList() {return this.contacts_;}
+    
+    /**
+     * Returns a reference to the associated protocol object.
+     * 
+     * @return A reference to the associated protocol
+     */
+    public Protocol getProtocol() {return this.protocol_;}
 }
