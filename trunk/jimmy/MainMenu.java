@@ -3,6 +3,7 @@
  *
  * Created on May 20, 2006, 11:33 AM
  */
+package jimmy;
 
 import javax.microedition.lcdui.*;
 

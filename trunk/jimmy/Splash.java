@@ -6,14 +6,22 @@
  */
 package jimmy;
 
-import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.*;
 
 public class Splash extends Canvas {
-
-	protected void paint(Graphics arg0) {
-		// TODO Auto-generated method stub
-
+        private Image splash_;
+    
+        public Splash(){
+            try{
+                splash_ = Image.createImage("/home/slashrsm/JimmyIM/src/splash.png");
+            } catch(Exception e){
+                System.out.println(e.getMessage());
+            };
+        
+        }
+    
+	protected void paint(Graphics g) {
+            g.drawImage(splash_,10,10,Graphics.TOP);
 	}
 
 }
