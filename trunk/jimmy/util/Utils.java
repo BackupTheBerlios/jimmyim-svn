@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jimmy;
+package jimmy.util;
 
 /**
  * @author Dejan Sakel?ak

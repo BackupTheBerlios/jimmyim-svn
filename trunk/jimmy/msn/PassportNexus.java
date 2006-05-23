@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package jimmy;
+package jimmy.msn;
 import java.io.*;
 import javax.microedition.io.*;
 

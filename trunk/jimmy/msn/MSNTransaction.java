@@ -20,7 +20,7 @@
  Author(s): Zoran Mesec, Matevz Jekovec
  */
 
-package jimmy;
+package jimmy.msn;
 
 import java.util.Vector;
 

@@ -3,7 +3,7 @@
  */
 package jimmy.icq;
 
-import jimmy.Utils;
+import jimmy.util.Utils;
 
 
 /**

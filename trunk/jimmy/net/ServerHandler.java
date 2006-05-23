@@ -20,7 +20,7 @@
  Author(s): Zoran Mesec, Matevz Jekovec
  */
 
-package jimmy;
+package jimmy.net;
 
 import java.io.*;
 import java.lang.Thread;

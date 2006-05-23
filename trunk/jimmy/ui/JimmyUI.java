@@ -20,10 +20,13 @@
  Author(s): Matevz Jekovec
 */
 
-package jimmy;
+package jimmy.ui;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
+
+import jimmy.Account;
+import jimmy.Jimmy;
 
 
 public class JimmyUI {

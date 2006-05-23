@@ -3,10 +3,12 @@
  *
  * Created on May 20, 2006, 11:33 AM
  */
-package jimmy;
+package jimmy.ui;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
+
+import jimmy.Account;
 
 /**
  *

@@ -7,12 +7,18 @@
  * and open the template in the editor.
  */
 
-package jimmy;
+package jimmy.msn;
 
 import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.*;
+
+import jimmy.ChatSession;
+import jimmy.Contact;
+import jimmy.Protocol;
+import jimmy.net.ServerHandler;
+import jimmy.util.MD5;
 
 /**
  * This class is used to connect with a remote server using SocketConnection class.

@@ -20,9 +20,15 @@
  Author(s): Matevz Jekovec
  */
 
-package jimmy;
+package jimmy.jabber;
 
 import java.util.Vector;
+
+import jimmy.Account;
+import jimmy.ChatSession;
+import jimmy.Contact;
+import jimmy.Protocol;
+import jimmy.net.ServerHandler;
 
 /**
  * This class implements the Jabber protocol.

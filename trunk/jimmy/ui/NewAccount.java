@@ -4,10 +4,11 @@
  * Created on May 21, 2006, 5:32 PM
  */
 
-package jimmy;
+package jimmy.ui;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
+
 
 /**
  *

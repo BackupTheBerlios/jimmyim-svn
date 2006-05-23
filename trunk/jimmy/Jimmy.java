@@ -29,6 +29,12 @@ import javax.microedition.midlet.MIDletStateChangeException;
 import java.io.IOException;
 import java.util.Vector;
 
+import jimmy.jabber.JabberProtocol;
+import jimmy.msn.MSNProtocol;
+import jimmy.ui.JimmyUI;
+import jimmy.ui.MainMenu;
+import jimmy.ui.Splash;
+
 public class Jimmy extends MIDlet {
 	public static Jimmy jimmy_; //Application main object
 	final public static String VERSION	=	"pre-alpha"; //JIMMY version
