@@ -11,6 +11,13 @@ package jimmy.icq;
  */
 public class ICQSnac extends ICQPackage{
 
+	private static final int HEADER_SIZE = 10;
+	private byte[] pkg;
+	
+	public ICQSnac(byte[] snac){
+		this.pkg = snac;
+	}
+	
 	public byte[] getHeader() {
 		// TODO Auto-generated method stub
 		return null;
