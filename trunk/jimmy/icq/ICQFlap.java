@@ -1,7 +1,9 @@
 /**
  * 
  */
-package jimmy;
+package jimmy.icq;
+
+import jimmy.Utils;
 
 
 /**

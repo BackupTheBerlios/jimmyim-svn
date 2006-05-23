@@ -1,7 +1,8 @@
 /**
  * 
  */
-package jimmy;
+package jimmy.icq;
+
 
 
 /**

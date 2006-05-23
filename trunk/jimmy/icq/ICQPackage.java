@@ -23,7 +23,7 @@
 /**
  * 
  */
-package jimmy;
+package jimmy.icq;
 
 /**
  * Class ICQPackege represents the skeleton of the three possible types of

@@ -1,10 +1,15 @@
 /**
  * 
  */
-package jimmy;
+package jimmy.icq;
 
 import java.util.Vector;
 import java.io.*;
+
+import jimmy.Account;
+import jimmy.ChatSession;
+import jimmy.Contact;
+import jimmy.Protocol;
 
 
 /**
