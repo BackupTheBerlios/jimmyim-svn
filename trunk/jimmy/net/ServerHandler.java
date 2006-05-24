@@ -147,6 +147,23 @@ public class ServerHandler
     }
 	
     /**
+     * Send a message to the remote server using the OutputStream.
+     * 
+     * @param message Message to be sent using the OutputStream to the remote server using SocketConnection.
+     */
+    public void sendRequest(byte[] message){
+    	try 
+        {            
+            os_.write(message);
+            os_.flush();
+         
+        } catch (IOException ex) 
+        {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
      * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
      * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)! 
      *  

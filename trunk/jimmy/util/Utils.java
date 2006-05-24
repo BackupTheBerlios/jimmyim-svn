@@ -28,6 +28,16 @@ public class Utils {
 		}
 		return by;
 	}
+	/**
+	 * Returns a int converted to a byte array.
+	 * 
+	 * @param l an integer number
+	 * @param bigendian true if big-endian output
+	 * @return endian byte array
+	 */
+	public static byte[] intToBytes(int l, boolean bigendian){
+		return null;
+	}
 	
 	/**
 	 * Returns a short converted from a byte array.
@@ -46,7 +56,7 @@ public class Utils {
 	}
 		
 	/**
-	 * Returns a int converted from a byte array.
+	 * Returns an int converted from a byte array.
 	 * We have to get an int because in java we can only so represent
 	 * an unsigned short.
 	 * 
@@ -138,5 +148,19 @@ public class Utils {
             koef=koef*16;
         }
         return sum;
-    }        
+    }       
+    
+    /**
+     * It's just a hack to facilitate the short to byte array conversion
+     * 
+     * @param s a value in the unsigned short range 0 to 65535
+     * @return unsigned short
+     */
+    public static short unsignShort(int s){
+    		short b = (short)s;
+    	   	s=(int)b;
+    		s=s+32768;
+    		b=(short)(0-s);
+    		return b;
+    }
 }
