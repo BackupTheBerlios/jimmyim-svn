@@ -19,7 +19,7 @@ public class ICQSnac extends ICQPackage{
 	}
 	
 	public ICQSnac(byte[] s){
-		
+	
 		this.content = new byte[s.length-HEADER_SIZE];
 		this.header = new byte[HEADER_SIZE];
 		
