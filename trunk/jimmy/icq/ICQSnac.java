@@ -11,9 +11,24 @@ package jimmy.icq;
  */
 public class ICQSnac extends ICQPackage{
 	
+	public static final short HEADER_SIZE = 10;
+	
 	public ICQSnac(byte[] h,byte[] snac){
 		this.content = snac;
 		this.header = h;
+	}
+	
+	public ICQSnac(byte[] s){
+		
+		this.content = new byte[s.length-HEADER_SIZE];
+		this.header = new byte[HEADER_SIZE];
+		
+		for(int i=0; i<s.length; i++){
+			if(i<HEADER_SIZE)
+				this.header[i]=s[i];
+			else
+				this.content[i-HEADER_SIZE]=this.content[i];
+		}
 	}
 	
 	public byte[] getHeader() {
