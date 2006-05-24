@@ -10,42 +10,43 @@ package jimmy.icq;
  *
  */
 public class ICQSnac extends ICQPackage{
-
-	private static final int HEADER_SIZE = 10;
-	private byte[] pkg;
 	
-	public ICQSnac(byte[] snac){
-		this.pkg = snac;
+	public ICQSnac(byte[] h,byte[] snac){
+		this.content = snac;
+		this.header = h;
 	}
 	
 	public byte[] getHeader() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return this.header;
 	}
 
 	public void setHeader(byte[] head) {
-		// TODO Auto-generated method stub
-		
+		this.header = head;
 	}
 
 	public byte[] getBPackage() {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] pkg = new byte[this.header.length + this.content.length];
+		
+		for(int i=0; i<this.header.length; i++)
+			pkg[i]=this.header[i];
+		
+		for(int i=0; i<this.content.length; i++)
+			pkg[this.header.length + i]=this.content[i];
+		
+		return pkg;
 	}
 
 	public String getSPackage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new String(this.header)+new String(this.content);
 	}
 
 	public void setContent(byte[] cont) {
-		// TODO Auto-generated method stub
-		
+		this.content = cont;
 	}
 
 	public void setContent(String cont) {
-		// TODO Auto-generated method stub
-		
+		this.content = cont.getBytes();
 	}
 
 }
