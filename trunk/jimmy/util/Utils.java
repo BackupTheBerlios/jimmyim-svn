@@ -103,7 +103,21 @@ public class Utils {
 			i = (int)(0xff & b[0]);
 		else if (b.length == 2){
 			if(bigendian){
-				//TODO has to be completed... tomorrow
+				i = (int) (((b[0] & 0xff) << 8) | (0xff & b[1]));
+			}else{
+				i = (int) (((b[1] & 0xff) << 8) | (0xff & b[1]));
+			}
+		}else if (b.length == 3){
+			if(bigendian){
+				i = (int) (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
+			}else{
+				i = (int) (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else{
+			if(bigendian){
+				i = (int) (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
+			}else{
+				i = (int) (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}
 		return i;
