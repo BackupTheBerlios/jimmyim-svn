@@ -29,14 +29,26 @@ public class Utils {
 		return by;
 	}
 	/**
-	 * Returns a int converted to a byte array.
+	 * Returns an int converted to a byte array.
 	 * 
 	 * @param l an integer number
 	 * @param bigendian true if big-endian output
 	 * @return endian byte array
 	 */
 	public static byte[] intToBytes(int l, boolean bigendian){
-		return null;
+		byte[] b = new byte[4];
+		if(bigendian){
+			b[0] = (byte)(l >> 24);
+			b[1] = (byte)(l >> 16);
+			b[2] = (byte)(l >> 8);
+			b[3] = (byte)(l & 0xff);
+		}else{
+			b[0] = (byte)(l & 0xff);
+			b[1] = (byte)(l >> 8);
+			b[2] = (byte)(l >> 16);
+			b[3] = (byte)(l >> 24);
+		}
+		return b;
 	}
 	
 	/**
@@ -56,7 +68,7 @@ public class Utils {
 	}
 		
 	/**
-	 * Returns an int converted from a byte array.
+	 * Returns an int converted to from a byte array.
 	 * We have to get an int because in java we can only so represent
 	 * an unsigned short.
 	 * 
@@ -73,6 +85,27 @@ public class Utils {
         } else {
             i = (int) (((by[1] & 0xff) << 8) | (0xff & by[0]));
         }
+		return i;
+	}
+	
+	/**
+	 * Returns an int converted to from a byte array.
+	 * We have to get an int because in java we can only so represent
+	 * an unsigned short.
+	 * 
+	 * @param by a byte array
+	 * @param bigendian true if big-endian output
+	 * @return 
+	 */
+	public static int bytesToInt(byte[] b, boolean bigendian){
+		int i = 0;
+		if (b.length == 1)
+			i = (int)(0xff & b[0]);
+		else if (b.length == 2){
+			if(bigendian){
+				//TODO has to be completed... tomorrow
+			}
+		}
 		return i;
 	}
 	/**
