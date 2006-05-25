@@ -53,9 +53,10 @@ public class Utils {
 	
 	/**
 	 * Returns a short converted from a byte array.
+	 * 
 	 * @param by a byte array
 	 * @param bigendian true if big-endian output
-	 * @return 
+	 * @return short built from bytes
 	 */
 	public static short bytesToShort(byte[] by, boolean bigendian){
 		short s = 0;
