@@ -36,10 +36,19 @@ public class ICQTlv {
 	private byte[] header = null;
 	private byte[] content = null;
 	
+	/**
+	 * Creates a new instance of ICQTlv
+	 *
+	 */
 	public ICQTlv(){
 		
 	}
 	
+	/**
+	 * Creates a new instance of ICQTlv using the supplied package in byte[]
+	 * 
+	 * @param p package in byte array
+	 */
 	public ICQTlv(byte[] p){
 		for(int i = 0; i < p.length; i++){
 			if (i < 4){
@@ -50,6 +59,12 @@ public class ICQTlv {
 		}
 	}
 	
+	/**
+	 * Sets the header of the TLV instance package
+	 * 
+	 * @param type The TLV service type
+	 * @param len The data length in bytes
+	 */
 	public void setHeader(short type, short len){
 		byte[] b;
 		b = Utils.shortToBytes(type,true);
@@ -60,29 +75,65 @@ public class ICQTlv {
 		this.header[3] = b[1];
 	}
 	
+	/**
+	 * Sets the header using the supplied byte[]
+	 * 
+	 * @param h The header in byte array
+	 */
 	public void setHeader(byte[] h){
 		this.header = h;
 	}
 	
+	/**
+	 * Sets the content of the TLV supplied with content in String
+	 * 
+	 * @param s String content
+	 */
 	public void setContent(String s){
 		this.content = s.getBytes();
 	}
 	
+	/**
+	 * Setst the content of the TLV supplied with content in byte[]
+	 * 
+	 * @param c Content byte array
+	 */
 	public void setContent(byte[] c){
 		this.content = c;
 	}
 	
+	/**
+	 * Returns the length of the entire TLV
+	 * 
+	 * @return TLV length
+	 */
 	public int getLen(){
 		return this.header.length+this.content.length;
 	}
 	
+	/**
+	 * Returns the size of the content of the TLV
+	 * 
+	 * @return TLV content length
+	 */
 	public int getCLen(){
 		return this.content.length;
 	}
 	
+	/**
+	 * Returns the TLV type
+	 * 
+	 * @return int defining the TLV type
+	 */
+	public int getType(){
+		byte[] b = new byte[2];
+		b[0] = this.header[0];
+		b[1] = this.header[1];
+		return (int)Utils.bytesToShort(b,true);
+	}
 	public byte[] getHeader(short i){
 		
-		return null;
+		return this;
 	}
 	
 	public byte[] getContent(int i){
