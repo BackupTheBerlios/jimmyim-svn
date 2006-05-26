@@ -35,10 +35,8 @@ public class ICQPackage {
 	public static final byte FLAP_id = 0x2A;
 	public static final short FLAP_HEADER_SIZE = 6;
 	public static final short SNAC_HEADER_SIZE = 10;
-	public static final short TLV_HEADER_SIZE = 4;
 	public static final short HEADER_SIZE = 20;
 	public static final short NO_SNAC_FLAP_INDEX = 10; //[0 SNACK+FLAP+TLV) = 20 -> 10 
-	public static final short TLV_INDEX = 16;
 	public static final short SNAC_INDEX = 6;
 	
 	private byte ch;			//The FLAP channel
