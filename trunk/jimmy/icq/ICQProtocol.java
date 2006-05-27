@@ -138,7 +138,9 @@ public class ICQProtocol extends Protocol{
 		System.out.println("Bla1");
 		System.out.println(this.conn.getReply());
 		System.out.println("Bla2");
-		this.conn.sendRequest(l.getPackage());
+		byte[] b = l.getPackage();
+		//System.out.println(new String(b));
+		this.conn.sendRequest(b);
 		System.out.println("Bla3");
 		System.out.println(this.conn.getReply());
 		System.out.println("Bla4");
