@@ -26,8 +26,13 @@
 package jimmy.icq;
 
 import jimmy.util.*;
+import java.util.Vector;
 /**
  * @author Dejan Sakelsak
+ *
+ */
+/**
+ * @author dejan
  *
  */
 public class ICQPackage {
@@ -35,14 +40,12 @@ public class ICQPackage {
 	public static final byte FLAP_id = 0x2A;
 	public static final short FLAP_HEADER_SIZE = 6;
 	public static final short SNAC_HEADER_SIZE = 10;
-	public static final short HEADER_SIZE = 20;
-	public static final short NO_SNAC_FLAP_INDEX = 10; //[0 SNACK+FLAP+TLV) = 20 -> 10 
-	public static final short SNAC_INDEX = 6;
+	public static final short SNACK_PKG_HEADER_SIZE = 16;
 	
 	private byte ch;			//The FLAP channel
-	private int tlv_size = 0;
 	private int flap_size = 0;
 	private byte[] pkg = null;			//The package in byte array
+	private Vector tlvs = null;
 	
 	
 	/**
@@ -50,7 +53,7 @@ public class ICQPackage {
 	 *
 	 */
 	public ICQPackage(){
-		
+		//TODO alter it
 	}
 	
 	/**
@@ -60,7 +63,10 @@ public class ICQPackage {
 	 */
 	public ICQPackage(int data_size){
 		if(this.pkg == null)
-			this.pkg = new byte[data_size+ICQPackage.HEADER_SIZE];
+			if(this.ch == 0x02)
+				this.pkg = new byte[data_size+ICQPackage.SNACK_PKG_HEADER_SIZE];
+			else
+				this.pkg = new byte[data_size+ICQPackage.FLAP_HEADER_SIZE];
 	}
 	
 	/**
@@ -84,16 +90,27 @@ public class ICQPackage {
 	 */
 	public void setContent(byte[] content){
 		
-		this.tlv_size = content.length;
-		
 		if(this.pkg == null){
-			this.pkg = new byte[content.length + ICQPackage.HEADER_SIZE];
+			if(this.ch == 0x02){
+			this.pkg = new byte[content.length + ICQPackage.SNACK_PKG_HEADER_SIZE];
 			for(int i = 0; i<content.length; i++){
-				this.pkg[ICQPackage.HEADER_SIZE+i] = content[i];
+				this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE+i] = content[i];
+			}
+			}else{
+				this.pkg = new byte[content.length + ICQPackage.SNACK_PKG_HEADER_SIZE];
+				for(int i = 0; i<content.length; i++){
+					this.pkg[ICQPackage.FLAP_HEADER_SIZE+i] = content[i];
+				}
 			}
 		}else{
+			if(this.ch == 0x02){
 			for(int i = 0; i<content.length; i++){
-				this.pkg[ICQPackage.HEADER_SIZE+i] = content[i];
+				this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE+i] = content[i];
+			}
+			}else{
+				for(int i = 0; i<content.length; i++){
+					this.pkg[ICQPackage.FLAP_HEADER_SIZE+i] = content[i];
+				}
 			}
 		}
 	}
@@ -104,8 +121,25 @@ public class ICQPackage {
 	 * @return the package in byte array
 	 */
 	public byte[] getPackage(){
+		Vector v = new Vector();
+		for(int i = 0; i < this.pkg.length; i++){
+			v.addElement(new Byte(this.pkg[i]));
+		}
+		if (this.tlvs.size() != 0) {
+			for (int i = 0; i < this.tlvs.size(); i++) {
+				byte[] b = ((ICQTlv) this.tlvs.elementAt(i)).getBytes();
+				for (int j = 0; j < b.length; j++) {
+					v.addElement(new Byte(b[j]));
+				}
+			}
+		}
 		
-		return this.pkg;
+		byte[] b = new byte[v.size()];
+		for(int i = 0; i < v.size(); i++){
+			b[i] = ((Byte)v.firstElement()).byteValue();
+			v.removeElementAt(0);
+		}
+		return b;
 	}
 	
 	/**
@@ -114,8 +148,9 @@ public class ICQPackage {
 	 * @param seq The sequence number (0x0000 - 0x8000, normally in increases from package to package)
 	 */
 	public void setFlap(short seq){
+		
 		byte[] a;
-		if(this.ch == 2){
+		if(this.ch == 0x02){
 			this.pkg[0] = ICQPackage.FLAP_id;
 			this.pkg[1] = this.ch;
 			 a = Utils.shortToBytes(seq,true);
@@ -125,14 +160,14 @@ public class ICQPackage {
 			this.pkg[4] = a[0];
 			this.pkg[5] = a[1];
 		}else{
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX] = ICQPackage.FLAP_id;
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX+1] = this.ch;
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE] = ICQPackage.FLAP_id;
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE+1] = this.ch;
 			 a = Utils.shortToBytes(seq,true);
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX+2] = a[0];
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX+3] = a[1];
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE+2] = a[0];
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE+3] = a[1];
 			a = Utils.shortToBytes(Utils.unsignShort(this.flap_size = this.pkg.length-ICQPackage.FLAP_HEADER_SIZE-ICQPackage.SNAC_HEADER_SIZE), true);
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX+4] = a[0];
-			this.pkg[ICQPackage.NO_SNAC_FLAP_INDEX+5] = a[1];
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE+4] = a[0];
+			this.pkg[ICQPackage.SNAC_HEADER_SIZE+5] = a[1];
 		}
 		
 	}
@@ -146,6 +181,7 @@ public class ICQPackage {
 	 * @param reqid Snac reqid -> you should save some information on sent SNACs for some time, you need back information when you recieve a package.
 	 */
 	public void setSnac(int family, int subtype, int flags, int reqid){
+		this.ch = 0x02;
 		byte[] a = Utils.shortToBytes(Utils.unsignShort(family),true);
 		this.pkg[6] = a[0];
 		this.pkg[7] = a[1];
@@ -161,17 +197,14 @@ public class ICQPackage {
 	}
 	
 	/**
-	 * Sets the TLV package header.
+	 * Adds a TLV to the tlv list in the package
 	 * 
-	 * @param type The data type stored in the content of the package.
+	 * @param t the TLV
 	 */
-	public void setTlv(int type){
-		byte[] b = Utils.shortToBytes(Utils.unsignShort(type), true);
-		this.pkg[16] = b[0];
-		this.pkg[17] = b[1];	
-		b = Utils.shortToBytes(Utils.unsignShort(this.tlv_size),true);
-		this.pkg[18] = b[0];
-		this.pkg[19] = b[1];
+	public void addTlv(ICQTlv t){
+		if(this.tlvs == null)
+			this.tlvs = new Vector();
+		this.tlvs.addElement(t);
 	}
 	
 	/**
@@ -202,5 +235,23 @@ public class ICQPackage {
 	 */
 	public int getFlapSize(){
 		return this.flap_size;
+	}
+	
+	public void setFlapSize(int s){
+		this.flap_size = s;
+	}
+	
+	public int getTlvSize(){
+		int l = 0;
+		for(int i = 0; i < this.tlvs.size(); i++){
+			l = l + ((ICQTlv)this.tlvs.elementAt(i)).getLen();
+		}
+		return l;
+	}
+	
+	public int getSize(){
+		int l = 0;
+		l = this.getTlvSize() + this.pkg.length;
+		return l;
 	}
 }

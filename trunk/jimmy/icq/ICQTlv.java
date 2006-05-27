@@ -33,7 +33,7 @@ import jimmy.util.*;
  */
 public class ICQTlv {
 
-	private byte[] header = null;
+	private byte[] header = new byte[4];
 	private byte[] content = null;
 	
 	/**
@@ -131,12 +131,39 @@ public class ICQTlv {
 		b[1] = this.header[1];
 		return (int)Utils.bytesToShort(b,true);
 	}
-	public byte[] getHeader(short i){
+	
+	/**
+	 * Returns the header of the TLV package
+	 * 
+	 * @return header in byte[]
+	 */
+	public byte[] getHeader(){
 		
-		return this;
+		return this.header;
 	}
 	
-	public byte[] getContent(int i){
-		return null;
+	/**
+	 * Returns the content of the TLV package
+	 * 
+	 * @return content in byte[]
+	 */
+	public byte[] getContent(){
+		return this.content;
+	}
+	
+	/**
+	 * Returns the package in byte[]
+	 * 
+	 * @return Package in byte[]
+	 */
+	public byte[] getBytes(){
+		byte[] b = new byte[this.header.length+this.content.length];
+		for(int i = 0; i < b.length; i++){
+			if(i < this.header.length)
+				b[i] = this.header[i];
+			else
+				b[i] = this.content[i-this.header.length];
+		}
+		return b;
 	}
 }
