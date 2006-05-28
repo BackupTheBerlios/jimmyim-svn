@@ -32,10 +32,6 @@ import java.util.Vector;
  * @author Dejan Sakelsak
  * 
  */
-/**
- * @author dejan
- * 
- */
 public class ICQPackage {
 
 	public static final byte FLAP_id = 0x2A;
@@ -110,7 +106,7 @@ public class ICQPackage {
 				}
 			} else {
 				this.pkg = new byte[content.length
-						+ ICQPackage.SNACK_PKG_HEADER_SIZE];
+						+ ICQPackage.FLAP_HEADER_SIZE];
 				for (int i = 0; i < content.length; i++) {
 					this.pkg[ICQPackage.FLAP_HEADER_SIZE + i] = content[i];
 				}
@@ -135,7 +131,6 @@ public class ICQPackage {
 	 */
 	public byte[] getPackage() {
 		Vector v = new Vector();
-		if (this.ch == 0x02) {
 			for (int i = 0; i < this.pkg.length; i++) {
 				v.addElement(new Byte(this.pkg[i]));
 			}
@@ -157,29 +152,6 @@ public class ICQPackage {
 			v = null;
 			System.out.println(b.length);
 			return b;
-		} else {
-			for (int i = ICQPackage.SNAC_HEADER_SIZE; i < this.pkg.length; i++) {
-				v.addElement(new Byte(this.pkg[i - ICQPackage.SNAC_HEADER_SIZE]));
-			}
-			if (this.tlvs.size() != 0) {
-				for (int i = 0; i < this.tlvs.size(); i++) {
-					byte[] b = ((ICQTlv) this.tlvs.elementAt(i)).getBytes();
-					for (int j = 0; j < b.length; j++) {
-						v.addElement(new Byte(b[j]));
-					}
-				}
-			}
-
-			byte[] b = new byte[v.size()];
-			for (int i = 0; i < v.size(); i++) {
-				b[i] = ((Byte) v.elementAt(i)).byteValue();
-				System.out.println(((Byte) v.elementAt(i)).toString());
-				// v.removeElementAt(0);
-			}
-			v = null;
-			System.out.println(b.length);
-			return b;
-		}
 	}
 
 	/**
@@ -192,7 +164,6 @@ public class ICQPackage {
 	public void setFlap(short seq) {
 
 		byte[] a;
-		if (this.ch == 0x02) {
 			this.pkg[0] = ICQPackage.FLAP_id;
 			this.pkg[1] = this.ch;
 			a = Utils.shortToBytes(seq, true);
@@ -203,20 +174,6 @@ public class ICQPackage {
 							- ICQPackage.FLAP_HEADER_SIZE), true);
 			this.pkg[4] = a[0];
 			this.pkg[5] = a[1];
-		} else {
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE] = ICQPackage.FLAP_id;
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE + 1] = this.ch;
-			a = Utils.shortToBytes(seq, true);
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE + 2] = a[0];
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE + 3] = a[1];
-			a = Utils.shortToBytes(Utils
-					.unsignShort(this.flap_size = this.pkg.length
-							- ICQPackage.FLAP_HEADER_SIZE
-							- ICQPackage.SNAC_HEADER_SIZE), true);
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE + 4] = a[0];
-			this.pkg[ICQPackage.SNAC_HEADER_SIZE + 5] = a[1];
-		}
-
 	}
 
 	/**
