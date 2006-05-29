@@ -169,9 +169,8 @@ public class ICQPackage {
 			a = Utils.shortToBytes(seq, true);
 			this.pkg[2] = a[0];
 			this.pkg[3] = a[1];
-			a = Utils.shortToBytes(Utils
-					.unsignShort(this.flap_size = this.pkg.length
-							- ICQPackage.FLAP_HEADER_SIZE), true);
+			a = Utils.shortToBytes((short)(this.flap_size = this.pkg.length
+							- ICQPackage.FLAP_HEADER_SIZE+this.getTlvSize()), true);
 			this.pkg[4] = a[0];
 			this.pkg[5] = a[1];
 	}
