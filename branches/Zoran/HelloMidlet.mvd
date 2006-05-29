@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MVDData version="1.2">
+    <DesignDocument designVersion="MIDP-2" uidCounter="93">
+        <DesignComponent id="$MobileDevice" typeid="MIDP:$MobileDevice" uid="0"/>
+        <DesignComponent id="$StartPoint" typeid="MIDP:$StartPoint" uid="1">
+            <Property name="targetDisplayable" value="Splash"/>
+            <Property name="targetForwardDisplayable"/>
+        </DesignComponent>
+        <DesignComponent id="ContactsForm" typeid="MIDP:javax.microedition.lcdui.Form" uid="2">
+            <Property name="title" value="STRING:Contacts"/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction7"/>
+                <ContainerPropertyItem value="$CommandAction10"/>
+            </ContainerProperty>
+            <ContainerProperty name="items">
+                <ContainerPropertyItem value="Group1"/>
+                <ContainerPropertyItem value="Group2"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="exitCommand" typeid="MIDP:javax.microedition.lcdui.Command" uid="5">
+            <Property name="label" value="STRING:Exit"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="EXIT"/>
+        </DesignComponent>
+        <DesignComponent id="OKCommand" typeid="MIDP:javax.microedition.lcdui.Command" uid="6">
+            <Property name="label" value="STRING:Ok"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="OK"/>
+        </DesignComponent>
+        <DesignComponent id="image1" typeid="MIDP:javax.microedition.lcdui.Image" uid="7"/>
+        <DesignComponent id="JIMMYTicker" typeid="MIDP:javax.microedition.lcdui.Ticker" uid="8">
+            <Property name="string" value="STRING:hehehe"/>
+        </DesignComponent>
+        <DesignComponent id="Splash" typeid="MIDP-2:org.netbeans.microedition.lcdui.SplashScreen" uid="9">
+            <Property name="image" value="image2"/>
+            <Property name="nextDisplayableAction" value="$InfoScreenAction1"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="$InfoScreenAction1" typeid="MIDP:$InfoScreenAction" uid="10">
+            <Property name="actionType" value="1"/>
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource"/>
+            <Property name="actionOrigin" value="Splash"/>
+        </DesignComponent>
+        <DesignComponent id="CancelCommand" typeid="MIDP:javax.microedition.lcdui.Command" uid="11">
+            <Property name="label" value="STRING:Cancel"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="CANCEL"/>
+        </DesignComponent>
+        <DesignComponent id="BackCommand" typeid="MIDP:javax.microedition.lcdui.Command" uid="13">
+            <Property name="label" value="STRING:Back"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="BACK"/>
+        </DesignComponent>
+        <DesignComponent id="Group1" typeid="MIDP:javax.microedition.lcdui.ChoiceGroup" uid="28">
+            <Property name="label" value="STRING:Frends"/>
+            <Property name="choiceType" value="POPUP"/>
+            <Property name="layout" value="563"/>
+            <ContainerProperty name="commands"/>
+            <ContainerProperty name="elements">
+                <ContainerPropertyItem value="Midp2ChoiceElementDC2"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC1"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC7"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC1" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="29">
+            <Property name="string" value="STRING:John"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC2" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="30">
+            <Property name="string" value="STRING:Bill"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="MainMenu" typeid="MIDP:javax.microedition.lcdui.List" uid="31">
+            <Property name="title" value="STRING:Main menu"/>
+            <Property name="choiceType" value="IMPLICIT"/>
+            <Property name="selectCommandAction" value="$SelectCommandAction1"/>
+            <Property name="indexBasedSwitch" value="true"/>
+            <Property name="ticker" value="JIMMYTicker"/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction3"/>
+            </ContainerProperty>
+            <ContainerProperty name="elements">
+                <ContainerPropertyItem value="Midp2ListElementDC1"/>
+                <ContainerPropertyItem value="Midp2ListElementDC3"/>
+                <ContainerPropertyItem value="Midp2ListElementDC2"/>
+                <ContainerPropertyItem value="Midp2ListElementDC4"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="$SelectCommandAction1" typeid="MIDP:SelectCommandAction" uid="32">
+            <Property name="targetDisplayable"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionOrigin" value="MainMenu"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ListElementDC1" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ListElementDC" uid="35">
+            <Property name="string" value="STRING:Connect"/>
+            <Property name="image" value="image2"/>
+            <Property name="selected" value="false"/>
+            <Property name="commandAction" value="$SelectCaseCommandAction1"/>
+        </DesignComponent>
+        <DesignComponent id="$SelectCaseCommandAction1" typeid="MIDP:SelectCaseCommandAction" uid="36">
+            <Property name="targetDisplayable" value="Connecting"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionHolder" value="Midp2ListElementDC1"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ListElementDC2" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ListElementDC" uid="37">
+            <Property name="string" value="STRING:New account"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+            <Property name="commandAction" value="$SelectCaseCommandAction2"/>
+        </DesignComponent>
+        <DesignComponent id="$SelectCaseCommandAction2" typeid="MIDP:SelectCaseCommandAction" uid="38">
+            <Property name="targetDisplayable" value="AccountForm"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionHolder" value="Midp2ListElementDC2"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ListElementDC3" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ListElementDC" uid="39">
+            <Property name="string" value="STRING:Settings"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+            <Property name="commandAction" value="$SelectCaseCommandAction3"/>
+        </DesignComponent>
+        <DesignComponent id="$SelectCaseCommandAction3" typeid="MIDP:SelectCaseCommandAction" uid="40">
+            <Property name="targetDisplayable" value="SettingsForm"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionHolder" value="Midp2ListElementDC3"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ListElementDC4" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ListElementDC" uid="41">
+            <Property name="string" value="STRING:About JIMMY"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+            <Property name="commandAction" value="$SelectCaseCommandAction4"/>
+        </DesignComponent>
+        <DesignComponent id="$SelectCaseCommandAction4" typeid="MIDP:SelectCaseCommandAction" uid="42">
+            <Property name="targetDisplayable" value="AboutScreen"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionHolder" value="Midp2ListElementDC4"/>
+        </DesignComponent>
+        <DesignComponent id="SettingsForm" typeid="MIDP:javax.microedition.lcdui.Form" uid="43">
+            <Property name="title" value="STRING:Settings"/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction2"/>
+                <ContainerPropertyItem value="$CommandAction5"/>
+            </ContainerProperty>
+            <ContainerProperty name="items"/>
+        </DesignComponent>
+        <DesignComponent id="AccountForm" typeid="MIDP:javax.microedition.lcdui.Form" uid="44">
+            <Property name="title" value="STRING:New Account"/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction4"/>
+                <ContainerPropertyItem value="$CommandAction6"/>
+            </ContainerProperty>
+            <ContainerProperty name="items">
+                <ContainerPropertyItem value="ProtocolSelect"/>
+                <ContainerPropertyItem value="gauge1"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="AboutScreen" typeid="MIDP-2:org.netbeans.microedition.lcdui.SplashScreen" uid="45">
+            <Property name="text" value="STRING:About JIMMY IM"/>
+            <Property name="textFont" value="font1"/>
+            <Property name="nextDisplayableAction" value="$InfoScreenAction2"/>
+            <Property name="title" value="STRING:About"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="$InfoScreenAction2" typeid="MIDP:$InfoScreenAction" uid="46">
+            <Property name="actionType" value="1"/>
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable" value="AccountForm"/>
+            <Property name="actionSource"/>
+            <Property name="actionOrigin" value="AboutScreen"/>
+        </DesignComponent>
+        <DesignComponent id="font1" typeid="MIDP:javax.microedition.lcdui.Font" uid="47"/>
+        <DesignComponent id="$CommandAction2" typeid="MIDP:CommandAction" uid="48">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource" value="OKCommand"/>
+            <Property name="actionOrigin" value="SettingsForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction3" typeid="MIDP:CommandAction" uid="49">
+            <Property name="targetDisplayable" value="$MobileDevice"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource" value="exitCommand"/>
+            <Property name="actionOrigin" value="MainMenu"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction4" typeid="MIDP:CommandAction" uid="50">
+            <Property name="targetDisplayable" value="UPForm"/>
+            <Property name="targetForwardDisplayable" value="AccountForm"/>
+            <Property name="actionSource" value="OKCommand"/>
+            <Property name="actionOrigin" value="AccountForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction5" typeid="MIDP:CommandAction" uid="51">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource" value="CancelCommand"/>
+            <Property name="actionOrigin" value="SettingsForm"/>
+        </DesignComponent>
+        <DesignComponent id="gauge1" typeid="MIDP:javax.microedition.lcdui.Gauge" uid="52">
+            <Property name="label" value="STRING:Step 1/2"/>
+            <Property name="interactive" value="false"/>
+            <Property name="maxValue" value="2"/>
+            <Property name="value" value="1"/>
+            <Property name="layout" value="4387"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="ProtocolSelect" typeid="MIDP:javax.microedition.lcdui.ChoiceGroup" uid="53">
+            <Property name="label" value="STRING:Select protocols:"/>
+            <Property name="choiceType" value="MULTIPLE"/>
+            <Property name="layout" value="51"/>
+            <ContainerProperty name="commands"/>
+            <ContainerProperty name="elements">
+                <ContainerPropertyItem value="Midp2ChoiceElementDC3"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC4"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC5"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC6"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC3" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="54">
+            <Property name="string" value="STRING:MSN Messenger"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC4" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="55">
+            <Property name="string" value="STRING:Jabber"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC5" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="56">
+            <Property name="string" value="STRING:ICQ"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC6" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="57">
+            <Property name="string" value="STRING:Yahoo Messenger"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction6" typeid="MIDP:CommandAction" uid="59">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable" value="AccountForm"/>
+            <Property name="actionSource" value="CancelCommand"/>
+            <Property name="actionOrigin" value="AccountForm"/>
+        </DesignComponent>
+        <DesignComponent id="UPForm" typeid="MIDP:javax.microedition.lcdui.Form" uid="60">
+            <Property name="title" value="STRING:Username, password"/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction1"/>
+                <ContainerPropertyItem value="$CommandAction8"/>
+                <ContainerPropertyItem value="$CommandAction9"/>
+            </ContainerProperty>
+            <ContainerProperty name="items">
+                <ContainerPropertyItem value="username"/>
+                <ContainerPropertyItem value="password"/>
+                <ContainerPropertyItem value="gauge2"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction7" typeid="MIDP:CommandAction" uid="61">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable" value="ContactsForm"/>
+            <Property name="actionSource" value="BackCommand"/>
+            <Property name="actionOrigin" value="ContactsForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction1" typeid="MIDP:CommandAction" uid="63">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable" value="UPForm"/>
+            <Property name="actionSource" value="exitCommand"/>
+            <Property name="actionOrigin" value="UPForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction8" typeid="MIDP:CommandAction" uid="64">
+            <Property name="targetDisplayable" value="AccountForm"/>
+            <Property name="targetForwardDisplayable" value="UPForm"/>
+            <Property name="actionSource" value="BackCommand"/>
+            <Property name="actionOrigin" value="UPForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction9" typeid="MIDP:CommandAction" uid="65">
+            <Property name="targetDisplayable" value="MainMenu"/>
+            <Property name="targetForwardDisplayable" value="UPForm"/>
+            <Property name="actionSource" value="OKCommand"/>
+            <Property name="actionOrigin" value="UPForm"/>
+        </DesignComponent>
+        <DesignComponent id="username" typeid="MIDP:javax.microedition.lcdui.TextField" uid="66">
+            <Property name="label" value="STRING:Username"/>
+            <Property name="maxSize" value="40"/>
+            <Property name="layout" value="51"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="password" typeid="MIDP:javax.microedition.lcdui.TextField" uid="67">
+            <Property name="label" value="STRING:Password"/>
+            <Property name="maxSize" value="40"/>
+            <Property name="constraints" value="65536"/>
+            <Property name="layout" value="563"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction10" typeid="MIDP:CommandAction" uid="68">
+            <Property name="targetDisplayable" value="ConversationForm"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource" value="OKCommand"/>
+            <Property name="actionOrigin" value="ContactsForm"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC7" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="69">
+            <Property name="string" value="STRING:Britney"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Group2" typeid="MIDP:javax.microedition.lcdui.ChoiceGroup" uid="70">
+            <Property name="label" value="STRING:Family"/>
+            <Property name="choiceType" value="EXCLUSIVE"/>
+            <Property name="layout" value="563"/>
+            <ContainerProperty name="commands"/>
+            <ContainerProperty name="elements">
+                <ContainerPropertyItem value="Midp2ChoiceElementDC8"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC9"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC10"/>
+                <ContainerPropertyItem value="Midp2ChoiceElementDC11"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC8" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="71">
+            <Property name="string" value="STRING:Mother"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC9" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="72">
+            <Property name="string" value="STRING:Father"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC10" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="73">
+            <Property name="string" value="STRING:Sister"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Midp2ChoiceElementDC11" typeid="MIDP:GROUP-org.netbeans.modules.mvd.model.midp2.Midp2ChoiceElementDC" uid="74">
+            <Property name="string" value="STRING:Brother"/>
+            <Property name="image"/>
+            <Property name="selected" value="false"/>
+        </DesignComponent>
+        <DesignComponent id="Connecting" typeid="MIDP-2:org.netbeans.microedition.lcdui.WaitScreen" uid="75">
+            <Property name="failureAction" value="$InfoScreenAction4"/>
+            <Property name="text" value="STRING:Connecting"/>
+            <Property name="textFont" value="font1"/>
+            <Property name="nextDisplayableAction" value="$InfoScreenAction3"/>
+            <Property name="title" value="STRING:Please wait. Connecting and Authenticating."/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="$InfoScreenAction3" typeid="MIDP:$InfoScreenAction" uid="76">
+            <Property name="actionType" value="1"/>
+            <Property name="targetDisplayable" value="ContactsForm"/>
+            <Property name="targetForwardDisplayable" value="AboutScreen"/>
+            <Property name="actionSource"/>
+            <Property name="actionOrigin" value="Connecting"/>
+        </DesignComponent>
+        <DesignComponent id="$InfoScreenAction4" typeid="MIDP:$InfoScreenAction" uid="77">
+            <Property name="actionType" value="2"/>
+            <Property name="targetDisplayable" value="Warning"/>
+            <Property name="targetForwardDisplayable" value="ContactsForm"/>
+            <Property name="actionSource"/>
+            <Property name="actionOrigin" value="Connecting"/>
+        </DesignComponent>
+        <DesignComponent id="ConversationForm" typeid="MIDP:javax.microedition.lcdui.Form" uid="78">
+            <Property name="title" value="STRING:Conversation to ..."/>
+            <ContainerProperty name="commands">
+                <ContainerPropertyItem value="$CommandAction12"/>
+                <ContainerPropertyItem value="$CommandAction11"/>
+                <ContainerPropertyItem value="$CommandAction13"/>
+            </ContainerProperty>
+            <ContainerProperty name="items">
+                <ContainerPropertyItem value="textField1"/>
+                <ContainerPropertyItem value="stringItem1"/>
+            </ContainerProperty>
+        </DesignComponent>
+        <DesignComponent id="ContactsCommand" typeid="MIDP:javax.microedition.lcdui.Command" uid="79">
+            <Property name="label" value="STRING:View contacts"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="BACK"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction11" typeid="MIDP:CommandAction" uid="80">
+            <Property name="targetDisplayable" value="ContactsForm"/>
+            <Property name="targetForwardDisplayable" value="ConversationForm"/>
+            <Property name="actionSource" value="ContactsCommand"/>
+            <Property name="actionOrigin" value="ConversationForm"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction12" typeid="MIDP:CommandAction" uid="81">
+            <Property name="targetDisplayable" value="ConversationForm"/>
+            <Property name="targetForwardDisplayable"/>
+            <Property name="actionSource" value="OKCommand"/>
+            <Property name="actionOrigin" value="ConversationForm"/>
+        </DesignComponent>
+        <DesignComponent id="CloseSession" typeid="MIDP:javax.microedition.lcdui.Command" uid="82">
+            <Property name="label" value="STRING:Close session"/>
+            <Property name="priority" value="1"/>
+            <Property name="type" value="EXIT"/>
+        </DesignComponent>
+        <DesignComponent id="$CommandAction13" typeid="MIDP:CommandAction" uid="83">
+            <Property name="targetDisplayable" value="ContactsForm"/>
+            <Property name="targetForwardDisplayable" value="ConversationForm"/>
+            <Property name="actionSource" value="CloseSession"/>
+            <Property name="actionOrigin" value="ConversationForm"/>
+        </DesignComponent>
+        <DesignComponent id="textField1" typeid="MIDP:javax.microedition.lcdui.TextField" uid="84">
+            <Property name="label" value="STRING:You say:"/>
+            <Property name="string" value="STRING:Hi!"/>
+            <Property name="maxSize" value="120"/>
+            <Property name="layout" value="4625"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="stringItem1" typeid="MIDP:javax.microedition.lcdui.StringItem" uid="85">
+            <Property name="label" value="STRING:Your Friend says:"/>
+            <Property name="text" value="STRING:@ Hello!\n@ What are you doing?"/>
+            <Property name="font" value="font1"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="gauge2" typeid="MIDP:javax.microedition.lcdui.Gauge" uid="87">
+            <Property name="label" value="STRING:Step 2/2"/>
+            <Property name="interactive" value="false"/>
+            <Property name="maxValue" value="2"/>
+            <Property name="value" value="2"/>
+            <Property name="layout" value="8243"/>
+            <ContainerProperty name="commands"/>
+        </DesignComponent>
+        <DesignComponent id="Warning" typeid="MIDP:javax.microedition.lcdui.Alert" uid="88">
+            <Property name="title" value="STRING:Authentification failed!"/>
+            <ContainerProperty name="commands"/>
+            <Property name="string" value="STRING:Please check username and password."/>
+            <Property name="timeout" value="2000"/>
+            <Property name="type" value="WARNING"/>
+            <Property name="image"/>
+        </DesignComponent>
+        <DesignComponent id="image2" typeid="MIDP:javax.microedition.lcdui.Image" uid="92">
+            <Property name="imageResourcePath" value="/JimmyIM_splash.png"/>
+        </DesignComponent>
+    </DesignDocument>
+    <FlowDocument version="1.1">
+        <Node id="ContactsForm" location="592,712" order="$CommandAction7,$CommandAction10,,,,,,,,,$Default,,,,,"/>
+        <Node id="SettingsForm" location="584,416" order="$CommandAction2,$CommandAction5,,,,,,,,,$Default,,,,,"/>
+        <Node id="AccountForm" location="584,560" order="$CommandAction4,$CommandAction6,,,,,,,,,$Default,,,,,"/>
+        <Node id="AboutScreen" location="584,328" order="$InfoScreenAction2$ActionFlowPort$1,,,,,,,,,,$Default,,,,,"/>
+        <Node id="UPForm" location="792,576" order="$CommandAction1,$CommandAction8,$CommandAction9,,,,,,,,$Default,,,,,"/>
+        <Node id="Connecting" location="336,576" order="$InfoScreenAction3$ActionFlowPort$1,$InfoScreenAction4$ActionFlowPort$2,,,,,,,,,$Default,,,,,"/>
+        <Node id="ConversationForm" location="840,744" order="$CommandAction11,$CommandAction12,$CommandAction13,,,,,,,,$Default,,,,,"/>
+        <Node id="Warning" location="376,760" order=",,,,$InfoScreenAction4$Output,$InfoScreenAction4$Input,,,,,$Default,,,,,"/>
+        <Node id="Splash" location="152,416" order="$InfoScreenAction1$ActionFlowPort$1,,,,,,,,,,$Default,,,,,"/>
+        <Node id="$MobileDevice" location="416,144" order=",$StartPoint,,,,,,,,,$ExitPoint,,,,,"/>
+        <Node id="MainMenu" location="352,416" order="$SelectCaseCommandAction1,$SelectCaseCommandAction2,$SelectCaseCommandAction3,$SelectCaseCommandAction4,$CommandAction3,,,,,,$Default,,,,,"/>
+        <Link id="$StartPoint$ActionLink" path="456,120,538,120,538,52,84,52,84,392,112,392"/>
+        <Link id="$InfoScreenAction1$ActionLink" path="192,408,271,408,271,392,312,392"/>
+        <Link id="$SelectCaseCommandAction1$ActionLink" path="392,408,466,408,466,497,271,497,271,552,296,552"/>
+        <Link id="$SelectCaseCommandAction2$ActionLink" path="392,392,483,392,483,536,544,536"/>
+        <Link id="$SelectCaseCommandAction3$ActionLink" path="392,376,496,376,496,392,544,392"/>
+        <Link id="$SelectCaseCommandAction4$ActionLink" path="392,360,484,360,484,304,544,304"/>
+        <Link id="$InfoScreenAction2$ActionLink" path="624,320,684,320,684,230,271,230,271,392,312,392"/>
+        <Link id="$CommandAction2$ActionLink" path="624,408,694,408,694,453,271,453,271,392,312,392"/>
+        <Link id="$CommandAction3$ActionLink" path="376,344,376,199,303,199,303,120,376,120"/>
+        <Link id="$CommandAction4$ActionLink" path="624,552,752,552"/>
+        <Link id="$CommandAction5$ActionLink" path="624,392,684,392,684,230,271,230,271,392,312,392"/>
+        <Link id="$CommandAction6$ActionLink" path="624,536,694,536,694,453,271,453,271,392,312,392"/>
+        <Link id="$CommandAction7$ActionLink" path="632,704,694,704,694,453,271,453,271,392,312,392"/>
+        <Link id="$CommandAction1$ActionLink" path="832,568,894,568,894,453,271,453,271,392,312,392"/>
+        <Link id="$CommandAction8$ActionLink" path="832,552,874,552,874,598,483,598,483,536,544,536"/>
+        <Link id="$CommandAction9$ActionLink" path="832,536,894,536,894,453,271,453,271,392,312,392"/>
+        <Link id="$CommandAction10$ActionLink" path="632,688,755,688,755,720,800,720"/>
+        <Link id="$InfoScreenAction3$ActionLink" path="376,568,441,568,441,688,552,688"/>
+        <Link id="$InfoScreenAction4$ActionLink" path="376,552,452,552,452,629,384,629,384,688"/>
+        <Link id="$CommandAction11$ActionLink" path="880,736,973,736,973,781,475,781,475,688,552,688"/>
+        <Link id="$CommandAction12$ActionLink" path="880,720,985,720,985,649,755,649,755,720,800,720"/>
+        <Link id="$CommandAction13$ActionLink" path="880,704,973,704,973,622,475,622,475,688,552,688"/>
+        <Link id="$InfoScreenAction4$ForwardLink" path="400,688,400,620,475,620,475,688,552,688"/>
+    </FlowDocument>
+</MVDData>
