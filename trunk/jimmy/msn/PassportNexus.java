@@ -79,7 +79,6 @@ public class PassportNexus
             {
                 strPassportURL = httpsConn.getHeaderField(KEY_PASSPORT_URLS);
                 strPassportServer = "https://" + getField( DALOGIN, strPassportURL );
-                //System.out.println( "<<< Retrieving passport login server " + strPassportServer );
                 httpsConn = null;    
                 this.loginServerURL = strPassportServer;
             } catch (IOException ex) 
@@ -111,8 +110,6 @@ public class PassportNexus
             username.insert(t, "%40");
             
           String strAuthString = "Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in=" + username.toString() + ",pwd=" + strPassword + "," + strChallenge.substring(0, strChallenge.length()-2);
-          System.out.println("Auth String");
-          System.out.println(strAuthString);
           //String strAuthString = "Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in=" + username.toString()+ ",pwd=" + strPassword;          
 
             try  
