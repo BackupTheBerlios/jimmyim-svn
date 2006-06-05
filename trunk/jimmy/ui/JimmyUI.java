@@ -27,6 +27,7 @@ import java.util.*;
 
 import jimmy.Account;
 import jimmy.Jimmy;
+import jimmy.util.RMS;
 
 
 public class JimmyUI {
@@ -57,6 +58,7 @@ public class JimmyUI {
 	static private Hashtable commands_ = new Hashtable(); //commands list
 	static private Displayable lastDisplayable_; //displayable object
 	static private JimmyUI jimmyUI_; //JimmyUI object
+        static private Jimmy jimmy_;
         static private Account[] acc_;  //Array of accoounts
 	
 //	 Associate commands and commands codes
@@ -79,25 +81,40 @@ public class JimmyUI {
         private static Splash      scrSplash;
         private static NewAccount  scrNewAcc;
 	
-	JimmyUI(Account[] a) {
+	public JimmyUI() {
 		jimmyUI_ = this;
+                jimmy_   = Jimmy.getInstance();
                 
-                acc_    = a;
-                scrMenu = new MainMenu(a);
+                RMS rs = new RMS(Jimmy.RS);
+                acc_    = rs.getAccounts();
+                
+                scrMenu = new MainMenu(acc_);
                 scrNewAcc = new NewAccount();
-                Jimmy.getInstance().setDisplay(scrMenu);
+                jimmy_.setDisplay(scrMenu);
 	}
 	
 	public static void jimmyCommand(Command c, Displayable d) {
             if(d == scrMenu){
                 if(c == cmdExit)
-                    Jimmy.getInstance().exitJimmy();
+                    jimmy_.exitJimmy();
                 if(c == cmdNew)
-                    Jimmy.getInstance().setDisplay(scrNewAcc);
+                    jimmy_.setDisplay(scrNewAcc);
             }
             else if(d == scrNewAcc){
-                if(c == cmdBack)
-                    Jimmy.getInstance().setDisplay(scrMenu);
+                if(c == cmdOk){
+                    Vector data     = ((NewAccount)d).getData();
+                    String user     = (String)data.elementAt(0);
+                    String pass     = (String)data.elementAt(1);
+                    String server   = (String)data.elementAt(2);
+                    int protocol    = ((Integer)data.elementAt(4)).intValue();
+                    saveAccount(user,pass,server,protocol);
+                }
+                ((NewAccount)d).clearForm();
+                RMS rs = new RMS(Jimmy.RS);
+                jimmyUI_.setAccount(rs.getAccounts());
+                
+                Jimmy.getInstance().setDisplay(scrMenu);
+                
             }
 	}
         
@@ -111,5 +128,12 @@ public class JimmyUI {
         
         public void setAccount(Account[] a){
             this.acc_ = a;
+            ((MainMenu)scrMenu).setAccountList(acc_);
         }
+        
+        private static void saveAccount(String u, String p, String s, int protocol){
+            RMS rs = new RMS(Jimmy.RS);
+            u = u+"@"+s;
+            rs.addRecord((char)protocol+""+(char)u.length()+u+p);
+        }   
 }
