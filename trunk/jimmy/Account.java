@@ -94,4 +94,8 @@ public class Account {
     public int getPort() {
     	return this.port_;
     }
+    
+    public int getProtocolType() {
+    	return this.protocolType_;
+    }    
 }
