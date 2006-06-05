@@ -1,41 +1,42 @@
-/* JIMMY - Instant Mobile Messenger
-   Copyright (C) 2006  JIMMY Project
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- **********************************************************************
- File: jimmy/Jimmy.java
- Version: pre-alpha  Date: 2006/04/08
- Author(s): Matevz Jekovec, Zoran Mesec, Dejan Sakelsak, Janez Urevc
+/*
+ * Jimmy.java
+ *
+ * Created on May 20, 2006, 2:26 AM
  */
-
 package jimmy;
 
+<<<<<<< .mine
+import javax.microedition.midlet.*;
+import javax.microedition.lcdui.*;
+=======
 import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
 import java.io.IOException;
 import java.util.Vector;
+>>>>>>> .r114
 
+<<<<<<< .mine
+/**
+ *
+ * @author  slashrsm
+ * @version
+ */
+=======
 import jimmy.jabber.JabberProtocol;
 import jimmy.msn.MSNProtocol;
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
 import jimmy.ui.Splash;
 
+>>>>>>> .r114
 public class Jimmy extends MIDlet {
+<<<<<<< .mine
+    private JimmyUI gui;
+    private Display d;
+    private static Jimmy jimmy;
+=======
 	public static Jimmy jimmy_; //Application main object
 	final public static String VERSION	=	"pre-alpha"; //JIMMY version
 	public static Display display_; //Display object
@@ -67,11 +68,45 @@ public class Jimmy extends MIDlet {
 		// TODO Auto-generated method stub
 
 	}
+>>>>>>> .r114
     
-        public static Jimmy getInstance(){
-            return jimmy_;
-        }
+    public Jimmy(){
+        jimmy = this;
+        d = Display.getDisplay(this);
+        Account[] bla = new Account[4];
+        bla[0] = new Account("slashrsm","kldsjf","jabber.org");
+        bla[1] = new Account("marusa","sdfkj","gristle.org");
+        bla[2] = new Account("mitko","lsjkdf","msn.com");
+        bla[3] = new Account("sahel","sdjkf","jabber.org");
+        
+        gui = new JimmyUI(bla); 
+    }
+        
+    public void startApp() {
+   
+    }
     
+<<<<<<< .mine
+    public void pauseApp() {
+    }
+    
+    public void destroyApp(boolean unconditional) {
+    }
+    
+    public static Jimmy getInstance(){
+        return jimmy;
+    }
+    
+    public void exitJimmy(){
+        d.setCurrent(null);
+        destroyApp(true);
+        notifyDestroyed();
+    }
+    
+    public void setDisplay(Displayable disp){
+        this.d.setCurrent(disp);
+    }
+=======
         public void exitJimmy(){
             display_.setCurrent(null);
             
@@ -83,4 +118,5 @@ public class Jimmy extends MIDlet {
 			
             notifyDestroyed();
         }        
+>>>>>>> .r114
 }
