@@ -50,7 +50,7 @@ public class Contact {
 	 * @param groupName Group's name which the user belongs to
 	 * @param screenName User's nick or the name shown on the display
 	 */
-	Contact(String userID, Protocol protocol, int status, String groupName, String screenName) {
+	public Contact(String userID, Protocol protocol, int status, String groupName, String screenName) {
 		userID_ = userID;
 		protocol_ = protocol;
 		status_ = status;
@@ -64,7 +64,7 @@ public class Contact {
 	 * @param userID User ID on the server (usually the e-mail address)
 	 * @param protocol Reference to the corresponding protocol
 	 */
-	Contact(String userID, Protocol protocol) {
+	public Contact(String userID, Protocol protocol) {
 		this(userID, protocol, 0, null, null);
 	}
 
