@@ -1,10 +1,23 @@
-/*
- * MSNProtocol.java
- *
- * Created on Torek, 2006, april 11, 23:48
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+/* JIMMY - Instant Mobile Messenger
+   Copyright (C) 2006  JIMMY Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ **********************************************************************
+ File: jimmy/MSNProtocol.java
+ Version: pre-alpha  Date: 2006/04/11
+ Author(s): Zoran Mesec
  */
 
 package jimmy.msn;
@@ -13,12 +26,11 @@ import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.*;
-
-import jimmy.ChatSession;
-import jimmy.Contact;
-import jimmy.Protocol;
 import jimmy.net.ServerHandler;
 import jimmy.util.MD5;
+import jimmy.*;
+import jimmy.msn.*;
+
 
 /**
  * This class is used to connect with a remote server using SocketConnection class.
@@ -28,9 +40,11 @@ public class MSNProtocol extends Protocol
 {
     private String username;
     private String password;
+    private boolean connected_;
     private int port;
     final String NsURL = "messenger.hotmail.com";
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
+    final String ProductID = "PROD0090YUAUV{2B";
     final String NSredirectURL = "baym-cs118.msgr.hotmail.com";
     final int serverPort = 1863;
     final int NexusPort = 443;
@@ -40,7 +54,9 @@ public class MSNProtocol extends Protocol
     private ServerHandler NexusHandler;
     private Vector contacts_;
     protected Vector chatSessions_;	//list of active chat sessions
-    protected Vector SessionIPs_;	//list of IPs of alive chat sessions    
+    protected Vector SessionIPs_;	//list of IPs of alive chat sessions   
+    protected Hashtable ChatIds_;
+    
     private Hashtable groupHash_;
     private String mySwitchboard;
     
@@ -64,6 +80,10 @@ public class MSNProtocol extends Protocol
     {
         this.connected_ = false;
     }
+    public boolean login(Account acc)
+    {
+        return false;
+    }    
     /**
      * Initializes SocketConnection.
      */
@@ -74,6 +94,7 @@ public class MSNProtocol extends Protocol
         try
         {
                 this.sh= new ServerHandler(this.NsURL, this.serverPort);
+                
                 this.tr = new MSNTransaction();
                 /*this.sh.connect();
                  *this.tr.newTransaction();
@@ -140,7 +161,7 @@ public class MSNProtocol extends Protocol
                 
                 this.tr.newTransaction();
                 this.tr.setType("USR");
-                this.tr.addArgument("TWN I");
+                this.tr.addArgument("TWN I");             
                 this.tr.addArgument(this.username); 
                 this.sh.sendRequest(this.tr.toString());
                 //System.out.println(this.tr.toString());  
@@ -215,6 +236,49 @@ public class MSNProtocol extends Protocol
             this.sh.sendRequest(this.tr.getLogoutString());
             System.out.println("Logout successful.");
     }
+    
+    public int intToHex(int n)
+    {
+        int r;     
+            switch (n)
+            {
+                case 48:
+                    r= 30;
+                    break;
+                case 49:
+                    r = 31;
+                    break;
+                case 50:
+                    r = 32;
+                    break;
+                case 51:
+                    r = 33;
+                    break;
+                case 52:
+                    r = 34;
+                    break;
+                case 53:
+                    r = 35;
+                    break;
+                case 54:
+                    r = 36;
+                    break;
+                case 55:
+                    r = 37;
+                    break;
+                case 56:
+                    r = 38;
+                    break;
+                case 57:
+                    r = 39;
+                    break; 
+                default:
+                    r = 0;
+                    break;
+            }            
+            return r;
+    }
+    
     public int hexToInt(String s)
     {
         int[] n = new int[s.length()];
@@ -283,10 +347,22 @@ public class MSNProtocol extends Protocol
         }
         return sum;
     }
+    public void check()
+    {
+        while(true)
+        {
+            parseReply(this.sh.getReply());
+            if(5==3)
+            {
+            
+            }
+        }
+    }
     
     public void parseReply(String reply)
     {
-        //System.out.println(reply);
+        this.parseChallenge("aaaa");
+        System.out.println(reply);
         if(reply == null)
         {
             return;
@@ -302,6 +378,7 @@ public class MSNProtocol extends Protocol
         if(reply.indexOf("CHL")!=-1)
         {
             parseChallenge(reply);
+            System.gc();    // let's clean this mess
         }          
     }
     private void parseContacts(String data)
@@ -344,7 +421,8 @@ public class MSNProtocol extends Protocol
                 i++;
             }
             //System.out.println("Username:" + username.toString());
-            person = new Contact(username.toString(), this);
+            person = new Contact(username.toString(), (Protocol)this);
+            
             // parse nickname
             ind = contact.toString().indexOf("F=");
             i = ind+2;
@@ -429,22 +507,133 @@ public class MSNProtocol extends Protocol
     }    
     private void parseChallenge(String data)
     {
-            StringBuffer challenge =new StringBuffer(data.substring(6));
+            System.out.println("Parsing challenge: " + data);
+            // first step
+            //StringBuffer challenge =new StringBuffer(data.substring(6,data.length()-2));
+            //challenge.append(this.ProductKey);
+            //System.out.println(challenge);
+            
             MD5 md5 = new MD5();
             
-            String hash = new String(md5.toHex(md5.fingerprint(challenge.toString().getBytes())));
-            System.out.println(hash);
-            String[] hashTable = new String[4];
-            hashTable[0] = hash.substring(0,8);
-            hashTable[1] = hash.substring(8,16);
-            hashTable[2] = hash.substring(16,24);
-            hashTable[3] = hash.substring(24,hash.length());
-            int[] md5Ints = new int[4];
-            for(int i=0; i<hashTable.length; i++)
+            //String hash = new String(md5.toHex(md5.fingerprint(challenge.toString().getBytes())));
+            
+            //System.out.println(hash);
+            String hash = new String(md5.toHex(md5.fingerprint("22210219642164014968YMM8C_H7KCQ2S_KL".getBytes())));
+            
+            System.out.println("MD5 hash:"+hash);
+            StringBuffer[] hashes = new StringBuffer[4];
+            hashes[0] = new StringBuffer(hash.substring(0,8));
+            hashes[1] = new StringBuffer(hash.substring(8,16));
+            hashes[2] = new StringBuffer(hash.substring(16,24));
+            hashes[3] = new StringBuffer(hash.substring(24,hash.length()));
+            int[] md5hash = new int[4];
+            char c;
+            for(int i=0; i<hashes.length; i++)
             {
-                md5Ints[i] = hexToInt(hashTable[i]) &  0x7FFFFFFF;
-                System.out.println(hashTable[i] + " -> "+md5Ints[i]);
+                //System.out.println("bEFORE:"+hashes[i]);
+                c = hashes[i].charAt(6);
+                hashes[i].setCharAt(6, hashes[i].charAt(0));
+                hashes[i].setCharAt(0, c);
+                
+                c = hashes[i].charAt(7);
+                hashes[i].setCharAt(7, hashes[i].charAt(1));
+                hashes[i].setCharAt(1, c);  
+                
+                c = hashes[i].charAt(2);
+                hashes[i].setCharAt(2, hashes[i].charAt(4));
+                hashes[i].setCharAt(4, c);
+                
+                c = hashes[i].charAt(3);
+                hashes[i].setCharAt(3, hashes[i].charAt(5));
+                hashes[i].setCharAt(5, c);                
+
+                //System.out.println("aFTER:"+hashes[i].toString());
+                //md5hash[i] = hexToInt(hashes[i].toString()) &  0x7FFFFFF;
+                md5hash[i] = hexToInt(hashes[i].toString());
+                System.out.println(hashes[i] + " -> "+md5hash[i]);
+                
+                
             }
+            
+            // second step
+            StringBuffer chlString;
+            /*chlString = new StringBuffer(data.substring(6,data.length()-2));
+            chlString.append(this.ProductID);*/
+            chlString = new StringBuffer("22210219642164014968");
+            chlString.append(this.ProductID);
+            System.out.println(chlString);
+            int r = (int)Math.ceil((double) chlString.length() / 8) * 8 - chlString.length();
+            for(int i=0; i< r; i++)
+            {
+                chlString.append('0');
+            }
+            System.out.println(chlString);
+            
+            String tempS = chlString.toString();
+            
+            String[] hashInts = new String[5];
+            hashInts[0] = tempS.substring(0,4);
+            hashInts[1] = tempS.substring(4,8);
+            hashInts[2] = tempS.substring(8,12);
+            hashInts[3] = tempS.substring(12,16);      
+            hashInts[4] = tempS.substring(16,20);
+            //hashInts[5] = hash.substring(20,24);
+            /*hashInts[6] = hash.substring(24,28);
+            hashInts[7] = hash.substring(28,32);         
+            hashInts[8] = hash.substring(32,36);  
+            hashInts[9] = hash.substring(36,hash.length());  */            
+            
+            
+            int[] chlStringArray = new int[10];
+            chlStringArray[5] = 1146049104;
+            chlStringArray[6] = 809054256;
+            chlStringArray[7] = 1430345049;
+            chlStringArray[8] = 1110604630;
+            chlStringArray[9] = 808464432;   
+            
+            StringBuffer piece;
+            for(int i = 0; i<hashInts.length;i++)
+            {
+                //System.out.println("TEST:" + hashInts[i]);
+                piece = new StringBuffer();
+                for(int j=3;j>=0;j--)
+                {
+                    piece.append(this.intToHex((int)hashInts[i].charAt(j)));
+                }                
+                //System.out.println("Piece:"+piece.toString());
+                chlStringArray[i] = hexToInt(piece.toString());
+                //System.out.println("Hex:" + chlStringArray[i]);
+            }
+            
+            // third step
+            
+            int high = 0;
+            int low = 0;
+
+            for (int i = 0; i < chlStringArray.length; i = i + 2) 
+            {
+              int temp = chlStringArray[i];
+              temp = (0x0E79A9C1 * temp) % 0x7FFFFFFF;
+              temp += high;
+              temp = md5hash[0] * temp + md5hash[1];
+              temp = temp % 0x7FFFFFFF;
+
+              high = chlStringArray[i + 1];
+              high = (high + temp) % 0x7FFFFFFF;
+              high = md5hash[2] * high + md5hash[3];
+              high = high % 0x7FFFFFFF;
+
+              low = low + high + temp;
+            }
+
+            high = (high + md5hash[1]) % 0x7FFFFFFF;
+            low = (low + md5hash[3]) % 0x7FFFFFFF;
+            // Gives high = 0x69A5A771 (1772463985 decimal) and low = 0xD4020628 (3556902440 decimal)
+
+            long key = (high << 32) + low;
+            // Gives 0x69a5a771d4020628 (7612674852469737000 decimal)            
+            System.out.println(key);
+            
             
             this.tr.newTransaction();
             this.tr.setType("QRY");
@@ -479,7 +668,7 @@ public class MSNProtocol extends Protocol
    {
    
    }   
-   void printContacts() 
+   public void printContacts() 
    {
        System.out.println("*********************************************************");
        System.out.println("START OF CONTACT LISTING");
@@ -531,7 +720,11 @@ public class MSNProtocol extends Protocol
         if(this.SessionIPs_==null)
         {
             this.SessionIPs_ = new Vector();
-        }        
+        }      
+        if(this.ChatIds_==null)
+        {
+            this.ChatIds_ = new Hashtable();
+        }           
         ServerHandler switchHandler;
         ChatSession cs = new ChatSession(this);
         this.tr.newTransaction();
@@ -545,13 +738,14 @@ public class MSNProtocol extends Protocol
         switchHandler.sendRequest("USR 1 " + this.username + " " + line.substring(line.indexOf("CKI")+4, line.indexOf("\r")) + "\r\n");
         //System.out.println(switchHandler.getReply());
         switchHandler.sendRequest("CAL 2 "+c.userID()+"\r\n");
-        cs.setID(2);
         while((line = switchHandler.getReply())!=null)
         {   
             // System.out.println(line);
             // do something, not necessary :)
         }
+        this.ChatIds_.put(new Integer(cs.hashCode()), new Integer(2));
         this.chatSessions_.addElement(cs);
+        
         this.SessionIPs_.addElement(switchHandler);
         //System.out.println(line.substring(line.indexOf("SB")+3, line.indexOf("CKI")-6));
         //System.out.println("USR 1 " + this.username + " " + line.substring(line.indexOf("CKI")+4, line.indexOf("\r")-2) + "\r\n");        
@@ -566,6 +760,8 @@ public class MSNProtocol extends Protocol
     public void sendMsg(String msg, ChatSession session)
     {
         //System.out.println("Sending message...");
+        int Sid;    // session ID
+        Integer id;
         for(int i=0; i<this.chatSessions_.size();i++)
         {
             if(this.chatSessions_.elementAt(i).equals(session))
@@ -574,15 +770,24 @@ public class MSNProtocol extends Protocol
                 String payload = "MIME-Version: 1.0\r\nContent-Type: text/x-msmsgscontrol\r\nTypingUser: "+this.username+"\r\n\r\n\r\n";
                 //System.out.println("Payload:"+payload);
                 //System.out.println("Payload length:"+payload.length());
-                sh.sendRequest("MSG "+session.getID()+" U "+payload.length() + "\r\n"+payload);
+                id = (Integer)this.ChatIds_.get(new Integer(session.hashCode()));
+                Sid = id.intValue();
+                sh.sendRequest("MSG " + Sid + " U "+payload.length() + "\r\n"+payload);
+               try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }                
                 //System.out.println("MSG "+session.getID()+" U "+payload.length() + "\r\n"+payload);
-                session.setID(session.getID()+1);
+                Sid++;
+                
                 payload = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-MMS-IM-Format: FN=MS%20Sans%20Serif; EF=; CO=0; CS=0; PF=0\r\n\r\n";
                 //System.out.println("Payload2:"+payload);
                 //System.out.println("Payload length2:"+payload.length());                
-                sh.sendRequest("MSG "+session.getID()+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
+                sh.sendRequest("MSG "+Sid+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
+                Sid++;
                 //System.out.println("MSG "+session.getID()+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
-                session.setID(session.getID()+1);
+                this.ChatIds_.put(new Integer(session.hashCode()), new Integer(Sid));
                 return;
             }
         }    
@@ -594,7 +799,7 @@ public class MSNProtocol extends Protocol
      * @param user Specific user this message should be sent to
      * @param session Active Chat Session to send the message to
      */
-    public void sendMsg(String msg, Contact user, ChatSession session)
+    public void sendMsg(String msg, Vector users, ChatSession session)
     {  
     }
     public Vector getContacts() { return this.contacts_; }
