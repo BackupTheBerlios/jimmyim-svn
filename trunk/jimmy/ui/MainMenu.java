@@ -29,37 +29,39 @@ import java.util.*;
 
 import jimmy.Account;
 
-/**
- *
- * @author  slashrsm
- * @version
- */
 public class MainMenu extends List implements CommandListener {
-    private Account[] al_;   //list of accounts
-    private Hashtable commands_;
+    private Account[] al_;          //list of accounts
+    private Hashtable commands_;    //commands
     private JimmyUI ui_;
 
     /**
-     * constructor
+     * This constructor creates an instance of MainMenu. 
+     * @param a array of accounts to be displayed in main menu
      */
     public MainMenu(Account[] a){
         super("Accounts:",List.IMPLICIT);
         ui_ = JimmyUI.getInstance();
+        commands_ = ui_.getCommands();
         
         try {
             setCommandListener(this);
         } catch(Exception e) {e.printStackTrace();}
         
-        commands_ = ui_.getCommands();
+        //add commands to menu
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EXIT) ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_NEW)  ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_LOGIN)));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_ABOUT)));
         
+        //add accounts to menu
         this.al_ = a;
         addAccountsToMenu();        
     }
     
+    /**
+     * This method refreshes account list in main menu with data from a.
+     * @param a accounts to be displayed in main menu
+     */
     public void setAccountList(Account[] a){
         this.al_ = a;
         addAccountsToMenu();

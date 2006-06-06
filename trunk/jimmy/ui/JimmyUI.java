@@ -17,7 +17,7 @@
  **********************************************************************
  File: jimmy/JimmyUI.java
 
- Author(s): Matevz Jekovec
+ Author(s): Matevz Jekovec, Janez Urevc
 */
 
 package jimmy.ui;
@@ -42,6 +42,14 @@ public class JimmyUI {
         final public static int CMD_LOGIN  = 8;
         final public static int CMD_NEW    = 9;
         final public static int CMD_ABOUT  = 10;
+        
+        //Screen codes
+        final public static int SCR_SPLASH  = 1;
+        final public static int SCR_MAIN    = 2;
+        final public static int SCR_NEWACC  = 3;
+        final public static int SCR_CHAT    = 4;
+        final public static int SCR_ABOUT   = 5;
+        
 
 	//Commands:
 	final private static Command cmdOk     = new Command("OK",          Command.OK,     1);
@@ -55,11 +63,11 @@ public class JimmyUI {
         final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
         final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
 	
-	static private Hashtable commands_ = new Hashtable(); //commands list
-	static private Displayable lastDisplayable_; //displayable object
-	static private JimmyUI jimmyUI_; //JimmyUI object
+	static private Hashtable commands_ = new Hashtable();   //commands list
+	static private Displayable lastDisplayable_;            //displayable object
+	static private JimmyUI jimmyUI_;                        //JimmyUI object
         static private Jimmy jimmy_;
-        static private Account[] acc_;  //Array of accoounts
+        static private Account[] acc_;                          //Array of accoounts
 	
 //	 Associate commands and commands codes
 	static
@@ -81,17 +89,44 @@ public class JimmyUI {
         private static Splash      scrSplash;
         private static NewAccount  scrNewAcc;
 	
+        /**
+         * The constructor creates an instance of JimmyUI. JimmyUI is main class
+         * for handling GUI. In constructor we create screens (e.g. splash, main menu, ...)
+         * and we read configuration data from record store. 
+         * Constructor draws splash screen. It can be changed later using setView(int) method
+         * and screen codes (SCR_SPLASH, SCR_MAIN, ...) 
+         */        
 	public JimmyUI() {
 		jimmyUI_ = this;
                 jimmy_   = Jimmy.getInstance();
                 
+                //draw splash screen
+                scrSplash = new Splash();
+                jimmy_.setDisplay(scrSplash);                
+                
+                //Read configuration data from recor store
                 RMS rs = new RMS(Jimmy.RS);
                 acc_    = rs.getAccounts();
                 
+                //Create screens
                 scrMenu = new MainMenu(acc_);
                 scrNewAcc = new NewAccount();
-                jimmy_.setDisplay(scrMenu);
 	}
+        
+        /**
+         *  This method changes displayed Screen. 
+         *  @param display each screen has its own code. Use SCR_* int constants.
+         */
+        public void setView(int display){
+            switch(display){
+                case 1:
+                    jimmy_.setDisplay(scrSplash);
+                    break;
+                case 2:
+                    jimmy_.setDisplay(scrMenu);
+                    break;
+            }
+        }
 	
 	public static void jimmyCommand(Command c, Displayable d) {
             if(d == scrMenu){
@@ -113,7 +148,7 @@ public class JimmyUI {
                 RMS rs = new RMS(Jimmy.RS);
                 jimmyUI_.setAccount(rs.getAccounts());
                 
-                Jimmy.getInstance().setDisplay(scrMenu);
+                jimmy_.setDisplay(scrMenu);
                 
             }
 	}
@@ -131,9 +166,16 @@ public class JimmyUI {
             ((MainMenu)scrMenu).setAccountList(acc_);
         }
         
+        public void setSplashMess(String s){
+            ((Splash)scrSplash).setMess(s);
+        }
+        
+        /*
+         * This method is used for saving new account into record store.
+         */        
         private static void saveAccount(String u, String p, String s, int protocol){
             RMS rs = new RMS(Jimmy.RS);
             u = u+"@"+s;
             rs.addRecord((char)protocol+""+(char)u.length()+u+p);
-        }   
+        }  
 }
