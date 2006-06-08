@@ -40,11 +40,12 @@ public class NewAccount extends Form implements CommandListener {
     final private TextField server_   = new TextField("Server:",      "", 20, TextField.ANY     );
     final private TextField port_     = new TextField("Port:",        "", 20, TextField.DECIMAL );
     
-    final private String[] protocols_ = {"MSN","Jabber","ICQ","Yahoo"};
+    final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
     final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null);
     
     private Hashtable commands_;
     private JimmyUI ui_;
+    
     /**
      * constructor
      */

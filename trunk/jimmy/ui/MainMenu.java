@@ -70,7 +70,7 @@ public class MainMenu extends List implements CommandListener {
     private void addAccountsToMenu(){
         this.deleteAll();
         for(int i=0; i<al_.length; i++){
-            this.append(al_[i].getUser()+"@"+al_[i].getServer(),null);
+            this.append(al_[i].getUser(),null);
         }
     }
     /**

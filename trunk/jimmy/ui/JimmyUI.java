@@ -24,6 +24,7 @@ package jimmy.ui;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
+import java.lang.*;
 
 import jimmy.Account;
 import jimmy.Jimmy;
@@ -141,8 +142,9 @@ public class JimmyUI {
                     String user     = (String)data.elementAt(0);
                     String pass     = (String)data.elementAt(1);
                     String server   = (String)data.elementAt(2);
+                    String port     = (String)data.elementAt(3);
                     int protocol    = ((Integer)data.elementAt(4)).intValue();
-                    saveAccount(user,pass,server,protocol);
+                    saveAccount(user,pass,server,port,protocol);
                 }
                 ((NewAccount)d).clearForm();
                 RMS rs = new RMS(Jimmy.RS);
@@ -173,9 +175,11 @@ public class JimmyUI {
         /*
          * This method is used for saving new account into record store.
          */        
-        private static void saveAccount(String u, String p, String s, int protocol){
+        private static void saveAccount(String u, String p, String s, String port, int protocol){
             RMS rs = new RMS(Jimmy.RS);
-            u = u+"@"+s;
-            rs.addRecord((char)protocol+""+(char)u.length()+u+p);
+            if(port.length() == 0)
+                port = "0";
+            
+            rs.addRecord(Jimmy.VERSION+"\n0\n"+protocol+"\n"+u+"\n"+p+"\n"+s+"\n"+port+"\n");
         }  
 }

@@ -27,6 +27,7 @@ package jimmy.util;
 
 import javax.microedition.rms.*;
 import jimmy.Account;
+import java.lang.*;
 
 /**
  * Class RMS handles persistent data storage.
@@ -150,13 +151,32 @@ public class RMS
             Account[] accounts = new Account[this.rs.getNumRecords()];
             RecordEnumeration rEnum = this.rs.enumerateRecords(null,null,true);
             
-            int count = 0;
+            int count = 0, pos1, pos2;
             while (rEnum.hasNextElement()) 
             {
-                byte[] data = rEnum.nextRecord();
+                String data = new String(rEnum.nextRecord());
+                pos1 = data.indexOf("\n");
+                String version = data.substring(0,pos1); //version
                 
-                int uLength =   (byte) data[1];     // username length
-                accounts[count] = new Account(new String(data, 2, uLength), new String(data, 2+uLength, data.length-uLength-2), (byte) data[0]);
+                pos2 = data.indexOf("\n",pos1+1);
+                byte autoLogin = Byte.parseByte(data.substring(pos1+1,pos2)); //auto login
+                
+                pos1 = data.indexOf("\n",pos2+1);
+                byte protocol = Byte.parseByte(data.substring(pos2+1,pos1));  //protocol code
+                
+                pos2 = data.indexOf("\n",pos1+1);
+                String user = data.substring(pos1+1,pos2);  //username
+                
+                pos1 = data.indexOf("\n",pos2+1);
+                String password = data.substring(pos2+1,pos1); //password
+                
+                pos2 = data.indexOf("\n",pos1+1);
+                String server = data.substring(pos1+1,pos2); //server
+                
+                pos1 = data.indexOf("\n",pos2+1);
+                int port = Integer.parseInt(data.substring(pos2+1,pos1)); //port
+                
+                accounts[count] = new Account(user,password,protocol,server,port);
                 count++;
             }
             rEnum.destroy();

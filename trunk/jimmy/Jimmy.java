@@ -50,14 +50,9 @@ public class Jimmy extends MIDlet {
 	
 	protected void startApp() throws MIDletStateChangeException {
 		jimmy_ = this;
-		
-                Account[] testAccounts = new Account[4];
-                testAccounts[0] = new Account("janez","janez",0,"jabber.org",2222);
-                testAccounts[1] = new Account("zoran","zoran",0,"jabber.org",2222);
-                testAccounts[2] = new Account("matevz","matevz",0,"jabber.org",2222);
-                testAccounts[3] = new Account("dejan","dejan",0,"jabber.org",2222);
-                
+		            
 		ui_ = new JimmyUI();
+                ui_.setView(JimmyUI.SCR_MAIN);
 		
 		//protocolList_.addElement(new MSNProtocol());
 		//protocolList_.addElement(new JabberProtocol());
