@@ -89,9 +89,10 @@ public class JimmyUI {
 	}
         
         //Screens
-        private static MainMenu    scrMenu;
-        private static Splash      scrSplash;
-        private static NewAccount  scrNewAcc;
+        private static MainMenu     scrMenu;
+        private static Splash       scrSplash;
+        private static NewAccount   scrNewAcc;
+        private static ContactsMenu scrContacts;
 	
         /**
          * The constructor creates an instance of JimmyUI. JimmyUI is main class
@@ -113,8 +114,10 @@ public class JimmyUI {
                 acc_    = rs.getAccounts();
                 
                 //Create screens
-                scrMenu = new MainMenu(acc_);
-                scrNewAcc = new NewAccount();
+                scrMenu =       new MainMenu(acc_);
+                scrNewAcc =     new NewAccount();
+                scrContacts =   new ContactsMenu();
+                
 	}
         
         public static JimmyUI getInstance(){return jimmyUI_;}
@@ -146,6 +149,7 @@ public class JimmyUI {
         }
 	
 	public static void jimmyCommand(Command c, Displayable d) {
+            //commands from main menu
             if(d == scrMenu){
                 if(c == cmdExit)
                     jimmy_.exitJimmy();
@@ -153,28 +157,15 @@ public class JimmyUI {
                     jimmy_.setDisplay(scrNewAcc);
                 if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
-                    Vector protocolList = jimmy_.getProtocolList();
+                    Vector newConnections = new Vector();
+                    //System.out.println(scrMenu.getSelectedIndex());
+                    newConnections.addElement(acc_[selected]);
+                    jimmy_.setNewConnections(newConnections);
                     
-                    switch(acc_[selected].getProtocolType()){
-                        case 0:
-                            protocolList.addElement(new JabberProtocol());
-                            break;
-                        case 1:
-                            protocolList.addElement(new ICQProtocol());
-                            break;
-                        case 2:
-                            protocolList.addElement(new MSNProtocol());
-                            break;
-                        case 3:
-                            //yahoo
-                            break;
-                    }
-                    
-                    //((Protocol)protocolList.lastElement()).login(acc_[selected]);
-                    //selected++;
-
+                    jimmy_.setDisplay(scrContacts);
                 }
             }
+            //commands from new account page
             else if(d == scrNewAcc){
                 if(c == cmdOk){
                     Vector data     = ((NewAccount)d).getData();

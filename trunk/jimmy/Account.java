@@ -34,6 +34,7 @@ public class Account {
     private int protocolType_;	//used protocol - see Protocol.PR_*
     private String server_;		//login server name (optional)
     private int port_;	//server port (optional)
+    private int connectionIndex_;
     
     /**
      * Creates a new instance of the user account.
@@ -63,39 +64,16 @@ public class Account {
     	this(u, p, protocolType, null, 0);
     }
     
-    public void setUser(String u){
-        this.username_ = u;
-    }
-    
-    public void setPassword(String p){
-        this.password_ = p;
-    }
-    
-    public void setServer(String s){
-        this.server_ = s;
-    }
-    
-    public void setPort(int port){
-    	this.port_ = port;
-    }
-    
-    public String getUser(){
-        return this.username_;
-    }
-    
-    public String getPassword(){
-       return this.password_;
-    }
-    
-    public String getServer(){
-        return this.server_;
-    }
-    
-    public int getPort() {
-    	return this.port_;
-    }
-    
-    public int getProtocolType() {
-    	return this.protocolType_;
-    }    
+    public void setUser(String u)       {this.username_ = u;}
+    public void setPassword(String p)   {this.password_ = p;}
+    public void setServer(String s)     {this.server_ = s;}
+    public void setPort(int port)       {this.port_ = port;}
+    public void setIndex(int index)    {this.connectionIndex_ = index;}
+   
+    public String getUser()         {return this.username_;}
+    public String getPassword()     {return this.password_;}   
+    public String getServer()       {return this.server_;}    
+    public int getPort()            {return this.port_;}   
+    public int getProtocolType()    {return this.protocolType_;}
+    public int getConnectionIndex(){return this.connectionIndex_;}
 }
