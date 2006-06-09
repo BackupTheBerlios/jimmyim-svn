@@ -27,8 +27,11 @@ import java.util.*;
 import java.lang.*;
 
 import jimmy.Account;
-import jimmy.Jimmy;
+import jimmy.*;
 import jimmy.util.RMS;
+import jimmy.icq.*;
+import jimmy.msn.*;
+import jimmy.jabber.*;
 
 
 public class JimmyUI {
@@ -114,6 +117,19 @@ public class JimmyUI {
                 scrNewAcc = new NewAccount();
 	}
         
+        public static JimmyUI getInstance(){return jimmyUI_;}
+        public Hashtable getCommands(){return commands_;}
+        public Account[] getAccount(){return this.acc_;}
+        
+        public void setAccount(Account[] a){
+            this.acc_ = a;
+            ((MainMenu)scrMenu).setAccountList(acc_);
+        }
+                
+        public void setSplashMess(String s){
+            ((Splash)scrSplash).setMess(s);
+        }        
+        
         /**
          *  This method changes displayed Screen. 
          *  @param display each screen has its own code. Use SCR_* int constants.
@@ -135,6 +151,29 @@ public class JimmyUI {
                     jimmy_.exitJimmy();
                 if(c == cmdNew)
                     jimmy_.setDisplay(scrNewAcc);
+                if(c == cmdLogin){
+                    int selected = scrMenu.getSelectedIndex();
+                    Vector protocolList = jimmy_.getProtocolList();
+                    
+                    switch(acc_[selected].getProtocolType()){
+                        case 0:
+                            protocolList.addElement(new JabberProtocol());
+                            break;
+                        case 1:
+                            protocolList.addElement(new ICQProtocol());
+                            break;
+                        case 2:
+                            protocolList.addElement(new MSNProtocol());
+                            break;
+                        case 3:
+                            //yahoo
+                            break;
+                    }
+                    
+                    //((Protocol)protocolList.lastElement()).login(acc_[selected]);
+                    //selected++;
+
+                }
             }
             else if(d == scrNewAcc){
                 if(c == cmdOk){
@@ -154,23 +193,6 @@ public class JimmyUI {
                 
             }
 	}
-        
-        public static JimmyUI getInstance(){
-            return jimmyUI_;
-        }
-        
-        public Hashtable getCommands(){
-            return commands_;
-        }
-        
-        public void setAccount(Account[] a){
-            this.acc_ = a;
-            ((MainMenu)scrMenu).setAccountList(acc_);
-        }
-        
-        public void setSplashMess(String s){
-            ((Splash)scrSplash).setMess(s);
-        }
         
         /*
          * This method is used for saving new account into record store.
