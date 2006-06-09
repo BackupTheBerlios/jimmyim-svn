@@ -153,6 +153,37 @@ public class ICQPackage {
 			System.out.println(b.length);
 			return b;
 	}
+	
+	public byte[] getNetPackage() {
+		Vector v = new Vector();
+			for (int i = 0; i < this.pkg.length; i++) {
+				v.addElement(new Byte(this.pkg[i]));
+			}
+			if (this.tlvs.size() != 0) {
+				for (int i = 0; i < this.tlvs.size(); i++) {
+					byte[] b = ((ICQTlv) this.tlvs.elementAt(i)).getBytes();
+					for (int j = 0; j < b.length; j++) {
+						v.addElement(new Byte(b[j]));
+					}
+				}
+			}
+			if (v.size()%16 != 0){
+				int mod = 16-v.size()%16;
+				for (int i = 0; i < mod; i++){
+					v.addElement(new Byte((byte)0x00));
+				}
+			}
+			System.out.print("Vector size: ");
+			System.out.println(v.size());
+			byte[] b = new byte[v.size()];
+			for (int i = 0; i < v.size(); i++) {
+				b[i] = ((Byte) v.elementAt(i)).byteValue();
+				//System.out.println(((Byte) v.elementAt(i)).toString());
+				// v.removeElementAt(0);
+			}
+			v = null;
+			return b;
+	}
 
 	/**
 	 * Sets the FLAP package header.
@@ -169,8 +200,7 @@ public class ICQPackage {
 			a = Utils.shortToBytes(seq, true);
 			this.pkg[2] = a[0];
 			this.pkg[3] = a[1];
-			a = Utils.shortToBytes((short)(this.flap_size = this.pkg.length
-							- ICQPackage.FLAP_HEADER_SIZE+this.getTlvSize()), true);
+			a = Utils.shortToBytes((short)(this.flap_size = this.pkg.length	- ICQPackage.FLAP_HEADER_SIZE+this.getTlvSize()), true);
 			this.pkg[4] = a[0];
 			this.pkg[5] = a[1];
 	}
@@ -256,6 +286,9 @@ public class ICQPackage {
 
 	public int getTlvSize() {
 		int l = 0;
+		if(this.tlvs.size() == 0)
+			return 0;
+		
 		for (int i = 0; i < this.tlvs.size(); i++) {
 			l = l + ((ICQTlv) this.tlvs.elementAt(i)).getLen();
 		}

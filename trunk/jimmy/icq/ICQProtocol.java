@@ -18,8 +18,9 @@ import jimmy.net.*;
  */
 public class ICQProtocol extends Protocol{
 	
-	private final String AUTH_SERVER = "login.oscar.aol.com";
-	private final int AUTH_SERVER_PORT = 5555;
+	//private final String AUTH_SERVER = "login.oscar.aol.com";
+	private final String AUTH_SERVER = "zabica";
+	private final int AUTH_SERVER_PORT = 5190;
 	private String bos = "";
 	//private ServerHandler auth = null;
 	private ServerHandler conn = null;
@@ -47,12 +48,11 @@ public class ICQProtocol extends Protocol{
 		l.setChannel((byte)0x01);
 		byte[] ver = {(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x01};
 		l.setContent(ver);
-		l.setFlap((short)0x0000);
+		
 		ICQTlv t = new ICQTlv();
 		t.setHeader((short)0x0001,(short)(this.user.getBytes()).length);
 		t.setContent(this.user.getBytes());
 		l.addTlv(t);
-		
 		t = new ICQTlv();
 		t.setHeader((short)0x0002,(short)(this.pass.getBytes()).length);
 		t.setContent(this.roast(this.pass.getBytes()));
@@ -130,20 +130,20 @@ public class ICQProtocol extends Protocol{
 		t.setHeader((short)0x000e,(short)0x0002);
 		t.setContent((new String("si").getBytes()));
 		l.addTlv(t);
-		
+		l.setFlap((short)0x0000);
 		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
 		//auth connection
+		byte[] b = l.getNetPackage();
 		this.conn = new ServerHandler(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
 		this.conn.connect();
-		System.out.println("Bla1");
+		//System.out.println("Bla1");
 		System.out.println(this.conn.getReply());
-		System.out.println("Bla2");
-		byte[] b = l.getPackage();
+		//System.out.println("Bla2");*/
 		//System.out.println(new String(b));
 		this.conn.sendRequest(b);
-		System.out.println("Bla3");
+		//System.out.println("Bla3");
 		System.out.println(this.conn.getReply());
-		System.out.println("Bla4");
+		//System.out.println("Bla4");
 		//SECOND PART OF STAGE ONE (MD5 AUTH)
 		//END STAGE ONE
 		
