@@ -20,8 +20,8 @@ public class ICQProtocol extends Protocol{
 	
 	//private final String AUTH_SERVER = "login.oscar.aol.com";
 	private final String AUTH_SERVER = "192.168.0.3";
-	//private final int AUTH_SERVER_PORT = 5190;
-	private final int AUTH_SERVER_PORT = 6666;
+	private final int AUTH_SERVER_PORT = 5190;
+	//private final int AUTH_SERVER_PORT = 6666;
 	private String bos = "";
 	//private ServerHandler auth = null;
 	private ServerHandler conn = null;
@@ -137,6 +137,7 @@ public class ICQProtocol extends Protocol{
 		this.conn.connect();
 		System.out.println(this.conn.getReply());
 		this.conn.sendRequest(b);
+		System.out.println(this.conn.getReply());
 		System.out.println(this.conn.getReply());
 		//SECOND PART OF STAGE ONE (MD5 AUTH)
 
