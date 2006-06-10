@@ -96,12 +96,12 @@ public class JimmyUI {
         private static Splash       scrSplash;
         private static NewAccount   scrNewAcc;
         private static ContactsMenu scrContacts;
-        private static About      scrAbout;
+        private static About        scrAbout;
 	
         private Vector contacts_;
         
         final private String about_ = 
-                "*JIMMY - Instant Mobile Messenger\n"+
+                "JIMMY - Instant Mobile Messenger\n"+
                 "Copyright (C) 2006  JIMMY Project\n"+
                 "-------------------------------------\n"+
                 "Authors:\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n"+
@@ -166,23 +166,24 @@ public class JimmyUI {
 	public static void jimmyCommand(Command c, Displayable d) {
             //commands from main menu
             if(d == scrMenu){
-                if(c == cmdExit)
+                if(c == cmdExit){
                     jimmy_.exitJimmy();
-                else if(c == cmdNew)
+                }//if c == cmdExit
+                else if(c == cmdNew){
                     jimmy_.setDisplay(scrNewAcc);
+                }//if c == cmdNew
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
                     Vector newConnections = new Vector();
-                    //System.out.println(scrMenu.getSelectedIndex());
                     newConnections.addElement(acc_[selected]);
                     jimmy_.setNewConnections(newConnections);
                     
                     jimmy_.setDisplay(scrContacts);
-                }
+                }//if c == cmdLogin
                 else if(c == cmdAbout){
                     jimmy_.setDisplay(scrAbout);                    
-                }
-            }
+                }//if c == cmdAbout
+            }//if d == scrMenu
             
             //commands from new account page
             else if(d == scrNewAcc){

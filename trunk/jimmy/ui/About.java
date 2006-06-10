@@ -37,17 +37,22 @@ public class About extends TextBox implements CommandListener{
     private JimmyUI ui_;
     private Hashtable commands_;
     
-    /** Creates a new instance of About */
+    /** Creates a new instance of About
+     *  @param text text to be shown in about window
+     */
     public About(String text) {
-        super("About:",text,200,TextField.UNEDITABLE);
+        super("About:",text,300,TextField.UNEDITABLE);
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
           
         //add command
+        try {
+            setCommandListener(this);
+        } catch(Exception e) {e.printStackTrace();}
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK)));
     }
     
     public void commandAction(Command c, Displayable d){
-        ui_.jimmyCommand(c,d);
+        JimmyUI.jimmyCommand(c,d);
     }
 }
