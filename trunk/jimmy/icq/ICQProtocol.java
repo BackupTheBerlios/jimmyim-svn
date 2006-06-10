@@ -19,8 +19,9 @@ import jimmy.net.*;
 public class ICQProtocol extends Protocol{
 	
 	//private final String AUTH_SERVER = "login.oscar.aol.com";
-	private final String AUTH_SERVER = "zabica";
-	private final int AUTH_SERVER_PORT = 5190;
+	private final String AUTH_SERVER = "192.168.0.3";
+	//private final int AUTH_SERVER_PORT = 5190;
+	private final int AUTH_SERVER_PORT = 6666;
 	private String bos = "";
 	//private ServerHandler auth = null;
 	private ServerHandler conn = null;
@@ -59,32 +60,40 @@ public class ICQProtocol extends Protocol{
 		l.addTlv(t);
 		
 		t = new ICQTlv();
-		String v = new String("Jimmy IM, 0.0.01");
+		String v = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 		t.setHeader((short)0x0003,(short)(v.getBytes()).length);
-		t.setContent(this.roast(v.getBytes()));
+		t.setContent(v.getBytes());
 		l.addTlv(t);
 		
+		ver = null;
+		ver = new byte[2];
 		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x01;
+		ver[0] = (byte)0x01;
+		ver[1] = (byte)0x0a;
 		t.setHeader((short)0x0016,(short)0x0002);
 		t.setContent(ver);
 		l.addTlv(t);
 		
+		ver = null;
+		ver = new byte[2];
 		t = new ICQTlv();
 		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x00;
+		ver[1] = (byte)0x05;
 		t.setHeader((short)0x0017,(short)0x0002);
 		t.setContent(ver);
 		l.addTlv(t);
 		
+		ver = null;
+		ver = new byte[2];
 		t = new ICQTlv();
 		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x00;
+		ver[1] = (byte)0x2d;
 		t.setHeader((short)0x0018,(short)0x0002);
 		t.setContent(ver);
 		l.addTlv(t);
 		
+		ver = null;
+		ver = new byte[2];
 		t = new ICQTlv();
 		ver[0] = (byte)0x00;
 		ver[1] = (byte)0x01;
@@ -92,59 +101,45 @@ public class ICQProtocol extends Protocol{
 		t.setContent(ver);
 		l.addTlv(t);
 		
-
+		ver = null;
+		ver = new byte[2];
 		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x05;
+		ver[0] = (byte)0x0e;
+		ver[1] = (byte)0xc1;
 		t.setHeader((short)0x001A,(short)0x0002);
 		t.setContent(ver);
 		l.addTlv(t);
 		
 		t = new ICQTlv();
+		ver = new byte[4];
 		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x05;
-		t.setHeader((short)0x001A,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x05;
-		t.setHeader((short)0x001A,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x01;
+		ver[1] = (byte)0x00;
+		ver[2] = (byte)0x00;
+		ver[3] = (byte)0x55;
 		t.setHeader((short)0x0014,(short)0x0004);
 		t.setContent(ver);
 		l.addTlv(t);
 		
 		t = new ICQTlv();
 		t.setHeader((short)0x000f,(short)0x0002);
-		t.setContent((new String("si").getBytes()));
+		t.setContent("si");
 		l.addTlv(t);
 		
 		t = new ICQTlv();
 		t.setHeader((short)0x000e,(short)0x0002);
-		t.setContent((new String("si").getBytes()));
+		t.setContent("si");
 		l.addTlv(t);
-		l.setFlap((short)0x0000);
+		l.setFlap((short)0x0001);
 		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
 		//auth connection
 		byte[] b = l.getNetPackage();
 		this.conn = new ServerHandler(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
 		this.conn.connect();
-		//System.out.println("Bla1");
 		System.out.println(this.conn.getReply());
-		//System.out.println("Bla2");*/
-		//System.out.println(new String(b));
 		this.conn.sendRequest(b);
-		//System.out.println("Bla3");
 		System.out.println(this.conn.getReply());
-		//System.out.println("Bla4");
 		//SECOND PART OF STAGE ONE (MD5 AUTH)
+
 		//END STAGE ONE
 		
 		return false;

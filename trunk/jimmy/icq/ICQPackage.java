@@ -167,14 +167,12 @@ public class ICQPackage {
 					}
 				}
 			}
-			if (v.size()%16 != 0){
+			/*if (v.size()%16 != 0){
 				int mod = 16-v.size()%16;
 				for (int i = 0; i < mod; i++){
 					v.addElement(new Byte((byte)0x00));
 				}
-			}
-			System.out.print("Vector size: ");
-			System.out.println(v.size());
+			}*/
 			byte[] b = new byte[v.size()];
 			for (int i = 0; i < v.size(); i++) {
 				b[i] = ((Byte) v.elementAt(i)).byteValue();
@@ -182,6 +180,7 @@ public class ICQPackage {
 				// v.removeElementAt(0);
 			}
 			v = null;
+			System.out.println("return package");
 			return b;
 	}
 
