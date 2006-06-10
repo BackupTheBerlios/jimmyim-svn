@@ -122,12 +122,12 @@ public class ICQProtocol extends Protocol{
 		
 		t = new ICQTlv();
 		t.setHeader((short)0x000f,(short)0x0002);
-		t.setContent("si");
+		t.setContent("en");
 		l.addTlv(t);
 		
 		t = new ICQTlv();
 		t.setHeader((short)0x000e,(short)0x0002);
-		t.setContent("si");
+		t.setContent("us");
 		l.addTlv(t);
 		l.setFlap((short)0x0001);
 		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
