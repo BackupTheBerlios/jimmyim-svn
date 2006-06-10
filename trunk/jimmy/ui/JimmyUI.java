@@ -46,6 +46,7 @@ public class JimmyUI {
         final public static int CMD_LOGIN  = 8;
         final public static int CMD_NEW    = 9;
         final public static int CMD_ABOUT  = 10;
+        final public static int CMD_CHAT   = 11;
         
         //Screen codes
         final public static int SCR_SPLASH  = 1;
@@ -66,6 +67,7 @@ public class JimmyUI {
         final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
         final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
         final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
+        final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -86,6 +88,7 @@ public class JimmyUI {
                 commands_.put(new Integer(CMD_LOGIN),   cmdLogin    );
                 commands_.put(new Integer(CMD_NEW),     cmdNew      );
                 commands_.put(new Integer(CMD_ABOUT),   cmdAbout    );
+                commands_.put(new Integer(CMD_CHAT),    cmdChat     );
 	}
         
         //Screens
@@ -93,7 +96,17 @@ public class JimmyUI {
         private static Splash       scrSplash;
         private static NewAccount   scrNewAcc;
         private static ContactsMenu scrContacts;
+        private static About      scrAbout;
 	
+        private Vector contacts_;
+        
+        final private String about_ = 
+                "*JIMMY - Instant Mobile Messenger\n"+
+                "Copyright (C) 2006  JIMMY Project\n"+
+                "-------------------------------------\n"+
+                "Authors:\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n"+
+                "WWW: http://jimmyim.berlios.de";
+        
         /**
          * The constructor creates an instance of JimmyUI. JimmyUI is main class
          * for handling GUI. In constructor we create screens (e.g. splash, main menu, ...)
@@ -117,6 +130,7 @@ public class JimmyUI {
                 scrMenu =       new MainMenu(acc_);
                 scrNewAcc =     new NewAccount();
                 scrContacts =   new ContactsMenu();
+                scrAbout =      new About(about_);   
                 
 	}
         
@@ -128,10 +142,11 @@ public class JimmyUI {
             this.acc_ = a;
             ((MainMenu)scrMenu).setAccountList(acc_);
         }
-                
-        public void setSplashMess(String s){
-            ((Splash)scrSplash).setMess(s);
-        }        
+        public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
+        public void setContacts(Vector v){
+            this.contacts_ = v;
+            this.scrContacts.setContacts(v);
+        }
         
         /**
          *  This method changes displayed Screen. 
@@ -153,9 +168,9 @@ public class JimmyUI {
             if(d == scrMenu){
                 if(c == cmdExit)
                     jimmy_.exitJimmy();
-                if(c == cmdNew)
+                else if(c == cmdNew)
                     jimmy_.setDisplay(scrNewAcc);
-                if(c == cmdLogin){
+                else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
                     Vector newConnections = new Vector();
                     //System.out.println(scrMenu.getSelectedIndex());
@@ -164,7 +179,11 @@ public class JimmyUI {
                     
                     jimmy_.setDisplay(scrContacts);
                 }
+                else if(c == cmdAbout){
+                    jimmy_.setDisplay(scrAbout);                    
+                }
             }
+            
             //commands from new account page
             else if(d == scrNewAcc){
                 if(c == cmdOk){
@@ -175,14 +194,30 @@ public class JimmyUI {
                     String port     = (String)data.elementAt(3);
                     int protocol    = ((Integer)data.elementAt(4)).intValue();
                     saveAccount(user,pass,server,port,protocol);
-                }
+                }//if c == cmdOk
                 ((NewAccount)d).clearForm();
                 RMS rs = new RMS(Jimmy.RS);
                 jimmyUI_.setAccount(rs.getAccounts());
                 
-                jimmy_.setDisplay(scrMenu);
-                
-            }
+                jimmy_.setDisplay(scrMenu);                
+            }// if d == scrNewAcc
+            
+            //commands from contacts page
+            else if(d == scrContacts){
+                if(c == cmdBack){
+                    jimmy_.setDisplay(scrMenu);
+                }//c == cmdBack
+                else if(c == cmdChat){
+                    
+                }//c == cmdChat
+            }//d == scrContacts
+            
+            //commads from about page
+            else if(d == scrAbout){
+                if(c == cmdBack){
+                    jimmy_.setDisplay(scrMenu);                    
+                }// c == cmdBack
+            }// if d == scrAbout
 	}
         
         /*

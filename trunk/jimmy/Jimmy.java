@@ -71,8 +71,9 @@ public class Jimmy extends MIDlet implements Runnable {
 	}
 
         public void run(){
+            //infinite loop
             while(true){
-                try{ Thread.sleep(1000); } catch(Exception e){}; //read data every second
+                try{ Thread.sleep(1000); } catch(Exception e){};    //stop for one second
 
                 //if there are some new connections to establish
                 if(newConnections_ != null){
@@ -81,7 +82,7 @@ public class Jimmy extends MIDlet implements Runnable {
                     
                     //read data from vector and establish connections
                     while(!newConnections_.isEmpty()){
-                        current = (Account)newConnections_.elementAt(i);
+                        current = (Account)newConnections_.elementAt(i);  //current connections
                         
                         //which protocol to connect?
                         switch(current.getProtocolType()){
@@ -96,10 +97,8 @@ public class Jimmy extends MIDlet implements Runnable {
                                 protocolList_.addElement(icq);
                                 break;
                             case 2:
-                                System.out.println("MSN:");
                                 MSNProtocol msn = new MSNProtocol();
                                 msn.login(current);
-                                System.out.println("end MSN---");
                                 protocolList_.addElement(msn);
                                 break;
                             case 3:
@@ -110,8 +109,24 @@ public class Jimmy extends MIDlet implements Runnable {
                         current.setIndex(protocolList_.size()-1);                    
                         i++;
                     }//while newConnections is not empty
+                    
                     newConnections_ = null;
                 }//if newConnections is not null
+                
+                Protocol currentProt;
+                Vector contacts = new Vector();
+                Vector currentCont;
+                for(int i=0; i<protocolList_.size(); i++){
+                    currentProt = (Protocol)protocolList_.elementAt(i);
+                    currentCont = currentProt.getContacts();   //get contacts from current account
+                    
+                    for(int j=0; j<currentCont.size(); j++){
+                        contacts.addElement(currentCont.elementAt(j));  //add them to the contacts list
+                    }//for j < currentCont.size()
+                }//for i < protocolList_.size()
+                
+                //TO-DO - sort contacts list according to Group
+                ui_.setContacts(contacts);
             }//while true
         }//run
 
