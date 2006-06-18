@@ -26,7 +26,7 @@ public class ICQProtocol extends Protocol{
 	private final int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
 	private String bos = "";
-	private ICQPackage cookie;
+	private byte[] cookie;
 	private ICQPackage response;
 	private ProtocolInteraction me;
 	//private ServerHandler auth = null;
@@ -167,7 +167,7 @@ public class ICQProtocol extends Protocol{
 
 	public void logout() {
 		// TODO Auto-generated method stub
-		
+		this.conn.disconnect();
 	}
 
 	public ChatSession startChatSession(Contact user) {
@@ -200,8 +200,9 @@ public class ICQProtocol extends Protocol{
 			break;
 		case 5:
 			System.out.println("Got Cookie");
-			this.cookie = this.response;
-			this.response = null;
+			this.bos = new String(t.getContent());
+			this.cookie = this.response.getTlv(2).getContent();
+			System.out.println(Utils.byteArrayToHexString(this.cookie));
 			break;
 		case 6:
 			break;
@@ -212,6 +213,7 @@ public class ICQProtocol extends Protocol{
 			switch(Utils.bytesToInt(t.getContent(),true)){
 				case 0x1E:
 						System.out.println("Incorrect uin &/or password");
+						this.me.stopProtocol(this);
 					break;
 			}
 			//Drops auth error message
