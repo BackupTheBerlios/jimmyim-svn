@@ -112,4 +112,11 @@ public abstract class Protocol
      * @param session Active Chat Session to send the message to
      */
     public abstract void sendMsg(String msg, Vector contactsList, ChatSession session);
+    
+    /**
+     * Adds a ProtocolInteraction interface handler to kill a protocol from within it. (Suicide)
+     * 
+     * @param j The running instance of Jimmy (most cases "this")
+     */
+    public abstract ProtocolInteraction addProtocolInteractionIF(Jimmy j);
 }
