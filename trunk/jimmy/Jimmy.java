@@ -37,8 +37,9 @@ import jimmy.icq.ICQProtocol;
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
 import jimmy.ui.Splash;
+import jimmy.ProtocolInteraction;
 
-public class Jimmy extends MIDlet implements Runnable {
+public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 	public static Jimmy jimmy_;         //Application main object
 	final public static String VERSION	=	"pre-alpha"; //JIMMY version
         final public static String RS = "JimmyIM";
@@ -69,7 +70,7 @@ public class Jimmy extends MIDlet implements Runnable {
 		//((Protocol)protocolList_.elementAt(0)).login("avgustin.ocepek@yahoo.com.au","0c3p3k");
 		//((Protocol)protocolList_.elementAt(0)).login("jimmy@gristle.org","jimmy");
 	}
-
+	
         public void run(){
             //infinite loop
             while(true){
@@ -92,7 +93,7 @@ public class Jimmy extends MIDlet implements Runnable {
                                 protocolList_.addElement(jabber);
                                 break;
                             case 1:
-                                ICQProtocol icq = new ICQProtocol();
+                                ICQProtocol icq = new ICQProtocol(this);
                                 icq.login(current);
                                 protocolList_.addElement(icq);
                                 break;
@@ -149,4 +150,10 @@ public class Jimmy extends MIDlet implements Runnable {
         public void setNewConnections(Vector list)  {this.newConnections_ = list;}
                 
         public void setDisplay(Displayable d)   {Display.getDisplay(this).setCurrent(d);}
+
+		public void stopProtocol(Protocol p) {
+			p.logout();
+			this.protocolList_.removeElement((Object)p);
+		}
+        
 }
