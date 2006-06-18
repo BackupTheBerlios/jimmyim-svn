@@ -154,8 +154,8 @@ public class ServerHandler
     public void sendRequest(byte[] message){
     	try 
         {            
-            os_.write(message);
-            os_.flush();
+    			os_.write(message);
+    			os_.flush();
          
         } catch (IOException ex) 
         {
@@ -192,6 +192,46 @@ public class ServerHandler
             
             if (buffer != null)
             	return new String(buffer); //buffer was get, return the String
+            else
+            	return null;	//buffer was not get - timeout occured, return null
+        } 
+        catch (Exception ex) 
+        {
+            ex.printStackTrace();
+
+            return null;
+        }
+    }
+    
+    /**
+     * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
+     * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)! 
+     *  
+     * @return Message from the remote server as a byte[]. null if timeout has occured
+     */
+    public byte[] getReplyBytes()
+    {          
+        try 
+        {
+            byte[] buffer = null;
+            
+            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
+            if (bs!=0) {
+                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
+                this.is_.read(buffer);	//read the whole buffer in the array
+            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
+                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
+                    Thread.sleep(this.SLEEPTIME_);
+                    if ((bs = this.is_.available()) != 0) {
+                        buffer = new byte[bs];
+                        this.is_.read(buffer);
+                        break;
+                    }
+                }
+        	}
+            
+            if (buffer != null)
+            	return buffer; //buffer was get, return the String
             else
             	return null;	//buffer was not get - timeout occured, return null
         } 

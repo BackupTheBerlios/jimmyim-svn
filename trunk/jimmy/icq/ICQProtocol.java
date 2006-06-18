@@ -10,7 +10,9 @@ import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
 import jimmy.Protocol;
+import jimmy.ProtocolInteraction;
 import jimmy.net.*;
+import jimmy.util.*;
 
 /**
  * @author dejan
@@ -19,10 +21,13 @@ import jimmy.net.*;
 public class ICQProtocol extends Protocol{
 	
 	//private final String AUTH_SERVER = "login.oscar.aol.com";
-	private final String AUTH_SERVER = "192.168.0.3";
+	private final String AUTH_SERVER = "zabica";
 	private final int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
 	private String bos = "";
+	private ICQPackage cookie;
+	private ICQPackage response;
+	private ProtocolInteraction me;
 	//private ServerHandler auth = null;
 	private ServerHandler conn = null;
 	
@@ -31,6 +36,7 @@ public class ICQProtocol extends Protocol{
 	
 	public ICQProtocol(){
 		this.connected_ = false;
+		//this.me = new ProtocolInteraction();
 	}
 	
 	public boolean login(Account account) {
@@ -131,16 +137,28 @@ public class ICQProtocol extends Protocol{
 		l.addTlv(t);
 		l.setFlap((short)0x0001);
 		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
+		
 		//auth connection
 		byte[] b = l.getNetPackage();
 		this.conn = new ServerHandler(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
 		this.conn.connect();
-		System.out.println(this.conn.getReply());
+		
+		//check the connection acknowledgement
+		ICQPackage ack = new ICQPackage(this.conn.getReplyBytes());
+		if(Utils.bytesToInt(ack.getContent(),true) != 1){
+			System.out.println("Not responding.");
+			System.exit(10);
+		}
+		
+		//Send the first auth package
 		this.conn.sendRequest(b);
-		System.out.println(this.conn.getReply());
-		System.out.println(this.conn.getReply());
+		
+		//get cookie or err
+		response = new ICQPackage(this.conn.getReplyBytes());
+		this.tlvDecode(response.getTlv(1));
+		this.conn.disconnect();
 		//SECOND PART OF STAGE ONE (MD5 AUTH)
-
+		
 		//END STAGE ONE
 		
 		return false;
@@ -166,6 +184,43 @@ public class ICQProtocol extends Protocol{
 		
 	}
 	
+	public void tlvDecode(ICQTlv t){
+		
+		switch(t.getType()){
+		case	 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			System.out.println("Got Cookie");
+			this.cookie = this.response;
+			this.response = null;
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8:
+			System.out.print("Error: ");
+			switch(Utils.bytesToInt(t.getContent(),true)){
+				case 0x1E:
+						System.out.println("Incorrect uin &/or password");
+					break;
+			}
+			//Drops auth error message
+			break;
+		default:
+			break;
+				
+		}
+	}
+	
 	/**
 	 * Byte array roaster. XOR the byte[] with the modulo bytes in the roasting array. 
 	 * 
@@ -181,4 +236,8 @@ public class ICQProtocol extends Protocol{
 		return roasted;
 	}
 	
+	public void stop(){
+		this.logout();
+		this.conn.disconnect();
+	}
 }
