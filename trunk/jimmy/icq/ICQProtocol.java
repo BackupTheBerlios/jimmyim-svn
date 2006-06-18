@@ -9,6 +9,7 @@ import java.io.*;
 import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
+import jimmy.Jimmy;
 import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 import jimmy.net.*;
@@ -34,9 +35,9 @@ public class ICQProtocol extends Protocol{
 	private String user;
 	private String pass;
 	
-	public ICQProtocol(){
+	public ICQProtocol(Jimmy j){
 		this.connected_ = false;
-		//this.me = new ProtocolInteraction();
+		this.me = this.addProtocolInteractionIF(j);
 	}
 	
 	public boolean login(Account account) {
@@ -235,9 +236,11 @@ public class ICQProtocol extends Protocol{
 		}
 		return roasted;
 	}
-	
-	public void stop(){
-		this.logout();
-		this.conn.disconnect();
+
+	/**
+	 * add the interface handle
+	 */
+	public ProtocolInteraction addProtocolInteractionIF(Jimmy j) {
+		return j;
 	}
 }
