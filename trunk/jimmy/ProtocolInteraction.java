@@ -30,5 +30,5 @@ package jimmy;
  *
  */
 public interface ProtocolInteraction {
-	public void stopProtocol();
+	public void stopProtocol(Protocol p);
 }
