@@ -108,6 +108,8 @@ public class ICQTlv {
 	 * @return TLV length
 	 */
 	public int getLen(){
+		if(this.content == null)
+			return this.header.length;
 		return this.header.length+this.content.length;
 	}
 	
@@ -117,6 +119,8 @@ public class ICQTlv {
 	 * @return TLV content length
 	 */
 	public int getCLen(){
+		if(this.content == null)
+			return 0;
 		return this.content.length;
 	}
 	
@@ -157,13 +161,19 @@ public class ICQTlv {
 	 * @return Package in byte[]
 	 */
 	public byte[] getBytes(){
-		byte[] b = new byte[this.header.length+this.content.length];
-		for(int i = 0; i < b.length; i++){
-			if(i < this.header.length)
-				b[i] = this.header[i];
-			else
-				b[i] = this.content[i-this.header.length];
+		byte[] b = null;
+		if(this.content != null){
+			b = new byte[this.header.length+this.content.length];
+			for(int i = 0; i < b.length; i++){
+				if(i < this.header.length)
+					b[i] = this.header[i];
+				else
+					b[i] = this.content[i-this.header.length];
+			}
+		}else{
+			return this.header;
 		}
+	
 		return b;
 	}
 }
