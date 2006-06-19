@@ -95,38 +95,61 @@ public class ICQPackage {
 
 	
 	public void dismantle(byte[] p){
-		if(this.ch != 0x02){
-			for(int i = 6; i<this.pkg.length; i++){
+		int header = ICQPackage.FLAP_HEADER_SIZE;
+		if(this.ch == 0x02){
+			header = ICQPackage.SNACK_PKG_HEADER_SIZE;
+		}
+		if (this.ch != 0x02) {
+			for (int i = header; i < this.pkg.length; i++) {
 				ICQTlv tlv = new ICQTlv();
 				byte[] b1 = new byte[2];
 				byte[] b2 = new byte[2];
 				b1[0] = this.pkg[i];
-				b1[1] = this.pkg[i+1];
-				b2[0] = this.pkg[i+2];
-				b2[1] = this.pkg[i+3];
-				tlv.setHeader(Utils.bytesToShort(b1,true),Utils.bytesToShort(b2,true));
-				i = i+4;
-				byte[] bla = new byte[Utils.bytesToInt(b2,true)];
-				for(int j = 0; j<Utils.bytesToInt(b2,true); j++){
+				b1[1] = this.pkg[i + 1];
+				b2[0] = this.pkg[i + 2];
+				b2[1] = this.pkg[i + 3];
+				tlv.setHeader(Utils.bytesToShort(b1, true), Utils.bytesToShort(b2, true));
+				i = i + 4;
+				byte[] bla = new byte[Utils.bytesToInt(b2, true)];
+				for (int j = 0; j < Utils.bytesToInt(b2, true); j++) {
 					bla[j] = this.pkg[i];
-					if(j != bla.length-1)
-						i++;		
+					if (j != bla.length - 1)
+						i++;
 				}
 				tlv.setContent(bla);
 				this.tlvs.addElement(tlv);
 			}
+			/*
+			 * byte[] seq = new byte[2]; seq[0] = this.pkg[2]; seq[1] =
+			 * this.pkg[3]; this.pkg = new byte[6]; this.pkg[0] = 0x2a;
+			 * this.pkg[1] = this.ch; this.pkg[2] = seq[0]; this.pkg[3] =
+			 * seq[1]; byte[] s = Utils.intToBytes(this.flap_size,true);
+			 * this.pkg[4] = s[0]; this.pkg[5] = s[1];
+			 */
+			byte[] b = new byte[header];
+			for (int i = 0; i < header; i++) {
+				b[i] = this.pkg[i];
+			}
+			this.pkg = b;
+			b = null;
+		}else{
+			//dismantle as SNAC type
+			byte[] b = new byte[2];
+			b[0] = this.pkg[6];
+			b[1] = this.pkg[7];
+			int type = Utils.bytesToInt(b,true);
+			b[0] = this.pkg[8];
+			b[1] = this.pkg[9];
+			int subtype = Utils.bytesToInt(b,true);
+			switch(type){
+			case 0x0017:
+				switch(subtype){
+				case 0x07:
+					break;
+				}
+				break;
+			}
 		}
-		byte[] seq = new byte[2];
-		seq[0] = this.pkg[2];
-		seq[1] = this.pkg[3];
-		this.pkg = new byte[6];
-		this.pkg[0] = 0x2a;
-		this.pkg[1] = this.ch;
-		this.pkg[2] = seq[0];
-		this.pkg[3] = seq[1];
-		byte[] s = Utils.intToBytes(this.flap_size,true);
-		this.pkg[4] = s[0];
-		this.pkg[5] = s[1];
 	}
 	
 	/**
@@ -165,9 +188,12 @@ public class ICQPackage {
 	}
 
 	public byte[] getContent(){
-		byte[] b = new byte[this.pkg.length - 6];
+		int header = ICQPackage.FLAP_HEADER_SIZE;
+		if(this.ch == 0x02)
+			header = ICQPackage.SNACK_PKG_HEADER_SIZE;
+		byte[] b = new byte[this.pkg.length - header];
 		for (int i = 0; i<b.length; i++){
-			b[i] = this.pkg[6+i];
+			b[i] = this.pkg[header+i];
 		}
 		return b;
 	}
@@ -269,13 +295,14 @@ public class ICQPackage {
 	 */
 	public void setSnac(int family, int subtype, int flags, int reqid) {
 		this.ch = 0x02;
-		byte[] a = Utils.shortToBytes(Utils.unsignShort(family), true);
+		this.pkg = new byte[ICQPackage.SNACK_PKG_HEADER_SIZE];
+		byte[] a = Utils.shortToBytes((short)family, true);
 		this.pkg[6] = a[0];
 		this.pkg[7] = a[1];
-		a = Utils.shortToBytes(Utils.unsignShort(subtype), true);
+		a = Utils.shortToBytes((short)subtype, true);
 		this.pkg[8] = a[0];
 		this.pkg[9] = a[1];
-		a = Utils.shortToBytes(Utils.unsignShort(flags), true);
+		a = Utils.shortToBytes((short)flags, true);
 		this.pkg[10] = a[0];
 		this.pkg[11] = a[1];
 		a = Utils.intToBytes(reqid, true);
