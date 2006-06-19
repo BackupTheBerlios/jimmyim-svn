@@ -21,10 +21,12 @@ import jimmy.util.*;
  */
 public class ICQProtocol extends Protocol{
 	
-	//private final String AUTH_SERVER = "login.oscar.aol.com";
-	private final String AUTH_SERVER = "zabica";
+	private final String AUTH_SERVER = "login.oscar.aol.com";
+	//private final String AUTH_SERVER = "zabica";
 	private final int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
+	private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
+	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 	private String bos = "";
 	private byte[] cookie;
 	private ICQPackage response;
@@ -67,9 +69,8 @@ public class ICQProtocol extends Protocol{
 		l.addTlv(t);
 		
 		t = new ICQTlv();
-		String v = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
-		t.setHeader((short)0x0003,(short)(v.getBytes()).length);
-		t.setContent(v.getBytes());
+		t.setHeader((short)0x0003,(short)(this.cli_id.getBytes()).length);
+		t.setContent(this.cli_id.getBytes());
 		l.addTlv(t);
 		
 		ver = null;
@@ -145,21 +146,137 @@ public class ICQProtocol extends Protocol{
 		this.conn.connect();
 		
 		//check the connection acknowledgement
-		ICQPackage ack = new ICQPackage(this.conn.getReplyBytes());
-		if(Utils.bytesToInt(ack.getContent(),true) != 1){
-			System.out.println("Not responding.");
-			System.exit(10);
-		}
+		if(this.conn.getReplyBytes() == null)
+			System.out.println("Error: not responding.");
 		
 		//Send the first auth package
 		this.conn.sendRequest(b);
 		
 		//get cookie or err
-		response = new ICQPackage(this.conn.getReplyBytes());
-		this.tlvDecode(response.getTlv(1));
+		this.response = new ICQPackage(this.conn.getReplyBytes());
+		this.tlvDecode(this.response.getTlv(1));
 		this.conn.disconnect();
+		System.out.println(this.bos);
 		//SECOND PART OF STAGE ONE (MD5 AUTH)
+		l = new ICQPackage();
+		l.setChannel((byte)0x02);
+		l.setSnac(23,6,0,1);
+		t = new ICQTlv();
+		t.setHeader((short)1,(short)this.user.length());
+		t.setContent(user);
+		l.addTlv(t);
+		t = new ICQTlv();
+		t.setHeader((short)0x004B,(short)0x0000);
+		l.addTlv(t);
+		t = new ICQTlv();
+		t.setHeader((short)0x005a,(short)0x0000);
+		l.addTlv(t);
+		l.setFlap((short)0x0002);
 		
+		this.conn.connect();
+		if(this.conn.getReplyBytes() == null)
+			System.out.println("Error: not responding.");
+		
+		this.conn.sendRequest(l.getNetPackage());
+		this.response = new ICQPackage(this.conn.getReplyBytes());
+		
+		byte[] md5_key = this.response.getContent();
+		System.out.println(Utils.byteArrayToHexString(md5_key));
+		MD5 md5 = new MD5(md5_key);
+		md5.update(this.pass.getBytes());
+		md5.update(this.AIM_MD5_STRING.getBytes());
+		byte[] md5_hash = md5.doFinal();
+		System.out.println(Utils.byteArrayToHexString(md5_hash));
+		l = new ICQPackage();
+		l.setSnac(23,2,0,35);
+		
+		t = new ICQTlv();
+		t.setHeader((short)1,(short)this.user.length());
+		t.setContent(this.user.getBytes());
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0003,(short)this.cli_id.length());
+		t.setContent(this.cli_id.getBytes());
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0025,(short)md5_hash.length);
+		t.setContent(md5_hash);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x16,(short)0x02);
+		ver = new byte[2];
+		ver[0] = (byte)0x01;
+		ver[1] = (byte)0x0a;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x17,(short)0x02);
+		ver = new byte[2];
+		ver[0] = (byte)0x00;
+		ver[1] = (byte)0x05;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x18,(short)0x02);
+		ver = new byte[2];
+		ver[0] = (byte)0x00;
+		ver[1] = (byte)0x2d;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x19,(short)0x02);
+		ver = new byte[2];
+		ver[0] = (byte)0x00;
+		ver[1] = (byte)0x01;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x1A,(short)0x02);
+		ver = new byte[2];
+		ver[0] = (byte)0x0e;
+		ver[1] = (byte)0xc1;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x14,(short)0x04);
+		ver = new byte[4];
+		ver[0] = (byte)0x00;
+		ver[1] = (byte)0x00;
+		ver[2] = (byte)0x00;
+		ver[3] = (byte)0x55;
+		t.setContent(ver);
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0F,(short)0x02);
+		t.setContent("en");
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0E,(short)0x02);
+		t.setContent("us");
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x4A,(short)0x01);
+		ver = new byte[1];
+		ver[0] = (byte)0x01;
+		t.setContent(ver);
+		l.addTlv(t);
+		l.setFlap((short)0x0035);
+		//System.out.println(l.getNetPackage().length);
+		this.conn.sendRequest(l.getNetPackage());
+		
+		System.out.println(Utils.byteArrayToHexString(this.conn.getReplyBytes()));
+		//System.out.println(Utils.byteArrayToHexString(this.conn.getReplyBytes()));
 		//END STAGE ONE
 		
 		return false;
@@ -202,7 +319,7 @@ public class ICQProtocol extends Protocol{
 			System.out.println("Got Cookie");
 			this.bos = new String(t.getContent());
 			this.cookie = this.response.getTlv(2).getContent();
-			System.out.println(Utils.byteArrayToHexString(this.cookie));
+			//System.out.println(Utils.byteArrayToHexString(this.cookie));
 			break;
 		case 6:
 			break;
