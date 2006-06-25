@@ -26,12 +26,13 @@ import java.util.Vector;
 
 /**
  * Astract class to be extended with implementations of various protocols.
- * 
+ * Every protocol runs in its own thread. The thread is initialized in constructor and can be started by calling Protocol.startThread().
+ *  
  * @author Matevz Jekovec
  * @author Zoran Mesec
  * version 1.0
  */
-public abstract class Protocol 
+public abstract class Protocol implements Runnable
 {
 	//constants for various protocol types used in Account
 	public static final byte PR_JABBER=0;
@@ -43,9 +44,23 @@ public abstract class Protocol
     protected Vector chatSessions_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
     protected ProtocolInteraction jimmy_;
+    protected Thread thread_;
     
+    /**
+     * Class constructor.
+     * 
+     * @param jimmy Reference to the main Jimmy application
+     */
     public Protocol(ProtocolInteraction jimmy) {
     	this.jimmy_ = jimmy;
+    	this.thread_ = new Thread(this);
+    }
+    
+    /**
+     * Start the thread. This calls Protocol.run() in a separate process.
+     */
+    public void startThread() {
+    	this.thread_.start();
     }
     
     /**

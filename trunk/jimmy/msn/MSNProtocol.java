@@ -804,4 +804,8 @@ public class MSNProtocol extends Protocol
     {  
     }
     public Vector getContacts() { return this.contacts_; }
+    
+    public void run() {
+    	
+    }
 }

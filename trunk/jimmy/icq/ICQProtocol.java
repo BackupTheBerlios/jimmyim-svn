@@ -362,4 +362,8 @@ public class ICQProtocol extends Protocol{
 	public ProtocolInteraction addProtocolInteractionIF(Jimmy j) {
 		return j;
 	}
+	
+	public void run() {
+    	
+    }
 }

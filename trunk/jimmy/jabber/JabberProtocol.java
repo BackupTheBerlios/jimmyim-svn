@@ -48,6 +48,7 @@ public class JabberProtocol extends Protocol {
 	public JabberProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
 		this.connected_ = false;
+		
 	}
 	
 	/**
@@ -166,5 +167,9 @@ public class JabberProtocol extends Protocol {
         }
 
         return result;
+    }
+    
+    public void run() {
+    	
     }
 }
