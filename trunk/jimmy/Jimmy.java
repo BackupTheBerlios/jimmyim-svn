@@ -42,7 +42,7 @@ import jimmy.protocol.*;
 public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
 	final public static String VERSION	=	"pre-alpha";	//JIMMY version
-	final public static String RS = "JimmyIM";
+	final public static String RS = "JimmyIM";				//Record store name
 	private static Display display_;						//Display object
 	private static Vector protocolList_;					//List of active protocols
 	private static Vector newConnections_; //List of connections to be established
@@ -87,27 +87,27 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 					
 					//which protocol to connect?
 					switch(current.getProtocolType()){
-						case 0:
+						case ProtocolType.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
-							jabber.login(current);                                
+							jabber.login(current);
+							jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;
-						case 1:
+						case ProtocolType.ICQ:
 							ICQProtocol icq = new ICQProtocol(this);
 							icq.login(current);
 							protocolList_.addElement(icq);
 							break;
-						case 2:
+						case ProtocolType.MSN:
 							MSNProtocol msn = new MSNProtocol(this);
 							msn.login(current.getUser(), current.getPassword());
 							protocolList_.addElement(msn);
 							break;
-						case 3:
+						case ProtocolType.YAHOO:
 							//yahoo
 							break;
 					} //switch
 					
-					current.setIndex(protocolList_.size()-1);
 				} //while newConnections is not empty
                     
 				newConnections_ = null;

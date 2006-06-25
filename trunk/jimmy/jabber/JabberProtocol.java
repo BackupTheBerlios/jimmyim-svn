@@ -64,6 +64,7 @@ public class JabberProtocol extends Protocol {
 		//get the server port stored in the account - use default server port if none set
 		int port = (account.getPort()!=0) ? account.getPort() : DEFAULT_PORT;
 		
+		System.out.println("Jabber RULES!:)");
 		this.sh_ = new ServerHandler(server, port);
 		this.sh_.connect();
 		if (sh_.isConnected() == false)

@@ -68,7 +68,7 @@ public class RMS
      */
     public String[] getStores()
     {
-        return this.rs.listRecordStores();
+        return RecordStore.listRecordStores();
     }
     /**
      * This method deletes a store from persistent data storage.
@@ -77,7 +77,7 @@ public class RMS
     public void deleteStore(String RSName)
     {
         try {
-            this.rs.deleteRecordStore(RSName);
+            RecordStore.deleteRecordStore(RSName);
         } catch (RecordStoreException ex) {
             //ex.printStackTrace();
         }
@@ -106,11 +106,11 @@ public class RMS
      * @param record byte array is going to be created from this string and inserted into a private Record Store 
      * of this class(instance).
      */
-    public void addRecord(String record)
+    public int addRecord(String record)
     {
         try 
         {
-            this.rs.addRecord(record.getBytes(), 0, record.length());
+            return this.rs.addRecord(record.getBytes(), 0, record.length());
         } catch (RecordStoreNotOpenException ex) 
         {
             //ex.printStackTrace();
@@ -118,9 +118,11 @@ public class RMS
         {
             //ex.printStackTrace();
         }
+        
+        return -1;
     }
     /**
-     * Deletes a record from the private Record Store of this class(instance). Index 
+     * Deletes a record from the private Record Store of this class (instance). Index 
      * of the record to be deleted is supplied with parameter. Note that, when you 
      * delete a record, this record will remain empty forever, despite new insertions of records.
      * @param ind Index of the record to be deleted.
@@ -140,7 +142,7 @@ public class RMS
         
     /**
      * This method returns an array of Accounts(see jimmy.Account) from the private recordstore 
-     * of this class(instance) or null if error occured.
+     * of this class (instance) or null if error occured.
      * @return Account array(see jimmy.Account) or null if error occured.
      * @see jimmy.Account
      */
@@ -151,43 +153,55 @@ public class RMS
             Account[] accounts = new Account[this.rs.getNumRecords()];
             RecordEnumeration rEnum = this.rs.enumerateRecords(null,null,true);
             
-            int count = 0, pos1, pos2;
-            while (rEnum.hasNextElement()) 
-            {
-                String data = new String(rEnum.nextRecord());
+            int count = 0, pos1 = 0, pos2 = 0;
+            String data = null;
+            
+            //read a program version by which the configuration file was written
+            String version = null;
+            if (rEnum.hasNextElement()) {
+                data = new String(rEnum.nextRecord());
                 pos1 = data.indexOf("\n");
-                String version = data.substring(0,pos1); //version
-                
-                pos2 = data.indexOf("\n",pos1+1);
-                byte autoLogin = Byte.parseByte(data.substring(pos1+1,pos2)); //auto login
-                
-                pos1 = data.indexOf("\n",pos2+1);
-                byte protocol = Byte.parseByte(data.substring(pos2+1,pos1));  //protocol code
-                
-                pos2 = data.indexOf("\n",pos1+1);
-                String user = data.substring(pos1+1,pos2);  //username
-                
-                pos1 = data.indexOf("\n",pos2+1);
-                String password = data.substring(pos2+1,pos1); //password
-                
-                pos2 = data.indexOf("\n",pos1+1);
-                String server = data.substring(pos1+1,pos2); //server
-                
-                pos1 = data.indexOf("\n",pos2+1);
-                int port = Integer.parseInt(data.substring(pos2+1,pos1)); //port
-                
-                accounts[count] = new Account(user,password,protocol,server,port);
-                count++;
+                version = data.substring(0,pos1); //version
             }
-            rEnum.destroy();
-            return accounts;
+            
+            if (version=="pre-alpha") {
+            	while (rEnum.hasNextElement()) {
+            		data = new String(rEnum.nextRecord());
+            		pos1 = 0;
+            		
+            		pos2 = data.indexOf("\n");
+            		boolean autoLogin = (Byte.parseByte(data.substring(0,pos2))==0)?false:true; //auto login
+            		
+            		pos1 = data.indexOf("\n",pos2+1);
+            		byte protocol = Byte.parseByte(data.substring(pos2+1,pos1));  //protocol code
+            		
+            		pos2 = data.indexOf("\n",pos1+1);
+            		String user = data.substring(pos1+1,pos2);  //username
+            		
+            		pos1 = data.indexOf("\n",pos2+1);
+            		String password = data.substring(pos2+1,pos1); //password
+            		
+            		pos2 = data.indexOf("\n",pos1+1);
+            		String server = data.substring(pos1+1,pos2); //server
+            		
+            		pos1 = data.indexOf("\n",pos2+1);
+            		int port = Integer.parseInt(data.substring(pos2+1,pos1)); //port
+            		
+            		accounts[count] = new Account(user,password,protocol,server,port);
+            		accounts[count].setAutoLogin(autoLogin);
+            		
+            		count++;
+            	}
+            	rEnum.destroy();
+            	return accounts;
+            }
         } catch (RecordStoreNotOpenException ex) 
         {
-            //ex.printStackTrace();
-            return null;
+        	//ex.printStackTrace();
+        	return null;
         } catch(RecordStoreException e)
         {
-            return null;
+        	return null;
         }
     }
     /**

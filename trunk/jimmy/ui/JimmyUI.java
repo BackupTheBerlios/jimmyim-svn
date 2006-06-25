@@ -42,18 +42,18 @@ public class JimmyUI {
 	final public static int CMD_NO     = 4;
 	final public static int CMD_FIND   = 5;
 	final public static int CMD_BACK   = 6;
-        final public static int CMD_EXIT   = 7;
-        final public static int CMD_LOGIN  = 8;
-        final public static int CMD_NEW    = 9;
-        final public static int CMD_ABOUT  = 10;
-        final public static int CMD_CHAT   = 11;
+	final public static int CMD_EXIT   = 7;
+	final public static int CMD_LOGIN  = 8;
+	final public static int CMD_NEW    = 9;
+	final public static int CMD_ABOUT  = 10;
+	final public static int CMD_CHAT   = 11;
         
-        //Screen codes
-        final public static int SCR_SPLASH  = 1;
-        final public static int SCR_MAIN    = 2;
-        final public static int SCR_NEWACC  = 3;
-        final public static int SCR_CHAT    = 4;
-        final public static int SCR_ABOUT   = 5;
+	//Screen codes
+	final public static int SCR_SPLASH  = 1;
+	final public static int SCR_MAIN    = 2;
+	final public static int SCR_NEWACC  = 3;
+	final public static int SCR_CHAT    = 4;
+	final public static int SCR_ABOUT   = 5;
         
 
 	//Commands:
@@ -63,17 +63,17 @@ public class JimmyUI {
 	final private static Command cmdNo     = new Command("No",          Command.CANCEL, 2);
 	final private static Command cmdFind   = new Command("Find",        Command.OK,     1);
 	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);
-        final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   1);
-        final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
-        final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
-        final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
-        final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
+	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   1);
+	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
+	final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
+	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
+	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
 	static private JimmyUI jimmyUI_;                        //JimmyUI object
-        static private Jimmy jimmy_;
-        static private Account[] acc_;                          //Array of accoounts
+	static private Jimmy jimmy_;
+	static private Account[] acc_;                          //Array of accounts
 	
 //	 Associate commands and commands codes
 	static
@@ -84,84 +84,83 @@ public class JimmyUI {
 		commands_.put(new Integer(CMD_NO),      cmdNo       );
 		commands_.put(new Integer(CMD_FIND),    cmdFind     );
 		commands_.put(new Integer(CMD_BACK),    cmdBack     );
-                commands_.put(new Integer(CMD_EXIT),    cmdExit     );
-                commands_.put(new Integer(CMD_LOGIN),   cmdLogin    );
-                commands_.put(new Integer(CMD_NEW),     cmdNew      );
-                commands_.put(new Integer(CMD_ABOUT),   cmdAbout    );
-                commands_.put(new Integer(CMD_CHAT),    cmdChat     );
+		commands_.put(new Integer(CMD_EXIT),    cmdExit     );
+		commands_.put(new Integer(CMD_LOGIN),   cmdLogin    );
+		commands_.put(new Integer(CMD_NEW),     cmdNew      );
+		commands_.put(new Integer(CMD_ABOUT),   cmdAbout    );
+		commands_.put(new Integer(CMD_CHAT),    cmdChat     );
 	}
         
-        //Screens
-        private static MainMenu     scrMenu;
-        private static Splash       scrSplash;
-        private static NewAccount   scrNewAcc;
-        private static ContactsMenu scrContacts;
-        private static About        scrAbout;
+	//Screens
+	private static MainMenu     scrMenu;
+	private static Splash       scrSplash;
+	private static NewAccount   scrNewAcc;
+	private static ContactsMenu scrContacts;
+	private static About        scrAbout;
 	
-        private Vector contacts_;
+	private Vector contacts_;
         
-        final private String about_ = 
+	final private String about_ = 
                 "JIMMY - Instant Mobile Messenger\n"+
                 "Copyright (C) 2006  JIMMY Project\n"+
                 "-------------------------------------\n"+
-                "Authors:\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n"+
+                "Authors (sorted in alphabet order):\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n"+
                 "WWW: http://jimmyim.berlios.de";
         
-        /**
-         * The constructor creates an instance of JimmyUI. JimmyUI is main class
-         * for handling GUI. In constructor we create screens (e.g. splash, main menu, ...)
-         * and we read configuration data from record store. 
-         * Constructor draws splash screen. It can be changed later using setView(int) method
-         * and screen codes (SCR_SPLASH, SCR_MAIN, ...) 
-         */        
+	/**
+	 * The constructor creates an instance of JimmyUI. JimmyUI is main class
+	 * for handling GUI. In constructor we create screens (e.g. splash, main menu, ...)
+	 * and we read configuration data from record store. 
+	 * Constructor draws splash screen. It can be changed later using setView(int) method
+	 * and screen codes (SCR_SPLASH, SCR_MAIN, ...) 
+	 */        
 	public JimmyUI() {
 		jimmyUI_ = this;
-                jimmy_   = Jimmy.getInstance();
-                
-                //draw splash screen
-                scrSplash = new Splash();
-                jimmy_.setDisplay(scrSplash);                
-                
-                //Read configuration data from recor store
-                RMS rs = new RMS(Jimmy.RS);
-                acc_    = rs.getAccounts();
-                
-                //Create screens
-                scrMenu =       new MainMenu(acc_);
-                scrNewAcc =     new NewAccount();
-                scrContacts =   new ContactsMenu();
-                scrAbout =      new About(about_);   
-                
+		jimmy_   = Jimmy.getInstance();
+		
+		//draw splash screen
+		scrSplash = new Splash();
+		jimmy_.setDisplay(scrSplash);
+		
+		//Read configuration data from record store
+		RMS rs = new RMS(Jimmy.RS);
+		acc_    = rs.getAccounts();
+		
+		//Create screens
+		scrMenu =       new MainMenu(acc_);
+		scrNewAcc =     new NewAccount();
+		scrContacts =   new ContactsMenu();
+		scrAbout =      new About(about_);          
 	}
         
-        public static JimmyUI getInstance(){return jimmyUI_;}
-        public Hashtable getCommands(){return commands_;}
-        public Account[] getAccount(){return this.acc_;}
+	public static JimmyUI getInstance(){return jimmyUI_;}
+	public Hashtable getCommands(){return commands_;}
+	public Account[] getAccount(){return this.acc_;}
+	
+	public void setAccount(Account[] a){
+		this.acc_ = a;
+		((MainMenu)scrMenu).setAccountList(acc_);
+	}
+	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
+	public void setContacts(Vector v){
+		this.contacts_ = v;
+		this.scrContacts.setContacts(v);
+	}
         
-        public void setAccount(Account[] a){
-            this.acc_ = a;
-            ((MainMenu)scrMenu).setAccountList(acc_);
-        }
-        public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
-        public void setContacts(Vector v){
-            this.contacts_ = v;
-            this.scrContacts.setContacts(v);
-        }
-        
-        /**
-         *  This method changes displayed Screen. 
-         *  @param display each screen has its own code. Use SCR_* int constants.
-         */
-        public void setView(int display){
-            switch(display){
-                case 1:
-                    jimmy_.setDisplay(scrSplash);
-                    break;
-                case 2:
-                    jimmy_.setDisplay(scrMenu);
-                    break;
-            }
-        }
+	/**
+	 *  This method changes displayed Screen. 
+	 *  @param display each screen has its own code. Use SCR_* int constants.
+	 */
+	public void setView(int display){
+		switch (display) {
+			case 1:
+				jimmy_.setDisplay(scrSplash);
+				break;
+			case 2:
+				jimmy_.setDisplay(scrMenu);
+				break;
+		}
+	}
 	
 	public static void jimmyCommand(Command c, Displayable d) {
             //commands from main menu
@@ -193,7 +192,7 @@ public class JimmyUI {
                     String pass     = (String)data.elementAt(1);
                     String server   = (String)data.elementAt(2);
                     String port     = (String)data.elementAt(3);
-                    int protocol    = ((Integer)data.elementAt(4)).intValue();
+                    byte protocol    = ((Integer)data.elementAt(4)).byteValue();
                     saveAccount(user,pass,server,port,protocol);
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
@@ -224,11 +223,11 @@ public class JimmyUI {
         /*
          * This method is used for saving new account into record store.
          */        
-        private static void saveAccount(String u, String p, String s, String port, int protocol){
+        private static void saveAccount(String u, String p, String s, String port, byte protocol){
             RMS rs = new RMS(Jimmy.RS);
-            if(port.length() == 0)
+            if (port.length() == 0)
                 port = "0";
             
-            rs.addRecord(Jimmy.VERSION+"\n0\n"+protocol+"\n"+u+"\n"+p+"\n"+s+"\n"+port+"\n");
+            rs.addRecord(protocol+"\n"+u+"\n"+p+"\n"+s+"\n"+port+"\n");
         }  
 }
