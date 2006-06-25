@@ -20,9 +20,10 @@
  Author(s): Matevz Jekovec, Zoran Mesec
  */
 
-package jimmy;
+package jimmy.protocol;
 
 import java.util.Vector;
+import jimmy.*;
 
 /**
  * Astract class to be extended with implementations of various protocols.
@@ -32,19 +33,15 @@ import java.util.Vector;
  * @author Zoran Mesec
  * version 1.0
  */
-public abstract class Protocol implements Runnable
+public abstract class Protocol implements Runnable, ProtocolType, ProtocolStatus
 {
-	//constants for various protocol types used in Account
-	public static final byte PR_JABBER=0;
-	public static final byte PR_ICQ=1;
-	public static final byte PR_MSN=2;
-	public static final byte PR_YAHOO=3;
-	
     protected boolean connected_;
     protected Vector chatSessions_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
     protected ProtocolInteraction jimmy_;
     protected Thread thread_;
+    protected byte protocolType_;
+    protected byte status_;
     
     /**
      * Class constructor.
@@ -132,4 +129,15 @@ public abstract class Protocol implements Runnable
      * @param session Active Chat Session to send the message to
      */
     public abstract void sendMsg(String msg, Vector contactsList, ChatSession session);
+
+    /**
+     * Returns the protocol type (Jabber, MSN etc.)
+     * @return Protocol type defined in interface ProtocolType
+     */
+    public byte getType() {return protocolType_;}
+    
+    /**
+     * Returns the protocol current status (connected, disconnected etc.)
+     */
+    public byte getStatus() {return status_;}
 }

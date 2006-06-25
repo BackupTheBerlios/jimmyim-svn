@@ -20,12 +20,16 @@
  Author(s): Dejan Sakelsak, Matevz Jekovec
  */
 
-package jimmy;
+package jimmy.protocol;
+
+import jimmy.Contact;
 
 /**
  * @author Dejan Sakelsak
  * @author Matevz Jekovec
  */
 public interface ProtocolInteraction {
+	public void addContact(Contact c);
+	public void addContacts(Contact[] c);
 	public void stopProtocol(Protocol p);
 }

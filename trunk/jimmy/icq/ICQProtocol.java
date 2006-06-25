@@ -10,8 +10,7 @@ import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
 import jimmy.Jimmy;
-import jimmy.Protocol;
-import jimmy.ProtocolInteraction;
+import jimmy.protocol.*;
 import jimmy.net.*;
 import jimmy.util.*;
 
@@ -19,7 +18,7 @@ import jimmy.util.*;
  * @author dejan
  *
  */
-public class ICQProtocol extends Protocol{
+public class ICQProtocol extends Protocol {
 	
 	private final String AUTH_SERVER = "login.oscar.aol.com";
 	//private final String AUTH_SERVER = "zabica";
@@ -40,6 +39,7 @@ public class ICQProtocol extends Protocol{
 	public ICQProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
 		this.connected_ = false;
+		this.protocolType_ = ProtocolType.ICQ;
 	}
 	
 	public boolean login(Account account) {
@@ -356,13 +356,6 @@ public class ICQProtocol extends Protocol{
 		return roasted;
 	}
 
-	/**
-	 * add the interface handle
-	 */
-	public ProtocolInteraction addProtocolInteractionIF(Jimmy j) {
-		return j;
-	}
-	
 	public void run() {
     	
     }

@@ -37,16 +37,16 @@ import jimmy.icq.ICQProtocol;
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
 import jimmy.ui.Splash;
-import jimmy.ProtocolInteraction;
+import jimmy.protocol.*;
 
 public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
-	public static Jimmy jimmy_;         //Application main object
-	final public static String VERSION	=	"pre-alpha"; //JIMMY version
-        final public static String RS = "JimmyIM";
-	private static Display display_; //Display object
-	private static Vector protocolList_; //List of active protocols
-        private static Vector newConnections_; //List of connections to be established
-        private Thread thr_;        
+	public static Jimmy jimmy_;								//Application main object
+	final public static String VERSION	=	"pre-alpha";	//JIMMY version
+	final public static String RS = "JimmyIM";
+	private static Display display_;						//Display object
+	private static Vector protocolList_;					//List of active protocols
+	private static Vector newConnections_; //List of connections to be established
+	private Thread thr_;        
 
 	//User interface stuff:
 	public static JimmyUI ui_; //User Interface object
@@ -54,15 +54,15 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 	public static MainMenu mainMenu_; //Main menu object
 	
 	protected void startApp() throws MIDletStateChangeException {
-		jimmy_          = this;
-                newConnections_ = null;
-                protocolList_   = new Vector();
+		jimmy_ = this;
+		newConnections_ = null;
+		protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
-                ui_.setView(JimmyUI.SCR_MAIN);
+		ui_.setView(JimmyUI.SCR_MAIN);
                 
-                thr_ = new Thread(this);
-                thr_.start();
+		thr_ = new Thread(this);
+		thr_.start();
 		
 		//protocolList_.addElement(new MSNProtocol());
 		//protocolList_.addElement(new JabberProtocol());
@@ -71,91 +71,96 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 		//((Protocol)protocolList_.elementAt(0)).login("jimmy@gristle.org","jimmy");
 	}
 	
-        public void run(){
-            //infinite loop
-            while(true){
-                try{ Thread.sleep(1000); } catch(Exception e){};    //stop for one second
-                System.out.println("BLA");
+	public void run(){
+		//infinite loop
+		while (true){
+			try { Thread.sleep(1000); } catch (Exception e) {};    //stop for one second
                 
-                //if there are some new connections to establish
-                if(newConnections_ != null){
-                    Account current;
-                    
-                    //read data from vector and establish connections
-                    for(int i=0; i < newConnections_.size(); i++){
-                        current = (Account)newConnections_.elementAt(i);  //current connections
-                        System.out.println("Loging user: "+current.getUser());
-                        
-                        //which protocol to connect?
-                        switch(current.getProtocolType()){
-                            case 0:
-                                JabberProtocol jabber = new JabberProtocol(this);
-                                jabber.login(current);                                
-                                protocolList_.addElement(jabber);
-                                break;
-                            case 1:
-                                ICQProtocol icq = new ICQProtocol(this);
-                                icq.login(current);
-                                protocolList_.addElement(icq);
-                                break;
-                            case 2:
-                                MSNProtocol msn = new MSNProtocol(this);
-                                msn.login(current.getUser(),current.getPassword());
-                                protocolList_.addElement(msn);
-                                break;
-                            case 3:
-                                //yahoo
-                                break;
-                        }//switch
-                        
-                        current.setIndex(protocolList_.size()-1);
-                    }//while newConnections is not empty
-                    
-                    newConnections_ = null;
-                }//if newConnections is not null
-                
-                if(!protocolList_.isEmpty()){
-                    Protocol currentProt;
-                    Vector contacts = new Vector();
-                    Vector currentCont;
-                    for(int i=0; i<protocolList_.size(); i++){
-                        currentProt = (Protocol)protocolList_.elementAt(i);
-                        currentCont = currentProt.getContacts();   //get contacts from current account
-                    
-                        for(int j=0; j<currentCont.size(); j++){
-                            contacts.addElement(currentCont.elementAt(j));  //add them to the contacts list
-                        }//for j < currentCont.size()
-                    }//for i < protocolList_.size()
-                
-                    //TO-DO - sort contacts list according to Group
-                    ui_.setContacts(contacts);
-                }
-            }//while true
-        }//run
+			//if there are some new connections to establish
+			if (newConnections_ != null) {
+				Account current;
 
-        public void exitJimmy(){
-            //display_.setCurrent(null);
-            
-            try {
-		destroyApp(true);
-            } catch (MIDletStateChangeException e) {
-		e.printStackTrace();
-            }		
-            notifyDestroyed();
-        }//exit jimmy        
+				//read data from vector and establish connections
+				for (int i=0; i < newConnections_.size(); i++) {
+					current = (Account)newConnections_.elementAt(i);  //current connections
+					System.out.println("Logging in user: " + current.getUser());
+					
+					//which protocol to connect?
+					switch(current.getProtocolType()){
+						case 0:
+							JabberProtocol jabber = new JabberProtocol(this);
+							jabber.login(current);                                
+							protocolList_.addElement(jabber);
+							break;
+						case 1:
+							ICQProtocol icq = new ICQProtocol(this);
+							icq.login(current);
+							protocolList_.addElement(icq);
+							break;
+						case 2:
+							MSNProtocol msn = new MSNProtocol(this);
+							msn.login(current.getUser(), current.getPassword());
+							protocolList_.addElement(msn);
+							break;
+						case 3:
+							//yahoo
+							break;
+					} //switch
+					
+					current.setIndex(protocolList_.size()-1);
+				} //while newConnections is not empty
+                    
+				newConnections_ = null;
+			}//if newConnections is not null
+			
+			if (!protocolList_.isEmpty()) {
+				Protocol currentProt;
+				Vector contacts = new Vector();
+				Vector currentCont;
+				for(int i=0; i<protocolList_.size(); i++){
+					currentProt = (Protocol)protocolList_.elementAt(i);
+					currentCont = currentProt.getContacts();   //get contacts from current account
+                    
+					for(int j=0; j<currentCont.size(); j++){
+						contacts.addElement(currentCont.elementAt(j));  //add them to the contacts list
+					}//for j < currentCont.size()
+				}//for i < protocolList_.size()
+                
+				//TODO - sort contacts list according to Group
+				ui_.setContacts(contacts);
+			}
+		}//while true
+	}//run
+
+	public void exitJimmy(){
+		//display_.setCurrent(null);
+		try {
+			destroyApp(true);
+		} catch (MIDletStateChangeException e) {
+			e.printStackTrace();
+		}		
+		notifyDestroyed();
+	}//exit jimmy        
 
 	protected void pauseApp() {}
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException {}
+	
+	public static Jimmy getInstance()           {return jimmy_;}
+	public static Vector getProtocolList()      {return protocolList_;}
+	public void setNewConnections(Vector list)  {this.newConnections_ = list;}
+	
+	public void setDisplay(Displayable d)   {Display.getDisplay(this).setCurrent(d);}
+	
+	public void stopProtocol(Protocol p) {
+		p.logout();
+		this.protocolList_.removeElement(p);
+	}
+	
+	public void addContact(Contact c) {
+		
+	}
     
-        public static Jimmy getInstance()           {return jimmy_;}
-        public static Vector getProtocolList()      {return protocolList_;}
-        public void setNewConnections(Vector list)  {this.newConnections_ = list;}
-                
-        public void setDisplay(Displayable d)   {Display.getDisplay(this).setCurrent(d);}
-
-		public void stopProtocol(Protocol p) {
-			p.logout();
-			this.protocolList_.removeElement((Object)p);
-		}
-        
+	public void addContacts(Contact[] c) {
+    	
+	}
 }

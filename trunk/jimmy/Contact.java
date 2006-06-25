@@ -22,6 +22,8 @@
 
 package jimmy;
 
+import jimmy.protocol.*;
+
 /**
  * Class Contact represents a single user contact.
  * 

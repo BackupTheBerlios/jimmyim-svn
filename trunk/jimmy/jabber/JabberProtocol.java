@@ -27,9 +27,9 @@ import java.util.Vector;
 import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
-import jimmy.Protocol;
+import jimmy.protocol.*;
 import jimmy.net.ServerHandler;
-import jimmy.ProtocolInteraction;
+import jimmy.protocol.ProtocolInteraction;
 
 /**
  * This class implements the Jabber protocol.
@@ -48,7 +48,7 @@ public class JabberProtocol extends Protocol {
 	public JabberProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
 		this.connected_ = false;
-		
+		this.protocolType_ = ProtocolType.JABBER;
 	}
 	
 	/**
@@ -122,7 +122,7 @@ public class JabberProtocol extends Protocol {
 	 * This method is provided by the convenience. It's the same as the upper one.
 	 */
 	public boolean login(String userID, String password) {
-		return this.login(new Account(userID, password, Protocol.PR_JABBER));
+		return this.login(new Account(userID, password, ProtocolType.JABBER));
 	}
 
 	/**

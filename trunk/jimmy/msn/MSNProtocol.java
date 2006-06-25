@@ -30,6 +30,7 @@ import jimmy.net.ServerHandler;
 import jimmy.util.MD5;
 import jimmy.*;
 import jimmy.msn.*;
+import jimmy.protocol.*;
 
 
 /**
@@ -80,6 +81,7 @@ public class MSNProtocol extends Protocol
     {
     	super(jimmy);
         this.connected_ = false;
+        this.protocolType_ = ProtocolType.MSN;
     }
     public boolean login(Account acc)
     {
