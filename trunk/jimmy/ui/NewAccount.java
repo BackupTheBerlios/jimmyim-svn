@@ -35,10 +35,10 @@ import java.util.*;
  * @version
  */
 public class NewAccount extends Form implements CommandListener {
-    final private TextField user_     = new TextField("Username:",    "", 20, TextField.ANY     );
-    final private TextField pass_     = new TextField("Password:",    "", 20, TextField.PASSWORD);
-    final private TextField server_   = new TextField("Server:",      "", 20, TextField.ANY     );
-    final private TextField port_     = new TextField("Port:",        "", 20, TextField.DECIMAL );
+    final private TextField user_     = new TextField("Username:",    "", 50, TextField.ANY     );
+    final private TextField pass_     = new TextField("Password:",    "", 30, TextField.PASSWORD);
+    final private TextField server_   = new TextField("Server:",      "", 30, TextField.ANY     );
+    final private TextField port_     = new TextField("Port:",        "", 10, TextField.DECIMAL );
     
     final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
     final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null);
