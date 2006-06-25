@@ -37,9 +37,9 @@ public class ICQProtocol extends Protocol{
 	private String user;
 	private String pass;
 	
-	public ICQProtocol(Jimmy j){
+	public ICQProtocol(ProtocolInteraction jimmy) {
+		super(jimmy);
 		this.connected_ = false;
-		this.me = this.addProtocolInteractionIF(j);
 	}
 	
 	public boolean login(Account account) {

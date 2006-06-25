@@ -76,8 +76,9 @@ public class MSNProtocol extends Protocol
      * @param URL URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
      * @param PORT PORT of the server(inputs as a String). Example: "1863".
      */
-    public MSNProtocol()
+    public MSNProtocol(ProtocolInteraction jimmy)
     {
+    	super(jimmy);
         this.connected_ = false;
     }
     public boolean login(Account acc)

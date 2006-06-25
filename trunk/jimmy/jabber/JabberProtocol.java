@@ -29,6 +29,7 @@ import jimmy.ChatSession;
 import jimmy.Contact;
 import jimmy.Protocol;
 import jimmy.net.ServerHandler;
+import jimmy.ProtocolInteraction;
 
 /**
  * This class implements the Jabber protocol.
@@ -44,7 +45,8 @@ public class JabberProtocol extends Protocol {
 	/**
 	 * Constructor method.
 	 */
-	public JabberProtocol() {
+	public JabberProtocol(ProtocolInteraction jimmy) {
+		super(jimmy);
 		this.connected_ = false;
 	}
 	

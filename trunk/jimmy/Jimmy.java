@@ -89,7 +89,7 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
                         //which protocol to connect?
                         switch(current.getProtocolType()){
                             case 0:
-                                JabberProtocol jabber = new JabberProtocol();
+                                JabberProtocol jabber = new JabberProtocol(this);
                                 jabber.login(current);                                
                                 protocolList_.addElement(jabber);
                                 break;
@@ -99,7 +99,7 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
                                 protocolList_.addElement(icq);
                                 break;
                             case 2:
-                                MSNProtocol msn = new MSNProtocol();
+                                MSNProtocol msn = new MSNProtocol(this);
                                 msn.login(current.getUser(),current.getPassword());
                                 protocolList_.addElement(msn);
                                 break;

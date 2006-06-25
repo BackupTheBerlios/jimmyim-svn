@@ -42,6 +42,11 @@ public abstract class Protocol
     protected boolean connected_;
     protected Vector chatSessions_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
+    protected ProtocolInteraction jimmy_;
+    
+    public Protocol(ProtocolInteraction jimmy) {
+    	this.jimmy_ = jimmy;
+    }
     
     /**
      * Initializes the connection and logs in using the given account.
@@ -112,11 +117,4 @@ public abstract class Protocol
      * @param session Active Chat Session to send the message to
      */
     public abstract void sendMsg(String msg, Vector contactsList, ChatSession session);
-    
-    /**
-     * Adds a ProtocolInteraction interface handler to kill a protocol from within it. (Suicide)
-     * 
-     * @param j The running instance of Jimmy (most cases "this")
-     */
-    public abstract ProtocolInteraction addProtocolInteractionIF(Jimmy j);
 }
