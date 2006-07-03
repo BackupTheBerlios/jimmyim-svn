@@ -39,8 +39,8 @@ public class ICQProtocol extends Protocol {
 	
 	public ICQProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
-		this.connected_ = false;
-		this.protocolType_ = ProtocolType.ICQ;
+		this.status_ = DISCONNECTED;
+		this.protocolType_ = ICQ;
 	}
 	
 	public boolean login(Account account) {
