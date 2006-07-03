@@ -20,7 +20,7 @@
  Author(s): Dejan Sakelsak, Matevz Jekovec
  */
 
-package jimmy.protocol;
+package jimmy;
 
 import jimmy.Contact;
 
@@ -32,4 +32,5 @@ public interface ProtocolInteraction {
 	public void addContact(Contact c);
 	public void addContacts(Contact[] c);
 	public void stopProtocol(Protocol p);
+	public void setProtocolStatus(Protocol p, byte status);
 }

@@ -23,7 +23,6 @@
 package jimmy;
 
 import java.util.Vector;
-import jimmy.protocol.*;
 
 /**
  * Chat session represents a room (channel) for a chat.

@@ -10,7 +10,6 @@ import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
 import jimmy.Jimmy;
-import jimmy.protocol.*;
 import jimmy.net.*;
 import jimmy.util.*;
 

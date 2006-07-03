@@ -37,7 +37,6 @@ import jimmy.icq.ICQProtocol;
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
 import jimmy.ui.Splash;
-import jimmy.protocol.*;
 
 public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
@@ -87,23 +86,23 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 					
 					//which protocol to connect?
 					switch(current.getProtocolType()){
-						case ProtocolType.JABBER:
+						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
 							jabber.login(current);
 							jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;
-						case ProtocolType.ICQ:
+						case Protocol.ICQ:
 							ICQProtocol icq = new ICQProtocol(this);
 							icq.login(current);
 							protocolList_.addElement(icq);
 							break;
-						case ProtocolType.MSN:
+						case Protocol.MSN:
 							MSNProtocol msn = new MSNProtocol(this);
 							msn.login(current.getUser(), current.getPassword());
 							protocolList_.addElement(msn);
 							break;
-						case ProtocolType.YAHOO:
+						case Protocol.YAHOO:
 							//yahoo
 							break;
 					} //switch
@@ -154,6 +153,10 @@ public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
 	public void stopProtocol(Protocol p) {
 		p.logout();
 		this.protocolList_.removeElement(p);
+	}
+	
+	public void setProtocolStatus(Protocol p, byte status) {
+		
 	}
 	
 	public void addContact(Contact c) {

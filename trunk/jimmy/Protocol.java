@@ -20,7 +20,7 @@
  Author(s): Matevz Jekovec, Zoran Mesec
  */
 
-package jimmy.protocol;
+package jimmy;
 
 import java.util.Vector;
 import jimmy.*;
@@ -33,15 +33,26 @@ import jimmy.*;
  * @author Zoran Mesec
  * version 1.0
  */
-public abstract class Protocol implements Runnable, ProtocolType, ProtocolStatus
+public abstract class Protocol implements Runnable
 {
-    protected boolean connected_;
+	public static final byte DISCONNECTED = 0; //disconnected, ok
+	public static final byte CONNECTED = 1; //connected, ok
+	public static final byte CONNECTING = 2; //connecting, busy
+	public static final byte WRONG_PASSWORD = -1; //wrong password, error 
+	public static final byte NO_CONNECTION = -2; //connection cannot be established, error
+
+	public static final byte JABBER=0;
+	public static final byte ICQ=1;
+	public static final byte MSN=2;
+	public static final byte YAHOO=3;
+
+    protected byte status_;	//protocol status - connected, disconnected etc. - see the constants above
     protected Vector chatSessions_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
     protected ProtocolInteraction jimmy_;
-    protected Thread thread_;
-    protected byte protocolType_;
-    protected byte status_;
+    protected byte protocolType_; //protocol type (Jabber, ICQ, MSN - see the constants above)
+
+    private Thread thread_;
     
     /**
      * Class constructor.
@@ -85,11 +96,13 @@ public abstract class Protocol implements Runnable, ProtocolType, ProtocolStatus
     public abstract void logout();
     
     /**
-     * Returns connection status.
+     * Returns the protocl status (connected, disconnected etc. see the constants above).
      * 
-     * @return Connection status - true if connected, false otherwise
+     * @return Protocol status - defined above.
      */
-    public boolean isConnected() {return connected_;}
+    public byte getStatus() {
+    	return status_;
+    }
     
     /**
      * Returns active chat sessions list.
@@ -135,9 +148,4 @@ public abstract class Protocol implements Runnable, ProtocolType, ProtocolStatus
      * @return Protocol type defined in interface ProtocolType
      */
     public byte getType() {return protocolType_;}
-    
-    /**
-     * Returns the protocol current status (connected, disconnected etc.)
-     */
-    public byte getStatus() {return status_;}
 }

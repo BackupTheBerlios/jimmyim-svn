@@ -30,7 +30,6 @@ import jimmy.net.ServerHandler;
 import jimmy.util.MD5;
 import jimmy.*;
 import jimmy.msn.*;
-import jimmy.protocol.*;
 
 
 /**
