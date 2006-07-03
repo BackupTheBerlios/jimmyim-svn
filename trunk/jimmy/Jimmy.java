@@ -163,4 +163,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
             
             ui_.addContacts(contacts);
 	}
+        
+        public void msgRecieved(ChatSession cs, Contact c, String msg){
+            
+        }
 }
