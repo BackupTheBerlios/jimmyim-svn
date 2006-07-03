@@ -34,69 +34,54 @@ import java.lang.*;
  */
 public class Store 
 {
-    private RecordStore rs;
+    private RecordStore acc;
+    private RecordStore settings;
     /**
-     * Creates a new instance of RMS. However this constructor method does nothing. You 
-     * need to set a private Record Store instance of this class with the method 
-     * openStore(String RSName). It is advisable to call this method after the call of 
-     * constructor method.
-     * @see method openStore(String RSName)
+     * Opens the existing record stores "Jimmy" and "Accounts"
      */
-    public Store() 
-    {
-
+    public Store(){
+    		try{
+    			this.acc = RecordStore.openRecordStore("Accounts",true);
+    			this.settings = RecordStore.openRecordStore("Jimmy",true);
+    		}catch(RecordStoreException e){
+    			e.printStackTrace();
+    		}
     }
 
     /**
-     * The constructor method opens a record store according to the parameter and stores 
-     * instance of this record store in a private variable rs (stands for RecordStore).
-     * If you are not sure what are you doing, use the other constructor method.
-     * @param RSname 
-     */
-    public Store(String RSname) 
-    {
-        try {
-            this.rs = RecordStore.openRecordStore(RSname, true);
-        } catch (RecordStoreException ex) {
-            ex.printStackTrace();
-        }
-    }    
-    /**
-     * Retrieves all Record Stores (RS) and returns them in a String array. Please note that you have to filter 
-     * RS to retrieve Jimmy Record stores.
+     * Returns all record store names in a String[]
      * @return Names of record stores in a string array (String[]).
      */
-    public String[] getStores()
-    {
+    public String[] getStores(){
         return RecordStore.listRecordStores();
     }
+    
     /**
      * This method deletes a store from persistent data storage.
      * @param RSName Name of the Record Store to be deleted.
+     * @deprecated
      */
-    public void deleteStore(String RSName)
-    {
+    public void deleteStore(String RSName){
         try {
             RecordStore.deleteRecordStore(RSName);
         } catch (RecordStoreException ex) {
             //ex.printStackTrace();
         }
     }
+    
     /**
      * Opens a store with the name given with parameter RSName. Returns true for a successful opening
      * or false if store with that name already exists.
      * @param RSName The name of the store to be open.
      * @return True for a successful opening
      * or false if store with that name already exists.
+     * @deprecated
      */
-    public boolean openStore(String RSName)
-    {
-        try 
-        {
-            this.rs = RecordStore.openRecordStore(RSName,true);        
+    public boolean openStore(String RSName){
+        try{
+            this.acc = RecordStore.openRecordStore(RSName,true);        
             return true;
-        } catch (RecordStoreException ex) 
-        {
+        } catch (RecordStoreException ex){
             return false;
         }        
     }
@@ -106,12 +91,10 @@ public class Store
      * @param record byte array is going to be created from this string and inserted into a private Record Store 
      * of this class(instance).
      */
-    public int addRecord(String record)
-    {
-        try 
-        {
-            return this.rs.addRecord(record.getBytes(), 0, record.length());
-        } catch (RecordStoreNotOpenException ex) 
+    public int addRecord(String record){
+        try{
+            return this.acc.addRecord(record.getBytes(), 0, record.length());
+        } catch (RecordStoreNotOpenException ex)
         {
             //ex.printStackTrace();
         } catch (RecordStoreException ex) 
@@ -121,16 +104,39 @@ public class Store
         
         return -1;
     }
+    
+    /**
+     * 
+     * @param a
+     * @return
+     */
+    public int addAccount(Account a){
+    		String user = a.getUser();
+    		String pass = a.getPassword();
+    		byte p = a.getProtocolType();
+    		String s = a.getServer();
+    		int port = a.getPort();
+    		boolean auto = a.getAutoLogin();
+    		
+    		try{
+    			this.acc.addRecord(user.getBytes(),0,user.length());
+    		}catch(RecordStoreNotOpenException e){
+    			e.printStackTrace();
+    		}catch(RecordStoreException e){
+    			e.printStackTrace();
+    		}
+    		return -1;
+    }
+    
     /**
      * Deletes a record from the private Record Store of this class (instance). Index 
      * of the record to be deleted is supplied with parameter. Note that, when you 
      * delete a record, this record will remain empty forever, despite new insertions of records.
      * @param ind Index of the record to be deleted.
      */
-    public void deleteRecord(int ind)
-    {
+    public void deleteRecord(int ind){
         try {
-            this.rs.deleteRecord(ind);
+            this.acc.deleteRecord(ind);
         } catch (InvalidRecordIDException ex) {
             ex.printStackTrace();
         } catch (RecordStoreNotOpenException ex) {
@@ -146,12 +152,13 @@ public class Store
      * @return Account array(see jimmy.Account) or null if error occured.
      * @see jimmy.Account
      */
-    public Account[] getAccounts()
-    {
+    public Account[] getAccounts(){
+    		
+    		Account[] accounts = null;
         try 
         {      
-            Account[] accounts = new Account[this.rs.getNumRecords()];
-            RecordEnumeration rEnum = this.rs.enumerateRecords(null,null,true);
+        		accounts = new Account[this.acc.getNumRecords()];
+            RecordEnumeration rEnum = this.acc.enumerateRecords(null,null,true);
             
             int count = 0, pos1 = 0, pos2 = 0;
             String data = null;
@@ -203,18 +210,19 @@ public class Store
         {
         	return null;
         }
+        	return accounts;
     }
+    
     /**
      * This method returns a number of records in the private Record Store of this class
      * (instance). Each record represents one account(e.q. MSN account with a username )
      * and a password).
      * @return The number of accounts. If there are no accounts, the return value is 0,
      */
-    public int NumAccounts()
-    {
+    public int NumAccounts(){
         try 
         {
-            return this.rs.getNumRecords();
+            return this.acc.getNumRecords();
         } catch (RecordStoreNotOpenException ex) 
         {
             ex.printStackTrace();
