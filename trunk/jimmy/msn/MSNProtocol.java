@@ -30,6 +30,7 @@ import jimmy.net.ServerHandler;
 import jimmy.util.MD5;
 import jimmy.*;
 import jimmy.msn.*;
+import jimmy.protocol.*;
 
 
 /**
@@ -636,9 +637,17 @@ public class MSNProtocol extends Protocol
             // Gives 0x69a5a771d4020628 (7612674852469737000 decimal)            
             System.out.println(key);
             
+            long challenge = Long.parseLong(hash.substring(0,16))^key + Long.parseLong(hash.substring(16, 16))^key;
             
+            //hash = Long.parseLong(hash.substring(0,16));
             this.tr.newTransaction();
             this.tr.setType("QRY");
+            this.tr.addArgument(this.ProductID);
+            this.tr.addArgument("32\r\n");
+            this.tr.addArgument(Long.toString(key));
+            System.out.println(this.tr.toStringNN());
+            
+            this.sh.sendRequest(this.tr.toStringNN());            
     }        
     String getField( String strKey, String strField )  
     {
