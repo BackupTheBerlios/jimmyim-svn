@@ -32,7 +32,7 @@ import java.lang.*;
 /**
  * Class RMS handles persistent data storage.
  */
-public class RMS 
+public class Store 
 {
     private RecordStore rs;
     /**
@@ -42,7 +42,7 @@ public class RMS
      * constructor method.
      * @see method openStore(String RSName)
      */
-    public RMS() 
+    public Store() 
     {
 
     }
@@ -53,7 +53,7 @@ public class RMS
      * If you are not sure what are you doing, use the other constructor method.
      * @param RSname 
      */
-    public RMS(String RSname) 
+    public Store(String RSname) 
     {
         try {
             this.rs = RecordStore.openRecordStore(RSname, true);
