@@ -98,7 +98,7 @@ public class JimmyUI {
 	private static ContactsMenu scrContacts;
 	private static About        scrAbout;
 	
-	private Vector contacts_;
+	//private Vector contacts_;
         
 	final private String about_ = 
                 "JIMMY - Instant Mobile Messenger\n"+
@@ -142,10 +142,8 @@ public class JimmyUI {
 		((MainMenu)scrMenu).setAccountList(acc_);
 	}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
-	public void setContacts(Vector v){
-		this.contacts_ = v;
-		this.scrContacts.setContacts(v);
-	}
+	public void addContacts(Vector v){this.scrContacts.addContacts(v);}
+        public void addContact(Contact c){scrContacts.addContact(c);}
         
 	/**
 	 *  This method changes displayed Screen. 

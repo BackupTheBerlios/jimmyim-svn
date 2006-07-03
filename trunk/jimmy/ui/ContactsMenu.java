@@ -25,6 +25,8 @@
 
 package jimmy.ui;
 
+import jimmy.Contact;
+
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -43,6 +45,7 @@ public class ContactsMenu extends List implements CommandListener {
         super("Personal contacts:",List.IMPLICIT);
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
+        contacts_ = new Vector();
         
         //add commands
         addCommand((Command)commands_.get(new Integer(ui_.CMD_BACK)));
@@ -50,11 +53,17 @@ public class ContactsMenu extends List implements CommandListener {
         
     }// ContactsMenu()
     
-    public void setContacts(Vector v){
-        this.contacts_ = v;
-        addContactsToMenu();
+    public void addContacts(Vector v){
+        for(int i=0; i < v.size(); i++){
+            this.append(((Contact)v.elementAt(i)).screenName(),null);
+            contacts_.addElement(v.elementAt(i));
+        }
+        //addContactsToMenu();
     }//setContacts()
     
+    /**
+     * @deprecated
+     */
     private void addContactsToMenu(){
         this.deleteAll();
         String contact;
@@ -64,6 +73,11 @@ public class ContactsMenu extends List implements CommandListener {
             this.append(contact,null);
         }//for i < contacts_.size()
     }//void addContactsToMenu()
+    
+    public void addContact(Contact c){
+        this.contacts_.addElement(c);
+        this.append(c.screenName(),null);
+    }
     
     public void commandAction(Command c, Displayable d){
         ui_.jimmyCommand(c,d);

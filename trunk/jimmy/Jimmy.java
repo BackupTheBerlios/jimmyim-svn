@@ -63,10 +63,10 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		thr_ = new Thread(this);
 		thr_.start();
 		
-		//protocolList_.addElement(new MSNProtocol());
+		protocolList_.addElement(new MSNProtocol(this));
 		//protocolList_.addElement(new JabberProtocol());
 		
-		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","ssbzkgjdvr");
+		((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","ssbzkgjdvr");
 		//((Protocol)protocolList_.elementAt(0)).login("jimmy@gristle.org","jimmy");
 	}
 	
@@ -106,28 +106,20 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 							//yahoo
 							break;
 					} //switch
+                                        
+                                        Protocol currentProt;
+                                        Vector contacts;
+                                        
+                                        currentProt = (Protocol)protocolList_.lastElement();
+                                        contacts = currentProt.getContacts();   //get contacts from current account
+                
+                                        //TODO - sort contacts list according to Group
+                                        ui_.addContacts(contacts);
 					
-				} //while newConnections is not empty
+				} //for i < newConnections_.size()
                     
 				newConnections_ = null;
 			}//if newConnections is not null
-			
-			if (!protocolList_.isEmpty()) {
-				Protocol currentProt;
-				Vector contacts = new Vector();
-				Vector currentCont;
-				for(int i=0; i<protocolList_.size(); i++){
-					currentProt = (Protocol)protocolList_.elementAt(i);
-					currentCont = currentProt.getContacts();   //get contacts from current account
-                    
-					for(int j=0; j<currentCont.size(); j++){
-						contacts.addElement(currentCont.elementAt(j));  //add them to the contacts list
-					}//for j < currentCont.size()
-				}//for i < protocolList_.size()
-                
-				//TODO - sort contacts list according to Group
-				ui_.setContacts(contacts);
-			}
 		}//while true
 	}//run
 
@@ -160,10 +152,15 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	}
 	
 	public void addContact(Contact c) {
-		
+            ui_.addContact(c);
 	}
     
 	public void addContacts(Contact[] c) {
-    	
+            Vector contacts = new Vector();
+            
+            for(int i=0; i<c.length; i++)
+                contacts.addElement(c[i]);
+            
+            ui_.addContacts(contacts);
 	}
 }
