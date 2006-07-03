@@ -12,6 +12,8 @@ import jimmy.Contact;
 import jimmy.Jimmy;
 import jimmy.net.*;
 import jimmy.util.*;
+import jimmy.Protocol;
+import jimmy.ProtocolInteraction;
 
 /**
  * @author dejan

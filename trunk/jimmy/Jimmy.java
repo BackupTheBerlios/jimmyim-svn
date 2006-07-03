@@ -38,7 +38,7 @@ import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
 import jimmy.ui.Splash;
 
-public class Jimmy extends MIDlet implements Runnable,ProtocolInteraction {
+public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
 	final public static String VERSION	=	"pre-alpha";	//JIMMY version
 	final public static String RS = "JimmyIM";				//Record store name
