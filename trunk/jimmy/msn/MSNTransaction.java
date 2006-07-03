@@ -108,6 +108,25 @@ public class MSNTransaction
 
         return rMessage.toString();
     }
+
+    /**
+     * Concatenates the message type, serial number, a list of arguments separated by a blank space.
+     * @return Message in String ready to be sent directly to MSN server.
+     */
+    public String toStringNN()
+    {
+        StringBuffer rMessage = new StringBuffer();
+        rMessage.append(this.messageType_);
+        rMessage.append(" " + this.trID_);
+        
+        for(int i=0; i<this.arguments_.size(); i++)
+        {
+            rMessage.append(" " + this.arguments_.elementAt(i));
+        }   
+        //rMessage.append(NEWLINE_);
+
+        return rMessage.toString();
+    }    
     
     /**
      * Logout is an exception among all the requests. It doesn't need the transaction ID beside.
