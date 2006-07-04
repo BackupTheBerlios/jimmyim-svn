@@ -16,7 +16,7 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **********************************************************************
  File: jimmy/MSNProtocol.java
- Version: pre-alpha  Date: 2006/04/11
+ Version: alpha  Date: 2006/04/11
  Author(s): Zoran Mesec
  */
 
@@ -83,12 +83,19 @@ public class MSNProtocol extends Protocol
         this.connected_ = false;
         this.protocolType_ = MSN;
     }
+    /**
+     * 
+     * @see 
+     */
     public boolean login(Account acc)
     {
         return false;
     }    
     /**
-     * Initializes SocketConnection.
+     * This function logs a user to MSN service. A valid username& password is required to perform this task.
+     * @param username Username for MSN Passport(example: john.doe@hotmail.com).
+     * @param password Password for MSN Passport(example: john.doe@hotmail.com).
+     * @return True if login succeded, or false on failure.
      */
     public boolean login(String username, String password)
     {
@@ -356,6 +363,11 @@ public class MSNProtocol extends Protocol
         return sum;
     }
     
+    /**
+     * This method ANDs a hexadecimal number(represented as a string) with 0x7FFFFFFF and returns the result as a string.
+     * @return A string representation of a hexadecimal number.
+     * @param s A string representation of the hexadecimal number.
+     */
     public String andHex(String s)
     {
         StringBuffer sb = new StringBuffer();
@@ -458,19 +470,10 @@ public class MSNProtocol extends Protocol
         return sb.toString();
     }    
     
-    public void check()
-    {
-        this.parseChallenge("ssss");
-        while(true)
-        {
-            parseReply(this.sh.getReply());
-            if(5==3)
-            {
-            
-            }
-        }
-    }
-    
+    /**
+     * Parses a reply from the server according to first three letters.
+     * @param reply raw data from the server, presented as a string
+     */
     public void parseReply(String reply)
     {
         //this.parseChallenge("aaaa");
@@ -658,11 +661,8 @@ public class MSNProtocol extends Protocol
                     {
                         con.setStatus(Contact.ST_AWAY);
                     }                     
-                 }
-                 
+                 }  
              }
-             
-             
             t = data.indexOf("ILN", t+3);
         }     
      
@@ -884,7 +884,7 @@ public class MSNProtocol extends Protocol
             for(int i = 0; i<this.contacts_.size();i++)
             {
                c =(Contact) this.contacts_.elementAt(i);
-                System.out.println("Contact " + i +":" + c.screenName() + ", group:" + c.groupName());
+                System.out.println("Contact " + i +":" + c.screenName() + ", group:" + c.groupName() + ", status:" + c.status());
             }
         }  
        System.out.println("*********************************************************");
@@ -912,6 +912,11 @@ public class MSNProtocol extends Protocol
        System.out.println("*********************************************************");           
    } 
    public Vector getChatSessions() {return chatSessions_;}
+    /**
+     * This method start a Chatsession(a conversation) with a person. The person is given as a function parameter.
+     * @param c contact we wish to converse.
+     * @return an instance of the newly created ChatSession.
+     */
    public ChatSession startChatSession(Contact c)
    { 
         if(this.chatSessions_==null)
@@ -954,7 +959,6 @@ public class MSNProtocol extends Protocol
    }
     /**
      * Send a message.
-     * 
      * @param msg Message in String
      * @param session Active Chat Session to send the message to
      */
@@ -1005,7 +1009,15 @@ public class MSNProtocol extends Protocol
     }
     public Vector getContacts() { return this.contacts_; }
     
-    public void run() {
-    	
+    public void run() 
+    {
+        while(true)
+        {
+            if(this.status_ != CONNECTED) 
+            {
+                continue;
+            }
+            parseReply(this.sh.getReply());
+        }    	
     }
 }
