@@ -491,7 +491,11 @@ public class MSNProtocol extends Protocol
         {
             parseChallenge(reply);
             System.gc();    // let's clean this mess
-        }          
+        }      
+        if(reply.indexOf("ILN")!=-1)
+        {
+            parsePresence(reply);   
+        }
     }
     private void parseContacts(String data)
     {
@@ -616,7 +620,54 @@ public class MSNProtocol extends Protocol
             count++;
             t = data.indexOf("LSG", t+3);
         }
-    }    
+    } 
+    
+    private void parsePresence(String data)
+    {
+         System.out.println("Parsing presence:" + data);
+         int t = data.indexOf("ILN");
+         int ind;
+         int count=0;
+         
+         char c;
+         StringBuffer group;
+         StringBuffer groupID;
+         String presence;
+         String uID;
+         Contact con;
+         while(t!=-1)
+         {   
+             presence = data.substring(t+6, t+9);
+             //System.out.println("type:" + presence);
+             uID = data.substring(t+10, data.indexOf(' ', t+11));
+             //System.out.println("user:" + uID);
+             for(int i=0; i<this.contacts_.size(); i++)
+             {
+                 con = (Contact)this.contacts_.elementAt(i);
+                 if(con.userID().compareTo(uID)==0)
+                 {
+                    if(presence.compareTo("BSY")==0)
+                    {
+                        con.setStatus(Contact.ST_BUSY);
+                    }
+                    else if((presence.compareTo("IDL")==0) || (presence.compareTo("NLN")==0))
+                    {
+                        con.setStatus(Contact.ST_ONLINE);
+                    }   
+                    else if(presence.compareTo("AWY")==0)
+                    {
+                        con.setStatus(Contact.ST_AWAY);
+                    }                     
+                 }
+                 
+             }
+             
+             
+            t = data.indexOf("ILN", t+3);
+        }     
+     
+    }
+    
     private void parseChallenge(String data)
     {
             System.out.println("Parsing challenge: " + data);
