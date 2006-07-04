@@ -69,7 +69,7 @@ public class MainMenu extends List implements CommandListener {
     
     private void addAccountsToMenu(){
         this.deleteAll();
-        for(int i=0; i<al_.length; i++){
+        for(int i=0; (al_!=null) && (i<al_.length); i++){
             this.append(al_[i].getUser(),null);
         }
     }

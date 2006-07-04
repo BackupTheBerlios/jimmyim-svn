@@ -28,7 +28,7 @@ import java.lang.*;
 
 import jimmy.Account;
 import jimmy.*;
-import jimmy.util.RMS;
+import jimmy.util.Store;
 import jimmy.icq.*;
 import jimmy.msn.*;
 import jimmy.jabber.*;
@@ -123,7 +123,7 @@ public class JimmyUI {
 		jimmy_.setDisplay(scrSplash);
 		
 		//Read configuration data from record store
-		RMS rs = new RMS(Jimmy.RS);
+		Store rs = new Store();
 		acc_    = rs.getAccounts();
 		
 		//Create screens
@@ -194,7 +194,7 @@ public class JimmyUI {
                     saveAccount(user,pass,server,port,protocol);
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
-                RMS rs = new RMS(Jimmy.RS);
+                Store rs = new Store();
                 jimmyUI_.setAccount(rs.getAccounts());
                 
                 jimmy_.setDisplay(scrMenu);                
@@ -222,7 +222,7 @@ public class JimmyUI {
          * This method is used for saving new account into record store.
          */        
         private static void saveAccount(String u, String p, String s, String port, byte protocol){
-            RMS rs = new RMS(Jimmy.RS);
+            Store rs = new Store();
             if (port.length() == 0)
                 port = "0";
             
