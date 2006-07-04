@@ -19,7 +19,7 @@
  * File: jimmy/util/RMS.java
  * Version: pre-alpha  Date: 2006/06/05
  * Author(s): Zoran Mesec
- * @author Zoran Mesec
+ * @author Dejan Sakelsak
  * @version pre-alpha
  */
 
@@ -28,6 +28,7 @@ package jimmy.util;
 import javax.microedition.rms.*;
 import jimmy.Account;
 import java.lang.*;
+import jimmy.util.Utils;
 
 /**
  * Class RMS handles persistent data storage.
@@ -113,13 +114,24 @@ public class Store
     public int addAccount(Account a){
     		String user = a.getUser();
     		String pass = a.getPassword();
-    		byte p = a.getProtocolType();
+    		byte[] p = new byte[1];
+                p[0] = a.getProtocolType();
     		String s = a.getServer();
     		int port = a.getPort();
     		boolean auto = a.getAutoLogin();
-    		
+    		byte[] c = new byte[1];
+                if(auto)
+                    c[0] = 1;
+                else
+                    c[0] = 0;
+                
     		try{
     			this.acc.addRecord(user.getBytes(),0,user.length());
+                        this.acc.addRecord(pass.getBytes(),0,pass.length());
+                        this.acc.addRecord(p,0,p.length);
+                        this.acc.addRecord(s.getBytes(),0,s.length());
+                        this.acc.addRecord(Utils.intToBytes(port,true),0,Utils.intToBytes(port,true).length);
+                        this.acc.addRecord(p,0,p.length);
     		}catch(RecordStoreNotOpenException e){
     			e.printStackTrace();
     		}catch(RecordStoreException e){
@@ -154,60 +166,20 @@ public class Store
      */
     public Account[] getAccounts(){
     		
-    		Account[] accounts = null;
-        try 
-        {      
-        		accounts = new Account[this.acc.getNumRecords()];
-            RecordEnumeration rEnum = this.acc.enumerateRecords(null,null,true);
-            
-            int count = 0, pos1 = 0, pos2 = 0;
-            String data = null;
-            
-            //read a program version by which the configuration file was written
-            String version = null;
-            if (rEnum.hasNextElement()) {
-                data = new String(rEnum.nextRecord());
-                pos1 = data.indexOf("\n");
-                version = data.substring(0,pos1); //version
-            }
-            
-            if (version=="pre-alpha") {
-            	while (rEnum.hasNextElement()) {
-            		data = new String(rEnum.nextRecord());
-            		pos1 = 0;
-            		
-            		pos2 = data.indexOf("\n");
-            		boolean autoLogin = (Byte.parseByte(data.substring(0,pos2))==0)?false:true; //auto login
-            		
-            		pos1 = data.indexOf("\n",pos2+1);
-            		byte protocol = Byte.parseByte(data.substring(pos2+1,pos1));  //protocol code
-            		
-            		pos2 = data.indexOf("\n",pos1+1);
-            		String user = data.substring(pos1+1,pos2);  //username
-            		
-            		pos1 = data.indexOf("\n",pos2+1);
-            		String password = data.substring(pos2+1,pos1); //password
-            		
-            		pos2 = data.indexOf("\n",pos1+1);
-            		String server = data.substring(pos1+1,pos2); //server
-            		
-            		pos1 = data.indexOf("\n",pos2+1);
-            		int port = Integer.parseInt(data.substring(pos2+1,pos1)); //port
-            		
-            		accounts[count] = new Account(user,password,protocol,server,port);
-            		accounts[count].setAutoLogin(autoLogin);
-            		
-            		count++;
-            	}
-            	rEnum.destroy();
-            	return accounts;
-            }
-        } catch (RecordStoreNotOpenException ex) 
-        {
+    		Account[] accounts = new Account[1];
+                Account a =null;
+        try{      
+                boolean b = false;
+                if(this.acc.getRecord(5)[0] == (byte)1)
+                    b = true;
+                    
+        	a = new Account(new String(this.acc.getRecord(0)),new String(this.acc.getRecord(1)),
+                        this.acc.getRecord(2)[0],new String(this.acc.getRecord(3)),Utils.bytesToInt(this.acc.getRecord(4),true),b);
+                accounts[0] = a;
+        } catch (RecordStoreNotOpenException ex) {
         	//ex.printStackTrace();
         	return null;
-        } catch(RecordStoreException e)
-        {
+        } catch(RecordStoreException e){
         	return null;
         }
         	return accounts;

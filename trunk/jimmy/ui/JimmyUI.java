@@ -191,7 +191,7 @@ public class JimmyUI {
                     String server   = (String)data.elementAt(2);
                     String port     = (String)data.elementAt(3);
                     byte protocol    = ((Integer)data.elementAt(4)).byteValue();
-                    saveAccount(user,pass,server,port,protocol);
+                    //saveAccount(user,pass,server,port,protocol);
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
                 Store rs = new Store();
