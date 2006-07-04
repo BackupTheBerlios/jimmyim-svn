@@ -127,6 +127,23 @@ public abstract class Protocol implements Runnable
     public Vector getContacts() {return contacts_;}
     
     /**
+     * Returns a specific Contact by userID
+     * 
+     * @return First Contact with the given userID
+     */
+    public Contact getContact(String userID) {
+    	if (contacts_ == null)
+    		return null;
+    	
+    	for (int i=0; i<contacts_.size(); i++) {
+    		if (((Contact)(contacts_.elementAt(i))).userID().compareTo(userID)==0)
+    			return ((Contact)(contacts_.elementAt(i)));
+    	}
+    	
+    	return null;
+    }
+    
+    /**
      * Send a message.
      * 
      * @param msg Message in String
