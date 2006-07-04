@@ -46,6 +46,7 @@ public class MSNProtocol extends Protocol
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String ProductID = "PROD0090YUAUV{2B";
     final String NSredirectURL = "baym-cs118.msgr.hotmail.com";
+    private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1L;
     final int serverPort = 1863;
     final int NexusPort = 443;
     private PassportNexus pn;
@@ -182,7 +183,12 @@ public class MSNProtocol extends Protocol
                 PassportNexus pn = new PassportNexus();
                 pn.getPassportLoginServer();
                 String ticket = pn.requestAuthorizationTicket(this.username, this.password, challenge);
-                //System.out.println(ticket);
+                if(ticket == null)
+                { 
+                    this.status_ = WRONG_PASSWORD;
+                    return false;
+                }
+                //System.out.println("Ticket:" + ticket);
                 
                 if(ticket == null)
                 {
@@ -219,7 +225,7 @@ public class MSNProtocol extends Protocol
                 {
                     parseReply(reply);
                 }    
-                this.connected_ = true;
+                this.status_ = CONNECTED;
                 return true;
         }
         catch (Exception e)
@@ -349,8 +355,112 @@ public class MSNProtocol extends Protocol
         }
         return sum;
     }
+    
+    public String andHex(String s)
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        int n=0;
+        char c;
+       
+        for(int i=0; i<s.length(); i++)
+        {
+            c = s.charAt(i);
+            //System.out.println(c);
+            
+            switch ((char)c)
+            {
+                case 48:
+                    n = 0;
+                    break;
+                case 49:
+                    n = 1;
+                    break;
+                case 50:
+                    n = 2;
+                    break;
+                case 51:
+                    n = 3;
+                    break;
+                case 52:
+                    n = 4;
+                    break;
+                case 53:
+                    n = 5;
+                    break;
+                case 54:
+                    n = 6;
+                    break;
+                case 55:
+                    n = 7;
+                    break;
+                case 56:
+                    n = 8;
+                    break;
+                case 57:
+                    n = 9;
+                    break;                      
+                case 97:
+                    n = 10;
+                    break;
+                case 98:
+                    n = 11;
+                    break;
+                case 99:
+                    n = 12;
+                    break;
+                case 100:
+                    n = 13;
+                    break;
+                case 101:
+                    n = 14;
+                    break;
+                case 102:
+                    n = 15;
+                    break;
+            }
+            if(i==0)
+            {
+                n = n & 0x7;
+            }
+            else
+            {
+                n = n & 0xF;
+            }  
+            
+            switch(n)
+            {
+                case 10:
+                    sb.append('a');
+                    break;
+                case 11:
+                    sb.append('b');
+                    break;
+                case 12:
+                    sb.append('c');
+                    break;
+                case 13:
+                    sb.append('d');
+                    break;
+                case 14:
+                    sb.append('e');
+                    break;
+                 case 15:
+                    sb.append('f');
+                    break;      
+                 default:
+                     sb.append(n);
+                     break;
+            }
+                  
+        }
+        //System.out.println(sb.toString());
+        return sb.toString();
+    }    
+    
     public void check()
     {
+        this.parseChallenge("ssss");
         while(true)
         {
             parseReply(this.sh.getReply());
@@ -363,7 +473,7 @@ public class MSNProtocol extends Protocol
     
     public void parseReply(String reply)
     {
-        this.parseChallenge("aaaa");
+        //this.parseChallenge("aaaa");
         System.out.println(reply);
         if(reply == null)
         {
@@ -510,6 +620,7 @@ public class MSNProtocol extends Protocol
     private void parseChallenge(String data)
     {
             System.out.println("Parsing challenge: " + data);
+            
             // first step
             //StringBuffer challenge =new StringBuffer(data.substring(6,data.length()-2));
             //challenge.append(this.ProductKey);
@@ -528,6 +639,7 @@ public class MSNProtocol extends Protocol
             hashes[1] = new StringBuffer(hash.substring(8,16));
             hashes[2] = new StringBuffer(hash.substring(16,24));
             hashes[3] = new StringBuffer(hash.substring(24,hash.length()));
+            
             int[] md5hash = new int[4];
             char c;
             for(int i=0; i<hashes.length; i++)
@@ -551,9 +663,13 @@ public class MSNProtocol extends Protocol
 
                 //System.out.println("aFTER:"+hashes[i].toString());
                 //md5hash[i] = hexToInt(hashes[i].toString()) &  0x7FFFFFF;
-                md5hash[i] = hexToInt(hashes[i].toString());
-                System.out.println(hashes[i] + " -> "+md5hash[i]);
+                md5hash[i] = hexToInt(andHex(hashes[i].toString()));
+                System.out.println(andHex(hashes[i].toString()) + " -> "+md5hash[i]);
                 
+                
+            }
+            for(int i=0; i<md5hash.length; i++)
+            {
                 
             }
             
@@ -607,10 +723,16 @@ public class MSNProtocol extends Protocol
                 //System.out.println("Hex:" + chlStringArray[i]);
             }
             
+            
+            for(int i=0; i<chlStringArray.length; i++)
+            {
+                System.out.println("Hex:" + chlStringArray[i]);
+            }
+            
             // third step
             
-            int high = 0;
-            int low = 0;
+            long high = 0;
+            long low = 0;
 
             for (int i = 0; i < chlStringArray.length; i = i + 2) 
             {
@@ -630,12 +752,30 @@ public class MSNProtocol extends Protocol
 
             high = (high + md5hash[1]) % 0x7FFFFFFF;
             low = (low + md5hash[3]) % 0x7FFFFFFF;
+            
+            /*long high = 0;
+            long low = 0;
+            for (int i = 0; i < chlStringArray.length; i = i + 2) {
+                long temp = (((chlStringArray[i] * MSNP11_MAGIC_NUM) % 0x7FFFFFFF) + high);
+                temp = ((temp * md5hash[0]) + md5hash[1]) % 0x7FFFFFFF;
+
+                high = (chlStringArray[i + 1] + temp) % 0x7FFFFFFF;
+                high = (md5hash[2] * high + md5hash[3]) % 0x7FFFFFFF;
+
+                low = low + high + temp;
+            }
+            high = (high + md5hash[1]) % 0x7FFFFFFF;
+            low = (low + md5hash[3]) % 0x7FFFFFFF;    */        
+            
+            
+            
+            System.out.println("low:" + low);
+            System.out.println("high:" + high);
             // Gives high = 0x69A5A771 (1772463985 decimal) and low = 0xD4020628 (3556902440 decimal)
 
             long key = (high << 32) + low;
             // Gives 0x69a5a771d4020628 (7612674852469737000 decimal)            
-            System.out.println(key);
-            
+             
             long challenge = Long.parseLong(hash.substring(0,16))^key + Long.parseLong(hash.substring(16, 16))^key;
             
             //hash = Long.parseLong(hash.substring(0,16));
