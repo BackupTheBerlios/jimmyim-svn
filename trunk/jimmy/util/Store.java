@@ -112,26 +112,58 @@ public class Store
      * @return
      */
     public int addAccount(Account a){
-    		String user = a.getUser();
-    		String pass = a.getPassword();
+    		byte[] user = a.getUser().getBytes();
+    		byte[] pass = a.getPassword().getBytes();
     		byte[] p = new byte[1];
                 p[0] = a.getProtocolType();
-    		String s = a.getServer();
-    		int port = a.getPort();
+    		byte[] s = a.getServer().getBytes();
+    		byte[] port = Utils.intToBytes(a.getPort(),true);
     		boolean auto = a.getAutoLogin();
     		byte[] c = new byte[1];
                 if(auto)
                     c[0] = 1;
                 else
                     c[0] = 0;
-                
+                String n = "\n";
+                int len = 5+user.length+pass.length+p.length+s.length+port.length+c.length;
+                byte[] record = new byte[len];
+                for(int i = 0; i<=user.length; i++){
+                    if(i < user.length)
+                        record[i] = user[i];
+                    else if(i == user.length)
+                        record[i] = n.getBytes()[0];
+                }   
+                for(int i = 0; i<=pass.length;i++){
+                    if(i < pass.length)
+                            record[i+user.length+1] = pass[i];
+                    else if(i == user.length+pass.length)
+                        record[i+user.length+1] = n.getBytes()[0];
+                }   
+                for(int i = 0; i<=p.length;i++){
+                    if(i < p.length)
+                        record[i+user.length+pass.length+1] = p[i];
+                    else if(i == p.length)
+                        record[i+user.length+pass.length+1] = n.getBytes()[0];
+                }
+                for(int i = 0; i<=s.length;i++){
+                    if(i < s.length)
+                        record[i+user.length+pass.length+p.length+1] = s[i];
+                    else if(i == s.length)
+                        record[i+user.length+pass.length+p.length+1] = n.getBytes()[0];
+                }
+                for(int i = 0; i<=port.length;i++){
+                    if(i < port.length)
+                        record[i+user.length+pass.length+p.length+s.length+1] = port[i];
+                    else if(i == port.length)
+                        record[i+user.length+pass.length+p.length+s.length+1] = n.getBytes()[0];
+                }
+                for(int i = 0; i<c.length;i++){
+                    if(i < user.length+pass.length+p.length+s.length+port.length+c.length)
+                        record[i+user.length+pass.length+p.length+port.length+1] = c[i];
+                }
+                System.out.println(new String(record));
     		try{
-    			this.acc.addRecord(user.getBytes(),0,user.length());
-                        this.acc.addRecord(pass.getBytes(),0,pass.length());
-                        this.acc.addRecord(p,0,p.length);
-                        this.acc.addRecord(s.getBytes(),0,s.length());
-                        this.acc.addRecord(Utils.intToBytes(port,true),0,Utils.intToBytes(port,true).length);
-                        this.acc.addRecord(p,0,p.length);
+    		       this.acc.addRecord(record,0,record.length);
     		}catch(RecordStoreNotOpenException e){
     			e.printStackTrace();
     		}catch(RecordStoreException e){
@@ -168,21 +200,50 @@ public class Store
     		
     		Account[] accounts = new Account[1];
                 Account a =null;
-        try{      
-                boolean b = false;
+         try{      
+                RecordEnumeration re = this.acc.enumerateRecords(null,null,true);
+                /*boolean b = false;
                 if(this.acc.getRecord(5)[0] == (byte)1)
-                    b = true;
+                    b = true;*/
+                for(int i = 0; re.hasNextElement();i++){
+                    String bla = new String(re.nextRecord());
+                    int ind = bla.indexOf("\n");
+                    String user = bla.substring(0,ind);
+                    int ind2 = bla.indexOf("\n",ind+1);
+                    String pass = bla.substring(ind+1,ind2);
+                    ind = bla.indexOf("\n",ind2+1);
+                    String type = bla.substring(ind2+1,ind);
+                    ind2 = bla.indexOf("\n",ind+1);
+                    String serv = bla.substring(ind+1,ind2);
+                    ind = bla.indexOf("\n",ind2+1);
+                    String port = bla.substring(ind2+1,ind);
+                    ind2 = bla.indexOf("\n",ind+1);
+                    String auto = bla.substring(ind+1,ind2);
                     
-        	a = new Account(new String(this.acc.getRecord(0)),new String(this.acc.getRecord(1)),
-                        this.acc.getRecord(2)[0],new String(this.acc.getRecord(3)),Utils.bytesToInt(this.acc.getRecord(4),true),b);
-                accounts[0] = a;
+                    a = new Account(user,pass,type.getBytes()[0],serv,Integer.parseInt(port),Integer.parseInt(auto) == 1 ? true : false);
+                    accounts[i] = a;
+                }
         } catch (RecordStoreNotOpenException ex) {
-        	//ex.printStackTrace();
+        	ex.printStackTrace();
         	return null;
-        } catch(RecordStoreException e){
-        	return null;
+        } catch(RecordStoreException ex){
+        	ex.printStackTrace();
+                return null;
         }
+
         	return accounts;
+    }
+    
+    
+    public boolean close(){
+        try{
+            this.acc.closeRecordStore();
+            this.settings.closeRecordStore();
+        }catch(RecordStoreException ex){
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
     
     /**

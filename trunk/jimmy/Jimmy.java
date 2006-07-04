@@ -155,13 +155,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
             ui_.addContact(c);
 	}
     
-	public void addContacts(Contact[] c) {
-            Vector contacts = new Vector();
-            
-            for(int i=0; i<c.length; i++)
-                contacts.addElement(c[i]);
-            
-            ui_.addContacts(contacts);
+	public void addContacts(Vector c) {
+            ui_.addContacts(c);
 	}
         
         public void msgRecieved(ChatSession cs, Contact c, String msg){

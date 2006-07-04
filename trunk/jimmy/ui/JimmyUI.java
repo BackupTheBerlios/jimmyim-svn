@@ -124,7 +124,7 @@ public class JimmyUI {
 		
 		//Read configuration data from record store
 		Store rs = new Store();
-		acc_    = rs.getAccounts();
+		//acc_    = rs.getAccounts();
 		
 		//Create screens
 		scrMenu =       new MainMenu(acc_);
@@ -190,14 +190,15 @@ public class JimmyUI {
                     String pass     = (String)data.elementAt(1);
                     String server   = (String)data.elementAt(2);
                     String port     = (String)data.elementAt(3);
+                    if(port.equals("")) port = "0";
                     byte protocol    = ((Integer)data.elementAt(4)).byteValue();
-                    //saveAccount(user,pass,server,port,protocol);
+                    saveAccount(new Account(user,pass,protocol,server,Integer.parseInt(port),false));
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
                 Store rs = new Store();
                 jimmyUI_.setAccount(rs.getAccounts());
-                
-                jimmy_.setDisplay(scrMenu);                
+                rs.close();
+                jimmy_.setDisplay(scrMenu);
             }// if d == scrNewAcc
             
             //commands from contacts page
@@ -221,11 +222,9 @@ public class JimmyUI {
         /*
          * This method is used for saving new account into record store.
          */        
-        private static void saveAccount(String u, String p, String s, String port, byte protocol){
+        private static void saveAccount(Account a){
             Store rs = new Store();
-            if (port.length() == 0)
-                port = "0";
-            
-            rs.addRecord(protocol+"\n"+u+"\n"+p+"\n"+s+"\n"+port+"\n");
+            rs.addAccount(a);
+            rs.close();
         }  
 }
