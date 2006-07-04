@@ -31,6 +31,8 @@ import jimmy.Protocol;
 import jimmy.net.ServerHandler;
 import jimmy.ProtocolInteraction;
 
+import org.xml.sax.SAXException;
+
 /**
  * This class implements the Jabber protocol.
  * 
@@ -63,23 +65,23 @@ public class JabberProtocol extends Protocol {
 		//get the server port stored in the account - use default server port if none set
 		int port = (account.getPort()!=0) ? account.getPort() : DEFAULT_PORT;
 		
-		System.out.println("Jabber RULES!:)");
-		this.sh_ = new ServerHandler(server, port);
-		this.sh_.connect();
+		sh_ = new ServerHandler(server, port);
+		sh_.connect();
 		if (sh_.isConnected() == false)
 			return false;
 		
 		String oString = new String();
+		String iString = new String();
+		
 		//Welcome message
 		oString =
 			"<?xml version='1.0'?>" +
 			"<stream:stream to='" + userServer + "' xmlns='jabber:client' xmlns:stream='" + DEFAULT_STREAMS + "'>";
 		
-		this.sh_.sendRequest(oString);
-		System.out.println("OUT:\n" + oString);
-		System.out.println("IN:\n" + sh_.getReply());
+		sh_.sendRequest(oString);
+		iString = sh_.getReply();	//ignore the welcome message
 		
-		//Poslji user/pass
+		//Authentication
 		oString = "<iq type='set'>" +
 			"<query xmlns='jabber:iq:auth'>" +
 			"<username>" + userName + "</username>" +
@@ -89,30 +91,27 @@ public class JabberProtocol extends Protocol {
 			"</iq>";
 		
 		this.sh_.sendRequest(oString);
-		System.out.println("OUT:\n" + oString);
-		System.out.println("IN:\n" + sh_.getReply());
+		iString = sh_.getReply();
+		//check authentication feedback
+		if (JabberParseXML.parseUserPass(iString)==false) {
+			status_ = WRONG_PASSWORD;
+			return false;
+		}
 		
-		//Dobi seznam kontaktov
+		//Get contacts list
 		oString = "<iq type='get'><query xmlns='jabber:iq:roster'/></iq>";
 		this.sh_.sendRequest(oString);
-		System.out.println("OUT:\n" + oString);
-		System.out.println("IN:\n" + sh_.getReply());
-
-		//Nastavi se "online"
+		iString = sh_.getReply();
+		//parse the contacts feedback
+		contacts_ = JabberParseXML.parseContacts(iString, this);
+		contacts_.toString();
+		jimmy_.addContacts(contacts_);
+		
+		//Set status "online"
 		oString = "<presence type=\"available\"/>";// type=\"online\"/>";
 		this.sh_.sendRequest(oString);
-		System.out.println("OUT:\n" + oString);
 		
-		//Poslji sporocilo
-		//oString = "<message from='jimmy@gristle.org' to='thepianoguy@jabber.org' type='chat'> <body>I wish to complain about <b>this</b> parrot what I purchased not half an hour ago from this very boutique.</body> </message> ";
-		//this.sh_.sendRequest(oString);
-		//System.out.println("OUT:\n" + oString);
-//		System.out.println("IN:\n" + sh_.getReply());
-		
-		int i=3;
-		while (i!=6)
-			System.out.println("IN:\n" + sh_.getReply());
-			
+		status_ = CONNECTED;
 		return true;
 	}
 	
@@ -128,6 +127,7 @@ public class JabberProtocol extends Protocol {
 	 */
 	public void logout() {
 		this.sh_.disconnect();
+		this.status_ = DISCONNECTED;
 	}
 
 	public ChatSession startChatSession(Contact user) {
@@ -136,8 +136,11 @@ public class JabberProtocol extends Protocol {
 	}
 
 	public void sendMsg(String msg, ChatSession session) {
-		// TODO Auto-generated method stub
-
+		//Poslji sporocilo
+		/*oString = "<message from='jimmyim@jabber.org' to='thepianoguy@jabber.org' type='chat'> <body>I wish to complain about <b>this</b> parrot what I purchased not half an hour ago from this very boutique.</body> </message> ";
+		this.sh_.sendRequest(oString);
+		System.out.println("OUT:\n" + oString);
+		System.out.println("IN:\n" + sh_.getReply());*/
 	}
 
 	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
@@ -167,6 +170,26 @@ public class JabberProtocol extends Protocol {
     }
     
     public void run() {
+    	String in;
     	
+    	while (true) {
+    		try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		if (status_!=CONNECTED) continue;
+    		
+    		in = sh_.getReply();
+    		if (in != null)
+    			JabberParseXML.generalParse(in, this);
+    		
+    		System.out.println(in);
+    	}
     }
-}
+    
+    public void parserNewContacts(Contact[] c) {
+    	contacts_.copyInto(c);
+    }
+}    
