@@ -44,13 +44,13 @@ public class Account {
      * @param s Server name which to connect to
      * @param port Server port which to connect to
      */
-    public Account(String u, String p, byte protocolType, String s, int port) {
+    public Account(String u, String p, byte protocolType, String s, int port, boolean autoLogin) {
         this.username_   = u;
         this.password_   = p;
         this.protocolType_ = protocolType;
         this.server_     = s;
         this.port_       = port;
-        this.autoLogin_  = false;
+        this.autoLogin_  = autoLogin;
     }
     
     /**
@@ -62,7 +62,7 @@ public class Account {
      * @param s Server name which to connect to
      */
     public Account(String u, String p, byte protocolType) {
-    	this(u, p, protocolType, null, 0);
+    	this(u, p, protocolType, null, 0, false);
     }
     
     public void setUser(String u)       {this.username_ = u;}
