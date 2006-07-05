@@ -110,7 +110,7 @@ public class JabberProtocol extends Protocol {
 		//Set status "online"
 		oString = "<presence type=\"available\"/>";// type=\"online\"/>";
 		this.sh_.sendRequest(oString);
-		
+
 		status_ = CONNECTED;
 		return true;
 	}
@@ -182,10 +182,10 @@ public class JabberProtocol extends Protocol {
     		if (status_!=CONNECTED) continue;
     		
     		in = sh_.getReply();
+    		//System.out.println(in);
     		if (in != null)
-    			JabberParseXML.generalParse(in, this);
+    			JabberParseXML.genericParse(in, this, jimmy_);
     		
-    		System.out.println(in);
     	}
     }
     

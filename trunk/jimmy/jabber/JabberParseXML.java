@@ -56,7 +56,117 @@ public class JabberParseXML {
 		return false;
 	}
 	
-	public static void generalParse(String in, JabberProtocol protocol) {
+	/**
+	 * This method parses the given string and forward according to the XML stanza type,
+	 * the String to the correct submethod.
+	 * 
+	 * Different submethods parse the given String then and trim it every time.
+	 * Submethods are called as long as the given String isn't trimmed to length==0.
+	 * 
+	 * @param in Given String input which was received from the Jabber server
+	 * @param protocol Reference to the Jabber protocol (needed for contacts list and other details)
+	 */
+	public static void genericParse(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		int x1, x2;
+		String type;
 		
+		if (in==null) return;
+		
+		while (in.length() != 0) {
+			x1 = in.indexOf("<") + 1;
+			x2 = in.indexOf(" ");	
+		
+			type = in.substring(x1, x2); //get the first word in <> stanza
+		
+			if (type.compareTo("presence") == 0) {
+				in = parsePresence(in, protocol, jimmy);
+			}
+			
+		}
+	}
+	
+	/**
+	 * Return a block surrounded by the given left and right String elements in the given String.
+	 * Returns null, if the pattern wasn't found.
+	 * 
+	 * @param in The whole String
+	 * @param left Left surrounding value
+	 * @param right Right surrounding value
+	 * @return The block between left and right surrounding String in String in. Returns null, if the pattern wasn't found.
+	 */
+	private static String getAttributeValue(String in, String left, String right) {
+		if (in==null) {
+			return null;
+		}
+		if (in.indexOf(left) == -1) {
+			return null;
+		}
+		if (in.indexOf(right, in.indexOf(left)) == -1) {
+			return null;
+		}
+		
+		return in.substring(in.indexOf(left) + left.length(), in.indexOf(right, in.indexOf(left) + left.length()));
+	}
+
+	private static String parsePresence(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		int x1, x2, x22;
+		String from;
+
+		x1 = in.indexOf("from='") + 6;
+		//jid string, which contact is this about ends at / or ', whichever comes first 
+		if ( ((x2 = in.indexOf("/", x1))  < (x22 = in.indexOf("'", x1))) &&
+		      (x2 != -1) ) {
+			from = in.substring(x1, x2);
+		} else {
+			from = in.substring(x1, x22);
+		}
+		
+		//find the Contact from the contacts list
+		Contact c = protocol.getContact(from);
+
+		//if the Contact wasn't found, trim the first presence stanza off and return
+		if (c==null) {
+			x2 = in.indexOf("/>");
+			x22 = in.indexOf("</presence>");
+			
+			if ((x2 < x22) && (x2 != -1))
+				in = in.substring(x2 + 2);
+			else
+				in = in.substring(x22 + 11);
+			
+			return in;
+		}
+		
+		//contact was found, proceed
+		//checking, if the contact became off-line
+		x2 = in.indexOf("type='unavailable'/>");
+		x22 = in.indexOf(">");
+		
+		if ((x2 < x22) && (x2 != -1)) {
+			c.setStatus(Contact.ST_OFFLINE);
+			jimmy.changeContactStatus(c);
+			in = in.substring(x2 + 20);
+			return in;
+		}
+		
+		//contact is not off-line
+		String tmp = getAttributeValue(in, "<presence ", "</presence>");
+		String show = getAttributeValue(tmp, "<show>", "</show>");
+		if (show == null)
+			c.setStatus(Contact.ST_ONLINE);
+		else if ((show.compareTo("away")==0) || (show.compareTo("xa")==0))
+			c.setStatus(Contact.ST_AWAY);
+		else if (show.compareTo("dnd")==0)
+			c.setStatus(Contact.ST_BUSY);
+		
+		//does a contact also include a message?
+		String statusMsg = getAttributeValue(tmp, "<status>", "</status>");
+		c.setStatusMsg(statusMsg);
+		
+		//trim the input String - the first stanza was now processed - remove it
+		in = in.substring(in.indexOf("</presence>") + 11);
+
+		jimmy.changeContactStatus(c);
+		return in;
 	}
 }
