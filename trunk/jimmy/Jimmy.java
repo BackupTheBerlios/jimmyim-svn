@@ -162,4 +162,9 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
         public void msgRecieved(ChatSession cs, Contact c, String msg){
             
         }
+
+		public void changeContactStatus(Contact c) {
+			// TODO Auto-generated method stub
+			
+		}
 }
