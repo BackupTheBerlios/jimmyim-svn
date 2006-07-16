@@ -49,6 +49,8 @@ public class ICQPackage {
 	private byte[] pkg = null; // The package in byte array
 
 	private Vector tlvs = null;
+	
+	private byte[] s = null;
 
 	/**
 	 * Creates a new instance of this class
@@ -87,18 +89,22 @@ public class ICQPackage {
 		b[0] = this.pkg[4];
 		b[1] = this.pkg[5];
 		this.flap_size = Utils.bytesToUShort(b, true);
+		System.out.print("channel");
+		System.out.println(this.ch);
 		if(this.ch != 0x01){
+			System.out.println("dismanlte");
 			this.tlvs = new Vector();
-			dismantle(p);
+			dismantle();
 		}
 	}
 
 	
-	public void dismantle(byte[] p){
+	public void dismantle(){
 		int header = ICQPackage.FLAP_HEADER_SIZE;
 		if(this.ch == 0x02){
 			header = ICQPackage.SNACK_PKG_HEADER_SIZE;
 		}
+		System.out.println("dismanlte");
 		if (this.ch != 0x02) {
 			for (int i = header; i < this.pkg.length; i++) {
 				ICQTlv tlv = new ICQTlv();
@@ -134,17 +140,28 @@ public class ICQPackage {
 			b = null;
 		}else{
 			//dismantle as SNAC type
-			byte[] b = new byte[2];
-			b[0] = this.pkg[6];
-			b[1] = this.pkg[7];
-			int type = Utils.bytesToInt(b,true);
-			b[0] = this.pkg[8];
-			b[1] = this.pkg[9];
-			int subtype = Utils.bytesToInt(b,true);
+			int type = this.getSnackType();
+			int subtype = this.getSnackSubType();
+			//DISMANTLE SNAC BY SUBTYPE
+			System.out.println("dismantling SNAC");
 			switch(type){
 			case 0x0017:
 				switch(subtype){
-				case 0x07:
+				case 0x0007:
+					break;
+				}
+				break;
+			case 0x0001:
+				switch(subtype){
+				//supported services
+				case 0x0003:
+					this.s = new byte[this.flap_size - ICQPackage.SNAC_HEADER_SIZE];
+					for(int i = ICQPackage.SNACK_PKG_HEADER_SIZE; i < pkg.length; i++)
+						s[i-ICQPackage.SNACK_PKG_HEADER_SIZE] = pkg[i];
+					System.out.println("reading services...");
+					break;
+				case 0x0018:
+					
 					break;
 				}
 				break;
@@ -233,14 +250,15 @@ public class ICQPackage {
 			for (int i = 0; i < this.pkg.length; i++) {
 				v.addElement(new Byte(this.pkg[i]));
 			}
-			if (this.tlvs.size() != 0) {
-				for (int i = 0; i < this.tlvs.size(); i++) {
-					byte[] b = ((ICQTlv) this.tlvs.elementAt(i)).getBytes();
-					for (int j = 0; j < b.length; j++) {
-						v.addElement(new Byte(b[j]));
+			if(this.tlvs != null)
+				if (this.tlvs.size()	 != 0) {
+					for (int i = 0; i < this.tlvs.size(); i++) {
+						byte[] b = ((ICQTlv) this.tlvs.elementAt(i)).getBytes();
+						for (int j = 0; j < b.length; j++) {
+							v.addElement(new Byte(b[j]));
+						}
 					}
 				}
-			}
 			/*if (v.size()%16 != 0){
 				int mod = 16-v.size()%16;
 				for (int i = 0; i < mod; i++){
@@ -254,7 +272,6 @@ public class ICQPackage {
 				// v.removeElementAt(0);
 			}
 			v = null;
-			System.out.println("return package");
 			return b;
 	}
 
@@ -360,11 +377,13 @@ public class ICQPackage {
 
 	public int getTlvSize() {
 		int l = 0;
-		if(this.tlvs.size() == 0)
-			return 0;
+		if(this.tlvs != null){
+			if(this.tlvs.size() == 0)
+				return 0;
 		
-		for (int i = 0; i < this.tlvs.size(); i++) {
-			l = l + ((ICQTlv) this.tlvs.elementAt(i)).getLen();
+			for (int i = 0; i < this.tlvs.size(); i++) {
+				l = l + ((ICQTlv) this.tlvs.elementAt(i)).getLen();
+			}
 		}
 		return l;
 	}
@@ -388,5 +407,25 @@ public class ICQPackage {
 		int l = 0;
 		l = this.getTlvSize() + this.pkg.length;
 		return l;
+	}
+	
+	public byte[] getServices(){
+		return this.s;
+	}
+	
+	public byte getChannel(){return this.ch;}
+	
+	public int getSnackType(){
+		byte[] b = new byte[2];
+		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE];
+		b[1] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+1];
+		return Utils.bytesToInt(b,true);
+	}
+	
+	public int getSnackSubType(){
+		byte[] b = new byte[2];
+		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+2];
+		b[1] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+3];
+		return Utils.bytesToInt(b,true);
 	}
 }
