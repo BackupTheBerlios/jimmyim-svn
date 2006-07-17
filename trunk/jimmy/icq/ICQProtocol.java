@@ -190,27 +190,37 @@ public class ICQProtocol extends Protocol {
 		ICQPackage in = new ICQPackage(hahaha);
 		this.services = in.getServices();
 		in = null;
-		ICQPackage ver_req = new ICQPackage();
-		ver_req.setSnac(1,23,0,220);
-		int bla = this.services.length;
-		this.service_ver = new byte[bla];
+		//int bla = this.services.length;
+		this.service_ver = new byte[2*this.services.length];
+		System.out.println(this.services.length);
 		Random rng = new Random();
 		
-		for(int i = 0; i < this.services.length; i++){
-			this.service_ver[i*2] = this.services[i];
-			this.service_ver[2*i+1] = (byte)rng.nextInt();
+		System.out.println("building byte array");
+		int j = 0;
+		for(int i = 0; i < this.service_ver.length-3; i=i+4){
+			this.service_ver[i] = this.services[j];
+			this.service_ver[i+1] = this.services[j+1];
+			this.service_ver[i+2] = 0;
+			this.service_ver[i+3] = (byte)Math.abs(rng.nextInt());
+			j=j+2;
 		}
-		
+		ICQPackage ver_req = new ICQPackage(this.service_ver.length,(byte)0x02);
 		ver_req.setContent(this.service_ver);
-		ver_req.setFlap((short)0x0038);
-		this.conn.sendRequest(ver_req.getNetPackage());
+		ver_req.setSnac(1,23,0,220);
+		ver_req.setFlap((short)0x0035);
+		byte[] bla = ver_req.getNetPackage();
+		System.out.println(Utils.byteArrayToHexString(bla));
+		this.conn.sendRequest(bla);
 		//ver_req = null;
 		b = this.conn.getReplyBytes();
+		System.out.println(Utils.byteArrayToHexString(b));
 		if(b != null){
-			in = new ICQPackage();
+			System.out.println("Service versions");
+			in = new ICQPackage(b);
 			this.pkgDecode(in);
 		}
-		System.out.println(Utils.byteArrayToHexString(this.services));
+		
+		//System.out.println(Utils.byteArrayToHexString(this.services));
 		
 		//END STAGE TWO
 		

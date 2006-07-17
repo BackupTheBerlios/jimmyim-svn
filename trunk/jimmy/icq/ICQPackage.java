@@ -67,7 +67,8 @@ public class ICQPackage {
 	 * @param data_size
 	 *            The size of the data you will send
 	 */
-	public ICQPackage(int data_size) {
+	public ICQPackage(int data_size,byte c) {
+		this.ch = c;
 		if (this.pkg == null)
 			if (this.ch == 0x02)
 				this.pkg = new byte[data_size
@@ -192,6 +193,7 @@ public class ICQPackage {
 				}
 			}
 		} else {
+			System.out.println(this.pkg.length);
 			if (this.ch == 0x02) {
 				for (int i = 0; i < content.length; i++) {
 					this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE + i] = content[i];
@@ -312,7 +314,8 @@ public class ICQPackage {
 	 */
 	public void setSnac(int family, int subtype, int flags, int reqid) {
 		this.ch = 0x02;
-		this.pkg = new byte[ICQPackage.SNACK_PKG_HEADER_SIZE];
+		if(this.pkg == null)
+			this.pkg = new byte[ICQPackage.SNACK_PKG_HEADER_SIZE];
 		byte[] a = Utils.shortToBytes((short)family, true);
 		this.pkg[6] = a[0];
 		this.pkg[7] = a[1];
