@@ -192,7 +192,7 @@ public class ICQProtocol extends Protocol {
 		in = null;
 		//int bla = this.services.length;
 		this.service_ver = new byte[2*this.services.length];
-		System.out.println(this.services.length);
+		//System.out.println(this.services.length);
 		Random rng = new Random();
 		
 		System.out.println("building byte array");
@@ -209,10 +209,11 @@ public class ICQProtocol extends Protocol {
 		ver_req.setSnac(1,23,0,220);
 		ver_req.setFlap((short)0x0035);
 		byte[] bla = ver_req.getNetPackage();
-		System.out.println(Utils.byteArrayToHexString(bla));
+		//System.out.println(Utils.byteArrayToHexString(bla));
 		this.conn.sendRequest(bla);
 		//ver_req = null;
 		b = this.conn.getReplyBytes();
+		bla = this.conn.getReplyBytes();
 		System.out.println(Utils.byteArrayToHexString(b));
 		if(b != null){
 			System.out.println("Service versions");
