@@ -64,10 +64,13 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		thr_.start();
 		
 		//protocolList_.addElement(new MSNProtocol(this));
-		//protocolList_.addElement(new JabberProtocol());
+		protocolList_.addElement(new JabberProtocol(this));
 		
 		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","");
-		//((Protocol)protocolList_.elementAt(0)).login("jimmy@gristle.org","jimmy");
+		((Protocol)protocolList_.elementAt(0)).login("jimmyim@jabber.org","jimmy");
+		//((Protocol)protocolList_.elementAt(0)).login("thepianoguy@jabber.org","freshbreath");
+		((Protocol)protocolList_.elementAt(0)).startThread();
+		
 	}
 	
 	public void run(){
@@ -155,9 +158,9 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public void addContact(Contact c) {ui_.addContact(c);}
     	public void addContacts(Vector c) {ui_.addContacts(c);}
         
-        public void msgRecieved(ChatSession cs, Contact c, String msg){
-            
-        }
+	public void msgRecieved(ChatSession cs, Contact c, String msg){
+		
+	}
 
 	public void changeContactStatus(Contact c) {
 		// TODO Auto-generated method stub

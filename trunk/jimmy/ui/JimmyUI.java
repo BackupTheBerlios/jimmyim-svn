@@ -131,7 +131,6 @@ public class JimmyUI {
 		//Read configuration data from record store
 		Store rs = new Store();
 		scrMenu.addAccounts(rs.getAccounts());
-		rs.close();
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
@@ -234,6 +233,5 @@ public class JimmyUI {
             /*if(rs.addAccount(a))
                 System.out.println("New account saved in RS");*/
 	    rs.addAccount(a);
-            rs.close();
         }  
 }

@@ -29,9 +29,9 @@ package jimmy;
  * @author matevz
  */
 public class Account {
+    private byte protocolType_;	//used protocol - see Protocol.PR_*
     private String username_;	//login username
     private String password_;	//login password
-    private byte protocolType_;	//used protocol - see Protocol.PR_*
     private String server_;		//login server name (optional)
     private int port_;	//server port (optional)
     private boolean autoLogin_;	//automatically login at startup
@@ -45,9 +45,9 @@ public class Account {
      * @param port Server port which to connect to
      */
     public Account(String u, String p, byte protocolType, String s, int port, boolean autoLogin) {
+        this.protocolType_ = protocolType;
         this.username_   = u;
         this.password_   = p;
-        this.protocolType_ = protocolType;
         this.server_     = s;
         this.port_       = port;
         this.autoLogin_  = autoLogin;
@@ -63,6 +63,18 @@ public class Account {
      */
     public Account(String u, String p, byte protocolType) {
     	this(u, p, protocolType, null, 0, false);
+    }
+    
+    public String toString() {
+    	String out = "Protocol type (0 Jabber, 1 ICQ, 2 MSN, 3 Yahoo!): ";
+    	out.concat(String.valueOf(protocolType_) + "\n");
+    	out.concat("User name: " + username_);
+    	out.concat("Password: " + password_);
+    	out.concat("Server name (optional): " + server_);
+    	out.concat("Server port (optional): " + String.valueOf(port_));
+    	out.concat("AutoLogin: " + autoLogin_);
+    	
+    	return out;
     }
     
     public void setUser(String u)       {this.username_ = u;}

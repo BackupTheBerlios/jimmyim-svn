@@ -30,196 +30,160 @@ import java.util.Vector;
 import jimmy.util.Utils;
 
 /**
- * Class RMS handles persistent data storage.
+ * Class Store handles persistent data storage in the mobile phone.
+ * Record store is comprised of a number of records.
+ * Jimmy uses the first record for general program properties and the next records for account properties (one account per record).
+ * Values are separated by \n (newline) character.
  */
 public class Store 
 {
-    private RecordStore acc;
-    private RecordStore settings;
-    /**
-     * Opens the existing record stores "Jimmy" and "Accounts"
-     */
-    public Store(){
-                    try{
-                            this.acc = RecordStore.openRecordStore("Accounts",true);
-                            this.settings = RecordStore.openRecordStore("Jimmy",true);
-                    }catch(RecordStoreException e){
-                            e.printStackTrace();
-                    }
-    }
-
-    /**
-     * Returns all record store names in a String[]
-     * @return Names of record stores in a string array (String[]).
-     */
-    public String[] getStores(){
-        return RecordStore.listRecordStores();
-    }
-    
-    /**
-     * This method deletes a store from persistent data storage.
-     * @param RSName Name of the Record Store to be deleted.
-     * @deprecated
-     */
-    public void deleteStore(String RSName){
-        try {
-            RecordStore.deleteRecordStore(RSName);
-        } catch (RecordStoreException ex) {
-            //ex.printStackTrace();
-        }
-    }
-    
-    /**
-     * Opens a store with the name given with parameter RSName. Returns true for a successful opening
-     * or false if store with that name already exists.
-     * @param RSName The name of the store to be open.
-     * @return True for a successful opening
-     * or false if store with that name already exists.
-     * @deprecated
-     */
-    public boolean openStore(String RSName){
-        try{
-            this.acc = RecordStore.openRecordStore(RSName,true);        
-            return true;
-        } catch (RecordStoreException ex){
-            return false;
-        }        
-    }
-    
-    /**
-     * Adds a byte array to the private Record Store of this class(instance). The record data is supplied as a parameter.
-     * @param record byte array is going to be created from this string and inserted into a private Record Store 
-     * of this class(instance).
-     */
-    public int addRecord(String record){
-        try{
-            return this.acc.addRecord(record.getBytes(), 0, record.length());
-        } catch (RecordStoreNotOpenException ex)
-        {
-            //ex.printStackTrace();
-        } catch (RecordStoreException ex) 
-        {
-            //ex.printStackTrace();
-        }
-        
-        return -1;
-    }
-    
-    /**
-     * 
-     * @param a
-     * @return
-     */
-    public boolean addAccount(Account a) {
-            System.out.println("----- Begin data to be saved -----");
-            System.out.println("User: "+a.getUser()+"\nPass: "+a.getPassword()+"\nProtocol: "+a.getProtocolType());
-            System.out.println("----- Begin data to be saved -----");
-
-            String out = new String();
-            String nl = "\n";
-            out = out.concat(String.valueOf(a.getProtocolType()) + nl);
-            out = out.concat(a.getUser() + nl);
-            out = out.concat(a.getPassword() + nl);
-            out = out.concat(a.getServer() + nl);
-            out = out.concat(String.valueOf(a.getPort()) + nl);
-            out = out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
-    	
-            System.out.println("---------Begin data saved in RS---------");
-            System.out.println(out);
-            System.out.println("---------End data saved in RS---------");
-            
-            try {
-            	this.acc.addRecord(out.getBytes(), 0, out.length());
-            } catch (RecordStoreNotOpenException e) {
-            	e.printStackTrace();
-            	return false;
-            } catch (RecordStoreException e) {
-            	e.printStackTrace();
-            	return false;
-            }
-            
-            return true;
-    }
-    
-    /**
-     * Deletes a record from the private Record Store of this class (instance). Index 
-     * of the record to be deleted is supplied with parameter. Note that, when you 
-     * delete a record, this record will remain empty forever, despite new insertions of records.
-     * @param ind Index of the record to be deleted.
-     */
-    public void deleteRecord(int ind){
-        try {
-            this.acc.deleteRecord(ind);
-        } catch (InvalidRecordIDException ex) {
-            ex.printStackTrace();
-        } catch (RecordStoreNotOpenException ex) {
-            ex.printStackTrace();
-        } catch (RecordStoreException ex) {
-            ex.printStackTrace();
-        }
-    }
-        
-    /**
-     * This method returns a list of Accounts(see jimmy.Account) from the private recordstore 
-     * of this class (instance) or null if error occured.
-     * 
-     * @return Account Vector (see jimmy.Account) or null if error occured.
-     * @see jimmy.Account
-     */
-    public Vector getAccounts() {
-            try {
-                    RecordEnumeration re = this.acc.enumerateRecords(null, null, true);
-                    if (re.hasNextElement()) { //first record contains the general program settings, second and on are the accounts records
-    			re.nextRecord();
-                    }
-
-                    Vector accList = new Vector();
-                    String curRecord;
-                    while (re.hasNextElement()) {
-                            curRecord = new String(re.nextRecord());
-                            
-                            int idx = 0;
-                            //read Account type
-    			byte type = Byte.parseByte(curRecord.substring(idx, ++idx));
-                            idx++;	//newline
-    			//read username
-    			String userName = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-                        System.out.println(userName);
-                            idx++;	//newline
-    			//read password
-    			String password = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-                            idx++;	//newline
-    			//read server name (optional)
-    			String server = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-                            idx++;	//newline
-    			//read server port (optional)
-    			int port = Integer.parseInt(curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)));
-                            idx++;	//newline
-    			boolean autoLogin = (curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)).compareTo("0")==0?false:true);
-                            
-                            accList.addElement(new Account(userName, password, type, server, port, autoLogin));
-                    }
-
-                    return accList;
-                    
-            } catch (RecordStoreNotOpenException ex) {
-                    ex.printStackTrace();
-                return null;
-        } catch(RecordStoreException ex){
-                ex.printStackTrace();
-                return null;
-        }
-    }
-    
-    
-    public boolean close(){
-        try{
-            this.acc.closeRecordStore();
-            this.settings.closeRecordStore();
-        }catch(RecordStoreException ex){
-            ex.printStackTrace();
-            return false;
-        }
-        return true;
-    }
+	private static final String RECORDSTORENAME_ = "JimmyIM";
+	private static final String NEWLINE_ = "\n";
+	private static RecordStore rs_;
+	
+	/**
+	 * 
+	 */
+	public Store() {
+	}
+	
+	private static boolean openStore() {
+		try {
+			rs_ = RecordStore.openRecordStore(RECORDSTORENAME_, true);	//createIfNecessary = true
+			return true;
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	private static boolean closeStore() {
+		try {
+			rs_.closeRecordStore();
+			return true;
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+			return false;
+		}    
+	}
+	
+	public static boolean addAccount(Account acc) {
+		if (!openStore())
+			return false;
+		
+		//build the String about to be written
+		String out = new String();
+		out = out.concat(String.valueOf(acc.getProtocolType()) + NEWLINE_);
+		out = out.concat(acc.getUser() + NEWLINE_);
+		out = out.concat(acc.getPassword() + NEWLINE_);
+		out = out.concat(acc.getServer() + NEWLINE_);
+		out = out.concat(String.valueOf(acc.getPort()) + NEWLINE_);
+		out = out.concat((acc.getAutoLogin()?"1":"0") + NEWLINE_);	//1 - True, 0 - False
+		
+		//write the String
+		boolean success = addRecord(out);
+		
+		closeStore();
+		return success;
+	}
+	
+	public static void removeAccount(Account acc) {
+		if (!openStore())
+			return;
+		
+		int i=1;
+		try {
+			while (i<rs_.getNumRecords()) {
+				Account curr = createAccount(rs_.getRecord(i));
+				if ( (curr.getProtocolType() == acc.getProtocolType()) &&
+						(curr.getUser().compareTo(acc.getUser())==0) )
+					rs_.setRecord(i, "-1".getBytes(), 0, 2);
+			}
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+		}
+		
+		closeStore();
+	}
+	
+	/**
+	 * Create an Account instance from the given byte[] record written in the record store.
+	 * 
+	 * @param byteRecord Byte array of the data written in Record store.
+	 * @return Instance of the newly created Account from the given data. Returns null, if the account couldn't be generated.
+	 */
+	private static Account createAccount(byte[] byteRecord) {
+		String record = new String(byteRecord);
+		int idx = 0;
+		
+		//read Account type
+		byte type = Byte.parseByte(record.substring(idx, (idx = record.indexOf("\n", idx)) + 1));
+		if (type == -1)
+			return null;
+		idx++;	//newline
+		
+		//read username
+		String userName = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		idx++;	//newline
+		
+		//read password
+		String password = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		idx++;	//newline
+		
+		//read server name (optional)
+		String server = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		idx++;	//newline
+		
+		//read server port (optional)
+		int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx)) + 1));
+		idx++;	//newline
+		boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx)) + 1).compareTo("0")==0)?false:true);
+		
+		return new Account(userName, password, type, server, port, autoLogin);
+	}
+	
+	/**
+	 * Add a byte array to the private Record Store of this class (instance).
+	 * The record data is supplied as a parameter.
+	 * 
+	 * @param record byte array is going to be created from this string and inserted into a private Record Store 
+	 * of this class(instance).
+	 */
+	private static boolean addRecord(String record){
+		try {
+			rs_.addRecord(record.getBytes(), 0, record.length());
+			return true;
+		} catch (RecordStoreException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Return a list of Accounts (see jimmy.Account) from the private record store 
+	 * of this class (instance) or null, if error occured.
+	 * 
+	 * @return Account Vector (see jimmy.Account) or null if error occured.
+	 * @see jimmy.Account
+	 */
+	public static Vector getAccounts() {
+		if (!openStore())
+			return null;
+		
+		Vector accList = new Vector();
+		
+		try {
+			for (int i=1; i<rs_.getNumRecords(); i++) {
+				Account curr = createAccount(rs_.getRecord(i));
+				if (curr!=null)
+					accList.addElement(curr);
+			}
+		} catch (RecordStoreException ex) {
+			ex.printStackTrace();
+			return null;
+		}
+		
+		closeStore();
+		return accList;
+	}
 }
