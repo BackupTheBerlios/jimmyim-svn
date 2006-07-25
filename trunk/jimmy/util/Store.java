@@ -115,36 +115,30 @@ public class Store
             System.out.println("User: "+a.getUser()+"\nPass: "+a.getPassword()+"\nProtocol: "+a.getProtocolType());
             System.out.println("----- Begin data to be saved -----");
 
-        
+            String out = new String();
             String nl = "\n";
-            String out = new String(String.valueOf(a.getProtocolType()) + nl
-                                    + a.getUser() + nl 
-                                    + a.getPassword() + nl
-                                    + a.getServer() + nl 
-                                    + String.valueOf(a.getPort()) + nl
-                                    + (a.getAutoLogin()?"1":"0") + nl);
-            //out.concat(String.valueOf(a.getProtocolType()) + nl);
-            //out.concat(a.getUser() + nl);
-            //out.concat(a.getPassword() + nl);
-            //out.concat(a.getServer() + nl);
-            //out.concat(String.valueOf(a.getPort()) + nl);
-            //out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
+            out = out.concat(String.valueOf(a.getProtocolType()) + nl);
+            out = out.concat(a.getUser() + nl);
+            out = out.concat(a.getPassword() + nl);
+            out = out.concat(a.getServer() + nl);
+            out = out.concat(String.valueOf(a.getPort()) + nl);
+            out = out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
     	
             System.out.println("---------Begin data saved in RS---------");
             System.out.println(out);
             System.out.println("---------End data saved in RS---------");
             
             try {
-                    this.acc.addRecord(out.getBytes(),0,out.length());
-                } catch (RecordStoreNotOpenException e) {
-                        e.printStackTrace();
-                        return false;
-                } catch (RecordStoreException e) {
-                        e.printStackTrace();
-                        return false;
-                }
+            	this.acc.addRecord(out.getBytes(), 0, out.length());
+            } catch (RecordStoreNotOpenException e) {
+            	e.printStackTrace();
+            	return false;
+            } catch (RecordStoreException e) {
+            	e.printStackTrace();
+            	return false;
+            }
             
-                return true;
+            return true;
     }
     
     /**
