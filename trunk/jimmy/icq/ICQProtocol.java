@@ -327,4 +327,8 @@ public class ICQProtocol extends Protocol {
 	public void run() {
     	
     }
+	public void addContact(Contact c){
+	    
+	}
+	}
 }

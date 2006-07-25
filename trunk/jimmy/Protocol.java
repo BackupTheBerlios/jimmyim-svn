@@ -142,6 +142,13 @@ public abstract class Protocol implements Runnable
     	
     	return null;
     }
+
+    /**
+     * Adds a new contact.
+     * 
+     * @param c new contact
+     */
+    public abstract void addContact(Contact c);
     
     /**
      * Send a message.

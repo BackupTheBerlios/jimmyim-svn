@@ -143,6 +143,7 @@ public class JimmyUI {
 		JimmyUI.acc_ = a;
 		((MainMenu)scrMenu).setAccounts(acc_);
 	}
+	public void addAccount(Account a){scrMenu.addAccount(a);}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
 	public void addContacts(Vector v){this.scrContacts.addContacts(v);}
         public void addContact(Contact c){this.scrContacts.addContact(c);}
@@ -186,6 +187,7 @@ public class JimmyUI {
             
             //commands from new account page
             else if(d == scrNewAcc){
+		Account newAccount;
                 if(c == cmdOk){
                     Vector data     = ((NewAccount)d).getData();
                     String user     = (String)data.elementAt(0);
@@ -198,13 +200,14 @@ public class JimmyUI {
                     /*System.out.println("----- Begin data entered for new account -----");
                     System.out.println("User: "+user+"\nPass: "+pass+"\nProtocol: "+protocol);
                     System.out.println("----- Begin data entered for new account -----");*/
-                    
-                    saveAccount(new Account(user,pass,protocol,server,Integer.parseInt(port),false));
+                    newAccount = new Account(user,pass,protocol,server,Integer.parseInt(port),false);
+                    saveAccount(newAccount);
+		    jimmyUI_.addAccount(newAccount);		    
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
-                Store rs = new Store();
-                jimmyUI_.setAccount(rs.getAccounts());
-                rs.close();
+                //Store rs = new Store();
+                //jimmyUI_.setAccount(rs.getAccounts());
+                //rs.close();
                 jimmy_.setDisplay(scrMenu);
             }// if d == scrNewAcc
             

@@ -192,4 +192,8 @@ public class JabberProtocol extends Protocol {
     public void parserNewContacts(Contact[] c) {
     	contacts_.copyInto(c);
     }
+    
+    public void addContact(Contact c){
+	    
+    }
 }    

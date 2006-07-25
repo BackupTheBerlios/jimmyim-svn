@@ -64,16 +64,54 @@ public class MainMenu extends List implements CommandListener {
      */
     public void addAccounts(Vector a){
 	for(int i=0; i<a.size(); i++){
-	    al_.addElement(a.elementAt(i));	    //add to local account list
-	    this.append(((Account)a.elementAt(i)).getUser(),null);   //add to screen
+	    
+	    int j=0;
+	    while(((Account)al_.elementAt(i)).getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0){
+		j++;
+	    }
+	    
+	    al_.insertElementAt(a.elementAt(i),j);		    //add to local account list
+	    this.insert(j,((Account)a.elementAt(j)).getUser(),null);   //add to screen
 	}
     }
     
+    public void addAccount(Account a){
+	int j=0;
+	while( a.getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0){
+	    j++;
+	}
+	    
+	al_.insertElementAt(a,j);	    //add to local account list
+	this.insert(j,((Account)al_.elementAt(j)).getUser(),null);   //add to screen
+    }
+    
+    
+    /**
+     * Sets vector of accounts to be displayed in main menu. Vector is beeing sorted here.
+     * @param a accounts to be displayed in main menu
+     */    
     public void setAccounts(Vector a){
 	this.deleteAll();
 	this.al_ = a;		//set local account list
 	
-	//Sort
+	//Sort account list
+	Object temp;
+	int index;
+	for(int i=0; i<al_.size(); i++){
+	    temp = al_.elementAt(i);
+	    index = i;
+	    for(int j=0; j<al_.size();j++){
+		if( ((Account)al_.elementAt(i)).getUser().compareTo(((Account)al_.elementAt(j)).getUser()) < 0 ){
+		    al_.removeElementAt(index);
+		    al_.insertElementAt(al_.elementAt(j),index);
+		    
+		    al_.removeElementAt(j);
+		    al_.insertElementAt(temp,j);
+		    index = j;
+		}
+	    }
+	}
+	
 	
 	for(int i=0; i<a.size(); i++){
 	    this.append(((Account)a.elementAt(i)).getUser(),null);   //add to screen

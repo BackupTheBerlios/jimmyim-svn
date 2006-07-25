@@ -1020,4 +1020,8 @@ public class MSNProtocol extends Protocol
             parseReply(this.sh.getReply());
         }    	
     }
+    
+    public void addContact(Contact c){
+	    
+    }
 }

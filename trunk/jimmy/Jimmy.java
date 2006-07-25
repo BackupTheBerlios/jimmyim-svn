@@ -140,7 +140,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public static Vector getProtocolList()      {return protocolList_;}
 	public void setNewConnections(Vector list)  {this.newConnections_ = list;}
 	
-	public void setDisplay(Displayable d)   {Display.getDisplay(this).setCurrent(d);}
+	public void setDisplay(Displayable d){Display.getDisplay(this).setCurrent(d);}
 	
 	public void stopProtocol(Protocol p) {
 		p.logout();
@@ -151,13 +151,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		
 	}
 	
-	public void addContact(Contact c) {
-            ui_.addContact(c);
-	}
-    
-	public void addContacts(Vector c) {
-            ui_.addContacts(c);
-	}
+	public void addContact(Contact c) {ui_.addContact(c);}
+    	public void addContacts(Vector c) {ui_.addContacts(c);}
         
         public void msgRecieved(ChatSession cs, Contact c, String msg){
             
