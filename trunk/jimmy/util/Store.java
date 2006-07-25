@@ -40,12 +40,12 @@ public class Store
      * Opens the existing record stores "Jimmy" and "Accounts"
      */
     public Store(){
-    		try{
-    			this.acc = RecordStore.openRecordStore("Accounts",true);
-    			this.settings = RecordStore.openRecordStore("Jimmy",true);
-    		}catch(RecordStoreException e){
-    			e.printStackTrace();
-    		}
+                    try{
+                            this.acc = RecordStore.openRecordStore("Accounts",true);
+                            this.settings = RecordStore.openRecordStore("Jimmy",true);
+                    }catch(RecordStoreException e){
+                            e.printStackTrace();
+                    }
     }
 
     /**
@@ -111,28 +111,40 @@ public class Store
      * @return
      */
     public boolean addAccount(Account a) {
-    	String out = new String();
-    	String nl = "\n";
-    	out.concat(a.getProtocolType() + nl);
-    	out.concat(a.getUser() + nl);
-    	out.concat(a.getPassword() + nl);
-    	out.concat(a.getServer() + nl);
-    	out.concat(String.valueOf(a.getPort()) + nl);
-    	out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
+            System.out.println("----- Begin data to be saved -----");
+            System.out.println("User: "+a.getUser()+"\nPass: "+a.getPassword()+"\nProtocol: "+a.getProtocolType());
+            System.out.println("----- Begin data to be saved -----");
+
+        
+            String nl = "\n";
+            String out = new String(String.valueOf(a.getProtocolType()) + nl
+                                    + a.getUser() + nl 
+                                    + a.getPassword() + nl
+                                    + a.getServer() + nl 
+                                    + String.valueOf(a.getPort()) + nl
+                                    + (a.getAutoLogin()?"1":"0") + nl);
+            //out.concat(String.valueOf(a.getProtocolType()) + nl);
+            //out.concat(a.getUser() + nl);
+            //out.concat(a.getPassword() + nl);
+            //out.concat(a.getServer() + nl);
+            //out.concat(String.valueOf(a.getPort()) + nl);
+            //out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
     	
-    	System.out.println(out);
-    	
-    	try {
-    		this.acc.addRecord(out.getBytes(),0,out.length());
-		} catch (RecordStoreNotOpenException e) {
-			e.printStackTrace();
-			return false;
-		} catch (RecordStoreException e) {
-			e.printStackTrace();
-			return false;
-		}
-    	
-		return true;
+            System.out.println("---------Begin data saved in RS---------");
+            System.out.println(out);
+            System.out.println("---------End data saved in RS---------");
+            
+            try {
+                    this.acc.addRecord(out.getBytes(),0,out.length());
+                } catch (RecordStoreNotOpenException e) {
+                        e.printStackTrace();
+                        return false;
+                } catch (RecordStoreException e) {
+                        e.printStackTrace();
+                        return false;
+                }
+            
+                return true;
     }
     
     /**
@@ -161,46 +173,47 @@ public class Store
      * @see jimmy.Account
      */
     public Vector getAccounts() {
-    	try {
-    		RecordEnumeration re = this.acc.enumerateRecords(null, null, true);
-    		if (re.hasNextElement()) { //first record contains the general program settings, second and on are the accounts records
+            try {
+                    RecordEnumeration re = this.acc.enumerateRecords(null, null, true);
+                    if (re.hasNextElement()) { //first record contains the general program settings, second and on are the accounts records
     			re.nextRecord();
-    		}
+                    }
 
-    		Vector accList = new Vector();
-    		String curRecord;
-    		while (re.hasNextElement()) {
-    			curRecord = new String(re.nextRecord());
-    			
-    			int idx = 0;
-    			//read Account type
+                    Vector accList = new Vector();
+                    String curRecord;
+                    while (re.hasNextElement()) {
+                            curRecord = new String(re.nextRecord());
+                            
+                            int idx = 0;
+                            //read Account type
     			byte type = Byte.parseByte(curRecord.substring(idx, ++idx));
-    			idx++;	//newline
+                            idx++;	//newline
     			//read username
     			String userName = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-    			idx++;	//newline
+                        System.out.println(userName);
+                            idx++;	//newline
     			//read password
     			String password = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-    			idx++;	//newline
+                            idx++;	//newline
     			//read server name (optional)
     			String server = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
-    			idx++;	//newline
+                            idx++;	//newline
     			//read server port (optional)
     			int port = Integer.parseInt(curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)));
-    			idx++;	//newline
+                            idx++;	//newline
     			boolean autoLogin = (curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)).compareTo("0")==0?false:true);
-    			
-    			accList.addElement(new Account(userName, password, type, server, port, autoLogin));
-    		}
+                            
+                            accList.addElement(new Account(userName, password, type, server, port, autoLogin));
+                    }
 
-    		return accList;
-    		
-    	} catch (RecordStoreNotOpenException ex) {
-    		ex.printStackTrace();
-        	return null;
+                    return accList;
+                    
+            } catch (RecordStoreNotOpenException ex) {
+                    ex.printStackTrace();
+                return null;
         } catch(RecordStoreException ex){
-        	ex.printStackTrace();
-        	return null;
+                ex.printStackTrace();
+                return null;
         }
     }
     

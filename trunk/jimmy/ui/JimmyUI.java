@@ -190,8 +190,13 @@ public class JimmyUI {
                     String pass     = (String)data.elementAt(1);
                     String server   = (String)data.elementAt(2);
                     String port     = (String)data.elementAt(3);
+                    byte protocol   = ((Integer)data.elementAt(4)).byteValue();
+                    
                     if(port.equals("")) port = "0";
-                    byte protocol    = ((Integer)data.elementAt(4)).byteValue();
+                    System.out.println("----- Begin data entered for new account -----");
+                    System.out.println("User: "+user+"\nPass: "+pass+"\nProtocol: "+protocol);
+                    System.out.println("----- Begin data entered for new account -----");
+                    
                     saveAccount(new Account(user,pass,protocol,server,Integer.parseInt(port),false));
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
@@ -224,7 +229,8 @@ public class JimmyUI {
          */        
         private static void saveAccount(Account a){
             Store rs = new Store();
-            rs.addAccount(a);
+            if(rs.addAccount(a))
+                System.out.println("New account saved in RS");
             rs.close();
         }  
 }
