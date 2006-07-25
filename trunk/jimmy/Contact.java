@@ -40,6 +40,7 @@ public class Contact {
 	public static final byte ST_BUSY = 3;
 	
 	private int status_; //see ST_*
+	private String statusMsg_;	//custom status description eg. I'm out for a Jazz concert at Ljubljana
 
 	/**
 	 * Create a new contact.
@@ -54,6 +55,8 @@ public class Contact {
 		userID_ = userID;
 		protocol_ = protocol;
 		status_ = status;
+		statusMsg_ = null;
+		
 		groupName_ = groupName;
 		screenName_ = screenName;
 	}
@@ -78,6 +81,15 @@ public class Contact {
 	}
 	
 	/**
+	 * Set user's custom status message
+	 * 
+	 * @param msg User's new status message
+	 */
+	public void setStatusMsg(String msg) {
+		statusMsg_ = msg;
+	}
+	
+	/**
 	 * Change user's group.
 	 * 
 	 * @param groupName User's new group name
@@ -99,5 +111,6 @@ public class Contact {
 	public String screenName() {return screenName_;}
 	public String groupName() {return groupName_;}
 	public int status() {return status_;}
+	public String statusMsg() {return statusMsg_;}
 	public Protocol protocol() {return protocol_;}	
 }
