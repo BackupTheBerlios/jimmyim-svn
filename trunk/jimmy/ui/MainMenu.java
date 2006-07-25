@@ -38,7 +38,7 @@ public class MainMenu extends List implements CommandListener {
      * This constructor creates an instance of MainMenu. 
      * @param a array of accounts to be displayed in main menu
      */
-    public MainMenu(Vector a){
+    public MainMenu(){
         super("Accounts:",List.IMPLICIT);
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
@@ -54,25 +54,38 @@ public class MainMenu extends List implements CommandListener {
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_ABOUT)));
         
         //add accounts to menu
-        this.al_ = a;
-        addAccountsToMenu();        
+        this.al_ = new Vector();
+        //addAccountsToMenu();        
     }
     
     /**
-     * This method refreshes account list in main menu with data from a.
-     * @param a accounts to be displayed in main menu
+     * Adds accounts to menu
+     * @param a new accounts to be displayed in main menu
      */
-    public void setAccountList(Vector a){
-        this.al_ = a;
-        addAccountsToMenu();
+    public void addAccounts(Vector a){
+	for(int i=0; i<a.size(); i++){
+	    al_.addElement(a.elementAt(i));	    //add to local account list
+	    this.append(((Account)a.elementAt(i)).getUser(),null);   //add to screen
+	}
     }
     
-    private void addAccountsToMenu(){
+    public void setAccounts(Vector a){
+	this.deleteAll();
+	this.al_ = a;		//set local account list
+	
+	//Sort
+	
+	for(int i=0; i<a.size(); i++){
+	    this.append(((Account)a.elementAt(i)).getUser(),null);   //add to screen
+	}
+    }
+    
+    /*private void addAccountsToMenu(){
         this.deleteAll();
         for(int i=0; (al_!=null) && (i<al_.size()); i++){
             this.append(((Account)al_.elementAt(i)).getUser(),null);
         }
-    }
+    }*/
     
     /**
      * Called when action should be handled

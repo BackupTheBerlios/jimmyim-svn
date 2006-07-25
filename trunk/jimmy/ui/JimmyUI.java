@@ -124,13 +124,15 @@ public class JimmyUI {
 		
 		//Read configuration data from record store
 		Store rs = new Store();
-		//acc_    = rs.getAccounts();
+		acc_    = rs.getAccounts();
 		
 		//Create screens
-		scrMenu =       new MainMenu(acc_);
+		scrMenu =       new MainMenu();
 		scrNewAcc =     new NewAccount();
 		scrContacts =   new ContactsMenu();
-		scrAbout =      new About(about_);          
+		scrAbout =      new About(about_);
+		
+		scrMenu.addAccounts(acc_);
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
@@ -139,11 +141,11 @@ public class JimmyUI {
 	
 	public void setAccount(Vector a){
 		JimmyUI.acc_ = a;
-		((MainMenu)scrMenu).setAccountList(acc_);
+		((MainMenu)scrMenu).setAccounts(acc_);
 	}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
 	public void addContacts(Vector v){this.scrContacts.addContacts(v);}
-        public void addContact(Contact c){scrContacts.addContact(c);}
+        public void addContact(Contact c){this.scrContacts.addContact(c);}
         
 	/**
 	 *  This method changes displayed Screen. 
@@ -193,9 +195,9 @@ public class JimmyUI {
                     byte protocol   = ((Integer)data.elementAt(4)).byteValue();
                     
                     if(port.equals("")) port = "0";
-                    System.out.println("----- Begin data entered for new account -----");
+                    /*System.out.println("----- Begin data entered for new account -----");
                     System.out.println("User: "+user+"\nPass: "+pass+"\nProtocol: "+protocol);
-                    System.out.println("----- Begin data entered for new account -----");
+                    System.out.println("----- Begin data entered for new account -----");*/
                     
                     saveAccount(new Account(user,pass,protocol,server,Integer.parseInt(port),false));
                 }//if c == cmdOk
@@ -226,7 +228,7 @@ public class JimmyUI {
         
         /*
          * This method is used for saving new account into record store.
-         */        
+         */
         private static void saveAccount(Account a){
             Store rs = new Store();
             if(rs.addAccount(a))

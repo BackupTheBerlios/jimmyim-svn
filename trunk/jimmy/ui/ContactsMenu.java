@@ -61,6 +61,11 @@ public class ContactsMenu extends List implements CommandListener {
         //addContactsToMenu();
     }//setContacts()
     
+    public void addContact(Contact c){
+        this.contacts_.addElement(c);
+        this.append(c.screenName(),null);
+    }
+    
     /**
      * @deprecated
      */
@@ -73,12 +78,7 @@ public class ContactsMenu extends List implements CommandListener {
             this.append(contact,null);
         }//for i < contacts_.size()
     }//void addContactsToMenu()
-    
-    public void addContact(Contact c){
-        this.contacts_.addElement(c);
-        this.append(c.screenName(),null);
-    }
-    
+        
     public void commandAction(Command c, Displayable d){
         ui_.jimmyCommand(c,d);
     }//commandAction()
