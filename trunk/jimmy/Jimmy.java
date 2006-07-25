@@ -58,16 +58,16 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
-		ui_.setView(JimmyUI.SCR_CONT);
+		ui_.setView(JimmyUI.SCR_MAIN);
                 
 		thr_ = new Thread(this);
 		thr_.start();
 		
 		//protocolList_.addElement(new MSNProtocol(this));
-		protocolList_.addElement(new JabberProtocol(this));
+		//protocolList_.addElement(new JabberProtocol(this));
 		
 		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","");
-		((Protocol)protocolList_.elementAt(0)).login("jimmyim@jabber.org","jimmy");
+		//((Protocol)protocolList_.elementAt(0)).login("jimmyim@jabber.org","jimmy");
 		//((Protocol)protocolList_.elementAt(0)).login("thepianoguy@jabber.org","freshbreath");
 		//((Protocol)protocolList_.elementAt(0)).startThread();
 		
@@ -91,9 +91,9 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					switch(current.getProtocolType()){
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
-							jabber.login(current);
-							//jabber.login(current.getUser(),current.getPassword());
-							jabber.startThread();
+							//jabber.login(current);
+							jabber.login(current.getUser(),current.getPassword());
+							//jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;
 						case Protocol.ICQ:
@@ -111,14 +111,14 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 							break;
 					} //switch
                                         
-                                        Protocol currentProt;
-                                        Vector contacts;
+                                        //Protocol currentProt;
+                                        //Vector contacts;
                                         
-                                        currentProt = (Protocol)protocolList_.lastElement();
-                                        contacts = currentProt.getContacts();   //get contacts from current account
+                                        //currentProt = (Protocol)protocolList_.lastElement();
+                                        //contacts = currentProt.getContacts();   //get contacts from current account
                 
                                         //TODO - sort contacts list according to Group
-                                        ui_.addContacts(contacts);
+                                        //ui_.addContacts(contacts);
 					
 				} //for i < newConnections_.size()
                     

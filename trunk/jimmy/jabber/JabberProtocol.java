@@ -56,6 +56,7 @@ public class JabberProtocol extends Protocol {
 	 * Initializes the connection and logs in using the given account.
 	 */
 	public boolean login(Account account) {
+	    	System.out.println("Start login");
 		//get the first half of the JID (login name)
 		String userName = splitString(account.getUser(), '@')[0]; 
 		//get the second half of the JID (server name)
@@ -81,6 +82,7 @@ public class JabberProtocol extends Protocol {
 		sh_.sendRequest(oString);
 		iString = sh_.getReply();	//ignore the welcome message
 		
+		System.out.println("Auth");
 		//Authentication
 		oString = "<iq type='set'>" +
 			"<query xmlns='jabber:iq:auth'>" +
@@ -98,15 +100,19 @@ public class JabberProtocol extends Protocol {
 			return false;
 		}
 		
+		System.out.println("contacts list");
 		//Get contacts list
 		oString = "<iq type='get'><query xmlns='jabber:iq:roster'/></iq>";
 		this.sh_.sendRequest(oString);
 		iString = sh_.getReply();
 		//parse the contacts feedback
 		contacts_ = JabberParseXML.parseContacts(iString, this);
-		contacts_.toString();
+		//contacts_.toString();
+		System.out.println("Begin addContacts");
 		jimmy_.addContacts(contacts_);
+		System.out.println("End addContacts");
 		
+		System.out.println("set status");
 		//Set status "online"
 		oString = "<presence type=\"available\"/>";// type=\"online\"/>";
 		this.sh_.sendRequest(oString);

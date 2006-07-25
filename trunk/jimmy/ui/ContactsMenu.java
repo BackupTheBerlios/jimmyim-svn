@@ -85,6 +85,7 @@ public class ContactsMenu extends List implements CommandListener {
 		j++;
 	    
 	    screenIndex += j;
+	    System.out.println(current.screenName());
             this.insert(screenIndex,current.screenName(),null);
             group.insertElementAt(current,j);
         }
