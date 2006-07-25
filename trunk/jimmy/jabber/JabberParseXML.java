@@ -35,7 +35,7 @@ public class JabberParseXML {
 				cJid = null;
 			
 			//<group>...</group>
-			x1 = in.indexOf("<group>") + 5;
+			x1 = in.indexOf("<group>") + 7;
 			if (x1 < item2) {
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("</group>");
