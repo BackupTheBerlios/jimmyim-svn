@@ -112,6 +112,7 @@ public class JabberProtocol extends Protocol {
 		this.sh_.sendRequest(oString);
 
 		status_ = CONNECTED;
+		System.out.println("User logged in!");
 		return true;
 	}
 	

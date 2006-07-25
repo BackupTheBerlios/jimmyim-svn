@@ -54,7 +54,33 @@ public class ContactsMenu extends List implements CommandListener {
     }// ContactsMenu()
     
     public void addContacts(Vector v){
+	Vector group;
+	Contact current;
+	int j, screenIndex;
         for(int i=0; i < v.size(); i++){
+	    j=0;
+	    screenIndex = 0;
+	    current = (Contact)v.elementAt(i);
+	    
+	    
+	    //find apropriate group
+	    while( j<contacts_.size() &&  !current.groupName().equals(((Contact)contacts_.elementAt(j)).groupName()))
+		j++;
+	    
+	    //if group already exists
+	    if(j < contacts_.size()){
+		group = (Vector)contacts_.elementAt(j);
+	    }
+	    //if it is a new group
+	    else{
+		group = new Vector();
+		contacts_.addElement(group);
+		this.append((()group.firstElement()).,null)
+	    }
+	    
+	    j=0;
+	    while( j<contacts_.size() && current.screenName().compareTo(((Contact)contacts_.elementAt(j)).screenName()) > 0)
+		j++;
             this.append(((Contact)v.elementAt(i)).screenName(),null);
             contacts_.addElement(v.elementAt(i));
         }

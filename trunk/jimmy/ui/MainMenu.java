@@ -77,7 +77,7 @@ public class MainMenu extends List implements CommandListener {
     
     public void addAccount(Account a){
 	int j=0;
-	while( a.getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0){
+	while( j < al_.size() && a.getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0 ){
 	    j++;
 	}
 	    
@@ -124,6 +124,8 @@ public class MainMenu extends List implements CommandListener {
             this.append(((Account)al_.elementAt(i)).getUser(),null);
         }
     }*/
+    
+    public Vector getAccounts(){return this.al_;}
     
     /**
      * Called when action should be handled

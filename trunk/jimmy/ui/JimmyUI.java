@@ -73,7 +73,7 @@ public class JimmyUI {
 	static private Displayable lastDisplayable_;            //displayable object
 	static private JimmyUI jimmyUI_;                        //JimmyUI object
 	static private Jimmy jimmy_;
-	static private Vector acc_;                          //List of accounts
+	//static private Vector acc_;                          //List of accounts
 	
 //	 Associate commands and commands codes
 	static
@@ -122,27 +122,23 @@ public class JimmyUI {
 		scrSplash = new Splash();
 		jimmy_.setDisplay(scrSplash);
 		
-		//Read configuration data from record store
-		Store rs = new Store();
-		acc_    = rs.getAccounts();
-		
 		//Create screens
 		scrMenu =       new MainMenu();
 		scrNewAcc =     new NewAccount();
 		scrContacts =   new ContactsMenu();
 		scrAbout =      new About(about_);
 		
-		scrMenu.addAccounts(acc_);
+		//Read configuration data from record store
+		Store rs = new Store();
+		scrMenu.addAccounts(rs.getAccounts());
+		rs.close();
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
 	public Hashtable getCommands(){return commands_;}
-	public Vector getAccount(){return this.acc_;}
+	public Vector getAccount(){return scrMenu.getAccounts();}
 	
-	public void setAccount(Vector a){
-		JimmyUI.acc_ = a;
-		((MainMenu)scrMenu).setAccounts(acc_);
-	}
+	public void setAccount(Vector a){((MainMenu)scrMenu).setAccounts(a);}
 	public void addAccount(Account a){scrMenu.addAccount(a);}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
 	public void addContacts(Vector v){this.scrContacts.addContacts(v);}
@@ -174,8 +170,9 @@ public class JimmyUI {
                 }//if c == cmdNew
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
+		    System.out.println("Index of selected account: "+selected);
                     Vector newConnections = new Vector();
-                    newConnections.addElement(acc_.elementAt(selected));
+                    newConnections.addElement(scrMenu.getAccounts().elementAt(selected));
                     jimmy_.setNewConnections(newConnections);
                     
                     jimmy_.setDisplay(scrContacts);
@@ -234,8 +231,9 @@ public class JimmyUI {
          */
         private static void saveAccount(Account a){
             Store rs = new Store();
-            if(rs.addAccount(a))
-                System.out.println("New account saved in RS");
+            /*if(rs.addAccount(a))
+                System.out.println("New account saved in RS");*/
+	    rs.addAccount(a);
             rs.close();
         }  
 }

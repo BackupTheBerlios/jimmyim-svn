@@ -88,7 +88,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					switch(current.getProtocolType()){
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
-							jabber.login(current);
+							//jabber.login(current);
+							jabber.login(current.getUser(),current.getPassword());
 							jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;
