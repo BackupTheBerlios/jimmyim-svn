@@ -75,7 +75,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    else{
 		group = new Vector();
 		contacts_.addElement(group);
-		this.append((()group.firstElement()).,null)
+		this.append(((Contact)group.firstElement()).groupName(),null);
 	    }
 	    
 	    j=0;
