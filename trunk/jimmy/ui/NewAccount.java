@@ -58,11 +58,11 @@ public class NewAccount extends Form implements CommandListener {
             setCommandListener(this);
         } catch(Exception e) { e.printStackTrace(); }
         
+        protocol_.setLayout(Item.LAYOUT_NEWLINE_AFTER);   append(protocol_);        
         user_.setLayout(Item.LAYOUT_NEWLINE_AFTER);     append(user_);
         pass_.setLayout(Item.LAYOUT_NEWLINE_AFTER);     append(pass_);
         server_.setLayout(Item.LAYOUT_NEWLINE_AFTER);   append(server_);
         port_.setLayout(Item.LAYOUT_NEWLINE_BEFORE);    append(port_);
-        protocol_.setLayout(Item.LAYOUT_NEWLINE_AFTER);   append(protocol_);
         
         
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
