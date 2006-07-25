@@ -54,6 +54,7 @@ public class JimmyUI {
 	final public static int SCR_NEWACC  = 3;
 	final public static int SCR_CHAT    = 4;
 	final public static int SCR_ABOUT   = 5;
+	final public static int SCR_CONT    = 6;
         
 
 	//Commands:
@@ -129,8 +130,8 @@ public class JimmyUI {
 		scrAbout =      new About(about_);
 		
 		//Read configuration data from record store
-		Store rs = new Store();
-		scrMenu.addAccounts(rs.getAccounts());
+		//Store rs = new Store();
+		//scrMenu.addAccounts(rs.getAccounts());
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
@@ -155,6 +156,9 @@ public class JimmyUI {
 			case 2:
 				jimmy_.setDisplay(scrMenu);
 				break;
+		    case 6:
+			   jimmy_.setDisplay(scrContacts);
+			   break;
 		}
 	}
 	

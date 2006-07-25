@@ -58,7 +58,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
-		ui_.setView(JimmyUI.SCR_MAIN);
+		ui_.setView(JimmyUI.SCR_CONT);
                 
 		thr_ = new Thread(this);
 		thr_.start();
@@ -69,7 +69,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","");
 		((Protocol)protocolList_.elementAt(0)).login("jimmyim@jabber.org","jimmy");
 		//((Protocol)protocolList_.elementAt(0)).login("thepianoguy@jabber.org","freshbreath");
-		((Protocol)protocolList_.elementAt(0)).startThread();
+		//((Protocol)protocolList_.elementAt(0)).startThread();
 		
 	}
 	
@@ -91,8 +91,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					switch(current.getProtocolType()){
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
-							//jabber.login(current);
-							jabber.login(current.getUser(),current.getPassword());
+							jabber.login(current);
+							//jabber.login(current.getUser(),current.getPassword());
 							jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;

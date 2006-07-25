@@ -59,13 +59,15 @@ public class ContactsMenu extends List implements CommandListener {
 	int j, screenIndex;
         for(int i=0; i < v.size(); i++){
 	    j=0;
-	    screenIndex = 0;
+	    screenIndex = 1;
 	    current = (Contact)v.elementAt(i);
 	    
 	    
 	    //find apropriate group
-	    while( j<contacts_.size() &&  !current.groupName().equals(((Contact)contacts_.elementAt(j)).groupName()))
+	    while( j<contacts_.size() &&  !current.groupName().equals(((Contact)((Vector)contacts_.elementAt(j)).firstElement()).groupName())){
+		screenIndex += ((Vector)contacts_.elementAt(j)).size() + 1;		
 		j++;
+	    }
 	    
 	    //if group already exists
 	    if(j < contacts_.size()){
@@ -75,14 +77,16 @@ public class ContactsMenu extends List implements CommandListener {
 	    else{
 		group = new Vector();
 		contacts_.addElement(group);
-		this.append(((Contact)group.firstElement()).groupName(),null);
+		this.append("--=="+current.groupName()+"==--",null);
 	    }
 	    
 	    j=0;
-	    while( j<contacts_.size() && current.screenName().compareTo(((Contact)contacts_.elementAt(j)).screenName()) > 0)
+	    while( j<group.size() && current.screenName().compareTo(((Contact)group.elementAt(j)).screenName()) > 0)
 		j++;
-            this.append(((Contact)v.elementAt(i)).screenName(),null);
-            contacts_.addElement(v.elementAt(i));
+	    
+	    screenIndex += j;
+            this.insert(screenIndex,current.screenName(),null);
+            group.insertElementAt(current,j);
         }
         //addContactsToMenu();
     }//setContacts()
