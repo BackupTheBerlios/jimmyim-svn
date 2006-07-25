@@ -18,8 +18,7 @@
  * **********************************************************************
  * File: jimmy/util/RMS.java
  * Version: pre-alpha  Date: 2006/06/05
- * Author(s): Zoran Mesec
- * @author Dejan Sakelsak
+ * Author(s): Zoran Mesec, Dejan Sakelsak, Matevz Jekovec
  * @version pre-alpha
  */
 
@@ -27,7 +26,7 @@ package jimmy.util;
 
 import javax.microedition.rms.*;
 import jimmy.Account;
-import java.lang.*;
+import java.util.Vector;
 import jimmy.util.Utils;
 
 /**
@@ -111,65 +110,29 @@ public class Store
      * @param a
      * @return
      */
-    public int addAccount(Account a){
-    		byte[] user = a.getUser().getBytes();
-    		byte[] pass = a.getPassword().getBytes();
-    		byte[] p = new byte[1];
-                p[0] = a.getProtocolType();
-    		byte[] s = a.getServer().getBytes();
-    		byte[] port = Utils.intToBytes(a.getPort(),true);
-    		boolean auto = a.getAutoLogin();
-    		byte[] c = new byte[1];
-                if(auto)
-                    c[0] = 1;
-                else
-                    c[0] = 0;
-                String n = "\n";
-                int len = 5+user.length+pass.length+p.length+s.length+port.length+c.length;
-                byte[] record = new byte[len];
-                for(int i = 0; i<=user.length; i++){
-                    if(i < user.length)
-                        record[i] = user[i];
-                    else if(i == user.length)
-                        record[i] = n.getBytes()[0];
-                }   
-                for(int i = 0; i<=pass.length;i++){
-                    if(i < pass.length)
-                            record[i+user.length+1] = pass[i];
-                    else if(i == user.length+pass.length)
-                        record[i+user.length+1] = n.getBytes()[0];
-                }   
-                for(int i = 0; i<=p.length;i++){
-                    if(i < p.length)
-                        record[i+user.length+pass.length+1] = p[i];
-                    else if(i == p.length)
-                        record[i+user.length+pass.length+1] = n.getBytes()[0];
-                }
-                for(int i = 0; i<=s.length;i++){
-                    if(i < s.length)
-                        record[i+user.length+pass.length+p.length+1] = s[i];
-                    else if(i == s.length)
-                        record[i+user.length+pass.length+p.length+1] = n.getBytes()[0];
-                }
-                for(int i = 0; i<=port.length;i++){
-                    if(i < port.length)
-                        record[i+user.length+pass.length+p.length+s.length+1] = port[i];
-                    else if(i == port.length)
-                        record[i+user.length+pass.length+p.length+s.length+1] = n.getBytes()[0];
-                }
-                for(int i = 0; i<c.length;i++){
-                    if(i < user.length+pass.length+p.length+s.length+port.length+c.length)
-                        record[i+user.length+pass.length+p.length+port.length+1] = c[i];
-                }
-                System.out.println(new String(record));
-    		try{
-    		       this.acc.addRecord(record,0,record.length);
-    		}catch(RecordStoreNotOpenException e){
-    			e.printStackTrace();
-    		}catch(RecordStoreException e){
-    			e.printStackTrace();
-    		}
-    		return -1;
+    public boolean addAccount(Account a) {
+    	String out = new String();
+    	String nl = "\n";
+    	out.concat(a.getProtocolType() + nl);
+    	out.concat(a.getUser() + nl);
+    	out.concat(a.getPassword() + nl);
+    	out.concat(a.getServer() + nl);
+    	out.concat(String.valueOf(a.getPort()) + nl);
+    	out.concat((a.getAutoLogin()?"1":"0") + nl);	//1 - True, 0 - False
+    	
+    	System.out.println(out);
+    	
+    	try {
+    		this.acc.addRecord(out.getBytes(),0,out.length());
+		} catch (RecordStoreNotOpenException e) {
+			e.printStackTrace();
+			return false;
+		} catch (RecordStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+    	
+		return true;
     }
     
     /**
@@ -191,47 +154,54 @@ public class Store
     }
         
     /**
-     * This method returns an array of Accounts(see jimmy.Account) from the private recordstore 
+     * This method returns a list of Accounts(see jimmy.Account) from the private recordstore 
      * of this class (instance) or null if error occured.
-     * @return Account array(see jimmy.Account) or null if error occured.
+     * 
+     * @return Account Vector (see jimmy.Account) or null if error occured.
      * @see jimmy.Account
      */
-    public Account[] getAccounts(){
+    public Vector getAccounts() {
+    	try {
+    		RecordEnumeration re = this.acc.enumerateRecords(null, null, true);
+    		if (re.hasNextElement()) { //first record contains the general program settings, second and on are the accounts records
+    			re.nextRecord();
+    		}
+
+    		Vector accList = new Vector();
+    		String curRecord;
+    		while (re.hasNextElement()) {
+    			curRecord = new String(re.nextRecord());
+    			
+    			int idx = 0;
+    			//read Account type
+    			byte type = Byte.parseByte(curRecord.substring(idx, ++idx));
+    			idx++;	//newline
+    			//read username
+    			String userName = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
+    			idx++;	//newline
+    			//read password
+    			String password = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
+    			idx++;	//newline
+    			//read server name (optional)
+    			String server = curRecord.substring(idx, idx = curRecord.indexOf("\n", idx));
+    			idx++;	//newline
+    			//read server port (optional)
+    			int port = Integer.parseInt(curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)));
+    			idx++;	//newline
+    			boolean autoLogin = (curRecord.substring(idx, idx = curRecord.indexOf("\n", idx)).compareTo("0")==0?false:true);
+    			
+    			accList.addElement(new Account(userName, password, type, server, port, autoLogin));
+    		}
+
+    		return accList;
     		
-    		Account[] accounts = new Account[1];
-                Account a =null;
-         try{      
-                RecordEnumeration re = this.acc.enumerateRecords(null,null,true);
-                /*boolean b = false;
-                if(this.acc.getRecord(5)[0] == (byte)1)
-                    b = true;*/
-                for(int i = 0; re.hasNextElement();i++){
-                    String bla = new String(re.nextRecord());
-                    int ind = bla.indexOf("\n");
-                    String user = bla.substring(0,ind);
-                    int ind2 = bla.indexOf("\n",ind+1);
-                    String pass = bla.substring(ind+1,ind2);
-                    ind = bla.indexOf("\n",ind2+1);
-                    String type = bla.substring(ind2+1,ind);
-                    ind2 = bla.indexOf("\n",ind+1);
-                    String serv = bla.substring(ind+1,ind2);
-                    ind = bla.indexOf("\n",ind2+1);
-                    String port = bla.substring(ind2+1,ind);
-                    ind2 = bla.indexOf("\n",ind+1);
-                    String auto = bla.substring(ind+1,ind2);
-                    
-                    a = new Account(user,pass,type.getBytes()[0],serv,Integer.parseInt(port),Integer.parseInt(auto) == 1 ? true : false);
-                    accounts[i] = a;
-                }
-        } catch (RecordStoreNotOpenException ex) {
-        	ex.printStackTrace();
+    	} catch (RecordStoreNotOpenException ex) {
+    		ex.printStackTrace();
         	return null;
         } catch(RecordStoreException ex){
         	ex.printStackTrace();
-                return null;
+        	return null;
         }
-
-        	return accounts;
     }
     
     
@@ -245,21 +215,4 @@ public class Store
         }
         return true;
     }
-    
-    /**
-     * This method returns a number of records in the private Record Store of this class
-     * (instance). Each record represents one account(e.q. MSN account with a username )
-     * and a password).
-     * @return The number of accounts. If there are no accounts, the return value is 0,
-     */
-    public int NumAccounts(){
-        try 
-        {
-            return this.acc.getNumRecords();
-        } catch (RecordStoreNotOpenException ex) 
-        {
-            ex.printStackTrace();
-            return 0;
-        }
-    }    
 }

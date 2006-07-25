@@ -73,7 +73,7 @@ public class JimmyUI {
 	static private Displayable lastDisplayable_;            //displayable object
 	static private JimmyUI jimmyUI_;                        //JimmyUI object
 	static private Jimmy jimmy_;
-	static private Account[] acc_;                          //Array of accounts
+	static private Vector acc_;                          //List of accounts
 	
 //	 Associate commands and commands codes
 	static
@@ -135,10 +135,10 @@ public class JimmyUI {
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
 	public Hashtable getCommands(){return commands_;}
-	public Account[] getAccount(){return this.acc_;}
+	public Vector getAccount(){return this.acc_;}
 	
-	public void setAccount(Account[] a){
-		this.acc_ = a;
+	public void setAccount(Vector a){
+		JimmyUI.acc_ = a;
 		((MainMenu)scrMenu).setAccountList(acc_);
 	}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
@@ -172,7 +172,7 @@ public class JimmyUI {
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
                     Vector newConnections = new Vector();
-                    newConnections.addElement(acc_[selected]);
+                    newConnections.addElement(acc_.elementAt(selected));
                     jimmy_.setNewConnections(newConnections);
                     
                     jimmy_.setDisplay(scrContacts);

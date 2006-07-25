@@ -30,7 +30,7 @@ import java.util.*;
 import jimmy.Account;
 
 public class MainMenu extends List implements CommandListener {
-    private Account[] al_;          //list of accounts
+    private Vector al_;          //list of accounts
     private Hashtable commands_;    //commands
     private JimmyUI ui_;
 
@@ -38,7 +38,7 @@ public class MainMenu extends List implements CommandListener {
      * This constructor creates an instance of MainMenu. 
      * @param a array of accounts to be displayed in main menu
      */
-    public MainMenu(Account[] a){
+    public MainMenu(Vector a){
         super("Accounts:",List.IMPLICIT);
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
@@ -62,15 +62,15 @@ public class MainMenu extends List implements CommandListener {
      * This method refreshes account list in main menu with data from a.
      * @param a accounts to be displayed in main menu
      */
-    public void setAccountList(Account[] a){
+    public void setAccountList(Vector a){
         this.al_ = a;
         addAccountsToMenu();
     }
     
     private void addAccountsToMenu(){
         this.deleteAll();
-        for(int i=0; (al_!=null) && (i<al_.length); i++){
-            this.append(al_[i].getUser(),null);
+        for(int i=0; (al_!=null) && (i<al_.size()); i++){
+            this.append(((Account)al_.elementAt(i)).getUser(),null);
         }
     }
     
