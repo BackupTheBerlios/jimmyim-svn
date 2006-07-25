@@ -66,7 +66,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		//protocolList_.addElement(new MSNProtocol(this));
 		//protocolList_.addElement(new JabberProtocol());
 		
-		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","ssbzkgjdvr");
+		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","");
 		//((Protocol)protocolList_.elementAt(0)).login("jimmy@gristle.org","jimmy");
 	}
 	
@@ -163,8 +163,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
             
         }
 
-		public void changeContactStatus(Contact c) {
-			// TODO Auto-generated method stub
-			
-		}
+	public void changeContactStatus(Contact c) {
+		// TODO Auto-generated method stub
+	}
 }
