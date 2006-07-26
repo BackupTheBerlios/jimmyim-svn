@@ -85,7 +85,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 				//read data from vector and establish connections
 				for (int i=0; i < newConnections_.size(); i++) {
 					current = (Account)newConnections_.elementAt(i);  //current connections
-					System.out.println("Logging in user: " + current.getUser());
+					System.out.println("[DEBUG] Logging in user: " + current.getUser());
 					
 					//which protocol to connect?
 					switch(current.getProtocolType()){

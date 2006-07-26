@@ -173,7 +173,7 @@ public class JimmyUI {
                 }//if c == cmdNew
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
-		    System.out.println("Index of selected account: "+selected);
+		    System.out.println("[DEBUG] Index of selected account: "+selected);
                     Vector newConnections = new Vector();
                     newConnections.addElement(scrMenu.getAccounts().elementAt(selected));
                     jimmy_.setNewConnections(newConnections);

@@ -102,21 +102,6 @@ public class ContactsMenu extends List implements CommandListener {
 	    
 	    screenIndex += j;
 	    
-	    switch(current.status()){
-		case Contact.ST_OFFLINE:
-		    name = name.concat(" - offline");
-		    break;
-		case Contact.ST_AWAY:
-		    name = name.concat(" - away");
-		    break;
-		case Contact.ST_BUSY:
-		    name = name.concat(" - busy");
-		    break;
-		case Contact.ST_ONLINE:
-		    name = name.concat(" - online");
-		    break;	
-	    }
-
 	    this.insert(screenIndex,name,chooseImage(current));	    
             group.insertElementAt(current,j);
         }
@@ -136,24 +121,35 @@ public class ContactsMenu extends List implements CommandListener {
 	Contact currentContact, firstInGroup;
 	Vector currentGroup;
 	String name;
-	int i=0, j=0, screenIndex=0;
+	int i=1, j=0, screenIndex=0;
 	System.out.println("[DEBUG] Change status to user "+c.userID()+" and group "+c.groupName()+".");
 	
 	//Find appropriate group
-	firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
-	while( !firstInGroup.groupName().equals(c.groupName()) ){
-	    i++;
+	if(c.groupName() != null){
 	    firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
+	    while( !firstInGroup.groupName().equals(c.groupName()) ){
+		i++;
+		firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
+	    }
+	    System.out.println("[DEBUG] Found group "+firstInGroup.groupName()+".");
 	}
-	currentGroup = (Vector)contacts_.elementAt(i);
-	System.out.println("[DEBUG] Found group "+firstInGroup.groupName()+".");
+	else{
+	    i=0;
+	    System.out.println("[DEBUG] Contact belongs to no group.");	    
+	}
+        currentGroup = (Vector)contacts_.elementAt(i);
 
 	
 	//Find contact in appropriate group
 	currentContact = (Contact)currentGroup.elementAt(j);
-	while( !currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() != c.protocol().getType() ){
+	while( j<currentGroup.size() && !(currentContact.userID().equals(c.userID()))){
 	    j++;
 	    currentContact = (Contact)currentGroup.elementAt(j);
+	    
+	    if( currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() != c.protocol().getType() ){
+		j++;
+		currentContact = (Contact)currentGroup.elementAt(j);
+	    }
 	} 
 	System.out.println("[DEBUG] Found user "+currentContact.userID()+".");
 	
@@ -162,16 +158,21 @@ public class ContactsMenu extends List implements CommandListener {
 	currentContact.setStatusMsg(c.statusMsg());
 	
 	//change display string
-	for(int k=0; k<i; k++)
-	    screenIndex += ((Vector)contacts_.elementAt(k)).size()+1;
-	screenIndex += j+1;
+	if(currentContact.groupName() != null){
+	    for(int k=0; k<i; k++)
+		screenIndex += ((Vector)contacts_.elementAt(k)).size()+1;
+	    screenIndex += j;
+	}
+	else
+	    screenIndex = j;
+		
 	
 	if(currentContact.screenName() != null)
 	    name = new String(currentContact.screenName());
 	else
 	    name = new String(currentContact.userID());
 	
-	switch(c.status()){
+	/*switch(c.status()){
 	    case Contact.ST_OFFLINE:
 		name = name.concat(" - offline");
 		break;
@@ -184,14 +185,9 @@ public class ContactsMenu extends List implements CommandListener {
 	    case Contact.ST_ONLINE:
 		name = name.concat(" - online");
 		break;	
-	}
+	}*/
 	
-		    Image icon;
-            try{
-                icon = Image.createImage("/jimmy/jabber-online.png");
-		this.set(screenIndex,name,icon);
-	    } catch(Exception e){System.out.println(e.getMessage());};
-	
+	this.set(screenIndex,name,chooseImage(currentContact));	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
     }
 
