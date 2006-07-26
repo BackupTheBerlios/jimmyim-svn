@@ -50,6 +50,10 @@ public class ContactsMenu extends List implements CommandListener {
         contacts_ = new Vector();
 	contacts_.addElement(new Vector());  //for contacts without group
         
+        try {
+            setCommandListener(this);
+        } catch(Exception e) {e.printStackTrace();}	
+	
         //add commands
         addCommand((Command)commands_.get(new Integer(ui_.CMD_BACK)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_CHAT)));
@@ -191,9 +195,12 @@ public class ContactsMenu extends List implements CommandListener {
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
     }
 
-    public void commandAction(Command c, Displayable d){
-        ui_.jimmyCommand(c,d);
-    }//commandAction()
+    /**
+     * Called when action should be handled
+     */
+    public void commandAction(Command c, Displayable d) {
+        JimmyUI.jimmyCommand(c,d);
+    }
     
     private Image chooseImage(Contact c){
 	Image image = null;
