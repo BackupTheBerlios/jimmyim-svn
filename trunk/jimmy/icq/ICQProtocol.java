@@ -29,6 +29,7 @@ public class ICQProtocol extends Protocol {
 	//private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
 	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 	private String bos = "";
+	private short f_seq = 0;
 	private byte[] cookie;
 	private byte[] services;
 	private byte[] service_ver;
@@ -142,7 +143,7 @@ public class ICQProtocol extends Protocol {
 		t.setHeader((short)0x000e,(short)0x0002);
 		t.setContent("us");
 		l.addTlv(t);
-		l.setFlap((short)0x0001);
+		l.setFlap(++this.f_seq);
 		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
 		
 		//auth connection
@@ -155,7 +156,7 @@ public class ICQProtocol extends Protocol {
 			System.out.println("Error: not responding.");
 		
 		//Send the first auth package
-		this.conn.sendRequest(b);
+		this.conn.sendPackage(b);
 		
 		//get cookie or err
 		this.response = new ICQPackage(this.conn.getReplyBytes());
@@ -177,12 +178,12 @@ public class ICQProtocol extends Protocol {
 		t.setHeader((short)0x06,(short)t.getCLen());
 		l.addTlv(t);
 		l.setChannel((byte)0x01);
-		l.setFlap((short)0x0034);
+		l.setFlap(++this.f_seq);
 		
 		this.conn.connect();
 		System.out.println("connecting...");
 		this.conn.getReplyBytes();
-		this.conn.sendRequest(l.getNetPackage());
+		this.conn.sendPackage(l.getNetPackage());
 		
 
 		System.out.println("recieving auth...");
@@ -196,7 +197,6 @@ public class ICQProtocol extends Protocol {
 		//System.out.println(this.services.length);
 		Random rng = new Random();
 		
-		System.out.println("building byte array");
 		int j = 0;
 		for(int i = 0; i < this.service_ver.length-3; i=i+4){
 			this.service_ver[i] = this.services[j];
@@ -208,14 +208,13 @@ public class ICQProtocol extends Protocol {
 		ICQPackage ver_req = new ICQPackage(this.service_ver.length,(byte)0x02);
 		ver_req.setContent(this.service_ver);
 		ver_req.setSnac(1,23,0,220);
-		ver_req.setFlap((short)0x0035);
+		ver_req.setFlap(++this.f_seq);
 		byte[] bla = ver_req.getNetPackage();
 		//System.out.println(Utils.byteArrayToHexString(bla));
-		this.conn.sendRequest(bla);
+		this.conn.sendPackage(bla);
 		//ver_req = null;
-		System.out.println("Pa smo tle");
 		b = this.conn.getNextPackage();
-		System.out.println(Utils.byteArrayToHexString(b));
+		//System.out.println(Utils.byteArrayToHexString(b));
 
 		if(b != null){
 			System.out.println("Service versions");
@@ -227,8 +226,34 @@ public class ICQProtocol extends Protocol {
 		this.pkgDecode(in);
 		//System.out.println(Utils.byteArrayToHexString(this.services));
 		
-		//END STAGE TWO
+		/***************************************************/
+		/*	TODO or not: rate info negotiation			   */
+		/***************************************************/
 		
+		ICQPackage out = new ICQPackage();
+		out.setSnac(1,6,0,2);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		b = this.conn.getNextPackage();
+		//System.out.println(Utils.byteArrayToHexString(b));
+		in = new ICQPackage(b);
+		this.pkgDecode(in);
+		//b = this.conn.getNextPackage();
+		//System.out.println(Utils.byteArrayToHexString(b));
+		//in = new ICQPackage(b);
+		//this.pkgDecode(in);
+		//System.out.println(Utils.byteArrayToHexString(b));
+		//END STAGE TWO
+		//STAGE THREE
+		out = new ICQPackage();
+		out.setSnac(2,2,0,3);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		this.pkgDecode(in);
+		//END STAGE THREE
 		
 		
 		return false;
@@ -301,6 +326,21 @@ public class ICQProtocol extends Protocol {
 			switch(type){
 			case 0x0001:
 				switch(subtype){
+				case 0x0007:
+					//TODO: rate limit info classes
+					byte[] c = pak.getContent();
+					ICQPackage ack = new ICQPackage((int)(c[1]*2),(byte)0x02);
+					byte[] n = new byte[(int)(c[1]*2)];
+					for(byte i = 1;i <= c[1]; i++){
+						n[2*i-1] = i;
+					}
+					ack.setSnac(1,8,0,pak.getSnackReqID());
+					ack.setContent(n);
+					ack.setFlap(++this.f_seq);
+					//byte[] b = ack.getNetPackage();
+					//System.out.println(Utils.byteArrayToHexString(b));
+					this.conn.sendPackage(ack.getNetPackage());
+					break;
 				case 0x0013:
 					//TODO: MOTD
 					System.out.println("MOTD");
@@ -309,6 +349,13 @@ public class ICQProtocol extends Protocol {
 					//TODO: Set the service version numbers
 					this.service_versions = pak;
 					System.out.println("decoding 18");
+					break;
+				}
+				break;
+			case 0x0002:
+				switch(subtype){
+				case 0x0003:
+					//TODO: Location service limitations
 					break;
 				}
 				break;

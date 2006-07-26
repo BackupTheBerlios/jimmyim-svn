@@ -75,6 +75,7 @@ public class ICQPackage {
 						+ ICQPackage.SNACK_PKG_HEADER_SIZE];
 			else
 				this.pkg = new byte[data_size + ICQPackage.FLAP_HEADER_SIZE];
+		System.out.print("datasize ");System.out.println(data_size);
 	}
 
 	/**
@@ -328,6 +329,8 @@ public class ICQPackage {
 		a = Utils.intToBytes(reqid, true);
 		this.pkg[12] = a[0];
 		this.pkg[13] = a[1];
+		this.pkg[14] = a[2];
+		this.pkg[15] = a[3];
 	}
 
 	/**
@@ -429,6 +432,15 @@ public class ICQPackage {
 		byte[] b = new byte[2];
 		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+2];
 		b[1] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+3];
+		return Utils.bytesToInt(b,true);
+	}
+	
+	public int getSnackReqID(){
+		byte[] b = new byte[4];
+		b[3] = this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE-1];
+		b[2] = this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE-2];
+		b[1] = this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE-3];
+		b[0] = this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE-4];
 		return Utils.bytesToInt(b,true);
 	}
 }
