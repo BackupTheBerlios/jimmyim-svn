@@ -33,6 +33,7 @@ public class ICQProtocol extends Protocol {
 	private byte[] services;
 	private byte[] service_ver;
 	private ICQPackage response;
+	private ICQPackage service_versions = null;
 	private ProtocolInteraction me;
 	//private ServerHandler auth = null;
 	private ICQConnector conn = null;
@@ -222,7 +223,8 @@ public class ICQProtocol extends Protocol {
 			this.pkgDecode(in);
 		}
 		b = this.conn.getNextPackage();
-		System.out.println(Utils.byteArrayToHexString(b));
+		in = new ICQPackage(b);
+		this.pkgDecode(in);
 		//System.out.println(Utils.byteArrayToHexString(this.services));
 		
 		//END STAGE TWO
@@ -301,9 +303,12 @@ public class ICQProtocol extends Protocol {
 				switch(subtype){
 				case 0x0013:
 					//TODO: MOTD
+					System.out.println("MOTD");
 					break;
 				case 0x0018:
 					//TODO: Set the service version numbers
+					this.service_versions = pak;
+					System.out.println("decoding 18");
 					break;
 				}
 				break;
