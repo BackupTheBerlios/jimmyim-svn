@@ -33,8 +33,10 @@ import jimmy.ProtocolInteraction;
 
 /**
  * This class implements the Jabber protocol.
+ * Non-standard comments are present before any method.
+ * For the standard methods description, see jimmy/Protocol.java .
  * 
- * @author matevz
+ * @author Matevž Jekovec
  */
 public class JabberProtocol extends Protocol {
 	ServerHandler sh_;	//server handler reference - used for any outgoing/incoming connections
@@ -54,6 +56,8 @@ public class JabberProtocol extends Protocol {
 	 * Initializes the connection and logs in using the given account.
 	 */
 	public boolean login(Account account) {
+		account_ = account;
+		
 		//get the first half of the JID (login name)
 		String userName = splitString(account.getUser(), '@')[0]; 
 		//get the second half of the JID (server name)
@@ -128,22 +132,38 @@ public class JabberProtocol extends Protocol {
 		this.status_ = DISCONNECTED;
 	}
 
-	public ChatSession startChatSession(Contact user) {
-		// TODO Auto-generated method stub
-		return null;
+	public ChatSession startChatSession(Contact contact) {
+		ChatSession cs = new ChatSession(this);
+		chatSessionList_.addElement(cs);
+		
+		cs.addContact(contact);
+		
+		return cs;
 	}
 
 	public void sendMsg(String msg, ChatSession session) {
-		//Poslji sporocilo
-		/*oString = "<message from='jimmyim@jabber.org' to='thepianoguy@jabber.org' type='chat'> <body>I wish to complain about <b>this</b> parrot what I purchased not half an hour ago from this very boutique.</body> </message> ";
-		this.sh_.sendRequest(oString);
-		System.out.println("OUT:\n" + oString);
-		System.out.println("IN:\n" + sh_.getReply());*/
+		for (int i=0; i<session.countContacts(); i++) {
+			String oString = "<message from='" + account_.getUser() + "' to='"
+			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'> <body>"
+			 + msg + "</body> </message>\n";
+			
+			System.out.println("OUT:\n" + oString);
+			sh_.sendRequest(oString);
+		}
 	}
 
 	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
-		// TODO Auto-generated method stub
-
+		for (int i=0; i<session.countContacts(); i++) {
+			if (!contactsList.contains(session.getContactsList().elementAt(i)))
+				continue;
+				
+			String oString = "<message from='" + account_.getUser() + "' to='"
+			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'> <body>"
+			 + msg + "</body> </message>\n";
+			
+			System.out.println("OUT:\n" + oString);
+			sh_.sendRequest(oString);
+		}
 	}
 	
 	/**
@@ -185,7 +205,7 @@ public class JabberProtocol extends Protocol {
     	}
     }
     
-    public void parserNewContacts(Contact[] c) {
+    public void parseNewContacts(Contact[] c) {
     	contacts_.copyInto(c);
     }
     
