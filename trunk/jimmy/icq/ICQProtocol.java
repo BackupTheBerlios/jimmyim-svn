@@ -300,10 +300,10 @@ public class ICQProtocol extends Protocol {
 			case 0x0001:
 				switch(subtype){
 				case 0x0013:
-					//MOTD
+					//TODO: MOTD
 					break;
 				case 0x0018:
-					//Set the service version numbers
+					//TODO: Set the service version numbers
 					break;
 				}
 				break;
