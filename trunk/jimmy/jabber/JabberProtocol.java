@@ -102,7 +102,6 @@ public class JabberProtocol extends Protocol {
 		iString = sh_.getReply();
 		//parse the contacts feedback
 		contacts_ = JabberParseXML.parseContacts(iString, this);
-		//contacts_.toString();
 		jimmy_.addContacts(contacts_);
 		
 		//Set status "online"

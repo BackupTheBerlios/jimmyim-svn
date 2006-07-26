@@ -8,11 +8,15 @@ public class JabberParseXML {
 		Vector contacts = new Vector();
 		
 		int x1, x2;
-		int item1, item2;
+		int item2;
 		String cName, cJid, cGroup;	//contact's screen name, jabber id, group name
-		Contact c;
-		while (in.compareTo("</query></iq>")!=0) {	//until only query and iq
-			item2 = in.indexOf("</item>");	//get the end of the current <item> block
+		while (in.indexOf("<item") != -1) {	//until only query and iq
+			in = in.substring(in.indexOf("<item"));	//trim anything before the first <item occurance
+
+			if (in.indexOf("<item", 1) != -1)
+				item2 = in.indexOf("<item", 1);	//get the start of the next <item block, if any
+			else
+				item2 = in.length();
 			
 			//<item ... name='...'
 			x1 = in.indexOf("name='") + 6;
@@ -20,7 +24,7 @@ public class JabberParseXML {
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("'");
 				cName = in.substring(0, x2);
-				in = in.substring(x2); item2 -= x2;
+				in = in.substring(x2 + 1); item2 -= (x2+1);
 			} else
 				cName = null;
 			
@@ -30,7 +34,7 @@ public class JabberParseXML {
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("'");
 				cJid = in.substring(0,x2);
-				in = in.substring(x2); item2 -= x2;
+				in = in.substring(x2 + 1); item2 -= (x2+1);
 			} else
 				cJid = null;
 			
@@ -40,13 +44,13 @@ public class JabberParseXML {
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("</group>");
 				cGroup = in.substring(0,x2);
-				in = in.substring(x2 + 15); item2 -= (x2 + 15); //cut off </group></item>
+				in = in.substring(x2+8); item2 -= (x2+8); //cut off </group></item>
 			} else
 				cGroup = null;
 			
-			contacts.addElement(c = new Contact(cJid, protocol, 0, cGroup, cName));
+			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
 		}
-		
+
 		return contacts;
 	}
 	
@@ -73,7 +77,6 @@ public class JabberParseXML {
 		if (in==null) return;
 		
 		while (in.length() != 0) {
-			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
 		
@@ -81,9 +84,8 @@ public class JabberParseXML {
 			
 			if (type.compareTo("presence") == 0) {
 				in = parsePresence(in, protocol, jimmy);
-			//System.out.println(in);
-			}
-			
+			} else
+				break;
 		}
 	}
 	
@@ -114,13 +116,6 @@ public class JabberParseXML {
 		int x1, x2, x22;
 		String from;
 
-		System.out.println("parse presence");
-		
-		//cut-off the <x ... /> stanza
-		if (in.indexOf("<x") != -1) {
-			in = in.substring(0, in.indexOf("<x")) + in.substring(in.indexOf("/>")+2, in.length());
-		}
-		
 		x1 = in.indexOf("from='") + 6;
 		//jid string, which contact is this about ends at / or ', whichever comes first 
 		if ( ((x2 = in.indexOf("/", x1))  < (x22 = in.indexOf("'", x1))) &&
@@ -135,14 +130,11 @@ public class JabberParseXML {
 
 		//if the Contact wasn't found, trim the first presence stanza off and return
 		if (c==null) {
-			x2 = in.indexOf("/>");
-			x22 = in.indexOf("</presence>");
-			
-			if ((x2 < x22) && (x2 != -1))
-				in = in.substring(x2 + 2);
+			if (in.indexOf("<presence>", 1) != -1)
+				in = in.substring(in.indexOf("<presence>", 1));
 			else
-				in = in.substring(x22 + 11);
-			
+				in = "";
+
 			return in;
 		}
 		
@@ -150,14 +142,14 @@ public class JabberParseXML {
 		//checking, if the contact became off-line
 		x2 = in.indexOf("type='unavailable'/>");
 		x22 = in.indexOf(">");
-		
+
 		if ((x2 < x22) && (x2 != -1)) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
 			in = in.substring(x2 + 20);
 			return in;
 		}
-		
+
 		//contact is not off-line
 		String tmp = getAttributeValue(in, "<presence ", "</presence>");
 		String show = getAttributeValue(tmp, "<show>", "</show>");
@@ -171,18 +163,14 @@ public class JabberParseXML {
 		//does a contact also include a message?
 		String statusMsg = getAttributeValue(tmp, "<status>", "</status>");
 		c.setStatusMsg(statusMsg);
-		
-		//trim the input String - the first stanza was now processed - remove it
-		//System.out.println("režem presence stran");
-		if ( ((in.indexOf("</presence>") < in.indexOf("/>")) || (in.indexOf("/>") == -1)) && (in.indexOf("</presence>") != -1) ) {
-			//System.out.println("prva varianta, idx=" + String.valueOf(in.indexOf("</presence>") + 11));
-			in = in.substring(in.indexOf("</presence>") + 11);
-		} else {
-			//System.out.println("druga varianta, idx=" + String.valueOf(in.indexOf("/>") + 2));
-			in = in.substring(in.indexOf("/>") + 2);
-		}
 
 		jimmy.changeContactStatus(c);
+		
+		if (in.indexOf("<presence>", 1) != -1)
+			in = in.substring(in.indexOf("<presence>", 1));
+		else
+			in = "";
+
 		return in;
 	}
 }
