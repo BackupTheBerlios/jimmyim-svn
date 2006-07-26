@@ -35,7 +35,7 @@ public class ICQProtocol extends Protocol {
 	private ICQPackage response;
 	private ProtocolInteraction me;
 	//private ServerHandler auth = null;
-	private ServerHandler conn = null;
+	private ICQConnector conn = null;
 	
 	private String user;
 	private String pass;
@@ -146,7 +146,7 @@ public class ICQProtocol extends Protocol {
 		
 		//auth connection
 		byte[] b = l.getNetPackage();
-		this.conn = new ServerHandler(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
+		this.conn = new ICQConnector(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
 		this.conn.connect();
 		
 		//check the connection acknowledgement
@@ -212,9 +212,9 @@ public class ICQProtocol extends Protocol {
 		//System.out.println(Utils.byteArrayToHexString(bla));
 		this.conn.sendRequest(bla);
 		//ver_req = null;
-		b = this.conn.getReplyBytes();
-		bla = this.conn.getReplyBytes();
+		b = this.conn.getNextPackage();
 		System.out.println(Utils.byteArrayToHexString(b));
+		System.out.println("Pa smo tle");
 		if(b != null){
 			System.out.println("Service versions");
 			in = new ICQPackage(b);
