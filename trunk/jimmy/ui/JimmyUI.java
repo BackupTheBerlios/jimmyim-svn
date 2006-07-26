@@ -233,10 +233,7 @@ public class JimmyUI {
          * This method is used for saving new account into record store.
          */
         private static void saveAccount(Account a){
-            Store rs = new Store();
-            /*if(rs.addAccount(a))
-                System.out.println("New account saved in RS");*/
-	    rs.addAccount(a);
+	    Store.addAccount(a);
         } 
 
 	/**

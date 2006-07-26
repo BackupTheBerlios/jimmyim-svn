@@ -28,6 +28,7 @@ import javax.microedition.lcdui.*;
 import java.util.*;
 
 import jimmy.Account;
+import jimmy.util.Store;
 
 public class MainMenu extends List implements CommandListener {
     private Vector al_;          //list of accounts
@@ -55,7 +56,8 @@ public class MainMenu extends List implements CommandListener {
         
         //add accounts to menu
         this.al_ = new Vector();
-	addAccount(new Account("slashrsm@jabber.org","ssbzkgjdvr",(byte)0));
+	addAccounts(Store.getAccounts());
+	//addAccount(new Account("slashrsm@jabber.org","ssbzkgjdvr",(byte)0));
         //addAccountsToMenu();        
     }
     
