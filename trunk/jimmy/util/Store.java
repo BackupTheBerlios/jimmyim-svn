@@ -42,11 +42,18 @@ public class Store
 	private static RecordStore rs_;
 	
 	/**
-	 * 
+	 * Default constructor. 
 	 */
 	public Store() {
 	}
 	
+	/**
+	 * Open the record store for writing.
+	 * This method is called automatically on every write/read.
+	 * It shouldn't be called from outside.
+	 * 
+	 * @return True, if the record store was successfully open, false otherwise.
+	 */
 	private static boolean openStore() {
 		try {
 			rs_ = RecordStore.openRecordStore(RECORDSTORENAME_, true);	//createIfNecessary = true
@@ -57,6 +64,13 @@ public class Store
 		}
 	}
 	
+	/**
+	 * Close the record store.
+	 * This method is called automatically on every write/read.
+	 * It shouldn't be called from outside.
+	 * 
+	 * @return True, if the record store was successfully closed, false otherwise.
+	 */
 	private static boolean closeStore() {
 		try {
 			rs_.closeRecordStore();
@@ -67,45 +81,22 @@ public class Store
 		}    
 	}
 	
+	/**
+	 * Create a new record for the given Account in the record store.
+	 *  
+	 * @param acc Account to be added.
+	 * @return True, if the record was successfully created, false otherwise.
+	 */
 	public static boolean addAccount(Account acc) {
 		if (!openStore())
 			return false;
 		
-		//build the String about to be written
-		String out = new String();
-		out = out.concat(String.valueOf(acc.getProtocolType()) + NEWLINE_);
-		out = out.concat(acc.getUser() + NEWLINE_);
-		out = out.concat(acc.getPassword() + NEWLINE_);
-		out = out.concat(acc.getServer() + NEWLINE_);
-		out = out.concat(String.valueOf(acc.getPort()) + NEWLINE_);
-		out = out.concat((acc.getAutoLogin()?"1":"0") + NEWLINE_);	//1 - True, 0 - False
-		
 		//write the String
-		boolean success = addRecord(out);
+		boolean success = addRecord(createString(acc));
 		
 		closeStore();
 		return success;
 	}
-	
-	public static void removeAccount(Account acc) {
-		if (!openStore())
-			return;
-		
-		int i=1;
-		try {
-			while (i<rs_.getNumRecords()) {
-				Account curr = createAccount(rs_.getRecord(i));
-				if ( (curr.getProtocolType() == acc.getProtocolType()) &&
-						(curr.getUser().compareTo(acc.getUser())==0) )
-					rs_.setRecord(i, "-1".getBytes(), 0, 2);
-			}
-		} catch(RecordStoreException e) {
-			e.printStackTrace();
-		}
-		
-		closeStore();
-	}
-	
 	/**
 	 * Create an Account instance from the given byte[] record written in the record store.
 	 * 
@@ -143,11 +134,149 @@ public class Store
 	}
 	
 	/**
-	 * Add a byte array to the private Record Store of this class (instance).
-	 * The record data is supplied as a parameter.
+	 * Create the String, which should be written in the store for the given Account.
 	 * 
-	 * @param record byte array is going to be created from this string and inserted into a private Record Store 
-	 * of this class(instance).
+	 * @param acc Account which the properties should be written.
+	 * @return String which should be written directly into the record.
+	 */
+	private static String createString(Account acc) {
+		String out = new String();
+		out = out.concat(String.valueOf(acc.getProtocolType()) + NEWLINE_);
+		out = out.concat(acc.getUser() + NEWLINE_);
+		out = out.concat(acc.getPassword() + NEWLINE_);
+		out = out.concat(acc.getServer() + NEWLINE_);
+		out = out.concat(String.valueOf(acc.getPort()) + NEWLINE_);
+		out = out.concat((acc.getAutoLogin()?"1":"0") + NEWLINE_);	//1 - True, 0 - False
+		
+		return out;
+	}
+	
+	/**
+	 * Remove the account from the record store.
+	 * WARNING! This method only marks the record as a type -1, which means the record should be deleted the next time record store gets rebuilt.
+	 * It doesn't actually remove the record from the record store.
+	 * 
+	 * @param acc Account which should be removed.
+	 */
+	public static void removeAccount(Account acc) {
+		if (!openStore())
+			return;
+		
+		int i=1;
+		try {
+			while (i<rs_.getNumRecords()) {
+				Account curr = createAccount(rs_.getRecord(i));
+				if ( (curr.getProtocolType() == acc.getProtocolType()) &&
+						(curr.getUser().compareTo(acc.getUser())==0) )
+					rs_.setRecord(i, "-1".getBytes(), 0, 2);
+			}
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+		}
+		
+		closeStore();
+	}
+	
+	/**
+	 * Change the record of an already written Account.
+	 * 
+	 * @param oldType Protocol of the old account in the record store.
+	 * @param oldName Username of the old account in the record store.
+	 * @param newAccount New Account, which should replace the one in the record store.
+	 * @return True, if old account has been found and successfully replaced, false otherwise.
+	 */
+	public static boolean changeAccount(byte oldType, String oldName, Account newAccount) {
+		if (!openStore())
+			return false;
+		
+		int i=1;
+		boolean success = false;
+		try {
+			while (i<rs_.getNumRecords()) {
+				Account curr = createAccount(rs_.getRecord(i));
+				if ( (curr.getProtocolType() == oldType) &&
+						(curr.getUser().compareTo(oldName)==0) ) {
+					String out;
+					rs_.setRecord(i, (out = createString(newAccount)).getBytes(), 0, out.length());
+					success = true;
+				}
+			}
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+		}
+		
+		closeStore();
+		return success;
+	}
+	
+	/**
+	 * Write the general program settings.
+	 * The settings are always stored in the first record of the record store.
+	 * 
+	 * @param config Array of string values to be written.
+	 * @return True, if settings were successfully writtten, false otherwise.
+	 */
+	public static boolean writeSettings(String[] config) {
+		if (!openStore())
+			return false;
+		
+		//generate the output string
+		String out = null;
+		for (int i=0; i<config.length; i++)
+			out = out.concat(config[i] + NEWLINE_);
+		
+		try {
+			rs_.setRecord(0, out.getBytes(), 0, out.length());
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		closeStore();
+		return true;
+	}
+	
+	/**
+	 * Read general program settings from the first record in the record store.
+	 * Every value has to finish with \n character.
+	 * 
+	 * @return String array of values, null, if error occured.
+	 */
+	public static String[] readSettings() {
+		if (!openStore())
+			return null;
+		
+		String in;
+		try {
+			in = new String(rs_.getRecord(0));
+		} catch(RecordStoreException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		//scan the record string for the number of values
+		int num = 0;
+		for (int i=0; i<in.length(); i++)
+			if (in.charAt(i) == '\n')
+				num++;
+
+		int idx = 0;
+		int i=0;
+		String[] out = new String[num];
+		while (in.length()!=0) {
+			out[i] = in.substring(idx, idx = (in.indexOf("\n")+1));
+			in = in.substring(idx);
+			i++;
+		}
+		
+		closeStore();
+		return out;
+	}
+	
+	/**
+	 * Add the given record to the record store.
+	 * 
+	 * @param record Record in String format going to be added.
 	 */
 	private static boolean addRecord(String record){
 		try {
@@ -160,11 +289,9 @@ public class Store
 	}
 	
 	/**
-	 * Return a list of Accounts (see jimmy.Account) from the private record store 
-	 * of this class (instance) or null, if error occured.
+	 * Return the list of Accounts (see jimmy.Account) found in the record store.
 	 * 
-	 * @return Account Vector (see jimmy.Account) or null if error occured.
-	 * @see jimmy.Account
+	 * @return Vector of Accounts or null, if error occured.
 	 */
 	public static Vector getAccounts() {
 		if (!openStore())
