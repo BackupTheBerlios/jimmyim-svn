@@ -29,6 +29,7 @@ import java.util.*;
 
 import jimmy.Account;
 import jimmy.util.Store;
+import jimmy.Protocol;
 
 public class MainMenu extends List implements CommandListener {
     private Vector al_;          //list of accounts
@@ -56,9 +57,7 @@ public class MainMenu extends List implements CommandListener {
         
         //add accounts to menu
         this.al_ = new Vector();
-	addAccounts(Store.getAccounts());
-	//addAccount(new Account("slashrsm@jabber.org","ssbzkgjdvr",(byte)0));
-        //addAccountsToMenu();        
+	addAccounts(Store.getAccounts());    
     }
     
     /**
@@ -66,6 +65,7 @@ public class MainMenu extends List implements CommandListener {
      * @param a new accounts to be displayed in main menu
      */
     public void addAccounts(Vector a){
+	Image icon;
 	for(int i=0; i<a.size(); i++){
 	    
 	    int j=0;
@@ -74,18 +74,21 @@ public class MainMenu extends List implements CommandListener {
 	    }
 	    
 	    al_.insertElementAt(a.elementAt(i),j);		    //add to local account list
-	    this.insert(j,((Account)a.elementAt(j)).getUser(),null);   //add to screen
+	    icon = chooseImage((Account)a.elementAt(i));
+	    this.insert(j,((Account)a.elementAt(i)).getUser(),icon);   //add to screen
 	}
     }
     
     public void addAccount(Account a){
 	int j=0;
+	Image icon;
 	while( j < al_.size() && a.getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0 ){
 	    j++;
 	}
 	    
 	al_.insertElementAt(a,j);	    //add to local account list
-	this.insert(j,((Account)al_.elementAt(j)).getUser(),null);   //add to screen
+	icon = chooseImage(a);
+	this.insert(j,((Account)al_.elementAt(j)).getUser(),icon);   //add to screen
     }
     
     
@@ -115,19 +118,13 @@ public class MainMenu extends List implements CommandListener {
 	    }
 	}
 	
-	
+	Image icon;
 	for(int i=0; i<a.size(); i++){
-	    this.append(((Account)a.elementAt(i)).getUser(),null);   //add to screen
+	    icon = chooseImage((Account)a.elementAt(i));
+	    this.append(((Account)a.elementAt(i)).getUser(),icon);   //add to screen
 	}
     }
-    
-    /*private void addAccountsToMenu(){
-        this.deleteAll();
-        for(int i=0; (al_!=null) && (i<al_.size()); i++) {
-            this.append(((Account)al_.elementAt(i)).getUser(),null);
-        }
-    }*/
-    
+        
     public Vector getAccounts(){return this.al_;}
     
     /**
@@ -135,5 +132,31 @@ public class MainMenu extends List implements CommandListener {
      */
     public void commandAction(Command c, Displayable d) {
         JimmyUI.jimmyCommand(c,d);
+    }
+    
+    /**
+     *	Coose right icon according to protocol.
+     *	@param a account to be checked
+     */
+    private Image chooseImage(Account a){
+	Image i = null;
+	try{
+	    switch(a.getProtocolType()){
+		case Protocol.JABBER:
+		    i = Image.createImage("/jimmy/jabber-online.png");
+		    break;
+		case Protocol.MSN:
+		    i = Image.createImage("/jimmy/msn-online.png");
+		    break;
+		case Protocol.ICQ:
+		    i = Image.createImage("/jimmy/icq-online.png");
+		    break;
+		case Protocol.YAHOO:
+		    i = Image.createImage("/jimmy/yahoo-online.png");
+		    break;		
+	    }
+	}catch(Exception e){System.out.println("[ERROR] Problem loading account icon: "+e.getMessage());};
+	
+	return i;
     }
 }

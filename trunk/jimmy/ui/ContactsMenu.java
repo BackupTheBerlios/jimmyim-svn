@@ -31,6 +31,7 @@ import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Image;
 
 import java.util.Vector;
 import java.util.Hashtable;
@@ -106,8 +107,12 @@ public class ContactsMenu extends List implements CommandListener {
 		    name = name.concat(" - online");
 		    break;	
 	    }
-	 
-	    this.insert(screenIndex,name,null);
+	    Image icon;
+            try{
+                icon = Image.createImage("/jimmy/msn-online.png");
+		this.insert(screenIndex,name,icon);		
+	    } catch(Exception e){System.out.println(e.getMessage());};
+	    
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -176,8 +181,13 @@ public class ContactsMenu extends List implements CommandListener {
 		break;	
 	}
 	
+		    Image icon;
+            try{
+                icon = Image.createImage("/jimmy/jabber-online.png");
+		this.set(screenIndex,name,icon);
+	    } catch(Exception e){System.out.println(e.getMessage());};
+	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
-	this.set(screenIndex,name,null);
     }
 
     public void commandAction(Command c, Displayable d){
