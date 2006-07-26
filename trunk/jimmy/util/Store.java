@@ -165,9 +165,9 @@ public class Store
 		if (!openStore())
 			return;
 		
-		int i=1;
+		int i=2;
 		try {
-			while (i<rs_.getNumRecords()) {
+			while (i<=rs_.getNumRecords()) {
 				Account curr = createAccount(rs_.getRecord(i));
 				if ( (curr.getProtocolType() == acc.getProtocolType()) &&
 						(curr.getUser().compareTo(acc.getUser())==0) )
@@ -192,10 +192,10 @@ public class Store
 		if (!openStore())
 			return false;
 		
-		int i=1;
+		int i=2;
 		boolean success = false;
 		try {
-			while (i<rs_.getNumRecords()) {
+			while (i<=rs_.getNumRecords()) {
 				Account curr = createAccount(rs_.getRecord(i));
 				if ( (curr.getProtocolType() == oldType) &&
 				     (curr.getUser().compareTo(oldName)==0) ) {
@@ -229,7 +229,7 @@ public class Store
 			out = out.concat(config[i] + NEWLINE_);
 		
 		try {
-			rs_.setRecord(0, out.getBytes(), 0, out.length());
+			rs_.setRecord(1, out.getBytes(), 0, out.length());
 		} catch(RecordStoreException e) {
 			e.printStackTrace();
 			return false;
@@ -251,7 +251,7 @@ public class Store
 		
 		String in;
 		try {
-			in = new String(rs_.getRecord(0));
+			in = new String(rs_.getRecord(1));
 		} catch(RecordStoreException e) {
 			e.printStackTrace();
 			return null;
@@ -303,7 +303,7 @@ public class Store
 		Vector accList = new Vector();
 		
 		try {
-			for (int i=1; i<rs_.getNumRecords(); i++) {
+			for (int i=2; i<=rs_.getNumRecords(); i++) {
 				Account curr = createAccount(rs_.getRecord(i));
 				if (curr!=null)
 					accList.addElement(curr);
