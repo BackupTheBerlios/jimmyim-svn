@@ -181,10 +181,8 @@ public class JabberProtocol extends Protocol {
     		if (status_!=CONNECTED) continue;
     		
     		in = sh_.getReply();
-    		//System.out.println(in);
     		if (in != null)
     			JabberParseXML.genericParse(in, this, jimmy_);
-    		
     	}
     }
     

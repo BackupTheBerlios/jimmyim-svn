@@ -73,13 +73,15 @@ public class JabberParseXML {
 		if (in==null) return;
 		
 		while (in.length() != 0) {
+			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
 		
 			type = in.substring(x1, x2); //get the first word in <> stanza
-		
+			
 			if (type.compareTo("presence") == 0) {
 				in = parsePresence(in, protocol, jimmy);
+			//System.out.println(in);
 			}
 			
 		}
@@ -112,6 +114,13 @@ public class JabberParseXML {
 		int x1, x2, x22;
 		String from;
 
+		System.out.println("parse presence");
+		
+		//cut-off the <x ... /> stanza
+		if (in.indexOf("<x") != -1) {
+			in = in.substring(0, in.indexOf("<x")) + in.substring(in.indexOf("/>")+2, in.length());
+		}
+		
 		x1 = in.indexOf("from='") + 6;
 		//jid string, which contact is this about ends at / or ', whichever comes first 
 		if ( ((x2 = in.indexOf("/", x1))  < (x22 = in.indexOf("'", x1))) &&
@@ -164,7 +173,14 @@ public class JabberParseXML {
 		c.setStatusMsg(statusMsg);
 		
 		//trim the input String - the first stanza was now processed - remove it
-		in = in.substring(in.indexOf("</presence>") + 11);
+		//System.out.println("režem presence stran");
+		if ( ((in.indexOf("</presence>") < in.indexOf("/>")) || (in.indexOf("/>") == -1)) && (in.indexOf("</presence>") != -1) ) {
+			//System.out.println("prva varianta, idx=" + String.valueOf(in.indexOf("</presence>") + 11));
+			in = in.substring(in.indexOf("</presence>") + 11);
+		} else {
+			//System.out.println("druga varianta, idx=" + String.valueOf(in.indexOf("/>") + 2));
+			in = in.substring(in.indexOf("/>") + 2);
+		}
 
 		jimmy.changeContactStatus(c);
 		return in;
