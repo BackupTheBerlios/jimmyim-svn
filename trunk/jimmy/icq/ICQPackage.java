@@ -193,7 +193,7 @@ public class ICQPackage {
 				}
 			}
 		} else {
-			System.out.println(this.pkg.length);
+			System.out.print("PKGlen: ");System.out.println(this.pkg.length);
 			if (this.ch == 0x02) {
 				for (int i = 0; i < content.length; i++) {
 					this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE + i] = content[i];

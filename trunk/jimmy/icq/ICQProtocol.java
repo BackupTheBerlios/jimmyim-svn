@@ -212,15 +212,17 @@ public class ICQProtocol extends Protocol {
 		//System.out.println(Utils.byteArrayToHexString(bla));
 		this.conn.sendRequest(bla);
 		//ver_req = null;
+		System.out.println("Pa smo tle");
 		b = this.conn.getNextPackage();
 		System.out.println(Utils.byteArrayToHexString(b));
-		System.out.println("Pa smo tle");
+
 		if(b != null){
 			System.out.println("Service versions");
 			in = new ICQPackage(b);
 			this.pkgDecode(in);
 		}
-		
+		b = this.conn.getNextPackage();
+		System.out.println(Utils.byteArrayToHexString(b));
 		//System.out.println(Utils.byteArrayToHexString(this.services));
 		
 		//END STAGE TWO
@@ -297,6 +299,9 @@ public class ICQProtocol extends Protocol {
 			switch(type){
 			case 0x0001:
 				switch(subtype){
+				case 0x0013:
+					//MOTD
+					break;
 				case 0x0018:
 					//Set the service version numbers
 					break;

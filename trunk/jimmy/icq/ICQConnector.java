@@ -31,26 +31,25 @@ public class ICQConnector extends ServerHandler {
 			this.pkgs.removeElementAt(0);
 			return p;
 		}else{
-			int ind = 0;
 			byte[] b = super.getReplyBytes();
 			if(b == null){
 				while(b==null){
 					b = super.getReplyBytes();
 				}
 			}
-			for(int i = 0; i < b.length; i++){
+			for(int i = 0; i < b.length;){
 				byte[] bplen = new byte[2];
-				bplen[0] = b[ind+4];
-				bplen[1] = b[ind+5];
+				bplen[0] = b[i+4];
+				bplen[1] = b[i+5];
 				int plen = Utils.bytesToInt(bplen,true)+6;
 				Vector p = new Vector();
-				for(int j = ind; j < plen; j++){
+				int ind = i;
+				for(int j = i; j < ind+plen; j++){
 					p.addElement(new Byte(b[j]));
-					ind++;
+					i++;
 				}
 				this	.pkgs.addElement(p);
-				i=ind;
-			}	
+			}
 			return this.getNextPackage();
 		}
 	}
