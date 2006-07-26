@@ -47,10 +47,11 @@ public abstract class Protocol implements Runnable
 	public static final byte YAHOO=3;
 
     protected byte status_;	//protocol status - connected, disconnected etc. - see the constants above
-    protected Vector chatSessions_;	//list of active chat sessions
+    protected Vector chatSessionList_;	//list of active chat sessions
     protected Vector contacts_;	//list of contacts in the protocol
     protected ProtocolInteraction jimmy_;
     protected byte protocolType_; //protocol type (Jabber, ICQ, MSN - see the constants above)
+    protected Account account_;	//account which this protocol is assigned to
 
     private Thread thread_;
     
@@ -109,7 +110,7 @@ public abstract class Protocol implements Runnable
      * 
      * @return Active chat sessions stored in Vector.
      */
-    public Vector getChatSessions() {return chatSessions_;}
+    public Vector getChatSessions() {return chatSessionList_;}
     
     /**
      * Starts a new chat session and returns a reference to it. The new chat session is added to the active protocol's chat sessions list.
