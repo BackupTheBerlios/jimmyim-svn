@@ -77,6 +77,7 @@ public class JabberParseXML {
 		if (in==null) return;
 		
 		while (in.length() != 0) {
+			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
 		
@@ -130,8 +131,8 @@ public class JabberParseXML {
 
 		//if the Contact wasn't found, trim the first presence stanza off and return
 		if (c==null) {
-			if (in.indexOf("<presence>", 1) != -1)
-				in = in.substring(in.indexOf("<presence>", 1));
+			if (in.indexOf("<presence", 1) != -1)
+				in = in.substring(in.indexOf("<presence", 1));
 			else
 				in = "";
 
@@ -151,7 +152,7 @@ public class JabberParseXML {
 		}
 
 		//contact is not off-line
-		String tmp = getAttributeValue(in, "<presence ", "</presence>");
+		String tmp = getAttributeValue(in, "<presence", "</presence>");
 		String show = getAttributeValue(tmp, "<show>", "</show>");
 		if (show == null)
 			c.setStatus(Contact.ST_ONLINE);
@@ -166,8 +167,8 @@ public class JabberParseXML {
 
 		jimmy.changeContactStatus(c);
 		
-		if (in.indexOf("<presence>", 1) != -1)
-			in = in.substring(in.indexOf("<presence>", 1));
+		if (in.indexOf("<presence", 1) != -1)
+			in = in.substring(in.indexOf("<presence", 1));
 		else
 			in = "";
 
