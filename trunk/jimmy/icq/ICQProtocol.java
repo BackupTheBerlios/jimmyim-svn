@@ -188,6 +188,7 @@ public class ICQProtocol extends Protocol {
 
 		System.out.println("recieving auth...");
 		byte[] hahaha = this.conn.getReplyBytes();
+		System.out.println("recieved auth...");
 		//System.out.println(Utils.byteArrayToHexString(hahaha));
 		ICQPackage in = new ICQPackage(hahaha);
 		this.services = in.getServices();
@@ -228,6 +229,7 @@ public class ICQProtocol extends Protocol {
 		
 		/***************************************************/
 		/*	TODO or not: rate info negotiation			   */
+		/* has to use those rates - for now overriden	   */
 		/***************************************************/
 		
 		ICQPackage out = new ICQPackage();
@@ -253,6 +255,7 @@ public class ICQProtocol extends Protocol {
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
+		
 		//END STAGE THREE
 		
 		
@@ -356,6 +359,7 @@ public class ICQProtocol extends Protocol {
 				switch(subtype){
 				case 0x0003:
 					//TODO: Location service limitations
+					System.out.println(Utils.byteArrayToHexString(pak.getNetPackage()));
 					break;
 				}
 				break;
