@@ -57,6 +57,9 @@ public class Store
 	private static boolean openStore() {
 		try {
 			rs_ = RecordStore.openRecordStore(RECORDSTORENAME_, true);	//createIfNecessary = true
+			if (rs_.getNumRecords()==0)
+				rs_.addRecord("".getBytes(), 0, 0);
+
 			return true;
 		} catch(RecordStoreException e) {
 			e.printStackTrace();
@@ -195,7 +198,7 @@ public class Store
 			while (i<rs_.getNumRecords()) {
 				Account curr = createAccount(rs_.getRecord(i));
 				if ( (curr.getProtocolType() == oldType) &&
-						(curr.getUser().compareTo(oldName)==0) ) {
+				     (curr.getUser().compareTo(oldName)==0) ) {
 					String out;
 					rs_.setRecord(i, (out = createString(newAccount)).getBytes(), 0, out.length());
 					success = true;
