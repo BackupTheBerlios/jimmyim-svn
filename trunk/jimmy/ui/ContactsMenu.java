@@ -26,6 +26,7 @@
 package jimmy.ui;
 
 import jimmy.Contact;
+import jimmy.Protocol;
 
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.Command;
@@ -47,6 +48,7 @@ public class ContactsMenu extends List implements CommandListener {
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         contacts_ = new Vector();
+	contacts_.addElement(new Vector());  //for contacts without group
         
         //add commands
         addCommand((Command)commands_.get(new Integer(ui_.CMD_BACK)));
@@ -60,15 +62,22 @@ public class ContactsMenu extends List implements CommandListener {
 	String name;
 	int j, screenIndex;
         for(int i=0; i < v.size(); i++){
-	    j=0;
+	    j=1;
 	    screenIndex = 1;
 	    current = (Contact)v.elementAt(i);
 	    
 	    
-	    //find apropriate group
-	    while( j<contacts_.size() &&  !current.groupName().equals(((Contact)((Vector)contacts_.elementAt(j)).firstElement()).groupName())){
-		screenIndex += ((Vector)contacts_.elementAt(j)).size() + 1;		
-		j++;
+	    if(((Contact)v.elementAt(i)).groupName() != null){
+		screenIndex += ((Vector)contacts_.elementAt(0)).size();
+		//find apropriate group
+		while( j<contacts_.size() &&  !current.groupName().equals(((Contact)((Vector)contacts_.elementAt(j)).firstElement()).groupName())){
+		    screenIndex += ((Vector)contacts_.elementAt(j)).size() + 1;		
+		    j++;
+		}
+	    }
+	    else{
+		j=0;
+		screenIndex=0;
 	    }
 	    
 	    //if group already exists
@@ -107,12 +116,8 @@ public class ContactsMenu extends List implements CommandListener {
 		    name = name.concat(" - online");
 		    break;	
 	    }
-	    Image icon;
-            try{
-                icon = Image.createImage("/jimmy/msn-online.png");
-		this.insert(screenIndex,name,icon);		
-	    } catch(Exception e){System.out.println(e.getMessage());};
-	    
+
+	    this.insert(screenIndex,name,chooseImage(current));	    
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -193,4 +198,38 @@ public class ContactsMenu extends List implements CommandListener {
     public void commandAction(Command c, Displayable d){
         ui_.jimmyCommand(c,d);
     }//commandAction()
+    
+    private Image chooseImage(Contact c){
+	Image image = null;
+	
+	try{
+	    switch(c.protocol().getType()){
+		case Protocol.JABBER:
+		    if(c.status() == Contact.ST_ONLINE)
+			image = Image.createImage("/jimmy/jabber-online.png");
+		    else
+			image = Image.createImage("/jimmy/jabber-offline.png");
+		    break;
+		case Protocol.ICQ:
+		    if(c.status() == Contact.ST_ONLINE)
+			image = Image.createImage("/jimmy/icq-online.png");
+		    else
+			image = Image.createImage("/jimmy/icq-offline.png");		
+		    break;
+		case Protocol.MSN:
+		    if(c.status() == Contact.ST_ONLINE)
+			image = Image.createImage("/jimmy/msn-online.png");
+		    else
+			image = Image.createImage("/jimmy/msn-offline.png");		
+		    break;
+		case Protocol.YAHOO:
+		    if(c.status() == Contact.ST_ONLINE)
+			image = Image.createImage("/jimmy/msn-online.png");
+		    else
+			image = Image.createImage("/jimmy/msn-offline.png");		
+		    break;	
+	    }   
+	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage()););};
+	return image;
+    }
 }//class ContactsMenu
