@@ -229,7 +229,7 @@ public class ContactsMenu extends List implements CommandListener {
 			image = Image.createImage("/jimmy/msn-offline.png");		
 		    break;	
 	    }   
-	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage()););};
+	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage());};
 	return image;
     }
 }//class ContactsMenu
