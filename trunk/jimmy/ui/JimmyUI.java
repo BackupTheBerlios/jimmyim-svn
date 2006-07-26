@@ -237,5 +237,14 @@ public class JimmyUI {
             /*if(rs.addAccount(a))
                 System.out.println("New account saved in RS");*/
 	    rs.addAccount(a);
-        }  
+        } 
+
+	/**
+	 *  Changes contact status.
+	 *  @param c contact to be modified.
+	 */
+	public void changeContactStatus(Contact c) {
+		scrContacts.changeContactStatus(c);
+	}
+
 }

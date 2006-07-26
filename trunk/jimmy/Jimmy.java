@@ -162,7 +162,11 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		
 	}
 
+	/**
+	 *  Changes contact status.
+	 *  @param c contact to be modified.
+	 */
 	public void changeContactStatus(Contact c) {
-		// TODO Auto-generated method stub
+		ui_.changeContactStatus(c);
 	}
 }

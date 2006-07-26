@@ -55,6 +55,7 @@ public class MainMenu extends List implements CommandListener {
         
         //add accounts to menu
         this.al_ = new Vector();
+	addAccount(new Account("slashrsm@jabber.org","ssbzkgjdvr",(byte)0));
         //addAccountsToMenu();        
     }
     

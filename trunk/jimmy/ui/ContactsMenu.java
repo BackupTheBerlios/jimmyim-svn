@@ -56,6 +56,7 @@ public class ContactsMenu extends List implements CommandListener {
     public void addContacts(Vector v){
 	Vector group;
 	Contact current;
+	String name;
 	int j, screenIndex;
         for(int i=0; i < v.size(); i++){
 	    j=0;
@@ -80,13 +81,33 @@ public class ContactsMenu extends List implements CommandListener {
 		this.append("--=="+current.groupName()+"==--",null);
 	    }
 	    
+	    if(current.screenName() != null)
+		name = current.screenName();
+	    else
+		name = current.userID();
+	    
 	    j=0;
-	    while( j<group.size() && current.screenName().compareTo(((Contact)group.elementAt(j)).screenName()) > 0)
+	    while( j<group.size() && current.userID().compareTo(((Contact)group.elementAt(j)).userID()) > 0 && current.status() != ((Contact)group.elementAt(j)).status())
 		j++;
 	    
 	    screenIndex += j;
-	    System.out.println(current.screenName());
-            this.insert(screenIndex,current.screenName(),null);
+	    
+	    	switch(current.status()){
+	    case Contact.ST_OFFLINE:
+		name = name.concat(" - offline");
+		break;
+	    case Contact.ST_AWAY:
+		name = name.concat(" - away");
+		break;
+	    case Contact.ST_BUSY:
+		name = name.concat(" - busy");
+		break;
+	    case Contact.ST_ONLINE:
+		name = name.concat(" - online");
+		break;	
+	}
+	 
+		this.insert(screenIndex,name,null);
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -113,4 +134,60 @@ public class ContactsMenu extends List implements CommandListener {
     public void commandAction(Command c, Displayable d){
         ui_.jimmyCommand(c,d);
     }//commandAction()
+    
+    /**
+     *  Changes contact status.
+     *  @param c contact to be modified.
+     */
+    public void changeContactStatus(Contact c) {
+	Contact currentContact;
+	Vector currentGroup;
+	String name;
+	int i=0, j=0, screenIndex=0;
+	
+	//Find appropriate group
+	while( !((Contact)((Vector)contacts_.elementAt(i)).firstElement()).groupName().equals(c.groupName()) ){
+	    i++;
+	}
+	currentGroup = (Vector)contacts_.elementAt(i);
+	
+	//Find contact in appropriate group
+	while( !((Contact)currentGroup.elementAt(j)).userID().equals(c.userID()) && ((Contact)currentGroup.elementAt(j)).protocol().getType() != c.protocol().getType() ){
+	    j++;
+	} 
+	currentContact = (Contact)currentGroup.elementAt(j);
+	
+	//set status
+	currentContact.setStatus(c.status());
+	currentContact.setStatusMsg(c.statusMsg());
+	
+	//change display string
+	for(int k=0; k<i; k++)
+	    screenIndex += ((Vector)contacts_.elementAt(k)).size()+1;
+	screenIndex += j+1;
+	
+	if(currentContact.screenName() != null)
+	    name = new String(currentContact.screenName());
+	else
+	    name = new String(currentContact.userID());
+	
+	switch(c.status()){
+	    case Contact.ST_OFFLINE:
+		name = name.concat(" - offline");
+		break;
+	    case Contact.ST_AWAY:
+		name = name.concat(" - away");
+		break;
+	    case Contact.ST_BUSY:
+		name = name.concat(" - busy");
+		break;
+	    case Contact.ST_ONLINE:
+		name = name.concat(" - online");
+		break;	
+	}
+	
+	System.out.println("User "+currentContact.userID()+" has status: "+currentContact.status());
+	
+	this.set(screenIndex,name,null);
+    }    
 }//class ContactsMenu
