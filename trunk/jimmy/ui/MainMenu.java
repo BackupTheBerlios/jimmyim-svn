@@ -69,7 +69,7 @@ public class MainMenu extends List implements CommandListener {
 	for(int i=0; i<a.size(); i++){
 	    
 	    int j=0;
-	    while(((Account)al_.elementAt(i)).getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0){
+	    while( j<al_.size() && ((Account)a.elementAt(i)).getUser().compareTo(((Account)al_.elementAt(j)).getUser()) > 0){
 		j++;
 	    }
 	    
