@@ -92,22 +92,22 @@ public class ContactsMenu extends List implements CommandListener {
 	    
 	    screenIndex += j;
 	    
-	    	switch(current.status()){
-	    case Contact.ST_OFFLINE:
-		name = name.concat(" - offline");
-		break;
-	    case Contact.ST_AWAY:
-		name = name.concat(" - away");
-		break;
-	    case Contact.ST_BUSY:
-		name = name.concat(" - busy");
-		break;
-	    case Contact.ST_ONLINE:
-		name = name.concat(" - online");
-		break;	
-	}
+	    switch(current.status()){
+		case Contact.ST_OFFLINE:
+		    name = name.concat(" - offline");
+		    break;
+		case Contact.ST_AWAY:
+		    name = name.concat(" - away");
+		    break;
+		case Contact.ST_BUSY:
+		    name = name.concat(" - busy");
+		    break;
+		case Contact.ST_ONLINE:
+		    name = name.concat(" - online");
+		    break;	
+	    }
 	 
-		this.insert(screenIndex,name,null);
+	    this.insert(screenIndex,name,null);
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -119,43 +119,29 @@ public class ContactsMenu extends List implements CommandListener {
     }
     
     /**
-     * @deprecated
-     */
-    private void addContactsToMenu(){
-        this.deleteAll();
-        String contact;
-        for(int i=0; i<contacts_.size(); i++){
-            //TO-DO - separate contacts in groups
-            contact = ((jimmy.Contact)contacts_.elementAt(i)).screenName();
-            this.append(contact,null);
-        }//for i < contacts_.size()
-    }//void addContactsToMenu()
-        
-    public void commandAction(Command c, Displayable d){
-        ui_.jimmyCommand(c,d);
-    }//commandAction()
-    
-    /**
      *  Changes contact status.
      *  @param c contact to be modified.
      */
     public void changeContactStatus(Contact c) {
-	Contact currentContact;
+	Contact currentContact, firstInGroup;
 	Vector currentGroup;
 	String name;
 	int i=0, j=0, screenIndex=0;
 	
 	//Find appropriate group
-	while( !((Contact)((Vector)contacts_.elementAt(i)).firstElement()).groupName().equals(c.groupName()) ){
+	firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
+	while( !firstInGroup.groupName().equals(c.groupName()) ){
 	    i++;
+	    firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
 	}
 	currentGroup = (Vector)contacts_.elementAt(i);
 	
 	//Find contact in appropriate group
-	while( !((Contact)currentGroup.elementAt(j)).userID().equals(c.userID()) && ((Contact)currentGroup.elementAt(j)).protocol().getType() != c.protocol().getType() ){
-	    j++;
-	} 
 	currentContact = (Contact)currentGroup.elementAt(j);
+	while( !currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() != c.protocol().getType() ){
+	    j++;
+	    currentContact = (Contact)currentGroup.elementAt(j);
+	} 
 	
 	//set status
 	currentContact.setStatus(c.status());
@@ -186,8 +172,11 @@ public class ContactsMenu extends List implements CommandListener {
 		break;	
 	}
 	
-	System.out.println("User "+currentContact.userID()+" has status: "+currentContact.status());
-	
+	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
 	this.set(screenIndex,name,null);
-    }    
+    }
+
+    public void commandAction(Command c, Displayable d){
+        ui_.jimmyCommand(c,d);
+    }//commandAction()
 }//class ContactsMenu
