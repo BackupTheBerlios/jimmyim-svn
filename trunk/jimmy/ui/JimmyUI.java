@@ -234,6 +234,12 @@ public class JimmyUI {
          */
         private static void saveAccount(Account a){
 	    Store.addAccount(a);
+	    
+	    Vector storeTest = Store.getAccounts();
+	    System.out.println("[DEBUG]-------data in RS---------");
+	    for(int i=0; i<storeTest.size(); i++)
+		System.out.println("[DEBUG] User saved in RS: "+((Account)storeTest.elementAt(i)).getUser());
+	    System.out.println("[DEBUG]--------------------------");
         } 
 
 	/**

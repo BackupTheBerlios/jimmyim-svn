@@ -127,6 +127,7 @@ public class ContactsMenu extends List implements CommandListener {
 	Vector currentGroup;
 	String name;
 	int i=0, j=0, screenIndex=0;
+	System.out.println("[DEBUG] Change status to user "+c.userID()+" and group "+c.groupName()+".");
 	
 	//Find appropriate group
 	firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
@@ -135,6 +136,8 @@ public class ContactsMenu extends List implements CommandListener {
 	    firstInGroup = ((Contact)((Vector)contacts_.elementAt(i)).firstElement());
 	}
 	currentGroup = (Vector)contacts_.elementAt(i);
+	System.out.println("[DEBUG] Found group "+firstInGroup.groupName()+".");
+
 	
 	//Find contact in appropriate group
 	currentContact = (Contact)currentGroup.elementAt(j);
@@ -142,6 +145,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    j++;
 	    currentContact = (Contact)currentGroup.elementAt(j);
 	} 
+	System.out.println("[DEBUG] Found user "+currentContact.userID()+".");
 	
 	//set status
 	currentContact.setStatus(c.status());

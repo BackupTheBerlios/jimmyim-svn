@@ -111,27 +111,27 @@ public class Store
 		int idx = 0;
 		
 		//read Account type
-		byte type = Byte.parseByte(record.substring(idx, (idx = record.indexOf("\n", idx)) + 1));
+		byte type = Byte.parseByte(record.substring(idx, (idx = record.indexOf("\n", idx))));
 		if (type == -1)
 			return null;
 		idx++;	//newline
 		
 		//read username
-		String userName = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		String userName = record.substring(idx, (idx = record.indexOf("\n", idx)));
 		idx++;	//newline
 		
 		//read password
-		String password = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		String password = record.substring(idx, (idx = record.indexOf("\n", idx)));
 		idx++;	//newline
 		
 		//read server name (optional)
-		String server = record.substring(idx, (idx = record.indexOf("\n", idx)) + 1);
+		String server = record.substring(idx, (idx = record.indexOf("\n", idx)));
 		idx++;	//newline
 		
 		//read server port (optional)
-		int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx)) + 1));
+		int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx))));
 		idx++;	//newline
-		boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx)) + 1).compareTo("0")==0)?false:true);
+		boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
 		
 		return new Account(userName, password, type, server, port, autoLogin);
 	}
@@ -283,7 +283,8 @@ public class Store
 	 */
 	private static boolean addRecord(String record){
 		try {
-			rs_.addRecord(record.getBytes(), 0, record.length());
+			System.out.println("[DEBUG] Added record index: "+rs_.addRecord(record.getBytes(), 0, record.length()));
+			System.out.println("[DEBUG] Number of records: "+rs_.getNumRecords());
 			return true;
 		} catch (RecordStoreException ex) {
 			ex.printStackTrace();
