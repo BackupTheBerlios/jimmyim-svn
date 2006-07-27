@@ -109,7 +109,7 @@ public class JabberProtocol extends Protocol {
 		jimmy_.addContacts(contacts_);
 		
 		//Set status "online"
-		oString = "<presence type=\"available\"/>";// type=\"online\"/>";
+		oString = "<presence type=\"available\"/>";
 		this.sh_.sendRequest(oString);
 
 		status_ = CONNECTED;
@@ -128,6 +128,10 @@ public class JabberProtocol extends Protocol {
 	 * Logs out and closes the connection.
 	 */
 	public void logout() {
+		String oString;
+		oString = "<presence type=\"offline\"/>";
+		this.sh_.sendRequest(oString);
+
 		this.sh_.disconnect();
 		this.status_ = DISCONNECTED;
 	}

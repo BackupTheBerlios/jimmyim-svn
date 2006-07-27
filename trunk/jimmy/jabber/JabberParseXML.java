@@ -77,7 +77,7 @@ public class JabberParseXML {
 		if (in==null) return;
 		
 		while (in.length() != 0) {
-			//System.out.println(in);
+			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
 		

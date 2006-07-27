@@ -93,7 +93,6 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 							JabberProtocol jabber = new JabberProtocol(this);
 							//jabber.login(current);
 							jabber.login(current.getUser(),current.getPassword());
-							//jabber.startThread();
 							protocolList_.addElement(jabber);
 							break;
 						case Protocol.ICQ:
@@ -129,6 +128,10 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 
 	public void exitJimmy(){
 		//display_.setCurrent(null);
+		
+		for (int i=0; i<protocolList_.size(); i++)
+			((Protocol)protocolList_.elementAt(i)).logout();
+		
 		try {
 			destroyApp(true);
 		} catch (MIDletStateChangeException e) {
