@@ -27,12 +27,14 @@ package jimmy.ui;
 
 import jimmy.Contact;
 import jimmy.Protocol;
+import jimmy.ChatSession;
 
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.Screen;
 
 import java.util.Vector;
 import java.util.Hashtable;
@@ -41,12 +43,14 @@ public class ContactsMenu extends List implements CommandListener {
     private Vector contacts_;
     private JimmyUI ui_;
     private Hashtable commands_;
+    private Hashtable chatWindows_;
     
     /** Creates a new instance of ContactsMenu */
     public ContactsMenu() {
         super("Personal contacts:",List.IMPLICIT);
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
+	chatWindows_ = ui_.getChatWindows();
         contacts_ = new Vector();
 	contacts_.addElement(new Vector());  //for contacts without group
         
@@ -193,6 +197,59 @@ public class ContactsMenu extends List implements CommandListener {
 	
 	this.set(screenIndex,name,chooseImage(currentContact));	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
+    }
+    
+    /**
+     *	This method is called when new chat is started
+     */
+    public void startChat(){
+	int selected = this.getSelectedIndex(), i=0, j=0, selectedIndex;
+	boolean found;
+	Contact currentContact = null;
+	Vector currentGroup = (Vector)contacts_.elementAt(0);;
+	System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
+	
+	while(true){
+	    if(	j+((Vector)contacts_.elementAt(i)).size() < selected){
+		if(i==0)
+		    j += ((Vector)contacts_.elementAt(i)).size();
+		else
+		    j += ((Vector)contacts_.elementAt(i)).size()+1;
+	    }
+	    else if(j+((Vector)contacts_.elementAt(i)).size() == selected){
+		found = false;
+		break;
+	    }
+	    else{
+		found = true;
+		if(i==0)
+		    currentContact = (Contact)currentGroup.elementAt(selected-(j));
+		else
+		    currentContact = (Contact)currentGroup.elementAt(selected-(j+1));
+		break;
+	    }
+	    i++;
+	    currentGroup = (Vector)contacts_.elementAt(i);
+	}
+	if(found)
+	    System.out.println("[DEBUG] Found Contact to start chat with: "+currentContact.userID());
+	else
+	    System.out.println("[DEBUG] You want to chat with group label!");
+	
+	if(found){
+	    ChatSession cs;
+	    String name;
+	    cs = currentContact.protocol().startChatSession(currentContact);
+	    
+	    if(currentContact.screenName() != null)
+		name = currentContact.screenName();
+	    else
+		name = currentContact.userID();
+	    
+	    Screen chat = new ChatWindow(name, cs);
+	    chatWindows_.put(cs,chat);
+	    ui_.setView(JimmyUI.SCR_CHAT,cs);
+	}	
     }
 
     /**

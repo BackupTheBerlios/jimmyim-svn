@@ -98,6 +98,7 @@ public class JimmyUI {
 	private static NewAccount   scrNewAcc;
 	private static ContactsMenu scrContacts;
 	private static About        scrAbout;
+	private static Hashtable    scrChats;
 	
 	//private Vector contacts_;
         
@@ -126,16 +127,14 @@ public class JimmyUI {
 		//Create screens
 		scrMenu =       new MainMenu();
 		scrNewAcc =     new NewAccount();
-		scrContacts =   new ContactsMenu();
 		scrAbout =      new About(about_);
-		
-		//Read configuration data from record store
-		//Store rs = new Store();
-		//scrMenu.addAccounts(rs.getAccounts());
+		scrChats =	new Hashtable();
+		scrContacts =   new ContactsMenu();		
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
 	public Hashtable getCommands(){return commands_;}
+	public Hashtable getChatWindows(){return scrChats;}
 	public Vector getAccount(){return scrMenu.getAccounts();}
 	
 	public void setAccount(Vector a){((MainMenu)scrMenu).setAccounts(a);}
@@ -160,6 +159,15 @@ public class JimmyUI {
 			   jimmy_.setDisplay(scrContacts);
 			   break;
 		}
+	}
+	
+	public void setView(int display, ChatSession key){
+		switch(display){
+		    case 4:
+			    jimmy_.setDisplay((Displayable)scrChats.get(key));
+			    break;
+		}
+	    
 	}
 	
 	public static void jimmyCommand(Command c, Displayable d) {
@@ -217,7 +225,7 @@ public class JimmyUI {
                     jimmy_.setDisplay(scrMenu);
                 }//c == cmdBack
                 else if(c == cmdChat){
-                    
+                    ((ContactsMenu)d).startChat();
                 }//c == cmdChat
             }//d == scrContacts
             
