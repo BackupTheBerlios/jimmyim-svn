@@ -33,6 +33,7 @@ import java.util.Vector;
 import jimmy.jabber.JabberProtocol;
 import jimmy.msn.MSNProtocol;
 import jimmy.icq.ICQProtocol;
+import jimmy.yahoo.YahooProtocol;
 
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
@@ -92,7 +93,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
 							//jabber.login(current);
-							jabber.login(current.getUser(),current.getPassword());
+							jabber.login(current);
 							protocolList_.addElement(jabber);
 							break;
 						case Protocol.ICQ:
@@ -106,7 +107,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 							protocolList_.addElement(msn);
 							break;
 						case Protocol.YAHOO:
-							//yahoo
+							YahooProtocol yahoo = new YahooProtocol(this);
+							yahoo.login(current);
 							break;
 					} //switch
                                         

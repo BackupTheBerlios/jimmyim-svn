@@ -164,4 +164,13 @@ public class ChatSession {
      * @return A reference to the associated protocol
      */
     public Protocol getProtocol() { return protocol_; }
+    
+    /**
+     * Send a given message to all users not on the ignore list.
+     * 
+     * @param msg Message to be sent in String.
+     */
+    public void sendMsg(String msg) {
+		protocol_.sendMsg(msg, this);
+    }
 }
