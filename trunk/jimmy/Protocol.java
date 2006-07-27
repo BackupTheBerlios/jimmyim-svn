@@ -62,6 +62,7 @@ public abstract class Protocol implements Runnable
      */
     public Protocol(ProtocolInteraction jimmy) {
     	this.jimmy_ = jimmy;
+    	this.chatSessionList_ = new Vector();
     	this.thread_ = new Thread(this);
     }
     
