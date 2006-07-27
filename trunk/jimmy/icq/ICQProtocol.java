@@ -33,6 +33,9 @@ public class ICQProtocol extends Protocol {
 	private byte[] cookie;
 	private byte[] services;
 	private byte[] service_ver;
+	private byte[] capabilities = {(byte)0x09,(byte)0x46,(byte)0x00,(byte)0x00,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00  //unknown capability - copied from gaim
+			,(byte)0x09,(byte)0x46,(byte)0x13,(byte)0x4D,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00						//cross ICQ - AIM messaging
+			,(byte)0x09,(byte)0x46,(byte)0x13,(byte)0x4E,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00};
 	private ICQPackage response;
 	private ICQPackage service_versions = null;
 	private ProtocolInteraction me;
@@ -256,6 +259,15 @@ public class ICQProtocol extends Protocol {
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
 		
+		out = new ICQPackage();
+		out.setChannel((byte)0x02);
+		byte[] c = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0B,(byte)0x1F,(byte)0x40,(byte)0x03,(byte)0xE7,(byte)0x03,(byte)0xE7,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
+		out.setContent(c);
+		out.setSnac(4,2,0,5);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		
 		//END STAGE THREE
 		
 		
@@ -358,8 +370,17 @@ public class ICQProtocol extends Protocol {
 			case 0x0002:
 				switch(subtype){
 				case 0x0003:
-					//TODO: Location service limitations
-					System.out.println(Utils.byteArrayToHexString(pak.getNetPackage()));
+					//TODO: Location service limitations/capabilities
+					ICQTlv cap = new ICQTlv();
+					cap.setHeader((short)0x0005,(short)this.capabilities.length);
+					cap.setContent(this.capabilities);
+					ICQPackage cp = new ICQPackage();
+					cp.setSnac(2,4,0,4);
+					cp.addTlv(cap);
+					cp.setFlap(++this.f_seq);
+					this.conn.sendPackage(cp.getNetPackage());
+					cap = null;
+					cp = null;
 					break;
 				}
 				break;
