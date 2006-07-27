@@ -112,7 +112,21 @@ public abstract class Protocol implements Runnable
      */
     public Vector getChatSessions() {return chatSessionList_;}
     
-    /**
+	/**
+	 * Find a chat session which contains the given contact.
+	 * 
+	 * @param c The Contact which we'd like to know which chat session does he belong to.
+	 * @return Pointer to the ChatSession which the given contact belongs to.
+	 */
+	public ChatSession getChatSession(Contact c) {
+		for (int i=0; i<chatSessionList_.size(); i++)
+			if (chatSessionList_.contains(c))
+				return (ChatSession)chatSessionList_.elementAt(i);
+		
+		return null;
+	}
+
+   /**
      * Starts a new chat session and returns a reference to it. The new chat session is added to the active protocol's chat sessions list.
      * 
      * @param user User ID which you want to start the chat with

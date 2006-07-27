@@ -85,9 +85,39 @@ public class JabberParseXML {
 			
 			if (type.compareTo("presence") == 0) {
 				in = parsePresence(in, protocol, jimmy);
+			} else if (type.compareTo("message") == 0) {
+				in = parseMessage(in, protocol, jimmy);
 			} else
 				break;
 		}
+	}
+	
+	/**
+	 * Parse the first message stanza of the given XML data.
+	 * Call the appropriate methods for the interaction with the program and UI.
+	 * Cut off the processed stanza.
+	 * 
+	 * @param in An XML stanzas needed to be processed.
+	 * @param protocol Pointer to the Jabber Protocol used.
+	 * @param jimmy Pointer to the main Jimmy application used.
+	 * @return The initial string without the processed stanza.
+	 */
+	private static String parseMessage(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		String from = in.substring(in.indexOf("from='")+6, in.indexOf("/", in.indexOf("from='")+6));
+		ChatSession cs;
+		Contact c = protocol.getContact(from);
+		
+		if (c == null) {
+			c = new Contact(from, protocol);
+			cs = protocol.startChatSession(c);
+		} else
+			cs = protocol.getChatSession(c);
+		
+		String msg = getAttributeValue(in, "<body>", "</body>");
+		
+		jimmy.msgRecieved(cs, c, msg);
+		
+		return in.substring(in.indexOf("</message>") + 10);
 	}
 	
 	/**

@@ -144,7 +144,7 @@ public class JabberProtocol extends Protocol {
 		
 		return cs;
 	}
-
+	
 	public void sendMsg(String msg, ChatSession session) {
 		for (int i=0; i<session.countContacts(); i++) {
 			String oString = "<message from='" + account_.getUser() + "' to='"
