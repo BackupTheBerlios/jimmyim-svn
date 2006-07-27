@@ -121,7 +121,7 @@ public abstract class Protocol implements Runnable
 	 */
 	public ChatSession getChatSession(Contact c) {
 		for (int i=0; i<chatSessionList_.size(); i++)
-			if (chatSessionList_.contains(c))
+			if (((ChatSession)chatSessionList_.elementAt(i)).contains(c))
 				return (ChatSession)chatSessionList_.elementAt(i);
 		
 		return null;
