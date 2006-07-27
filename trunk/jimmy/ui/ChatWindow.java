@@ -9,6 +9,7 @@
 
 package jimmy.ui;
 import jimmy.ChatSession;
+import jimmy.Contact;
 
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.CommandListener;
@@ -63,5 +64,17 @@ public class ChatWindow extends Form implements CommandListener {
 	}
 	else
 	    JimmyUI.jimmyCommand(c,d);
+    }
+    
+    public void msgRecieved(Contact c, String msg){
+	    String name;
+	    if(c.screenName() != null)
+		name = c.screenName();
+	    else
+		name = c.userID();
+	    
+	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
+	    this.insert(size()-1,new StringItem(name+" - "+time+":",null));
+	    this.insert(size()-1,new StringItem(null,msg));	    
     }
 }

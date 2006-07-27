@@ -257,5 +257,11 @@ public class JimmyUI {
 	public void changeContactStatus(Contact c) {
 		scrContacts.changeContactStatus(c);
 	}
+	
+	public void msgRecieved(ChatSession cs, Contact c, String msg){
+	    ChatWindow currentWindow = (ChatWindow)scrChats.get(cs);
+	    currentWindow.msgRecieved(c,msg);
+	}
+	
 
 }

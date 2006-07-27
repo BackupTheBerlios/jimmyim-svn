@@ -92,8 +92,8 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					switch(current.getProtocolType()){
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
+							jabber.login(current.getUser(),current.getPassword());
 							//jabber.login(current);
-							jabber.login(current);
 							protocolList_.addElement(jabber);
 							break;
 						case Protocol.ICQ:
@@ -164,8 +164,9 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
     	public void addContacts(Vector c) {ui_.addContacts(c);}
         
 	public void msgRecieved(ChatSession cs, Contact c, String msg){
-		
+	    ui_.msgRecieved(cs,c,msg);
 	}
+
 
 	/**
 	 *  Changes contact status.
