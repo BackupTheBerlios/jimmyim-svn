@@ -269,7 +269,8 @@ public class ICQProtocol extends Protocol {
 		
 		
 		//END STAGE THREE
-		
+		//STAGE FOUR
+		//END STAGE FOUR
 		
 		return false;
 	}
