@@ -92,35 +92,25 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					switch(current.getProtocolType()){
 						case Protocol.JABBER:
 							JabberProtocol jabber = new JabberProtocol(this);
-							jabber.login(current.getUser(),current.getPassword());
+							current.setConnected(jabber.login(current.getUser(),current.getPassword()));
 							//jabber.login(current);
 							protocolList_.addElement(jabber);
 							break;
 						case Protocol.ICQ:
 							ICQProtocol icq = new ICQProtocol(this);
-							icq.login(current);
+							current.setConnected(icq.login(current));
 							protocolList_.addElement(icq);
 							break;
 						case Protocol.MSN:
 							MSNProtocol msn = new MSNProtocol(this);
-							msn.login(current.getUser(), current.getPassword());
+							current.setConnected(msn.login(current.getUser(), current.getPassword()));
 							protocolList_.addElement(msn);
 							break;
 						case Protocol.YAHOO:
 							YahooProtocol yahoo = new YahooProtocol(this);
-							yahoo.login(current);
+							current.setConnected(yahoo.login(current));
 							break;
 					} //switch
-                                        
-                                        //Protocol currentProt;
-                                        //Vector contacts;
-                                        
-                                        //currentProt = (Protocol)protocolList_.lastElement();
-                                        //contacts = currentProt.getContacts();   //get contacts from current account
-                
-                                        //TODO - sort contacts list according to Group
-                                        //ui_.addContacts(contacts);
-					
 				} //for i < newConnections_.size()
                     
 				newConnections_ = null;

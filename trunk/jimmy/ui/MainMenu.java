@@ -143,7 +143,7 @@ public class MainMenu extends List implements CommandListener {
 	try{
 	    switch(a.getProtocolType()){
 		case Protocol.JABBER:
-		    i = Image.createImage("/jimmy/jabber-online.png");
+                    i = Image.createImage("/jimmy/jabber-online.png");
 		    break;
 		case Protocol.MSN:
 		    i = Image.createImage("/jimmy/msn-online.png");

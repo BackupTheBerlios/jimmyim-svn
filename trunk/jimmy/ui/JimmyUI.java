@@ -47,6 +47,7 @@ public class JimmyUI {
 	final public static int CMD_NEW    = 9;
 	final public static int CMD_ABOUT  = 10;
 	final public static int CMD_CHAT   = 11;
+        final public static int CMD_SEND   = 12; 
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -59,12 +60,13 @@ public class JimmyUI {
 
 	//Commands:
 	final private static Command cmdOk     = new Command("OK",          Command.OK,     1);
+        final private static Command cmdSend   = new Command("Send",        Command.OK,     1);        
 	final private static Command cmdCancel = new Command("Cancel",      Command.BACK,   2);
 	final private static Command cmdYes    = new Command("Yes",         Command.OK,     1);
 	final private static Command cmdNo     = new Command("No",          Command.CANCEL, 2);
 	final private static Command cmdFind   = new Command("Find",        Command.OK,     1);
 	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);
-	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   1);
+	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   3);
 	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
 	final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
 	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
@@ -90,6 +92,7 @@ public class JimmyUI {
 		commands_.put(new Integer(CMD_NEW),     cmdNew      );
 		commands_.put(new Integer(CMD_ABOUT),   cmdAbout    );
 		commands_.put(new Integer(CMD_CHAT),    cmdChat     );
+                commands_.put(new Integer(CMD_SEND),    cmdSend     );
 	}
         
 	//Screens
@@ -235,6 +238,10 @@ public class JimmyUI {
                     jimmy_.setDisplay(scrMenu);                    
                 }// c == cmdBack
             }// if d == scrAbout
+            else if(scrChats.contains(d)){
+                if(c == cmdBack)
+                    jimmy_.setDisplay(scrContacts);
+            }
 	}
         
         /*
@@ -259,9 +266,22 @@ public class JimmyUI {
 	}
 	
 	public void msgRecieved(ChatSession cs, Contact c, String msg){
-	    ChatWindow currentWindow = (ChatWindow)scrChats.get(cs);
-	    currentWindow.msgRecieved(c,msg);
-	}
+            if(cs != null){
+                ChatWindow currentWindow = (ChatWindow)scrChats.get(cs);
+                currentWindow.msgRecieved(c,msg);
+            }
+            else{
+                cs = c.protocol().startChatSession(c);
+                String name = (c.screenName()!=null) ? c.screenName():c.userID();
+                ChatWindow newWindow = new ChatWindow(name,cs);
+                scrChats.put(cs,newWindow);
+                scrContacts.getChatContactList().addElement(c);            
+                newWindow.msgRecieved(c,msg);
+                
+                //temporary
+                jimmy_.setDisplay(newWindow);
+            }
+        }
 	
 
 }

@@ -35,6 +35,7 @@ public class Account {
     private String server_;		//login server name (optional)
     private int port_;	//server port (optional)
     private boolean autoLogin_;	//automatically login at startup
+    private boolean connected_;
     
     /**
      * Creates a new instance of the user account.
@@ -51,6 +52,7 @@ public class Account {
         this.server_     = s;
         this.port_       = port;
         this.autoLogin_  = autoLogin;
+        this.connected_   = false;
     }
     
     /**
@@ -82,6 +84,7 @@ public class Account {
     public void setServer(String s)     {this.server_ = s;}
     public void setPort(int port)       {this.port_ = port;}
     public void setAutoLogin(boolean al) {this.autoLogin_ = al;}
+    public void setConnected(boolean p) {this.connected_ = p;}
    
     public String getUser()         {return this.username_;}
     public String getPassword()     {return this.password_;}   
@@ -89,4 +92,5 @@ public class Account {
     public int getPort()            {return this.port_;}   
     public byte getProtocolType()	{return this.protocolType_;}
     public boolean getAutoLogin()	{return this.autoLogin_;}
+    public boolean isConnected()   {return this.connected_;}
 }

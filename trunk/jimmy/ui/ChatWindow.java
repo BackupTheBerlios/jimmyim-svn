@@ -44,16 +44,17 @@ public class ChatWindow extends Form implements CommandListener {
         } catch(Exception e) {e.printStackTrace();}
         
         //add commands to menu
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_SEND) ));        
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
-        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_CHAT) ));
-	
+        //addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EXIT) ));
+        
 	//add text field
 	this.append(tf_);
 	
     }
     
     public void commandAction(Command c, Displayable d){
-	if(c == (Command)commands_.get(new Integer(JimmyUI.CMD_CHAT) )){
+	if(c == (Command)commands_.get(new Integer(JimmyUI.CMD_SEND) )){
 	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
 	    String msg = ((TextField)get(size()-1)).getString();
 	    ((TextField)get(size()-1)).setString("");
