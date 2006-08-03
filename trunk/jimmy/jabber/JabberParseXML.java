@@ -55,7 +55,7 @@ public class JabberParseXML {
 	}
 	
 	public static boolean parseUserPass(String in) {
-		if (in.compareTo("<iq type='result'/>")==0) return true;
+		if (in.indexOf("error")==-1) return true;
 		
 		return false;
 	}

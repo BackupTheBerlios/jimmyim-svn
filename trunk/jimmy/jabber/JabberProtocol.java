@@ -49,7 +49,8 @@ public class JabberProtocol extends Protocol {
 	 */
 	public JabberProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
-		this.protocolType_ = JABBER;
+		protocolType_ = JABBER;
+		status_ = DISCONNECTED;
 	}
 	
 	/**
@@ -60,10 +61,19 @@ public class JabberProtocol extends Protocol {
 		
 		//get the first half of the JID (login name)
 		String userName = splitString(account.getUser(), '@')[0]; 
+
 		//get the second half of the JID (server name)
 		String userServer = splitString(account.getUser(), '@')[1];
-		//get the server name stored in the account - use default server if none set
-		String server = (account.getServer()!=null) ? account.getServer() : DEFAULT_SERVER; 
+
+		//get the server name stored in the account - if none set, use the user@server ones, if none @ given, use the default one
+		String server;
+		if (account.getServer()!=null)
+			server = account.getServer();
+		else if (userServer.length()!=0)
+			server = userServer;
+		else
+			server = DEFAULT_SERVER;
+
 		//get the server port stored in the account - use default server port if none set
 		int port = (account.getPort()!=0) ? account.getPort() : DEFAULT_PORT;
 		
@@ -94,9 +104,11 @@ public class JabberProtocol extends Protocol {
 		
 		this.sh_.sendRequest(oString);
 		iString = sh_.getReply();
+
 		//check authentication feedback
 		if (JabberParseXML.parseUserPass(iString)==false) {
 			status_ = WRONG_PASSWORD;
+			System.out.println("JabberProtocol: WRONG PASSWORD!");
 			return false;
 		}
 		
