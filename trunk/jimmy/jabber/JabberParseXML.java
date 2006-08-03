@@ -19,8 +19,9 @@ public class JabberParseXML {
 				item2 = in.length();
 			
 			//<item ... name='...'
-			x1 = in.indexOf("name='") + 6;
-			if (x1 < item2) {
+			x1 = in.indexOf("name='");
+			if ((x1 != -1) && (x1 < item2)) {
+				x1 += 6;	//the end of name='
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("'");
 				cName = in.substring(0, x2);
@@ -29,8 +30,9 @@ public class JabberParseXML {
 				cName = null;
 			
 			//jid='...'
-			x1 = in.indexOf("jid='") + 5;
-			if (x1 < item2) {
+			x1 = in.indexOf("jid='");
+			if ((x1 != -1) && (x1 < item2)) {
+				x1 += 5;	//the end of jid='
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("'");
 				cJid = in.substring(0,x2);
@@ -39,14 +41,18 @@ public class JabberParseXML {
 				cJid = null;
 			
 			//<group>...</group>
-			x1 = in.indexOf("<group>") + 7;
-			if (x1 < item2) {
+			x1 = in.indexOf("<group>");
+			if ((x1 != -1) && (x1 < item2)) {
+				x1 += 7;	//the end of <group>
 				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("</group>");
 				cGroup = in.substring(0,x2);
 				in = in.substring(x2+8); item2 -= (x2+8); //cut off </group></item>
 			} else
 				cGroup = null;
+			
+			if (cName == null)	//if the contact has no name, set its name to JID
+				cName = cJid;
 			
 			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
 		}
