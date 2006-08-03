@@ -108,32 +108,35 @@ public class Store
 	 */
 	private static Account createAccount(byte[] byteRecord) {
 		String record = new String(byteRecord);
-		int idx = 0;
+                if(record.equals("-1")){
+                    return null;
+                }
+                else{
+                    int idx = 0;
 		
-		//read Account type
-		byte type = Byte.parseByte(record.substring(idx, (idx = record.indexOf("\n", idx))));
-		if (type == -1)
-			return null;
-		idx++;	//newline
-		
-		//read username
-		String userName = record.substring(idx, (idx = record.indexOf("\n", idx)));
-		idx++;	//newline
-		
-		//read password
-		String password = record.substring(idx, (idx = record.indexOf("\n", idx)));
-		idx++;	//newline
-		
-		//read server name (optional)
-		String server = record.substring(idx, (idx = record.indexOf("\n", idx)));
-		idx++;	//newline
-		
-		//read server port (optional)
-		int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx))));
-		idx++;	//newline
-		boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
-		
-		return new Account(userName, password, type, server, port, autoLogin);
+                    //read Account type
+                    byte type = Byte.parseByte(record.substring(idx, (idx = record.indexOf("\n", idx))));
+                    idx++;	//newline
+
+                    //read username
+                    String userName = record.substring(idx, (idx = record.indexOf("\n", idx)));
+                    idx++;	//newline
+
+                    //read password
+                    String password = record.substring(idx, (idx = record.indexOf("\n", idx)));
+                    idx++;	//newline
+
+                    //read server name (optional)
+                    String server = record.substring(idx, (idx = record.indexOf("\n", idx)));
+                    idx++;	//newline
+
+                    //read server port (optional)
+                    int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx))));
+                    idx++;	//newline
+                    boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
+
+                    return new Account(userName, password, type, server, port, autoLogin);
+                }
 	}
 	
 	/**
@@ -169,9 +172,10 @@ public class Store
 		try {
 			while (i<=rs_.getNumRecords()) {
 				Account curr = createAccount(rs_.getRecord(i));
-				if ( (curr.getProtocolType() == acc.getProtocolType()) &&
+				if ( curr != null && (curr.getProtocolType() == acc.getProtocolType()) &&
 						(curr.getUser().compareTo(acc.getUser())==0) )
 					rs_.setRecord(i, "-1".getBytes(), 0, 2);
+                                i++;
 			}
 		} catch(RecordStoreException e) {
 			e.printStackTrace();

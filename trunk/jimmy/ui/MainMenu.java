@@ -54,6 +54,8 @@ public class MainMenu extends List implements CommandListener {
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_NEW)  ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_LOGIN)));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_ABOUT)));
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_DEL)));
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EDIT)));
         
         //add accounts to menu
         this.al_ = new Vector();
@@ -91,6 +93,10 @@ public class MainMenu extends List implements CommandListener {
 	this.insert(j,((Account)al_.elementAt(j)).getUser(),icon);   //add to screen
     }
     
+    public void removeAccount(int index){
+        this.delete(index);
+        al_.removeElementAt(index);
+    }
     
     /**
      * Sets vector of accounts to be displayed in main menu. Vector is beeing sorted here.

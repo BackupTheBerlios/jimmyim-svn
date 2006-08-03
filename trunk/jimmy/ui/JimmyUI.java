@@ -47,7 +47,9 @@ public class JimmyUI {
 	final public static int CMD_NEW    = 9;
 	final public static int CMD_ABOUT  = 10;
 	final public static int CMD_CHAT   = 11;
-        final public static int CMD_SEND   = 12; 
+        final public static int CMD_SEND   = 12;
+        final public static int CMD_DEL    = 13;
+        final public static int CMD_EDIT   = 14;
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -60,7 +62,7 @@ public class JimmyUI {
 
 	//Commands:
 	final private static Command cmdOk     = new Command("OK",          Command.OK,     1);
-        final private static Command cmdSend   = new Command("Send",        Command.OK,     1);        
+        final private static Command cmdSend   = new Command("Send",        Command.OK,     1);
 	final private static Command cmdCancel = new Command("Cancel",      Command.BACK,   2);
 	final private static Command cmdYes    = new Command("Yes",         Command.OK,     1);
 	final private static Command cmdNo     = new Command("No",          Command.CANCEL, 2);
@@ -71,6 +73,8 @@ public class JimmyUI {
 	final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
 	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
 	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
+        final private static Command cmdDel    = new Command("Delete",      Command.ITEM,   1);
+        final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -93,6 +97,8 @@ public class JimmyUI {
 		commands_.put(new Integer(CMD_ABOUT),   cmdAbout    );
 		commands_.put(new Integer(CMD_CHAT),    cmdChat     );
                 commands_.put(new Integer(CMD_SEND),    cmdSend     );
+                commands_.put(new Integer(CMD_DEL),     cmdDel      );
+                commands_.put(new Integer(CMD_EDIT),    cmdEdit     );
 	}
         
 	//Screens
@@ -142,6 +148,7 @@ public class JimmyUI {
 	
 	public void setAccount(Vector a){((MainMenu)scrMenu).setAccounts(a);}
 	public void addAccount(Account a){scrMenu.addAccount(a);}
+        public void removeAccount(int index){scrMenu.removeAccount(index);}
 	public void setSplashMess(String s){((Splash)scrSplash).setMess(s);}
 	public void addContacts(Vector v){this.scrContacts.addContacts(v);}
         public void addContact(Contact c){this.scrContacts.addContact(c);}
@@ -194,6 +201,12 @@ public class JimmyUI {
                 else if(c == cmdAbout){
                     jimmy_.setDisplay(scrAbout);                    
                 }//if c == cmdAbout
+                else if(c == cmdDel){
+                    int selected = scrMenu.getSelectedIndex();
+                    Account account = (Account)scrMenu.getAccounts().elementAt(selected);
+                    Store.removeAccount(account);
+                    jimmyUI_.removeAccount(selected);
+                }//if c == cmdDel
             }//if d == scrMenu
             
             //commands from new account page
