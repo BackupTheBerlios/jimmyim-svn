@@ -86,8 +86,8 @@ public class JabberParseXML {
 			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
-		
-			type = in.substring(x1, x2); //get the first word in <> stanza
+
+                        type = in.substring(x1, x2); //get the first word in <> stanza
 			
 			if (type.compareTo("presence") == 0) {
 				in = parsePresence(in, protocol, jimmy);
@@ -110,14 +110,16 @@ public class JabberParseXML {
 	 */
 	private static String parseMessage(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		String from = in.substring(in.indexOf("from='")+6, in.indexOf("/", in.indexOf("from='")+6));
-		ChatSession cs;
+		ChatSession cs = null;
 		Contact c = protocol.getContact(from);
 		
 		if (c == null) {
 			c = new Contact(from, protocol);
-			cs = protocol.startChatSession(c);
 		} else
 			cs = protocol.getChatSession(c);
+
+                if (cs==null)
+                    cs = protocol.startChatSession(c);
 		
 		String msg = getAttributeValue(in, "<body>", "</body>");
 		

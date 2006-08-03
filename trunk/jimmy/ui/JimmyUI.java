@@ -279,21 +279,22 @@ public class JimmyUI {
 	}
 	
 	public void msgRecieved(ChatSession cs, Contact c, String msg){
-            if(cs != null){
-                ChatWindow currentWindow = (ChatWindow)scrChats.get(cs);
-                currentWindow.msgRecieved(c,msg);
-            }
-            else{
-                cs = c.protocol().startChatSession(c);
+            if (cs == null)
+                return;
+
+            ChatWindow currentWindow = (ChatWindow)scrChats.get(cs);
+            
+            if(currentWindow == null){
                 String name = (c.screenName()!=null) ? c.screenName():c.userID();
-                ChatWindow newWindow = new ChatWindow(name,cs);
-                scrChats.put(cs,newWindow);
-                scrContacts.getChatContactList().addElement(c);            
-                newWindow.msgRecieved(c,msg);
-                
-                //temporary
-                jimmy_.setDisplay(newWindow);
+                currentWindow = new ChatWindow(name,cs);
+                scrChats.put(cs,currentWindow);
             }
+
+            scrContacts.getChatContactList().addElement(c);            
+            currentWindow.msgRecieved(c,msg);
+                
+            //temporary
+            jimmy_.setDisplay(currentWindow);
         }
 	
 
