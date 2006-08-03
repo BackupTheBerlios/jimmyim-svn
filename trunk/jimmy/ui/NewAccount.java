@@ -25,6 +25,8 @@
 
 package jimmy.ui;
 
+import jimmy.Account;
+
 import javax.microedition.lcdui.*;
 import java.util.*;
 
@@ -41,10 +43,16 @@ public class NewAccount extends Form implements CommandListener {
     final private TextField port_     = new TextField("Port:",        "", 10, TextField.DECIMAL );
     
     final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
+    final private String[] auto_ = {"Yes","No"};
     final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null);
+    final private ChoiceGroup autoLogin_ = new ChoiceGroup("AutoLogin:",Choice.EXCLUSIVE,auto_,null);
     
     private Hashtable commands_;
     private JimmyUI ui_;
+    
+    private boolean edit_;
+    private Account editAcc_;
+    private int editIndex_;
     
     /**
      * constructor
@@ -53,6 +61,10 @@ public class NewAccount extends Form implements CommandListener {
         super("Add new account:");
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
+        
+        edit_ = false;
+        editAcc_ = null;
+        editIndex_ = -1;
         
         try {
             setCommandListener(this);
@@ -63,55 +75,16 @@ public class NewAccount extends Form implements CommandListener {
         pass_.setLayout(Item.LAYOUT_NEWLINE_AFTER);     append(pass_);
         server_.setLayout(Item.LAYOUT_NEWLINE_AFTER);   append(server_);
         port_.setLayout(Item.LAYOUT_NEWLINE_BEFORE);    append(port_);
+        autoLogin_.setLayout(Item.LAYOUT_NEWLINE_BEFORE);    append(autoLogin_);
         
         
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_OK)   ));
     }
     
-    /**
-     * paint
-     */
-    public void paint(Graphics g) {
-
-    }
-    
-    /**
-     * Called when a key is pressed.
-     */
-    protected  void keyPressed(int keyCode) {
-    }
-    
-    /**
-     * Called when a key is released.
-     */
-    protected  void keyReleased(int keyCode) {
-    }
-    
-    /**
-     * Called when a key is repeated (held down).
-     */
-    protected  void keyRepeated(int keyCode) {
-    }
-    
-    /**
-     * Called when the pointer is dragged.
-     */
-    protected  void pointerDragged(int x, int y) {
-    }
-    
-    /**
-     * Called when the pointer is pressed.
-     */
-    protected  void pointerPressed(int x, int y) {
-    }
-    
-    /**
-     * Called when the pointer is released.
-     */
-    protected  void pointerReleased(int x, int y) {
-    }
-    
+    public boolean isInEditMode(){return edit_;}
+    public Account getEditAccount(){return editAcc_;}
+    public int getEditIndex(){return editIndex_;}
     /**
      * Called when action should be handled
      */
@@ -128,6 +101,9 @@ public class NewAccount extends Form implements CommandListener {
         data.addElement(port_.getString());
         data.addElement(new Integer(protocol_.getSelectedIndex()));
 
+        boolean auto = (autoLogin_.getSelectedIndex() == 0) ? true : false;
+        data.addElement(new Boolean(auto));
+
         return data;
     }
     
@@ -136,7 +112,27 @@ public class NewAccount extends Form implements CommandListener {
         pass_.setString("");
         server_.setString("");
         port_.setString("");
-        protocol_.setSelectedIndex(0,true);        
+        protocol_.setSelectedIndex(0,true);
+        autoLogin_.setSelectedIndex(0,true);
+        edit_ = false;
+        editIndex_ = -1;
+        editAcc_ = null;
+        this.insert(0,protocol_);
+    }
+    
+    public void enableEdit(Account a, int index){
+        this.edit_ = true;
+        this.editIndex_ = index;
+        this.editAcc_ = a;
+        
+        user_.setString(a.getUser());
+        pass_.setString(a.getPassword());
+        server_.setString(a.getServer());
+        port_.setString(Integer.toString(a.getPort()));
+        protocol_.setSelectedIndex((int)a.getProtocolType(),true);
+        int auto = (a.getAutoLogin()) ? 0 : 1;
+        autoLogin_.setSelectedIndex(auto,true);
+        this.delete(0);
     }
     
 }

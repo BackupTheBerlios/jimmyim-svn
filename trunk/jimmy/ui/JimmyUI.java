@@ -207,6 +207,11 @@ public class JimmyUI {
                     Store.removeAccount(account);
                     jimmyUI_.removeAccount(selected);
                 }//if c == cmdDel
+                else if(c == cmdEdit){
+                    int selected = scrMenu.getSelectedIndex();
+                    scrNewAcc.enableEdit((Account)scrMenu.getAccounts().elementAt(selected),selected);
+                    jimmy_.setDisplay(scrNewAcc);
+                }//if c == cmdEdit
             }//if d == scrMenu
             
             //commands from new account page
@@ -219,14 +224,30 @@ public class JimmyUI {
                     String server   = (String)data.elementAt(2);
                     String port     = (String)data.elementAt(3);
                     byte protocol   = ((Integer)data.elementAt(4)).byteValue();
+                    boolean auto    = ((Boolean)data.elementAt(5)).booleanValue();
                     
                     if(port.equals("")) port = "0";
                     /*System.out.println("----- Begin data entered for new account -----");
                     System.out.println("User: "+user+"\nPass: "+pass+"\nProtocol: "+protocol);
                     System.out.println("----- Begin data entered for new account -----");*/
-                    newAccount = new Account(user,pass,protocol,server,Integer.parseInt(port),false);
-                    saveAccount(newAccount);
-		    jimmyUI_.addAccount(newAccount);		    
+                    
+                    if(scrNewAcc.isInEditMode()){
+                        newAccount = scrNewAcc.getEditAccount();
+                        Store.removeAccount(newAccount);
+                        
+                        newAccount.setUser(user);
+                        newAccount.setPassword(pass);
+                        newAccount.setServer(server);
+                        newAccount.setPort(Integer.parseInt(port));
+                        newAccount.setAutoLogin(auto);
+                        
+                        Store.addAccount(newAccount);
+                    }
+                    else{
+                        newAccount = new Account(user,pass,protocol,server,Integer.parseInt(port),auto);
+                        saveAccount(newAccount);
+                        jimmyUI_.addAccount(newAccount);
+                    }
                 }//if c == cmdOk
                 ((NewAccount)d).clearForm();
                 //Store rs = new Store();
