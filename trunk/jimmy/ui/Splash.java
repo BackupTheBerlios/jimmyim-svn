@@ -58,10 +58,15 @@ public class Splash extends Canvas {
         } 
         
         public void paint(Graphics g){
-            //g.drawImage(image_,0,0,Graphics.TOP|Graphics.LEFT);
-            g.drawImage(image_,getWidth()/2,getHeight()/3,Graphics.HCENTER|Graphics.VCENTER);
+            //Draw rectangle for background
+            g.setColor(77,80,92);
+            g.fillRect(0,0,getWidth(),getHeight());
+
+            //Draw splash image
+            g.drawImage(image_,getWidth()/2,5*getHeight()/12,Graphics.HCENTER|Graphics.VCENTER);
+
+            //Draw status msg
             g.setColor(192,208,44);
-            //g.setFont(Font.getFont(Font.FACE_PROPORTIONAL,Font.SIZE_SMALL,Font.STYLE_PLAIN));
             g.drawString(mess_,getWidth()/2,5*getHeight()/6,Graphics.HCENTER|Graphics.TOP);
         }
         
