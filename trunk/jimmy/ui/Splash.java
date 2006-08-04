@@ -38,10 +38,10 @@ public class Splash extends Canvas {
          */
         public Splash(){
             try{
-                double screenWidth = this.getWidth();
+                double screenWidth = this.getWidth()*0.9;
                 double screenHeight = this.getHeight();
                 
-                image_ = Image.createImage("/jimmy/JimmyIM_splash_trans.png");
+                image_ = Image.createImage("/jimmy/JimmyIM_splash_small.png");
                 mess_ = "Loading...";
                 
                 double imageWidth = image_.getWidth();
@@ -58,10 +58,11 @@ public class Splash extends Canvas {
         } 
         
         public void paint(Graphics g){
-            g.drawImage(image_,getWidth()/2,getHeight()/2,Graphics.HCENTER|Graphics.VCENTER);
+            //g.drawImage(image_,0,0,Graphics.TOP|Graphics.LEFT);
+            g.drawImage(image_,getWidth()/2,getHeight()/3,Graphics.HCENTER|Graphics.VCENTER);
             g.setColor(192,208,44);
             //g.setFont(Font.getFont(Font.FACE_PROPORTIONAL,Font.SIZE_SMALL,Font.STYLE_PLAIN));
-            g.drawString(mess_,120,260,Graphics.TOP|Graphics.HCENTER);
+            g.drawString(mess_,getWidth()/2,5*getHeight()/6,Graphics.HCENTER|Graphics.TOP);
         }
         
         /**
