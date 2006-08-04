@@ -57,4 +57,8 @@ public class ICQConnector extends ServerHandler {
 	public void sendPackage(byte[] p){
 		super.sendRequest(p);
 	}
+	
+	public int getNumPackages(){
+		return this.pkgs.size();
+	}
 }

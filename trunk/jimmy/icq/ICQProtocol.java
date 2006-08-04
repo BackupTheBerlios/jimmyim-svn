@@ -22,8 +22,8 @@ import jimmy.ProtocolInteraction;
  */
 public class ICQProtocol extends Protocol {
 	
-	//private final String AUTH_SERVER = "login.oscar.aol.com";
-	private final String AUTH_SERVER = "192.168.0.4";
+	private final String AUTH_SERVER = "login.oscar.aol.com";
+	//private final String AUTH_SERVER = "192.168.0.4";
 	private final int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
 	//private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
@@ -182,10 +182,11 @@ public class ICQProtocol extends Protocol {
 		l.addTlv(t);
 		l.setChannel((byte)0x01);
 		l.setFlap(++this.f_seq);
+		ha=null;
 		
 		this.conn.connect();
 		System.out.println("connecting...");
-		this.conn.getReplyBytes();
+		System.out.println("Connected: "+Utils.byteArrayToHexString(this.conn.getReplyBytes()));
 		this.conn.sendPackage(l.getNetPackage());
 		
 
@@ -195,6 +196,7 @@ public class ICQProtocol extends Protocol {
 		//System.out.println(Utils.byteArrayToHexString(hahaha));
 		ICQPackage in = new ICQPackage(hahaha);
 		this.services = in.getServices();
+		hahaha=null;
 		in = null;
 		//int bla = this.services.length;
 		this.service_ver = new byte[2*this.services.length];
@@ -229,7 +231,7 @@ public class ICQProtocol extends Protocol {
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
 		//System.out.println(Utils.byteArrayToHexString(this.services));
-		
+		//ICQPackage in = null;
 		/***************************************************/
 		/*	TODO or not: rate info negotiation			   */
 		/* has to use those rates - for now overriden	   */
@@ -266,7 +268,8 @@ public class ICQProtocol extends Protocol {
 		out.setSnac(4,2,0,5);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
-
+		c = null;
+		
 		//END STAGE THREE
 		//STAGE FOUR
 		
@@ -279,12 +282,37 @@ public class ICQProtocol extends Protocol {
 		out.addTlv(t);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
-
+		d=null;
+		
 		out = new ICQPackage();
+		byte[] used_families ={
+				(byte)0x00,(byte)0x15,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x04,(byte)0x7C,
+				(byte)0x00,(byte)0x13,(byte)0x00,(byte)0x04,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29, 
+				(byte)0x00,(byte)0x0C,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x04,(byte)0x00,(byte)0x01,
+				(byte)0x00,(byte)0x0B,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x04,(byte)0x00,(byte)0x01,
+				(byte)0x00,(byte)0x0A,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x09,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x08,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x04,(byte)0x00,(byte)0x01,
+				(byte)0x00,(byte)0x07,(byte)0x00,(byte)0x01,(byte)0x00,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x06,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x04,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x03,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x02,(byte)0x00,(byte)0x01,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29,
+				(byte)0x00,(byte)0x01,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x10,(byte)0x06,(byte)0x29
+				};
+		out.setChannel((byte)0x02);
+		out.setContent(used_families);
 		out.setSnac(1,2,0,7);
-		
-		
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
 		//END STAGE FOUR
+		used_families=null;
+		
+		System.out.println(this.conn.getNumPackages());
+		
+		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		System.out.println(this.conn.getNumPackages());
+		System.out.println("AtEnd");
 		
 		return false;
 	}
