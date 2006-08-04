@@ -59,7 +59,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
-		ui_.setView(JimmyUI.SCR_MAIN);
+		//ui_.setView(JimmyUI.SCR_MAIN);
                 
 		thr_ = new Thread(this);
 		thr_.start();

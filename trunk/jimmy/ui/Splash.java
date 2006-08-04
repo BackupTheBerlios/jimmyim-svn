@@ -28,7 +28,7 @@ package jimmy.ui;
 import javax.microedition.lcdui.*;
 
 public class Splash extends Canvas {
-        private Image splash_;
+        private Image image_;
         private String mess_;
     
         /**
@@ -38,8 +38,18 @@ public class Splash extends Canvas {
          */
         public Splash(){
             try{
-                splash_ = Image.createImage("/jimmy/JimmyIM_splash.png");
+                double screenWidth = this.getWidth();
+                double screenHeight = this.getHeight();
+                
+                image_ = Image.createImage("/jimmy/JimmyIM_splash_trans.png");
                 mess_ = "Loading...";
+                
+                double imageWidth = image_.getWidth();
+                double imageHeight = image_.getHeight();
+                double size = (screenWidth/imageWidth < screenHeight/imageHeight) ? screenWidth/imageWidth:screenHeight/imageHeight;
+                
+                if(size < 1.0)
+                    image_ = this.resizeImage(image_,size);
             } catch(Exception e){
                 System.out.println(e.getMessage());
                 //System.out.println("Ex thrown");                
@@ -48,7 +58,7 @@ public class Splash extends Canvas {
         } 
         
         public void paint(Graphics g){
-            g.drawImage(splash_,0,0,Graphics.TOP|Graphics.LEFT);
+            g.drawImage(image_,getWidth()/2,getHeight()/2,Graphics.HCENTER|Graphics.VCENTER);
             g.setColor(192,208,44);
             //g.setFont(Font.getFont(Font.FACE_PROPORTIONAL,Font.SIZE_SMALL,Font.STYLE_PLAIN));
             g.drawString(mess_,120,260,Graphics.TOP|Graphics.HCENTER);
@@ -61,5 +71,27 @@ public class Splash extends Canvas {
         public void setMess(String m){
             this.mess_ = m;
             repaint();
+        }
+        
+        private Image resizeImage(Image img, double size){
+            int coord1 = 0, coord2 = 0;
+            //double skip = 1/size;
+            int inWidth = img.getWidth();
+            int inHeight = img.getHeight();
+            int outWidth = (int)(inWidth * size);
+            int outHeight = (int)(inHeight * size);
+            int[] in = new int[inWidth*inHeight];
+            int[] out = new int[outWidth*outHeight];
+            img.getRGB(in,0,inWidth,0,0,inWidth,inHeight); 
+            
+            for(int i=0; i<outHeight; i++){
+                    for(int j=0; j<outWidth; j++){
+                        coord1 = i*outWidth+j;
+                        coord2 = (int)(i/size)*inWidth+(int)(j/size);
+                        out[coord1] = in[coord2];
+                    }
+            }
+            
+            return Image.createRGBImage(out,outWidth,outHeight,true);
         }
 }
