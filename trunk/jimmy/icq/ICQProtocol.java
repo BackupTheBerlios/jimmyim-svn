@@ -266,10 +266,24 @@ public class ICQProtocol extends Protocol {
 		out.setSnac(4,2,0,5);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
-		
-		
+
 		//END STAGE THREE
 		//STAGE FOUR
+		
+		out = new ICQPackage();
+		out.setSnac(1,30,0,6);
+		t = new ICQTlv();
+		byte[] d = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
+		t.setContent(d);
+		t.setHeader((short)0x0006,(short)t.getCLen());
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+
+		out = new ICQPackage();
+		out.setSnac(1,2,0,7);
+		
+		
 		//END STAGE FOUR
 		
 		return false;
