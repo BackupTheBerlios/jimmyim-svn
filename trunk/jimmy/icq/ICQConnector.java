@@ -12,6 +12,7 @@ import jimmy.util.Utils;
  */
 public class ICQConnector extends ServerHandler {
 	private Vector pkgs = null;
+	private final int TIMES_TO_TRY = 3;
 	/**
 	 * 
 	 */
@@ -29,12 +30,15 @@ public class ICQConnector extends ServerHandler {
 				p[i] = ((Byte)pk.elementAt(i)).byteValue();
 			}
 			this.pkgs.removeElementAt(0);
+			System.out.println(Utils.byteArrayToHexString(p));
 			return p;
 		}else{
 			byte[] b = super.getReplyBytes();
+			int h = 0;
 			if(b == null){
-				while(b==null){
+				while(b==null || h>this.TIMES_TO_TRY){
 					b = super.getReplyBytes();
+					h++;
 				}
 			}
 			for(int i = 0; i < b.length;){
@@ -47,6 +51,7 @@ public class ICQConnector extends ServerHandler {
 				for(int j = i; j < ind+plen; j++){
 					p.addElement(new Byte(b[j]));
 					i++;
+					
 				}
 				this	.pkgs.addElement(p);
 			}

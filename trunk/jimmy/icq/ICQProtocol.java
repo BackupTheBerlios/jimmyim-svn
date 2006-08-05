@@ -155,20 +155,55 @@ public class ICQProtocol extends Protocol {
 		this.conn.connect();
 		
 		//check the connection acknowledgement
-		if(this.conn.getReplyBytes() == null)
+		if(this.conn.getNextPackage() == null)
 			System.out.println("Error: not responding.");
 		
 		//Send the first auth package
 		this.conn.sendPackage(b);
 		
 		//get cookie or err
-		this.response = new ICQPackage(this.conn.getReplyBytes());
+		this.response = new ICQPackage(this.conn.getNextPackage());
 		this.tlvDecode(this.response.getTlv(1));
 		this.conn.disconnect();
 		System.out.println(this.bos);
 		//END STAGE ONE
 		
 		//STAGE TWO
+
+		/*****************************/
+		/* A hack that seems to work */
+		/*****************************/
+		/*l = new ICQPackage();
+		
+		l.setChannel((byte)0x01);
+		byte[] v = {(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00};
+		l.setContent(v);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0001,(short)(this.user.getBytes()).length);
+		t.setContent(this.user.getBytes());
+		l.addTlv(t);
+		t = new ICQTlv();
+		t.setHeader((short)0x0002,(short)(this.pass.getBytes()).length);
+		t.setContent(this.roast(this.pass.getBytes()));
+		l.addTlv(t);
+		
+		t = new ICQTlv();
+		t.setHeader((short)0x0003,(short)(this.cli_id.getBytes()).length);
+		t.setContent((this.cli_id.substring(0,12)).getBytes());
+		l.addTlv(t);
+		l.setFlap(++this.f_seq);
+		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
+		/*****************************/	
+		
+		//this.conn.sendPackage(l.getNetPackage());
+		
+		try{
+			Thread.sleep(2000);
+		}catch(InterruptedException e){
+			System.out.println("jebiga stari... taka so pravila...");
+		}
+		
 		l = new ICQPackage();
 		byte[] ha = new byte[4];
 		ha[0] = 0x00;
@@ -181,17 +216,18 @@ public class ICQProtocol extends Protocol {
 		t.setHeader((short)0x06,(short)t.getCLen());
 		l.addTlv(t);
 		l.setChannel((byte)0x01);
-		l.setFlap(++this.f_seq);
+		l.setFlap((short)1);
 		ha=null;
-		
 		this.conn.connect();
 		System.out.println("connecting...");
-		System.out.println("Connected: "+Utils.byteArrayToHexString(this.conn.getReplyBytes()));
+		System.out.println("Connected: "+Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		System.out.println("Connected: "+Utils.byteArrayToHexString(l.getNetPackage()));
+		System.out.println("Connected: "+l.getNetPackage());
 		this.conn.sendPackage(l.getNetPackage());
 		
 
 		System.out.println("recieving auth...");
-		byte[] hahaha = this.conn.getReplyBytes();
+		byte[] hahaha = this.conn.getNextPackage();
 		System.out.println("recieved auth...");
 		//System.out.println(Utils.byteArrayToHexString(hahaha));
 		ICQPackage in = new ICQPackage(hahaha);
