@@ -85,6 +85,7 @@ public class ICQPackage {
 	 *            The entire package in byte[]
 	 */
 	public ICQPackage(byte[] p) {
+
 		this.pkg = p;
 		this.ch = this.pkg[1];
 		byte[] b = new byte[2];

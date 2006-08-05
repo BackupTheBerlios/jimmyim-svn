@@ -196,7 +196,7 @@ public class ICQProtocol extends Protocol {
 		this.conn.connect();
 		this.conn.sendPackage(l.getNetPackage());
 		
-
+		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
 		System.out.println("recieving auth...");
 		byte[] hahaha = this.conn.getNextPackage();
 		ICQPackage in = new ICQPackage(hahaha);
@@ -303,11 +303,36 @@ public class ICQProtocol extends Protocol {
 		//END STAGE FOUR
 		used_families=null;
 		
-		System.out.println(this.conn.getNumPackages());
-		
 		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		
+		out = new ICQPackage();
+		out.setSnac(1,30,0,6);
+		t = new ICQTlv();
+		byte[] h = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
+		t.setContent(h);
+		t.setHeader((short)0x0006,(short)t.getCLen());
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		b = this.conn.getNextPackage();
+		
+		System.out.println(Utils.byteArrayToHexString(b));
+		
+		out = new ICQPackage();
+		out.setSnac(19,4,0,157);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		b = this.conn.getNextPackage();
+		
+		System.out.println(Utils.byteArrayToHexString(b));
+		
+		b = this.conn.getNextPackage();
+		
+		System.out.println(Utils.byteArrayToHexString(b));
+
 		System.out.println(this.conn.getNumPackages());
-		System.out.println("AtEnd");
 		
 		return false;
 	}
