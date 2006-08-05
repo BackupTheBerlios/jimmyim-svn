@@ -261,5 +261,17 @@ public class ServerHandler
      * Returns true if the connection is established, false otherwise.
      */
     public boolean isConnected() {return connected_;}
+    
+    /**
+     * Sets a new url to connect to
+     * @param u the url String
+     */
+    public void setURL(String u) {this.url_ = u;}
+    
+    /**
+     * Sets tne new port to connect to
+     * @param p the port int number
+     */
+    public void setPort(int p) {this.outPort_ = p;}
 }
 

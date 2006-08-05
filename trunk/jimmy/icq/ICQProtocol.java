@@ -29,6 +29,7 @@ public class ICQProtocol extends Protocol {
 	//private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
 	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 	private String bos = "";
+	private int bos_port = 5190;
 	private short f_seq = 0;
 	private byte[] cookie;
 	private byte[] services;
@@ -169,40 +170,6 @@ public class ICQProtocol extends Protocol {
 		//END STAGE ONE
 		
 		//STAGE TWO
-
-		/*****************************/
-		/* A hack that seems to work */
-		/*****************************/
-		/*l = new ICQPackage();
-		
-		l.setChannel((byte)0x01);
-		byte[] v = {(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00};
-		l.setContent(v);
-		
-		t = new ICQTlv();
-		t.setHeader((short)0x0001,(short)(this.user.getBytes()).length);
-		t.setContent(this.user.getBytes());
-		l.addTlv(t);
-		t = new ICQTlv();
-		t.setHeader((short)0x0002,(short)(this.pass.getBytes()).length);
-		t.setContent(this.roast(this.pass.getBytes()));
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		t.setHeader((short)0x0003,(short)(this.cli_id.getBytes()).length);
-		t.setContent((this.cli_id.substring(0,12)).getBytes());
-		l.addTlv(t);
-		l.setFlap(++this.f_seq);
-		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
-		/*****************************/	
-		
-		//this.conn.sendPackage(l.getNetPackage());
-		
-		try{
-			Thread.sleep(2000);
-		}catch(InterruptedException e){
-			System.out.println("jebiga stari... taka so pravila...");
-		}
 		
 		l = new ICQPackage();
 		byte[] ha = new byte[4];
@@ -218,12 +185,17 @@ public class ICQProtocol extends Protocol {
 		l.setChannel((byte)0x01);
 		l.setFlap((short)1);
 		ha=null;
+		
+		//I SHOULD take the port toke too but...
+		this.bos = this.bos.substring(0,this.bos.indexOf(":"));
+		this.conn.setURL(this.bos);
+		
 		this.conn.connect();
 		System.out.println("connecting...");
 		System.out.println("Connected: "+Utils.byteArrayToHexString(this.conn.getNextPackage()));
-		System.out.println("Connected: "+Utils.byteArrayToHexString(l.getNetPackage()));
-		System.out.println("Connected: "+l.getNetPackage());
-		this.conn.sendPackage(l.getNetPackage());
+		ha = l.getNetPackage();
+		System.out.println("Connected: "+Utils.byteArrayToHexString(ha));
+		this.conn.sendPackage(ha);
 		
 
 		System.out.println("recieving auth...");

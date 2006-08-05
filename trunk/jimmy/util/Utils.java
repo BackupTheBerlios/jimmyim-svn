@@ -263,7 +263,18 @@ public class Utils {
             i++;
 
         }
-
+        for(int j = 2; j < in.length*3; j=j+2){
+        		out.insert(j,' ');
+        		j++;
+        }
+        for(int j = 24; j < Math.floor(in.length*3/24)+in.length*3; j=j+24){
+        		out.insert(j,' ');
+        		j++;
+        }
+        for(int j = 50; j < Math.floor(in.length*3/50)+Math.floor(in.length*3/24)+in.length*3; j=j+50){
+        		out.insert(j,'\n');
+        		j++;
+        }
         String rslt = new String(out);
 
         return rslt;
