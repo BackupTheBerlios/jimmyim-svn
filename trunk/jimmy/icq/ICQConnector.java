@@ -7,20 +7,32 @@ import jimmy.net.ServerHandler;
 import java.util.Vector;
 import jimmy.util.Utils;
 /**
+ * Used to feed the ICQProtocol instance with packages arriving from the server.
+ * The implementation is not clean. It has to be fixed.
+ * 
+ * TODO: Find another way for polling on the stream read buffer!
+ * 
  * @author dejan
  *
  */
 public class ICQConnector extends ServerHandler {
 	private Vector pkgs = null;
 	private final int TIMES_TO_TRY = 3;
+	
 	/**
-	 * 
+	 * constructs a new instance of this class using the supplide url and port
+	 * @param url the url/IP of the server to connect to
+	 * @param port the port on the server to connect to
 	 */
 	public ICQConnector(String url, int port) {
 		super(url, port);
 		this.pkgs = new Vector();
 	}
 	
+	/**
+	 * returns the next awaiting package in the buffer
+	 * @return package
+	 */
 	public byte[] getNextPackage(){
 		
 		if(this.pkgs.size() > 0){
@@ -30,7 +42,7 @@ public class ICQConnector extends ServerHandler {
 				p[i] = ((Byte)pk.elementAt(i)).byteValue();
 			}
 			this.pkgs.removeElementAt(0);
-			System.out.println(Utils.byteArrayToHexString(p));
+			//System.out.println(Utils.byteArrayToHexString(p));
 			return p;
 		}else{
 			byte[] b = super.getReplyBytes();
@@ -59,10 +71,18 @@ public class ICQConnector extends ServerHandler {
 		}
 	}
 	
+	/**
+	 * sends a package
+	 * @param p the NetPackage -> byte[] version of the package
+	 */
 	public void sendPackage(byte[] p){
 		super.sendRequest(p);
 	}
 	
+	/**
+	 * returns the number of packages in the package buffer
+	 * @return number of packages waiting
+	 */
 	public int getNumPackages(){
 		return this.pkgs.size();
 	}

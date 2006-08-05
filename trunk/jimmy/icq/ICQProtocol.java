@@ -5,13 +5,13 @@ package jimmy.icq;
 
 import java.util.Vector;
 import java.util.Random;
-import java.io.*;
+//import java.io.*;
 
 import jimmy.Account;
 import jimmy.ChatSession;
 import jimmy.Contact;
-import jimmy.Jimmy;
-import jimmy.net.*;
+//import jimmy.Jimmy;
+//import jimmy.net.*;
 import jimmy.util.*;
 import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
@@ -187,28 +187,23 @@ public class ICQProtocol extends Protocol {
 		ha=null;
 		
 		//I SHOULD take the port toke too but...
+		this.bos_port = Integer.parseInt(this.bos.substring(this.bos.indexOf(':')+1,this.bos.length()));
 		this.bos = this.bos.substring(0,this.bos.indexOf(":"));
+		this.conn.setPort(this.bos_port);
 		this.conn.setURL(this.bos);
 		
+		
 		this.conn.connect();
-		System.out.println("connecting...");
-		System.out.println("Connected: "+Utils.byteArrayToHexString(this.conn.getNextPackage()));
-		ha = l.getNetPackage();
-		System.out.println("Connected: "+Utils.byteArrayToHexString(ha));
-		this.conn.sendPackage(ha);
+		this.conn.sendPackage(l.getNetPackage());
 		
 
 		System.out.println("recieving auth...");
 		byte[] hahaha = this.conn.getNextPackage();
-		System.out.println("recieved auth...");
-		//System.out.println(Utils.byteArrayToHexString(hahaha));
 		ICQPackage in = new ICQPackage(hahaha);
 		this.services = in.getServices();
 		hahaha=null;
 		in = null;
-		//int bla = this.services.length;
 		this.service_ver = new byte[2*this.services.length];
-		//System.out.println(this.services.length);
 		Random rng = new Random();
 		
 		int j = 0;
@@ -224,11 +219,9 @@ public class ICQProtocol extends Protocol {
 		ver_req.setSnac(1,23,0,220);
 		ver_req.setFlap(++this.f_seq);
 		byte[] bla = ver_req.getNetPackage();
-		//System.out.println(Utils.byteArrayToHexString(bla));
 		this.conn.sendPackage(bla);
-		//ver_req = null;
+		
 		b = this.conn.getNextPackage();
-		//System.out.println(Utils.byteArrayToHexString(b));
 
 		if(b != null){
 			System.out.println("Service versions");
@@ -238,8 +231,7 @@ public class ICQProtocol extends Protocol {
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
-		//System.out.println(Utils.byteArrayToHexString(this.services));
-		//ICQPackage in = null;
+
 		/***************************************************/
 		/*	TODO or not: rate info negotiation			   */
 		/* has to use those rates - for now overriden	   */
@@ -250,14 +242,9 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		b = this.conn.getNextPackage();
-		//System.out.println(Utils.byteArrayToHexString(b));
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
-		//b = this.conn.getNextPackage();
-		//System.out.println(Utils.byteArrayToHexString(b));
-		//in = new ICQPackage(b);
-		//this.pkgDecode(in);
-		//System.out.println(Utils.byteArrayToHexString(b));
+
 		//END STAGE TWO
 		//STAGE THREE
 		out = new ICQPackage();
@@ -362,7 +349,6 @@ public class ICQProtocol extends Protocol {
 			System.out.println("Got Cookie");
 			this.bos = new String(t.getContent());
 			this.cookie = this.response.getTlv(2).getContent();
-			//System.out.println(Utils.byteArrayToHexString(this.cookie));
 			break;
 		case 6:
 			break;
@@ -384,7 +370,12 @@ public class ICQProtocol extends Protocol {
 		}
 	}
 	
-	
+	/**
+	 * Decodes the package
+	 *  
+	 * @param pak the package to decode
+	 * @return if can't decode returns false
+	 */
 	public boolean pkgDecode(ICQPackage pak){
 		if(pak.getChannel() == (byte)0x02){
 			int type = pak.getSnackType();
@@ -403,8 +394,6 @@ public class ICQProtocol extends Protocol {
 					ack.setSnac(1,8,0,pak.getSnackReqID());
 					ack.setContent(n);
 					ack.setFlap(++this.f_seq);
-					//byte[] b = ack.getNetPackage();
-					//System.out.println(Utils.byteArrayToHexString(b));
 					this.conn.sendPackage(ack.getNetPackage());
 					break;
 				case 0x0013:

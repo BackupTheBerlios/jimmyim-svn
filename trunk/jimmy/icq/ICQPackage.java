@@ -64,8 +64,8 @@ public class ICQPackage {
 	 * Creates a new instance of this class and sets the size of the package in
 	 * advance
 	 * 
-	 * @param data_size
-	 *            The size of the data you will send
+	 * @param data_size The size of the data you will send
+	 * @param c
 	 */
 	public ICQPackage(int data_size,byte c) {
 		this.ch = c;
@@ -100,7 +100,11 @@ public class ICQPackage {
 		}
 	}
 
-	
+	/**
+	 * Dismantles the incoming package to their subpackages or pure data using the protocol definition.
+	 * This method changes during the implementation.
+	 *
+	 */
 	public void dismantle(){
 		int header = ICQPackage.FLAP_HEADER_SIZE;
 		if(this.ch == 0x02){
@@ -207,6 +211,10 @@ public class ICQPackage {
 		}
 	}
 
+	/**
+	 * returns the pure byte content of the FLAP/SNAC
+	 * @return
+	 */
 	public byte[] getContent(){
 		int header = ICQPackage.FLAP_HEADER_SIZE;
 		if(this.ch == 0x02)
@@ -248,6 +256,11 @@ public class ICQPackage {
 			return b;
 	}
 	
+	/**
+	 * returns the byte array to send to the server as the package
+	 * 
+	 * @return the package
+	 */
 	public byte[] getNetPackage() {
 		Vector v = new Vector();
 			for (int i = 0; i < this.pkg.length; i++) {
@@ -377,10 +390,20 @@ public class ICQPackage {
 		return this.flap_size;
 	}
 
+	/**
+	 * Sets the size of the FLAP content in the header
+	 * 
+	 * @param s the data size
+	 */
 	public void setFlapSize(int s) {
 		this.flap_size = s;
 	}
-
+	
+	/**
+	 * Returns the size of all TLVs together
+	 * 
+	 * @return the TLV package part size
+	 */
 	public int getTlvSize() {
 		int l = 0;
 		if(this.tlvs != null){
@@ -394,10 +417,20 @@ public class ICQPackage {
 		return l;
 	}
 
+	/**
+	 * returns the TLV on the @param ind index in the TLV vector
+	 * 
+	 * @param ind the index of the TLV
+	 * @return the wanted TLV
+	 */
 	public ICQTlv getTlv(int ind){
 		return (ICQTlv)this.tlvs.elementAt(ind);
 	}
 	
+	/**
+	 * Returns the FLAP
+	 * @return
+	 */
 	public byte[] getHeader(){
 		byte[] b = new byte[6];
 		b[0] = 0x2a;
@@ -409,18 +442,38 @@ public class ICQPackage {
 		return b;
 	}
 	
+	/**
+	 * Returns the package size
+	 * 
+	 * @return
+	 */
 	public int getSize() {
 		int l = 0;
 		l = this.getTlvSize() + this.pkg.length;
 		return l;
 	}
 	
+	/**
+	 * returns the supported services for a part of the login sequence
+	 * 
+	 * @return
+	 */
 	public byte[] getServices(){
 		return this.s;
 	}
 	
+	/**
+	 * Returns the FLAP channel
+	 * 
+	 * @return the channel
+	 */
 	public byte getChannel(){return this.ch;}
 	
+	/**
+	 * Returns the snack falmily
+	 * 
+	 * @return the snack family
+	 */
 	public int getSnackType(){
 		byte[] b = new byte[2];
 		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE];
@@ -428,6 +481,11 @@ public class ICQPackage {
 		return Utils.bytesToInt(b,true);
 	}
 	
+	/**
+	 * Returns the snack subFamily
+	 * 
+	 * @return snack subfamily
+	 */
 	public int getSnackSubType(){
 		byte[] b = new byte[2];
 		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+2];
@@ -435,6 +493,11 @@ public class ICQPackage {
 		return Utils.bytesToInt(b,true);
 	}
 	
+	/**
+	 * Returns the SNACK request ID
+	 * 
+	 * @return ID
+	 */
 	public int getSnackReqID(){
 		byte[] b = new byte[4];
 		b[3] = this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE-1];
