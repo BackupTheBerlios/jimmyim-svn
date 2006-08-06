@@ -303,7 +303,7 @@ public class ICQProtocol extends Protocol {
 		//END STAGE FOUR
 		used_families=null;
 		
-		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		System.out.println("Testiramo: \n"+Utils.byteArrayToHexString(this.conn.getNextPackage()));
 		
 		out = new ICQPackage();
 		out.setSnac(1,30,0,6);
@@ -315,6 +315,8 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
+		
+		
 		b = this.conn.getNextPackage();
 		
 		System.out.println(Utils.byteArrayToHexString(b));
@@ -324,21 +326,28 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
-		b = this.conn.getNextPackage();
-		
-		System.out.println(Utils.byteArrayToHexString(b));
+
 		
 		b = this.conn.getNextPackage();
-		
 		System.out.println(Utils.byteArrayToHexString(b));
-		
 		b = this.conn.getNextPackage();
-		
 		System.out.println(Utils.byteArrayToHexString(b));
 		
+		
+		//Buddy list
 		b = this.conn.getNextPackage();
-		
+		//in = new ICQPackage(b);
+		//this.pkgDecode(in);
 		System.out.println(Utils.byteArrayToHexString(b));
+
+		
+		
+		/*
+		
+		System.out.println(this.conn.getNumPackages());
+		b = this.conn.getNextPackage();
+
+		System.out.println(Utils.byteArrayToHexString(b));*/
 
 		System.out.println(this.conn.getNumPackages());
 		
@@ -454,6 +463,13 @@ public class ICQProtocol extends Protocol {
 					this.conn.sendPackage(cp.getNetPackage());
 					cap = null;
 					cp = null;
+					break;
+				}
+				break;
+			case 0x0013:
+				switch(subtype){
+				case 0x0006:
+					
 					break;
 				}
 				break;

@@ -242,8 +242,18 @@ public class Utils {
 
         StringBuffer out = new StringBuffer(in.length * 2);
 
+        byte[] chars = new byte[in.length];
         
+        for(int j = 0; j < in.length; j++){
+        		//System.out.println(in[j]);
+        		if(in[j] < (byte)0x21 || in[j] > (byte)0x7E){
+        			chars[j] = (byte)46;
+        		}else{
+        			chars[j] = in[j];
+        		}
+        }
 
+        
         while (i < in.length) {
 
             ch = (byte) (in[i] & 0xF0); // Strip off high nibble
@@ -275,7 +285,31 @@ public class Utils {
         		out.insert(j,'\n');
         		j++;
         }
-        String rslt = new String(out);
+        
+        
+        String txt = new String(chars);
+        String r = new String(out);
+        int ind1 = 0;
+        int ind2 = 50;
+        int at1 = 0;
+        int at2 = 16;
+        StringBuffer sb = new StringBuffer();
+        for(int j = 0; j < Math.floor(out.length()/51); j++){
+        		sb.append(r.substring(ind1,ind2)+ "   "+txt.substring(at1,at2)+"\n");
+        		ind1 = ind2+1;
+        		ind2 = ind2+51;
+        		at1=at1+16;
+        		at2=at2+16;
+        }
+        ind2 = r.length();
+        at2 = txt.length();
+        String remains = r.substring(ind1,ind2);
+        sb.append(remains);
+        for(int j = 0; j < 53-remains.length();j++)
+        		sb.append(" ");
+        sb.append(txt.substring(at1,at2)+"\n");
+        out = null;
+        String rslt = new String(sb);
 
         return rslt;
 

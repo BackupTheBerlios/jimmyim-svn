@@ -172,6 +172,8 @@ public class ICQPackage {
 					break;
 				}
 				break;
+			case 0x0013:
+				break;
 			}
 		}
 	}
