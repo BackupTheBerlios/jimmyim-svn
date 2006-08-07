@@ -250,6 +250,7 @@ public class MSNProtocol extends Protocol
             System.out.println("Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
             System.out.println("Logout successful.");
+	    Thread.yield();
     }
     /*public long longToHex(long n)
     {
@@ -612,6 +613,10 @@ public class MSNProtocol extends Protocol
         {
             parseContacts(reply);
         }     
+        if(reply.indexOf("NLN")!=-1)
+        {
+            changePresence(reply);
+        }     	
         if(reply.indexOf("CHL")!=-1)
         {
             //parseChallenge(reply);
@@ -649,19 +654,14 @@ public class MSNProtocol extends Protocol
                 }
             }
 	    int marker = data.indexOf("X-MMS-IM-Format:");
-	    int marker2 = data.indexOf("MSG", 10);
-	    if(marker2==-1)
+	    System.out.println("Message:"+ marker + data.substring(data.indexOf("\n",marker+4)+3));
+	    String message = data.substring(data.indexOf("\n",marker+4)+3);
+	    int marker2 = message.indexOf("MSG");
+	    if (marker2!=-1) 
 	    {
-		System.out.println("Message:"+ marker + data.substring(data.indexOf("\n",marker+4)+3));
-
-		this.jimmy_.msgRecieved(activeCS, c, data.substring(data.indexOf("\n",marker+4)+3));	    
-	    }
-	    else
-	    {
-		System.out.println("Message:"+ marker + data.substring(data.indexOf("\n",marker+4)+3,marker2));
-
-		this.jimmy_.msgRecieved(activeCS, c, data.substring(data.indexOf("\n",marker+4)+3,marker2));	    
-	    }
+		message = message.substring(0, marker2);
+	    } 
+	    this.jimmy_.msgRecieved(activeCS, c, message);	    
 
         }
     }
@@ -760,11 +760,44 @@ public class MSNProtocol extends Protocol
             c = (Contact)this.contacts_.elementAt(i);
             if(uID.compareTo(c.userID())==0)
             {
-                break;
+                 break;
             }
         }
         c.setStatus(Contact.ST_OFFLINE);
         this.jimmy_.changeContactStatus(c);
+    }
+    private void changePresence(String data)
+    {
+	String presence = data.substring(4, 7);
+	String uID = data.substring(8, data.indexOf(" ", 10));
+	System.out.println("Presence:"+presence+", Uid:"+uID);
+	Contact con = null;
+	for(int i=0; i<this.contacts_.size(); i++)
+	{
+	 con = (Contact)this.contacts_.elementAt(i);
+	 if(con.userID().compareTo(uID)==0)
+	 {
+	    if(presence.compareTo("BSY")==0)
+	    {
+		con.setStatus(Contact.ST_BUSY);  
+	    }
+	    else if((presence.compareTo("IDL")==0) || (presence.compareTo("NLN")==0))
+	    {
+		con.setStatus(Contact.ST_ONLINE);
+	    }   
+	    else if(presence.compareTo("AWY")==0)
+	    {
+		con.setStatus(Contact.ST_AWAY);
+	    }  
+	    else
+	    {
+		con.setStatus(Contact.ST_ONLINE);
+	    }
+		
+	    this.jimmy_.changeContactStatus(con);
+	 }  
+	}	
+	
     }
     private void startSession(String line)
     {
@@ -895,6 +928,11 @@ public class MSNProtocol extends Protocol
                     {
                         con.setStatus(Contact.ST_AWAY);
                     }  
+		    else
+		    {
+			con.setStatus(Contact.ST_ONLINE);
+		    }
+			   
                     this.jimmy_.changeContactStatus(con);
                  }  
              }
