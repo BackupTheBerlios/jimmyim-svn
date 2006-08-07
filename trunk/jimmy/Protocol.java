@@ -188,4 +188,10 @@ public abstract class Protocol implements Runnable
      * @return Protocol type defined in interface ProtocolType
      */
     public byte getType() {return protocolType_;}
+    
+    /**
+     *  Removes existing contact.
+     *  @param c contact to be removed
+     */
+    public abstract boolean removeContact();
 }
