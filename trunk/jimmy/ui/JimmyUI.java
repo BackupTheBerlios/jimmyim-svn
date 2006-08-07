@@ -75,10 +75,10 @@ public class JimmyUI {
 	final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
 	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
 	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
-        final private static Command cmdDel    = new Command("Delete",      Command.ITEM,   1);
+        final private static Command cmdDel    = new Command("Remove contact",      Command.ITEM,   1);
         final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
         final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
-        final private static Command cmdNewCont= new Command("New contact", Command.ITEM,   1);
+        final private static Command cmdNewCont= new Command("Add contact", Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
