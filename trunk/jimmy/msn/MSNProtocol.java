@@ -1187,12 +1187,7 @@ public class MSNProtocol extends Protocol
         this.tr.addArgument("SB");
         this.sh.sendRequest(this.tr.toString());
         System.out.println(this.tr.toString());
-        try {
-            Thread.sleep((2000));
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        String line = this.sh.getReply();
+        String line = null;
         this.busy = false;
         System.out.println("Ime:"+c.screenName());
         System.out.println("Test:"+line);
