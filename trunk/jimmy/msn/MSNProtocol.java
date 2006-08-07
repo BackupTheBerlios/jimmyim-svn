@@ -93,7 +93,7 @@ public class MSNProtocol extends Protocol
      */
     public boolean login(Account acc)
     {
-        return false;
+        return this.login(acc.getUser(), acc.getPassword());
     }    
     /**
      * This function logs a user to MSN service. A valid username& password is required to perform this task.
@@ -194,14 +194,6 @@ public class MSNProtocol extends Protocol
                     this.status_ = WRONG_PASSWORD;
                     return false;
                 }
-                //System.out.println("Ticket:" + ticket);
-                
-                if(ticket == null)
-                {
-                    this.connected_ = false;
-                    return false;
-                }
-                
                 this.tr.newTransaction();    
                 this.tr.setType("USR");
                 this.tr.addArgument("TWN S");
@@ -219,7 +211,7 @@ public class MSNProtocol extends Protocol
              
                 this.tr.newTransaction();
                 this.tr.setType("CHG");
-                this.tr.addArgument("BSY");
+                this.tr.addArgument("NLN");
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
                 //System.out.println(this.tr.toString());                           
@@ -232,7 +224,7 @@ public class MSNProtocol extends Protocol
                     parseReply(reply);
                 }    
                 this.status_ = CONNECTED;
-                startThread();
+                this.thread_.start();
                 return true;
         }
         catch (Exception e)
@@ -250,7 +242,7 @@ public class MSNProtocol extends Protocol
             System.out.println("Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
             System.out.println("Logout successful.");
-	    Thread.yield();
+	    this.thread_.yield();
     }
     /*public long longToHex(long n)
     {
@@ -604,6 +596,10 @@ public class MSNProtocol extends Protocol
         if(reply.indexOf("XFR")!=-1)
         {
             startSession(reply);
+        } 
+	if(reply.indexOf("OUT")!=-1)
+        {
+            this.logout();
         } 
         if(reply.indexOf("FLN")!=-1)
         {
