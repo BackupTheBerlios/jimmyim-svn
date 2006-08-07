@@ -48,9 +48,9 @@ public class ICQConnector extends ServerHandler {
 			byte[] b = super.getReplyBytes();
 			int h = 0;
 			if(b == null){
-				while(b==null || h>this.TIMES_TO_TRY){
+				while(b==null ){
 					b = super.getReplyBytes();
-					h++;
+					
 				}
 			}
 			for(int i = 0; i < b.length;){

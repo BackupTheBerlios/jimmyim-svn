@@ -5,6 +5,8 @@ package jimmy.icq;
 
 import java.util.Vector;
 import java.util.Random;
+
+import com.sun.midp.io.Util;
 //import java.io.*;
 
 import jimmy.Account;
@@ -334,11 +336,12 @@ public class ICQProtocol extends Protocol {
 		System.out.println(Utils.byteArrayToHexString(b));
 		
 		
-		//Buddy list
+		//Contact list
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
-		this.pkgDecode(in);
 		System.out.println(Utils.byteArrayToHexString(b));
+		this.pkgDecode(in);
+		
 
 		
 		
@@ -470,6 +473,81 @@ public class ICQProtocol extends Protocol {
 			case 0x0013:
 				switch(subtype){
 				case 0x0006:
+					byte[] pkg = pak.getContent();
+					
+					int start_point = 9;
+					
+					byte[] it = new byte[2];
+					it[0] = pkg[start_point];
+					it[1] = pkg[start_point+1];
+					short items = Utils.bytesToShort(it,true); 
+					it=null;
+					start_point += 2;
+					
+					for(short i = 0; i < items; i++){
+						int item_name_len = 0;
+						it = new byte[2];
+						it[0] = pkg[start_point];
+						it[1] = pkg[start_point+1];
+						start_point += 2;
+						item_name_len = Utils.bytesToInt(it,true);
+						
+						byte[] item_name = new byte[item_name_len];
+						
+						for(int j = start_point; j < start_point+item_name_len; j++){
+							item_name[j-start_point] = pkg[j];
+						}
+						
+						start_point += item_name_len;
+						it[0] = pkg[start_point];
+						it[1] = pkg[start_point+1];
+						int gid = Utils.bytesToInt(it,true);
+						
+						start_point += 2;
+						
+						it[0] = pkg[start_point];
+						it[1] = pkg[start_point+1];
+						int iid = Utils.bytesToInt(it,true);
+						
+						start_point += 2;
+						
+						it[0] = pkg[start_point];
+						it[1] = pkg[start_point+1];
+						int itid = Utils.bytesToInt(it,true);
+						
+						start_point += 2;
+						
+						it[0] = pkg[start_point];
+						it[1] = pkg[start_point+1];
+						int data_len = Utils.bytesToInt(it,true);
+						
+						start_point += 2;
+						
+						byte[] data = new byte[data_len];
+						for(int j = start_point; j < start_point+data_len; j++){
+							data[j-start_point] = pkg[j];
+						}
+						start_point += data_len;
+						
+						System.out.println("item:");
+						System.out.print("#items:");
+						System.out.println(items);
+						System.out.print("Item name len: ");
+						System.out.println(item_name_len);
+						System.out.print("Item name: ");
+						System.out.println(new String(item_name));
+						System.out.print("GID: ");
+						System.out.println(gid);
+						System.out.print("IID: ");
+						System.out.println(iid);
+						System.out.print("ITID:");
+						System.out.println(itid);
+						System.out.print("Data len:");
+						System.out.println(data_len);
+						System.out.print("Data:");
+						System.out.println(Utils.byteArrayToHexString(data));
+					}
+					
 					
 					break;
 				}
