@@ -53,7 +53,7 @@ public abstract class Protocol implements Runnable
     protected byte protocolType_; //protocol type (Jabber, ICQ, MSN - see the constants above)
     protected Account account_;	//account which this protocol is assigned to
 
-    private Thread thread_;
+    protected Thread thread_;
     
     /**
      * Class constructor.
@@ -64,13 +64,6 @@ public abstract class Protocol implements Runnable
     	this.jimmy_ = jimmy;
     	this.chatSessionList_ = new Vector();
     	this.thread_ = new Thread(this);
-    }
-    
-    /**
-     * Start the thread. This calls Protocol.run() in a separate process.
-     */
-    public void startThread() {
-    	this.thread_.start();
     }
     
     /**
@@ -105,6 +98,13 @@ public abstract class Protocol implements Runnable
     public byte getStatus() {
     	return status_;
     }
+    
+    /**
+     * Returns the account which corresponds to this Protocol.
+     * 
+     * @return Account which this Protocol represents.
+     */
+    public Account getAccount() { return account_; }
     
     /**
      * Returns active chat sessions list.
