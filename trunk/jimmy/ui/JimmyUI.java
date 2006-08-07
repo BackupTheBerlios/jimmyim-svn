@@ -290,7 +290,7 @@ public class JimmyUI {
             //commads from about page
             else if(d == scrAbout){
                 if(c == cmdBack){
-                    jimmy_.setDisplay(scrMenu);                    
+                    jimmy_.setDisplay(scrContacts);                    
                 }// c == cmdBack
             }// if d == scrAbout
             else if(d == scrNewCont){

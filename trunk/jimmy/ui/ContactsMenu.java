@@ -63,11 +63,11 @@ public class ContactsMenu extends List implements CommandListener {
         //add commands
         addCommand((Command)commands_.get(new Integer(ui_.CMD_EXIT)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_CHAT)));
-        addCommand((Command)commands_.get(new Integer(ui_.CMD_ACC)));
-        addCommand((Command)commands_.get(new Integer(ui_.CMD_ABOUT)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_NEWCONT)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_DEL)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_EDIT)));
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_ACC)));        
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_ABOUT)));
         
     }// ContactsMenu()
     
@@ -125,8 +125,9 @@ public class ContactsMenu extends List implements CommandListener {
     }//setContacts()
     
     public void addContact(Contact c){
-        this.contacts_.addElement(c);
-        this.append(c.screenName(),null);
+        Vector contact = new Vector();
+        contact.addElement(c);
+        this.addContacts(contact);
     }
     
     /**
@@ -267,6 +268,9 @@ public class ContactsMenu extends List implements CommandListener {
      * Called when action should be handled
      */
     public void commandAction(Command c, Displayable d) {
+        if(c == (Command)commands_.get(new Integer(ui_.CMD_DEL))){
+            int sel = this.getSelectedIndex();
+        }
         JimmyUI.jimmyCommand(c,d);
     }
     
