@@ -221,7 +221,8 @@ public class JabberParseXML {
 	static void allowContact(Contact c, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		String oString = "<presence from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "' type='subscribed'/>";
 		protocol.getServerHandler().sendRequest(oString);
-		protocol.addContact(c);
+                jimmy.addContact(c);
+		protocol.addContact(c);              
 	}
 	
 	static String parseIq(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
