@@ -33,7 +33,7 @@ public class Account {
     private String username_;	//login username
     private String password_;	//login password
     private String server_;		//login server name (optional)
-    private int port_;	//server port (optional)
+    private int port_ = 0;	//server port (optional)
     private boolean autoLogin_;	//automatically login at startup
     private boolean connected_;
     
