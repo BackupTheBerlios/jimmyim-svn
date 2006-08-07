@@ -1424,7 +1424,6 @@ public class MSNProtocol extends Protocol
             parseReply(this.sh.getReply());
             System.out.println("end of wihle loop **************");
         }  
-        
     }
     public boolean removeContact(Contact c)
     {
