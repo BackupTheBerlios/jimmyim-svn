@@ -342,7 +342,7 @@ public class ICQProtocol extends Protocol {
 		System.out.println(Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
 		
-
+		
 		
 		
 		/*
@@ -472,7 +472,7 @@ public class ICQProtocol extends Protocol {
 				break;
 			case 0x0013:
 				switch(subtype){
-				case 0x0006:
+				case 0x0006://ROSTER reply
 					byte[] pkg = pak.getContent();
 					
 					int start_point = 9;
@@ -484,6 +484,8 @@ public class ICQProtocol extends Protocol {
 					it=null;
 					start_point += 2;
 					
+					String[] groups = new String[items];
+					this.contacts_ = new Vector();
 					for(short i = 0; i < items; i++){
 						int item_name_len = 0;
 						it = new byte[2];
@@ -529,7 +531,7 @@ public class ICQProtocol extends Protocol {
 						}
 						start_point += data_len;
 						
-						System.out.println("item:");
+						/*System.out.println("item:");
 						System.out.print("#items:");
 						System.out.println(items);
 						System.out.print("Item name len: ");
@@ -546,9 +548,32 @@ public class ICQProtocol extends Protocol {
 						System.out.println(data_len);
 						System.out.print("Data:");
 						System.out.println(Utils.byteArrayToHexString(data));
+						*/
+						
+						//here we can check the groups that can see you but on the GSM...
+						if(itid == 1){ //if group
+							groups[gid] = new String(item_name);
+						}else if(itid == 0){ //if buddy 
+							Contact ct = new Contact(new String(item_name),this);
+							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
+								it[0] = data[2];
+								it[1] = data[3];
+								int l = Utils.bytesToInt(it,true);
+								byte[] nick = new byte[l];
+								for(int k = 0; k < l; k++){
+									nick[k] = data[k+4];
+								}
+								System.out.println(new String(item_name)+" : "+new String(nick)
+										+" in group: "+ groups[gid]);
+								ct.setScreenName(new String(nick));
+								ct.setGroupName(groups[gid]);
+								this.contacts_.addElement(ct);
+							}
+							
+						}
 					}
-					
-					
+					groups = null;
+					pkg = null;
 					break;
 				}
 				break;
@@ -583,4 +608,9 @@ public class ICQProtocol extends Protocol {
     public void addContact(Contact c){
 	    
     }
+
+	public boolean removeContact() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
