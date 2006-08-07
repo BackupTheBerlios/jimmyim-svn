@@ -52,6 +52,7 @@ public class JimmyUI {
         final public static int CMD_EDIT   = 14;
         final public static int CMD_ACC    = 15;
         final public static int CMD_NEWCONT= 16;
+        final public static int CMD_DELCONT= 17;
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -72,13 +73,14 @@ public class JimmyUI {
 	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);
 	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   3);
 	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
-	final private static Command cmdNew    = new Command("New account", Command.ITEM,   1);
+	final private static Command cmdNew    = new Command("New", Command.ITEM,   1);
 	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
 	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
-        final private static Command cmdDel    = new Command("Remove contact",      Command.ITEM,   1);
+        final private static Command cmdDel    = new Command("Remove",      Command.ITEM,   1);
         final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
         final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
         final private static Command cmdNewCont= new Command("Add contact", Command.ITEM,   1);
+        final private static Command cmdDelCont= new Command("Remove contact",Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -105,6 +107,7 @@ public class JimmyUI {
                 commands_.put(new Integer(CMD_EDIT),    cmdEdit     );
                 commands_.put(new Integer(CMD_ACC),     cmdAccount  );
                 commands_.put(new Integer(CMD_NEWCONT), cmdNewCont  );
+                commands_.put(new Integer(CMD_DELCONT), cmdDelCont  );
 	}
         
 	//Screens

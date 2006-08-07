@@ -51,10 +51,10 @@ public class MainMenu extends List implements CommandListener {
         
         //add commands to menu
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
-        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_NEW)  ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_LOGIN)));
-        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_DEL)));
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_NEW)  ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EDIT)));
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_DEL)));
         
         //add accounts to menu
         this.al_ = new Vector();
