@@ -155,7 +155,7 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("MSNP10");
                 this.tr.addArgument("CVR0");
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 parseReply(this.sh.getReply());    
                 //System.out.println("*************************************");
                 
@@ -615,6 +615,12 @@ public class MSNProtocol extends Protocol
         }     	
         if(reply.indexOf("CHL")!=-1)
         {
+	    //>>> REM 61 AL name@hotmail.com
+	    /*this.tr.newTransaction();
+	    this.tr.setType("REM");
+	    this.tr.addArgument("AL matevz.jekovec@guest.arnes.si");
+	    this.sh.sendRequest(this.tr.toString());
+	    return;*/	    
             //parseChallenge(reply);
             //System.gc();    // let's clean this mess
         }     
@@ -691,7 +697,7 @@ public class MSNProtocol extends Protocol
                 c=data.charAt(i);
             }
             
-            //System.out.println("Parsed contact line:"+contact.toString());
+            System.out.println("Parsed contact line:"+contact.toString());
             
              // parse email
             ind = contact.toString().indexOf("N=");           
@@ -707,6 +713,11 @@ public class MSNProtocol extends Protocol
             
             // parse nickname
             ind = contact.toString().indexOf("F=");
+	    if(ind==-1)
+	    {
+		t=-1;
+		continue;
+	    }
             i = ind+2;
             username = new StringBuffer();
             while((c=contact.charAt(i))!= ' ')
@@ -764,9 +775,20 @@ public class MSNProtocol extends Protocol
     }
     private void changePresence(String data)
     {
+	if(data.length()<20 || data.substring(0,3).compareTo("NLN")!=0)
+	{
+	    //this.logout();
+	    return;
+	    /*Contact c = (Contact)this.contacts_.elementAt(0);
+	    c.setStatus(Contact.ST_ONLINE);
+	    this.jimmy_.changeContactStatus(c);
+	    return;*/
+	}
+	
 	String presence = data.substring(4, 7);
 	String uID = data.substring(8, data.indexOf(" ", 10));
-	System.out.println("Presence:"+presence+", Uid:"+uID);
+	
+	System.out.println(data+"Presence:"+presence+", Uid:"+uID);
 	Contact con = null;
 	for(int i=0; i<this.contacts_.size(); i++)
 	{
@@ -1404,8 +1426,37 @@ public class MSNProtocol extends Protocol
         }  
         
     }
-    
-    public void addContact(Contact c){
-	    
+    public boolean removeContact(Contact c)
+    {
+
+	Contact con=null;
+	for(int i=0; i<this.contacts_.size(); i++)
+	{
+	     con = (Contact)this.contacts_.elementAt(i);
+	     if(con.userID().compareTo(c.userID())==0)
+	     {
+		 this.tr.newTransaction();
+		 this.tr.setType("REM");
+		 this.tr.addArgument("AL "+c.userID());
+		 this.sh.sendRequest(this.tr.toString());
+		 this.contacts_.removeElementAt(i);
+		 return true;
+	     }
+	}
+	return false;
+    }
+    public void addContact(Contact c)
+    {
+	//ADC 16 FL N=passport@hotmail.com F=Display%20Name\r\n
+	if(this.contacts_==null)
+	{
+	    this.contacts_=new Vector();
+	}
+	    this.contacts_.addElement(c);
+	    this.tr.newTransaction();
+	    this.tr.setType("ADC");
+	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
+	    System.out.println(this.tr.toString());
+	    this.sh.sendRequest(this.tr.toString());    
     }
 }
