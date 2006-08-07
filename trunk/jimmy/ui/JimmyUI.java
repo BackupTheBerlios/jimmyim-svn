@@ -73,7 +73,7 @@ public class JimmyUI {
 	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);
 	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   3);
 	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
-	final private static Command cmdNew    = new Command("New", Command.ITEM,   1);
+	final private static Command cmdNew    = new Command("New",         Command.ITEM,   1);
 	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
 	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
         final private static Command cmdDel    = new Command("Remove",      Command.ITEM,   1);
