@@ -108,5 +108,9 @@ public class YahooProtocol extends Protocol {
 		// TODO Auto-generated method stub
 
 	}
+        
+        public boolean removeContact(Contact c){
+            return false;
+        }
 
 }

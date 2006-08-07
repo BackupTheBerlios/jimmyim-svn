@@ -117,6 +117,14 @@ public class EditContact extends Form implements CommandListener{
         groups_.append(g,null);
     }
     
+    public void clearForm(){
+        accounts_.setSelectedIndex(0,true);
+        userID_.setString("");
+        screenName_.setString("");
+        groups_.setSelectedIndex(0,true);
+        otherGroup_.setString("");
+    }
+    
     private Image chooseImage(Account a){
         Image i = null;
 	try{

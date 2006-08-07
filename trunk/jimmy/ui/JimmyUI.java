@@ -294,7 +294,8 @@ public class JimmyUI {
                 }// c == cmdBack
             }// if d == scrAbout
             else if(d == scrNewCont){
-                    jimmy_.setDisplay(scrContacts);                
+                scrNewCont.clearForm();
+                jimmy_.setDisplay(scrContacts);                
             }
             else if(scrChats.contains(d)){
                 if(c == cmdBack)
