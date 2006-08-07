@@ -111,6 +111,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 							current.setConnected(yahoo.login(current));
 							break;
 					} //switch
+                                        ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 				} //for i < newConnections_.size()
                     
 				newConnections_ = null;

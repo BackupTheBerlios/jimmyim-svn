@@ -51,6 +51,7 @@ public class JimmyUI {
         final public static int CMD_DEL    = 13;
         final public static int CMD_EDIT   = 14;
         final public static int CMD_ACC    = 15;
+        final public static int CMD_NEWCONT= 16;
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -77,6 +78,7 @@ public class JimmyUI {
         final private static Command cmdDel    = new Command("Delete",      Command.ITEM,   1);
         final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
         final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
+        final private static Command cmdNewCont= new Command("New contact", Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -102,6 +104,7 @@ public class JimmyUI {
                 commands_.put(new Integer(CMD_DEL),     cmdDel      );
                 commands_.put(new Integer(CMD_EDIT),    cmdEdit     );
                 commands_.put(new Integer(CMD_ACC),     cmdAccount  );
+                commands_.put(new Integer(CMD_NEWCONT), cmdNewCont  );
 	}
         
 	//Screens
@@ -111,6 +114,7 @@ public class JimmyUI {
 	private static ContactsMenu scrContacts;
 	private static About        scrAbout;
 	private static Hashtable    scrChats;
+        private static EditContact  scrNewCont;
 	
 	//private Vector contacts_;
         
@@ -141,7 +145,8 @@ public class JimmyUI {
 		scrNewAcc =     new NewAccount();
 		scrAbout =      new About(about_);
 		scrChats =	new Hashtable();
-		scrContacts =   new ContactsMenu();		
+		scrContacts =   new ContactsMenu();
+                scrNewCont =    new EditContact();
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
@@ -182,6 +187,14 @@ public class JimmyUI {
 		}
 	    
 	}
+        
+        public void accountConnected(Account a, Protocol p){
+            scrNewCont.addAccount(a,p);
+        }
+        
+        public void newGroup(String g){
+            scrNewCont.addGroup(g);
+        }
 	
 	public static void jimmyCommand(Command c, Displayable d) {
             //commands from main menu
@@ -270,18 +283,24 @@ public class JimmyUI {
                 else if(c == cmdAbout){
                     jimmy_.setDisplay(scrAbout);                    
                 }//if c == cmdAbout                
+                else if(c == cmdNewCont){
+                    jimmy_.setDisplay(scrNewCont);
+                }
             }//d == scrContacts
-            
             //commads from about page
             else if(d == scrAbout){
                 if(c == cmdBack){
                     jimmy_.setDisplay(scrMenu);                    
                 }// c == cmdBack
             }// if d == scrAbout
+            else if(d == scrNewCont){
+                    jimmy_.setDisplay(scrContacts);                
+            }
             else if(scrChats.contains(d)){
                 if(c == cmdBack)
                     jimmy_.setDisplay(scrContacts);
             }
+
 	}
         
         /*

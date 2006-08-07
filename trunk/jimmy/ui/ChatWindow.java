@@ -46,7 +46,6 @@ public class ChatWindow extends Form implements CommandListener {
         //add commands to menu
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_SEND) ));        
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
-        //addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EXIT) ));
         
 	//add text field
 	this.append(tf_);
@@ -59,7 +58,7 @@ public class ChatWindow extends Form implements CommandListener {
 	    String msg = ((TextField)get(size()-1)).getString();
 	    ((TextField)get(size()-1)).setString("");
 	    
-	    cs_.sendMsg(msg);
+            cs_.sendMsg(msg);
 	    this.insert(size()-1,new StringItem("Me - "+time+":",null));
 	    this.insert(size()-1,new StringItem(null,msg));
 	}

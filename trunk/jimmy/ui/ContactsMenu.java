@@ -65,6 +65,7 @@ public class ContactsMenu extends List implements CommandListener {
         addCommand((Command)commands_.get(new Integer(ui_.CMD_CHAT)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_ACC)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_ABOUT)));
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_NEWCONT)));
         
     }// ContactsMenu()
     
@@ -101,6 +102,7 @@ public class ContactsMenu extends List implements CommandListener {
 		group = new Vector();
 		contacts_.addElement(group);
 		this.append("--=="+current.groupName()+"==--",null);
+                ui_.newGroup(current.groupName());
 	    }
 	    
 	    if(current.screenName() != null)
@@ -184,22 +186,7 @@ public class ContactsMenu extends List implements CommandListener {
 	else
 	    name = new String(currentContact.userID());
 	
-	/*switch(c.status()){
-	    case Contact.ST_OFFLINE:
-		name = name.concat(" - offline");
-		break;
-	    case Contact.ST_AWAY:
-		name = name.concat(" - away");
-		break;
-	    case Contact.ST_BUSY:
-		name = name.concat(" - busy");
-		break;
-	    case Contact.ST_ONLINE:
-		name = name.concat(" - online");
-		break;	
-	}*/
-	
-	this.set(screenIndex,name,chooseImage(currentContact));	
+        this.set(screenIndex,name,chooseImage(currentContact));	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
     }
     

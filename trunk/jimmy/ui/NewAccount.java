@@ -58,7 +58,7 @@ public class NewAccount extends Form implements CommandListener {
      * constructor
      */
     public NewAccount() {
-        super("Add new account:");
+        super("Add/edit account:");
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         
