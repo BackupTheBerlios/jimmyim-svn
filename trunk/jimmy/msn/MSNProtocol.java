@@ -1302,12 +1302,7 @@ public class MSNProtocol extends Protocol
                 //System.out.println("Payload length:"+payload.length());
                 id = (Integer)this.ChatIds_.get(new Integer(session.hashCode()));
                 Sid = id.intValue();
-                sh.sendRequest("MSG " + Sid + " U "+payload.length() + "\r\n"+payload);
-               try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }                
+                sh.sendRequest("MSG " + Sid + " U "+payload.length() + "\r\n"+payload);              
                 //System.out.println("MSG "+session.getID()+" U "+payload.length() + "\r\n"+payload);
                 Sid++;
                 
@@ -1366,7 +1361,7 @@ public class MSNProtocol extends Protocol
                     }
                 }
             }            
-            if(this.status_ != CONNECTED || this.busy) 
+            if(this.status_ != CONNECTED) 
             {
                 continue;
             }
