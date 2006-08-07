@@ -51,9 +51,6 @@ public class JabberParseXML {
 			} else
 				cGroup = null;
 			
-			if (cName == null)	//if the contact has no name, set its name to JID
-				cName = cJid;
-			
 			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
 		}
 
@@ -167,15 +164,9 @@ public class JabberParseXML {
 		//find the Contact from the contacts list
 		Contact c = protocol.getContact(from);
 
-		//if the Contact wasn't found, trim the first presence stanza off and return
-		if (c==null) {
-			if (in.indexOf("<presence", 1) != -1)
-				in = in.substring(in.indexOf("<presence", 1));
-			else
-				in = "";
-
-			return in;
-		}
+		//if the Contact wasn't found, create it automatically
+		if (c==null)
+			c = new Contact(from, protocol);
 		
 		//contact was found, proceed
 		//checking, if the contact became off-line
@@ -188,7 +179,15 @@ public class JabberParseXML {
 			in = in.substring(x2 + 20);
 			return in;
 		}
-
+		
+		//a contact added you to his list
+		x2 = in.indexOf("type='subscribe'/>");
+		if ((x2 < x22) && (x2 != -1)) {
+			allowContact(c, protocol, jimmy);	//authorize contact to add 
+			in = in.substring(x2 + 18);
+			return in;
+		}
+		
 		//contact is not off-line
 		String tmp = getAttributeValue(in, "<presence", "</presence>");
 		String show = getAttributeValue(tmp, "<show>", "</show>");
@@ -211,5 +210,11 @@ public class JabberParseXML {
 			in = "";
 
 		return in;
+	}
+	
+	static void allowContact(Contact c, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		String oString = "<presence from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "' type='subscribed'/>";
+		protocol.getServerHandler().sendRequest(oString);
+		jimmy.addContact(c);
 	}
 }

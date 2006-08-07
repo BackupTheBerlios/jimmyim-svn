@@ -44,6 +44,8 @@ public class JabberProtocol extends Protocol {
 	private final int DEFAULT_PORT = 5222;	//default server port - if none set in user account
 	private final String DEFAULT_STREAMS = "http://etherx.jabber.org/streams";	//default Jabber streams address
 	
+	private boolean stop_;	//stop the thread
+	
 	/**
 	 * Constructor method.
 	 */
@@ -52,6 +54,13 @@ public class JabberProtocol extends Protocol {
 		protocolType_ = JABBER;
 		status_ = DISCONNECTED;
 	}
+	
+	/**
+	 * Returns the ServerHandler used to establish the connection.
+	 * 
+	 * @return ServerHandler used when connecting.
+	 */
+	public ServerHandler getServerHandler() { return sh_; }
 	
 	/**
 	 * Initializes the connection and logs in using the given account.
@@ -102,7 +111,7 @@ public class JabberProtocol extends Protocol {
 			"</query>" +
 			"</iq>";
 		
-		this.sh_.sendRequest(oString);
+		sh_.sendRequest(oString);
 		iString = sh_.getReply();
 
 		//check authentication feedback
@@ -114,7 +123,7 @@ public class JabberProtocol extends Protocol {
 		
 		//Get contacts list
 		oString = "<iq type='get'><query xmlns='jabber:iq:roster'/></iq>";
-		this.sh_.sendRequest(oString);
+		sh_.sendRequest(oString);
 		iString = sh_.getReply();
 		//parse the contacts feedback
 		contacts_ = JabberParseXML.parseContacts(iString, this);
@@ -122,10 +131,11 @@ public class JabberProtocol extends Protocol {
 		
 		//Set status "online"
 		oString = "<presence type=\"available\"/>";
-		this.sh_.sendRequest(oString);
+		sh_.sendRequest(oString);
 
 		status_ = CONNECTED;
-		startThread();
+		thread_.start();
+		
 		return true;
 	}
 	
@@ -141,11 +151,11 @@ public class JabberProtocol extends Protocol {
 	 */
 	public void logout() {
 		String oString;
-		oString = "<presence type=\"offline\"/>";
-		this.sh_.sendRequest(oString);
-
-		this.sh_.disconnect();
-		this.status_ = DISCONNECTED;
+		oString = "<presence type='offline'/>";
+		sh_.sendRequest(oString);
+		stop_ = true;	//stops the thread
+		sh_.disconnect();
+		status_ = DISCONNECTED;
 	}
 
 	public ChatSession startChatSession(Contact contact) {
@@ -160,8 +170,8 @@ public class JabberProtocol extends Protocol {
 	public void sendMsg(String msg, ChatSession session) {
 		for (int i=0; i<session.countContacts(); i++) {
 			String oString = "<message from='" + account_.getUser() + "' to='"
-			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'> <body>"
-			 + msg + "</body> </message>\n";
+			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'><body>"
+			 + msg + "</body></message>\n";
 			
 			System.out.println("OUT:\n" + oString);
 			sh_.sendRequest(oString);
@@ -174,8 +184,8 @@ public class JabberProtocol extends Protocol {
 				continue;
 				
 			String oString = "<message from='" + account_.getUser() + "' to='"
-			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'> <body>"
-			 + msg + "</body> </message>\n";
+			 + ((Contact)session.getContactsList().elementAt(i)).userID() + "' type='chat'><body>"
+			 + msg + "</body></message>\n";
 			
 			System.out.println("OUT:\n" + oString);
 			sh_.sendRequest(oString);
@@ -205,8 +215,9 @@ public class JabberProtocol extends Protocol {
     
     public void run() {
     	String in;
+    	stop_ = false;
     	
-    	while (true) {
+    	while (!stop_) {
     		try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -226,6 +237,7 @@ public class JabberProtocol extends Protocol {
     }
     
     public void addContact(Contact c){
-	    
+		String oString = "<presence from=\"" + account_.getUser() + "\" to=\"" + c.userID() + "\" type=\"subscribe\"/>";
+		sh_.sendRequest(oString);
     }
 }    
