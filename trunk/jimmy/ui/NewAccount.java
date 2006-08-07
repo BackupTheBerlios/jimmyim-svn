@@ -114,10 +114,12 @@ public class NewAccount extends Form implements CommandListener {
         port_.setString("");
         protocol_.setSelectedIndex(0,true);
         autoLogin_.setSelectedIndex(0,true);
-        edit_ = false;
-        editIndex_ = -1;
-        editAcc_ = null;
-        this.insert(0,protocol_);
+        if(edit_ == true){
+            edit_ = false;
+            editIndex_ = -1;
+            editAcc_ = null;
+            this.insert(0,protocol_);
+        }
     }
     
     public void enableEdit(Account a, int index){
