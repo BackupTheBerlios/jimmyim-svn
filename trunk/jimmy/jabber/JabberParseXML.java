@@ -79,6 +79,8 @@ public class JabberParseXML {
 		
 		if (in==null) return;
 		
+		System.out.println("genericParse:\n" + in);
+		
 		while (in.length() != 0) {
 			System.out.println(in);
 			x1 = in.indexOf("<") + 1;
@@ -90,6 +92,10 @@ public class JabberParseXML {
 				in = parsePresence(in, protocol, jimmy);
 			} else if (type.compareTo("message") == 0) {
 				in = parseMessage(in, protocol, jimmy);
+			} else if (type.compareTo("iq") == 0) {
+				in = parseIq(in, protocol, jimmy);
+			} else if (type.compareTo("c") == 0) {
+				in = parseC(in, protocol, jimmy);
 			} else
 				break;
 		}
@@ -216,5 +222,15 @@ public class JabberParseXML {
 		String oString = "<presence from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "' type='subscribed'/>";
 		protocol.getServerHandler().sendRequest(oString);
 		jimmy.addContact(c);
+	}
+	
+	static String parseIq(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		///TODO Currently, this method only removes the <iq> stanza
+		return in.substring(in.indexOf("</iq>")+5);
+	}
+
+	static String parseC(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		///TODO Currently, this method only removes the <c> stanza
+		return in.substring(in.indexOf("/>")+2);
 	}
 }
