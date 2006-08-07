@@ -336,8 +336,8 @@ public class ICQProtocol extends Protocol {
 		
 		//Buddy list
 		b = this.conn.getNextPackage();
-		//in = new ICQPackage(b);
-		//this.pkgDecode(in);
+		in = new ICQPackage(b);
+		this.pkgDecode(in);
 		System.out.println(Utils.byteArrayToHexString(b));
 
 		
@@ -348,7 +348,8 @@ public class ICQProtocol extends Protocol {
 		b = this.conn.getNextPackage();
 
 		System.out.println(Utils.byteArrayToHexString(b));*/
-
+		b = this.conn.getNextPackage();
+		System.out.println(Utils.byteArrayToHexString(b));
 		System.out.println(this.conn.getNumPackages());
 		
 		return false;
