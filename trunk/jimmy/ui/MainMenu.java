@@ -50,10 +50,9 @@ public class MainMenu extends List implements CommandListener {
         } catch(Exception e) {e.printStackTrace();}
         
         //add commands to menu
-        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EXIT) ));
+        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_BACK) ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_NEW)  ));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_LOGIN)));
-        addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_ABOUT)));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_DEL)));
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_EDIT)));
         

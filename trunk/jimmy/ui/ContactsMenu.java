@@ -61,8 +61,10 @@ public class ContactsMenu extends List implements CommandListener {
         } catch(Exception e) {e.printStackTrace();}	
 	
         //add commands
-        addCommand((Command)commands_.get(new Integer(ui_.CMD_BACK)));
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_EXIT)));
         addCommand((Command)commands_.get(new Integer(ui_.CMD_CHAT)));
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_ACC)));
+        addCommand((Command)commands_.get(new Integer(ui_.CMD_ABOUT)));
         
     }// ContactsMenu()
     

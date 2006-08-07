@@ -50,6 +50,7 @@ public class JimmyUI {
         final public static int CMD_SEND   = 12;
         final public static int CMD_DEL    = 13;
         final public static int CMD_EDIT   = 14;
+        final public static int CMD_ACC    = 15;
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -75,6 +76,7 @@ public class JimmyUI {
 	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
         final private static Command cmdDel    = new Command("Delete",      Command.ITEM,   1);
         final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
+        final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -99,6 +101,7 @@ public class JimmyUI {
                 commands_.put(new Integer(CMD_SEND),    cmdSend     );
                 commands_.put(new Integer(CMD_DEL),     cmdDel      );
                 commands_.put(new Integer(CMD_EDIT),    cmdEdit     );
+                commands_.put(new Integer(CMD_ACC),     cmdAccount  );
 	}
         
 	//Screens
@@ -183,9 +186,9 @@ public class JimmyUI {
 	public static void jimmyCommand(Command c, Displayable d) {
             //commands from main menu
             if(d == scrMenu){
-                if(c == cmdExit){
-                    jimmy_.exitJimmy();
-                }//if c == cmdExit
+                if(c == cmdBack){
+                    jimmy_.setDisplay(scrContacts);
+                }//c == cmdBack                
                 else if(c == cmdNew){
                     jimmy_.setDisplay(scrNewAcc);
                 }//if c == cmdNew
@@ -198,9 +201,6 @@ public class JimmyUI {
                     
                     jimmy_.setDisplay(scrContacts);
                 }//if c == cmdLogin
-                else if(c == cmdAbout){
-                    jimmy_.setDisplay(scrAbout);                    
-                }//if c == cmdAbout
                 else if(c == cmdDel){
                     int selected = scrMenu.getSelectedIndex();
                     Account account = (Account)scrMenu.getAccounts().elementAt(selected);
@@ -258,12 +258,18 @@ public class JimmyUI {
             
             //commands from contacts page
             else if(d == scrContacts){
-                if(c == cmdBack){
-                    jimmy_.setDisplay(scrMenu);
-                }//c == cmdBack
+                if(c == cmdExit){
+                    jimmy_.exitJimmy();
+                }//if c == cmdExit
                 else if(c == cmdChat){
                     ((ContactsMenu)d).startChat();
                 }//c == cmdChat
+                else if(c == cmdAccount){
+                    jimmy_.setDisplay(scrMenu);
+                }
+                else if(c == cmdAbout){
+                    jimmy_.setDisplay(scrAbout);                    
+                }//if c == cmdAbout                
             }//d == scrContacts
             
             //commads from about page
