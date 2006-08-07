@@ -615,8 +615,8 @@ public class ICQProtocol extends Protocol {
 	    
     }
 
-	public boolean removeContact() {
+	public boolean removeContact(Contact c) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 }

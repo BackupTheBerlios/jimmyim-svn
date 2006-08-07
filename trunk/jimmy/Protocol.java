@@ -193,5 +193,5 @@ public abstract class Protocol implements Runnable
      *  Removes existing contact.
      *  @param c contact to be removed
      */
-    public abstract boolean removeContact();
+    public abstract boolean removeContact(Contact c);
 }

@@ -240,4 +240,8 @@ public class JabberProtocol extends Protocol {
 		String oString = "<presence from=\"" + account_.getUser() + "\" to=\"" + c.userID() + "\" type=\"subscribe\"/>";
 		sh_.sendRequest(oString);
     }
+    
+    public boolean removeContact(Contact c) {
+    	return true;
+    }
 }    
