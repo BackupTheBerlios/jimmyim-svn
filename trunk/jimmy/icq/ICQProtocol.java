@@ -24,9 +24,9 @@ import jimmy.ProtocolInteraction;
  */
 public class ICQProtocol extends Protocol {
 	
-	private final String AUTH_SERVER = "login.oscar.aol.com";
+	private String AUTH_SERVER = "login.oscar.aol.com";
 	//private final String AUTH_SERVER = "192.168.0.4";
-	private final int AUTH_SERVER_PORT = 5190;
+	private int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
 	//private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
 	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
@@ -55,7 +55,16 @@ public class ICQProtocol extends Protocol {
 	}
 	
 	public boolean login(Account account) {
-		// TODO Auto-generated method stub
+
+		if(account.getServer() != null)
+			this.AUTH_SERVER = account.getServer();
+		
+		if(account.getPort() != 0)
+			this.AUTH_SERVER_PORT = account.getPort();
+		
+		if(login(account.getUser(),account.getPassword()))
+			return true;
+		
 		return false;
 	}
 
@@ -158,8 +167,10 @@ public class ICQProtocol extends Protocol {
 		this.conn.connect();
 		
 		//check the connection acknowledgement
-		if(this.conn.getNextPackage() == null)
+		if(this.conn.getNextPackage() == null){
 			System.out.println("Error: not responding.");
+			return false;
+		}
 		
 		//Send the first auth package
 		this.conn.sendPackage(b);
@@ -229,6 +240,8 @@ public class ICQProtocol extends Protocol {
 			System.out.println("Service versions");
 			in = new ICQPackage(b);
 			this.pkgDecode(in);
+		}else{
+			return false;
 		}
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
@@ -343,19 +356,12 @@ public class ICQProtocol extends Protocol {
 		this.pkgDecode(in);
 		
 		
-		
-		
-		/*
-		
-		System.out.println(this.conn.getNumPackages());
-		b = this.conn.getNextPackage();
-
-		System.out.println(Utils.byteArrayToHexString(b));*/
+		//Awaiting for next package !!!! TEMPORARY !!!!
 		b = this.conn.getNextPackage();
 		System.out.println(Utils.byteArrayToHexString(b));
 		System.out.println(this.conn.getNumPackages());
 		
-		return false;
+		return true;
 	}
 
 	public void logout() {
