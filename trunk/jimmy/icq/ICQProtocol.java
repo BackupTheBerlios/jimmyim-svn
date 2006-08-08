@@ -368,10 +368,98 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
+		//
+		out = new ICQPackage();
+		out.setSnac(21,2,0,++this.s_seq);
+		t = new ICQTlv();
+		b = new byte[10];
+		b[0] = (byte)0x08;
+		b[1] = (byte)0x00;
+		h = Utils.intToBytes(Integer.parseInt(this.user),false);
+		b[2] = h[0];
+		b[3] = h[1];
+		b[4] = h[2];
+		b[5] = h[3];
+		//request id
+		b[6] = (byte)0x3c;
+		b[7] = (byte)0x00;
+		h = Utils.shortToBytes((short)this.s_seq,false);
+		b[8] = h[0];
+		b[9] = h[1];
+		t.setContent(b);
+		t.setHeader((short)1,(short)10);
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+
+		//User info permissions
+		out = new ICQPackage();
+		out.setSnac(21,2,0,++this.s_seq);
+		t = new ICQTlv();
+		b = new byte[16];
+		b[0] = (byte)0x0E;
+		b[1] = (byte)0x00;
+		h = Utils.intToBytes(Integer.parseInt(this.user),false);
+		b[2] = h[0];
+		b[3] = h[1];
+		b[4] = h[2];
+		b[5] = h[3];
+		//request id
+		b[6] = (byte)0xd0;
+		b[7] = (byte)0x07;
+		h = Utils.shortToBytes((short)this.s_seq,false);
+		b[8] = h[0];
+		b[9] = h[1];
+		b[10] = (byte)0x24;
+		b[11] = (byte)0x04;
+		b[12] = (byte)0x01;
+		b[13] = (byte)0x00;
+		b[14] = (byte)0x01;
+		b[15] = (byte)0x00;
+		t.setContent(b);
+		t.setHeader((short)1,(short)10);
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		//rquest buddy statuses
+		out = new ICQPackage();
+		out.setSnac(19,7,0,++this.s_seq);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		
+		
+		
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
 //		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
+		
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
 		
 		System.out.println(this.conn.getNumPackages());
 		
@@ -581,6 +669,102 @@ public class ICQProtocol extends Protocol {
 					break;
 				}
 				break;
+			case 0x0003:
+				switch(subtype){
+				case 0x000B:
+					//user status changed OL
+					byte[] data = pak.getContent();
+					byte uin_l = data[0];
+					byte[] uin = new byte[uin_l];
+					for(byte i = 0; i < uin_l; i++){
+						uin[i] = data[i+1];
+					}
+					byte[] l = new byte[2];
+					l[0] = data[uin.length+3];
+					l[1] = data[uin.length+4];
+					short ntlvs = Utils.bytesToShort(l,true);
+					int start_point = uin.length+5;
+					Vector tlvs = new Vector();
+					ICQTlv status = null;
+					for(short i = 0; i < ntlvs; i++){
+						ICQTlv t = new ICQTlv();
+						l[0] = data[start_point++];
+						l[1] = data[start_point++];
+						short tid = Utils.bytesToShort(l,true);
+						l[0] = data[start_point++];
+						l[1] = data[start_point++];
+						short len = Utils.bytesToShort(l,true);
+						t.setHeader(tid,len);
+						l = new byte[len];
+						for(short j = 0; j < len; j++){
+							l[i] = data[start_point++];
+						}
+						t.setContent(l);
+						if(tid == (short)0x0006)
+							status = t;
+						tlvs.addElement(t);
+					}
+					//jimmy status codes
+					int st = Utils.bytesToInt(status.getContent(),true);
+					switch(st){
+					case 0x0000:
+						st = Contact.ST_ONLINE;
+						break;
+					case 0x0001:
+						st = Contact.ST_AWAY;
+						break;
+					case 0x0002:
+						st = Contact.ST_BUSY;
+						break;
+					case 0x0004:
+						st = Contact.ST_AWAY;
+						break;
+					case 0x0008:
+						st = Contact.ST_ONLINE;
+						break;
+					case 0x0010:
+						st = Contact.ST_BUSY;
+						break;
+					case 0x0020:
+						st = Contact.ST_ONLINE;
+						break;
+					case 0x0100:
+						st = Contact.ST_OFFLINE;
+						break;
+					case 0x1000:
+						st = Contact.ST_ONLINE;
+						break;
+					case 0x2000:
+						st = Contact.ST_ONLINE;
+						break;
+					}
+					
+					for(int i = 0; i < this.contacts_.size(); i++){
+						Contact c = (Contact)this.contacts_.elementAt(i);
+						if(c.userID().equals(new String(uin))){
+							c.setStatus(st);
+							break;
+						}
+					}
+					break;
+				case 0x000C:
+					//user status changed OFFL
+					byte[] data1 = pak.getContent();
+					byte uin_le = data1[0];
+					byte[] uin1 = new byte[uin_le];
+					for(byte i = 0; i < uin_le; i++){
+						uin1[i] = data1[i+1];
+					}
+					for(int i = 0; i < this.contacts_.size(); i++){
+						Contact c = (Contact)this.contacts_.elementAt(i);
+						if(c.userID().equals(new String(uin1))){
+							c.setStatus(Contact.ST_OFFLINE);
+							break;
+						}
+					}
+					break;
+				}
+				break;
 			case 0x0004:
 				switch(subtype){
 				case 0x0001:
@@ -713,6 +897,14 @@ public class ICQProtocol extends Protocol {
 					this.SSI_LAST_MODIFIED = Utils.bytesToLong(it,true);
 					
 					pkg = null;
+					break;
+				}
+				break;
+			case 0x0015:
+				switch(subtype){
+				case 0x0003:
+					//service negotiations
+					//OFFL messages & stuff...
 					break;
 				}
 				break;
