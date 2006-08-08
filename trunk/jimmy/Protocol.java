@@ -190,6 +190,13 @@ public abstract class Protocol implements Runnable
     public byte getType() {return protocolType_;}
     
     /**
+     * Send the local changes (screen name, group name etc.) of the Contact to the server.
+     * 
+     * @param c Contact which has been changed.
+     */
+    public abstract void updateContactProperties(Contact c);
+    
+    /**
      *  Removes existing contact.
      *  @param c contact to be removed
      */

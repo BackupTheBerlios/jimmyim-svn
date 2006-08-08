@@ -1458,4 +1458,8 @@ public class MSNProtocol extends Protocol
 	    System.out.println(this.tr.toString());
 	    this.sh.sendRequest(this.tr.toString());    
     }
+    
+    public void updateContactProperties(Contact c) {
+    	
+    }
 }

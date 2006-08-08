@@ -619,4 +619,8 @@ public class ICQProtocol extends Protocol {
 		// TODO Auto-generated method stub
 		return true;
 	}
+	
+	public void updateContactProperties(Contact c) {
+		
+	}
 }

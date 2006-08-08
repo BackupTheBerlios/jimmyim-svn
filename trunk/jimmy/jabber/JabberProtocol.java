@@ -257,4 +257,8 @@ public class JabberProtocol extends Protocol {
     	
     	return true;
     }
+    
+    public void updateContactProperties(Contact c) {
+    
+    }
 }    

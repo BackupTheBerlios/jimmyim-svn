@@ -109,8 +109,11 @@ public class YahooProtocol extends Protocol {
 
 	}
         
-        public boolean removeContact(Contact c){
-            return false;
-        }
-
+	public boolean removeContact(Contact c){
+		return false;
+	}
+	
+	public void updateContactProperties(Contact c) {
+		
+	}
 }
