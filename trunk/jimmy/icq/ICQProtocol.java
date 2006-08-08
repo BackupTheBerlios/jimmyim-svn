@@ -33,6 +33,7 @@ public class ICQProtocol extends Protocol {
 	private String bos = "";
 	private int bos_port = 5190;
 	private short f_seq = 0;
+	private int s_seq = 1;
 	private byte[] cookie;
 	private byte[] services;
 	private byte[] service_ver;
@@ -55,7 +56,12 @@ public class ICQProtocol extends Protocol {
 	}
 	
 	public boolean login(Account account) {
-
+		
+		this.account_ = account;
+		this.user = account.getUser();
+		this.pass = account.getPassword();
+		
+		
 		if(account.getServer() != null)
 			this.AUTH_SERVER = account.getServer();
 		
@@ -229,7 +235,7 @@ public class ICQProtocol extends Protocol {
 		}
 		ICQPackage ver_req = new ICQPackage(this.service_ver.length,(byte)0x02);
 		ver_req.setContent(this.service_ver);
-		ver_req.setSnac(1,23,0,220);
+		ver_req.setSnac(1,23,0,++this.s_seq);
 		ver_req.setFlap(++this.f_seq);
 		byte[] bla = ver_req.getNetPackage();
 		this.conn.sendPackage(bla);
@@ -253,7 +259,7 @@ public class ICQProtocol extends Protocol {
 		/***************************************************/
 		
 		ICQPackage out = new ICQPackage();
-		out.setSnac(1,6,0,2);
+		out.setSnac(1,6,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		b = this.conn.getNextPackage();
@@ -263,7 +269,7 @@ public class ICQProtocol extends Protocol {
 		//END STAGE TWO
 		//STAGE THREE
 		out = new ICQPackage();
-		out.setSnac(2,2,0,3);
+		out.setSnac(2,2,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
@@ -275,7 +281,7 @@ public class ICQProtocol extends Protocol {
 		out.setChannel((byte)0x02);
 		byte[] c = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0B,(byte)0x1F,(byte)0x40,(byte)0x03,(byte)0xE7,(byte)0x03,(byte)0xE7,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
 		out.setContent(c);
-		out.setSnac(4,2,0,5);
+		out.setSnac(4,2,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		c = null;
@@ -284,7 +290,7 @@ public class ICQProtocol extends Protocol {
 		//STAGE FOUR
 		
 		out = new ICQPackage();
-		out.setSnac(1,30,0,6);
+		out.setSnac(1,30,0,++this.s_seq);
 		t = new ICQTlv();
 		byte[] d = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
 		t.setContent(d);
@@ -312,7 +318,7 @@ public class ICQProtocol extends Protocol {
 				};
 		out.setChannel((byte)0x02);
 		out.setContent(used_families);
-		out.setSnac(1,2,0,7);
+		out.setSnac(1,2,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		//END STAGE FOUR
@@ -321,7 +327,7 @@ public class ICQProtocol extends Protocol {
 		System.out.println("Testiramo: \n"+Utils.byteArrayToHexString(this.conn.getNextPackage()));
 		
 		out = new ICQPackage();
-		out.setSnac(1,30,0,6);
+		out.setSnac(1,30,0,++this.s_seq);
 		t = new ICQTlv();
 		byte[] h = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
 		t.setContent(h);
@@ -337,7 +343,7 @@ public class ICQProtocol extends Protocol {
 		System.out.println(Utils.byteArrayToHexString(b));
 		
 		out = new ICQPackage();
-		out.setSnac(19,4,0,157);
+		out.setSnac(19,4,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
@@ -355,7 +361,13 @@ public class ICQProtocol extends Protocol {
 		System.out.println(Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
 		
+		try{
+			Thread.sleep((long)1000);
+		}catch(InterruptedException e){}
 		
+		System.out.println("Sending first message");
+		this.sendMsg("Ala da vidimo kaj bo novega",this.startChatSession((Contact)this.contacts_.elementAt(0)));
+		System.out.println("Message sent to: "+((Contact)this.contacts_.elementAt(0)).screenName());
 		//Awaiting for next package !!!! TEMPORARY !!!!
 		b = this.conn.getNextPackage();
 		System.out.println(Utils.byteArrayToHexString(b));
@@ -365,18 +377,96 @@ public class ICQProtocol extends Protocol {
 	}
 
 	public void logout() {
-		// TODO Auto-generated method stub
+
 		this.conn.disconnect();
+		this.status_ = Protocol.DISCONNECTED;
 	}
 
 	public ChatSession startChatSession(Contact user) {
-		// TODO Auto-generated method stub
-		return null;
+		ChatSession cs = new ChatSession(this);
+		this.chatSessionList_.addElement(cs);
+		
+		cs.addContact(user);
+		
+		return cs;
 	}
 
 	public void sendMsg(String msg, ChatSession session) {
-		// TODO Auto-generated method stub
 		
+		final byte[] MSG_TYPE = {(byte)0x00,(byte)0x01};
+		Vector cl = session.getContactsList();
+		ICQPackage ip = new ICQPackage();
+		
+		
+		//TODO: message fragmentation
+		int pieces = 1;
+		
+		/*if(msg.length() >= 450){
+			// TODO: ICBM rates!
+		}else{
+			
+		}*/
+		
+		byte[] time = Utils.longToBytes(System.currentTimeMillis(),true);
+
+		//enable store if offline
+		ICQTlv off = new ICQTlv();
+		off.setHeader((short)6,(short)0);
+		ICQTlv m = new ICQTlv();
+		byte[] stuff = new byte[msg.length()+13+4];
+		stuff[0] = (byte)5;
+		stuff[1] = (byte)1;
+		stuff[2] = (byte)0;
+		stuff[3] = (byte)1;
+		stuff[4] = (byte)1;
+		stuff[5] = (byte)1;
+		stuff[6] = (byte)1;
+		byte[] b = Utils.shortToBytes((short)msg.length(),true);
+		stuff[7] = b[0];
+		stuff[8] = b[1];
+		stuff[9] = (byte)0;
+		stuff[10] = (byte)0;
+		stuff[11] = (byte)0xff;
+		stuff[12] = (byte)0xff;
+		b = msg.getBytes();
+		for(int j = 0; j < msg.length(); j++){
+			stuff[j+13] = b[j];
+		}
+		m.setContent(stuff);
+		m.setHeader((short)2,(short)m.getCLen());
+		
+		ICQTlv tri = new ICQTlv();
+		tri.setHeader((short)3,(short)0);
+		
+		for(int i = 0; i < cl.size(); i++){
+			Contact c = (Contact)cl.elementAt(i);
+			byte[] uin = c.userID().getBytes();
+			byte[] pak = new byte[11 + uin.length];
+			for(int j = 0; j < time.length; j++){
+				pak[j] = time[j];
+			}
+			pak[time.length] = MSG_TYPE[0];
+			pak[time.length+1] = MSG_TYPE[1];
+			pak[time.length+2] = (byte)uin.length;
+			for(int j=time.length+3; j < pak.length; j++){
+				pak[j] = uin[j-(time.length+3)];
+			}
+			ip.setChannel((byte)2);
+			ip.setContent(pak);
+			ip.setSnac(4,6,0,++this.s_seq);
+			ip.addTlv(m);
+			ip.addTlv(tri);
+			ip.addTlv(off);
+			ip.setFlap(++this.f_seq);
+			
+			this.conn.sendPackage(ip.getNetPackage());
+			System.out.println(Utils.byteArrayToHexString(ip.getNetPackage()));
+		}
+		off = null;
+		m = null;
+		tri = null;
+		time = null;
+		ip = null;
 	}
 
 	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
@@ -467,7 +557,7 @@ public class ICQProtocol extends Protocol {
 					cap.setHeader((short)0x0005,(short)this.capabilities.length);
 					cap.setContent(this.capabilities);
 					ICQPackage cp = new ICQPackage();
-					cp.setSnac(2,4,0,4);
+					cp.setSnac(2,4,0,++this.s_seq);
 					cp.addTlv(cap);
 					cp.setFlap(++this.f_seq);
 					this.conn.sendPackage(cp.getNetPackage());
@@ -573,6 +663,7 @@ public class ICQProtocol extends Protocol {
 										+" in group: "+ groups[gid]);
 								ct.setScreenName(new String(nick));
 								ct.setGroupName(groups[gid]);
+								ct.setProtocol(this);
 								this.contacts_.addElement(ct);
 							}
 							
@@ -605,6 +696,8 @@ public class ICQProtocol extends Protocol {
 		return roasted;
 	}
 
+	public String getServer(){return this.AUTH_SERVER;}
+	
 	public void run() {
     	
     }
@@ -622,5 +715,15 @@ public class ICQProtocol extends Protocol {
 	
 	public void updateContactProperties(Contact c) {
 		
+	}
+
+	public void updateContactProperties(Contact c) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean removeContact(Contact c) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
