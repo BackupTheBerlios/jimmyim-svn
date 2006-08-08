@@ -65,6 +65,7 @@ public class Store
 			e.printStackTrace();
 			return false;
 		}
+                
 	}
 	
 	/**
@@ -83,7 +84,7 @@ public class Store
 			return false;
 		}    
 	}
-	
+        
 	/**
 	 * Create a new record for the given Account in the record store.
 	 *  
@@ -227,10 +228,14 @@ public class Store
 		if (!openStore())
 			return false;
 		
-		//generate the output string
+                //generate the output string
 		String out = null;
-		for (int i=0; i<config.length; i++)
+                if(config == null)
+                    out = new String("");
+                else{
+                    for (int i=0; i<config.length; i++)
 			out = out.concat(config[i] + NEWLINE_);
+                }
 		
 		try {
 			rs_.setRecord(1, out.getBytes(), 0, out.length());
@@ -255,26 +260,36 @@ public class Store
 		
 		String in;
 		try {
-			in = new String(rs_.getRecord(1));
+                        byte[] bla = rs_.getRecord(1);
+                        if(bla == null)
+                            in = new String("");
+                        else
+                            in = new String(rs_.getRecord(1));
 		} catch(RecordStoreException e) {
 			e.printStackTrace();
 			return null;
 		}
 		
-		//scan the record string for the number of values
-		int num = 0;
-		for (int i=0; i<in.length(); i++)
+                String[] out;
+                if(in.equals("")){
+                     out = null;                
+                }
+                else{
+                    //scan the record string for the number of values
+                    int num = 0;
+                    for (int i=0; i<in.length(); i++)
 			if (in.charAt(i) == '\n')
 				num++;
 
-		int idx = 0;
-		int i=0;
-		String[] out = new String[num];
-		while (in.length()!=0) {
+                    int idx = 0;
+                    int i=0;
+                    out = new String[num];
+                    while (in.length()!=0) {
 			out[i] = in.substring(idx, idx = (in.indexOf("\n")+1));
 			in = in.substring(idx);
 			i++;
-		}
+                    }
+                }
 		
 		closeStore();
 		return out;
@@ -321,4 +336,24 @@ public class Store
 		closeStore();
 		return accList;
 	}
+        
+        public static void resetStore(String[] set, Vector a){
+            deleteStore();
+            writeSettings(set);
+            for(int i=0; i<a.size(); i++)
+                addAccount((Account)a.elementAt(i));            
+        }
+        
+       /**
+         * Deletes record store.
+         */
+        private static void deleteStore(){
+            try{
+                RecordStore.deleteRecordStore(RECORDSTORENAME_);
+            }catch(RecordStoreException e){
+                e.printStackTrace();
+            }
+        }
+	
+
 }

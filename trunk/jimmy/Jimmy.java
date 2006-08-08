@@ -34,6 +34,7 @@ import jimmy.jabber.JabberProtocol;
 import jimmy.msn.MSNProtocol;
 import jimmy.icq.ICQProtocol;
 import jimmy.yahoo.YahooProtocol;
+import jimmy.util.Store;
 
 import jimmy.ui.JimmyUI;
 import jimmy.ui.MainMenu;
@@ -59,7 +60,43 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
-		ui_.setView(JimmyUI.SCR_CONT);
+                
+                ui_.setSplashMess("Loading settings...");
+                String[] settings = Store.readSettings();
+                ui_.setSplashMess("Loading account data...");       
+                Vector accounts = Store.getAccounts();
+                ui_.setSplashMess("Optimizing store...");
+                Store.resetStore(settings,accounts);
+                
+                if(accounts.size() == 0){
+                    ui_.setSplashMess("Welcome to Jimmy!");
+                    try{
+                        Thread.sleep(1000);
+                    }catch(Exception e){System.out.println(e.getMessage());}
+                    ui_.setView(JimmyUI.SCR_NEWACC);
+                }
+                else{
+                    Account a = null;
+                    boolean connect = false;
+                    for(int i=0; i<accounts.size(); i++){
+                        a = (Account)accounts.elementAt(i);
+                        if(a.getAutoLogin()){
+                            ui_.setSplashMess("Connecting to "+a.getUser()+"...");
+                            connectAccount(a);
+                            connect = true;
+                        }
+                    }
+                    if(connect)
+                        ui_.setView(JimmyUI.SCR_CONT);
+                    else{
+                        ui_.setSplashMess("Welcome to Jimmy!");
+                        try{
+                            Thread.sleep(1000);
+                        }catch(Exception e){System.out.println(e.getMessage());}
+                        ui_.setView(JimmyUI.SCR_MAIN);
+                    }
+                }
+
                 
 		thr_ = new Thread(this);
 		thr_.start();
@@ -88,30 +125,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					current = (Account)newConnections_.elementAt(i);  //current connections
 					System.out.println("[DEBUG] Logging in user: " + current.getUser());
 					
-					//which protocol to connect?
-					switch(current.getProtocolType()){
-						case Protocol.JABBER:
-							JabberProtocol jabber = new JabberProtocol(this);
-							current.setConnected(jabber.login(current.getUser(),current.getPassword()));
-							//jabber.login(current);
-							protocolList_.addElement(jabber);
-							break;
-						case Protocol.ICQ:
-							ICQProtocol icq = new ICQProtocol(this);
-							current.setConnected(icq.login(current));
-							protocolList_.addElement(icq);
-							break;
-						case Protocol.MSN:
-							MSNProtocol msn = new MSNProtocol(this);
-							current.setConnected(msn.login(current.getUser(), current.getPassword()));
-							protocolList_.addElement(msn);
-							break;
-						case Protocol.YAHOO:
-							YahooProtocol yahoo = new YahooProtocol(this);
-							current.setConnected(yahoo.login(current));
-							break;
-					} //switch
-                                        ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+                                        connectAccount(current);
 				} //for i < newConnections_.size()
                     
 				newConnections_ = null;
@@ -166,4 +180,41 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public void changeContactStatus(Contact c) {
 		ui_.changeContactStatus(c);
 	}
+        
+        private Protocol connectAccount(Account current){
+            //which protocol to connect?
+            switch(current.getProtocolType()){
+                case Protocol.JABBER:
+                    JabberProtocol jabber = new JabberProtocol(this);
+                    current.setConnected(jabber.login(current.getUser(),current.getPassword()));
+                    //jabber.login(current);
+                    protocolList_.addElement(jabber);
+                    ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+                    return jabber;
+
+		case Protocol.ICQ:
+                    ICQProtocol icq = new ICQProtocol(this);
+                    current.setConnected(icq.login(current));
+                    protocolList_.addElement(icq);
+                    ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+                    return icq;
+
+		case Protocol.MSN:
+                    MSNProtocol msn = new MSNProtocol(this);
+                    current.setConnected(msn.login(current.getUser(), current.getPassword()));
+                    protocolList_.addElement(msn);
+                    ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+                    return msn;
+
+		case Protocol.YAHOO:
+                    YahooProtocol yahoo = new YahooProtocol(this);
+                    current.setConnected(yahoo.login(current));
+                    protocolList_.addElement(yahoo);
+                    ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+                    return yahoo;
+
+                default:
+                    return null;
+            } //switch
+        }
 }

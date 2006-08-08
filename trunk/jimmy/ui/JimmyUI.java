@@ -170,15 +170,18 @@ public class JimmyUI {
 	 */
 	public void setView(int display){
 		switch (display) {
-			case 1:
-				jimmy_.setDisplay(scrSplash);
-				break;
-			case 2:
-				jimmy_.setDisplay(scrMenu);
-				break;
+                    case 1:
+                        jimmy_.setDisplay(scrSplash);
+			break;
+                    case 2:
+			jimmy_.setDisplay(scrMenu);
+			break;
+                    case JimmyUI.SCR_NEWACC:
+                        jimmy_.setDisplay(scrNewAcc);
+                        break;
 		    case 6:
-			   jimmy_.setDisplay(scrContacts);
-			   break;
+			jimmy_.setDisplay(scrContacts);
+			break;
 		}
 	}
 	
