@@ -46,7 +46,7 @@ public class MSNProtocol extends Protocol
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String ProductID = "PROD0090YUAUV{2B";
     final String NSredirectURL = "baym-cs295.msgr.hotmail.com";
-    private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1L;
+    private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1;
     final int serverPort = 1863;
     final int NexusPort = 443;
     private PassportNexus pn;
@@ -577,6 +577,7 @@ public class MSNProtocol extends Protocol
     public void parseReply(String reply)
     {
         System.out.println("parse reply method **************");
+	
         //this.parseChallenge("aaaa");   
         if(reply == null)
         {
@@ -621,8 +622,8 @@ public class MSNProtocol extends Protocol
 	    this.tr.addArgument("AL matevz.jekovec@guest.arnes.si");
 	    this.sh.sendRequest(this.tr.toString());
 	    return;*/	    
-            //parseChallenge(reply);
-            //System.gc();    // let's clean this mess
+            parseChallenge(reply);
+            System.gc();    // let's clean this mess
         }     
         if(reply.indexOf("RNG")!=-1)
         {
@@ -1005,11 +1006,21 @@ public class MSNProtocol extends Protocol
 
                 //System.out.println("aFTER:"+hashes[i].toString());
                 //md5hash[i] = hexToInt(hashes[i].toString()) &  0x7FFFFFF;
-                md5hash[i] = hexToInt(andHex(hashes[i].toString()));
+		
+                //md5hash[i] = hexToInt(andHex(hashes[i].toString()));
+                //md5hash[i] = Integer.parseInt(hashes[i].toString(), 16) & 0x7FFFFFFF;
                 System.out.println(andHex(hashes[i].toString()) + " -> "+md5hash[i]);
                 
                 
-            }
+		
+	    }
+		md5hash[0]=0x2a1749ec;
+		md5hash[1]=0x1517305b;
+
+		md5hash[2]=0x7847399e;
+		md5hash[3]=0x041698ff;
+
+
             for(int i=0; i<md5hash.length; i++)
             {
                 
@@ -1071,31 +1082,28 @@ public class MSNProtocol extends Protocol
             
             // third step
             
-            long high = 0;
-            long low = 0;
+            /*int high = 0;
+            int low = 0;
 
             for (int i = 0; i < chlStringArray.length; i = i + 2) 
             {
-              long temp = chlStringArray[i];
-              temp = (0x0E79A9C1L * temp) % 0x7FFFFFFF;
-              temp += high;
-              temp = md5hash[0] * temp + md5hash[1];
-              temp = temp % 0x7FFFFFFF;
+              int temp = chlStringArray[i];
+              temp = (0x0E79A9C1 * temp) % 0x7FFFFFFF + high;
+              temp = (md5hash[0] * temp + md5hash[1]) % 0x7FFFFFFF;
 
               high = chlStringArray[i + 1];
               high = (high + temp) % 0x7FFFFFFF;
-              high = md5hash[2] * high + md5hash[3];
-              high = high % 0x7FFFFFFF;
+              high = (md5hash[2] * high + md5hash[3]) % 0x7FFFFFFF;
 
               low = low + high + temp;
             }
             high = (high + md5hash[1]) % 0x7FFFFFFF;
             low = (low + md5hash[3]) % 0x7FFFFFFF;
-
-        /*long high = 0;
+*/
+        long high = 0;
         long low = 0;
         for (int i = 0; i < chlStringArray.length; i = i + 2) {
-            long temp = (((chlStringArray[i] * MSNP11_MAGIC_NUM) % 0x7FFFFFFF) + high);
+            long temp = (int)(((chlStringArray[i] * MSNP11_MAGIC_NUM) % 0x7FFFFFFF) + high);
             temp = ((temp * md5hash[0]) + md5hash[1]) % 0x7FFFFFFF;
 
             high = (chlStringArray[i + 1] + temp) % 0x7FFFFFFF;
@@ -1104,7 +1112,7 @@ public class MSNProtocol extends Protocol
             low = low + high + temp;
         }
         high = (high + md5hash[1]) % 0x7FFFFFFF;
-        low = (low + md5hash[3]) % 0x7FFFFFFF;  */       
+        low = (low + md5hash[3]) % 0x7FFFFFFF;        
            
            
             /*long high = 0;
@@ -1119,24 +1127,33 @@ public class MSNProtocol extends Protocol
                 low = low + high + temp;
             }
             high = (high + md5hash[1]) % 0x7FFFFFFF;
-            low = (low + md5hash[3]) % 0x7FFFFFFF;    */        
+            low = (low + md5hash[3]) % 0x7FFFFFFF; */       
             
             
             
-            System.out.println("low:" + low);
-            System.out.println("high:" + high);
+            //System.out.println("low:" + low + " "+Long.parseLong(hash.substring(0,16).toUpperCase(),16));
+            System.out.println("high:" + Integer.toHexString((int)high));
+	    System.out.println("low:" + Integer.toHexString((int)low));
             // Gives high = 0x69A5A771 (1772463985 decimal) and low = 0xD4020628 (3556902440 decimal)
 
             long key = (high << 32) + low;
             // Gives 0x69a5a771d4020628 (7612674852469737000 decimal)            
-            System.out.println("Key:" + key); 
-            long challenge = hexToLong(hash.substring(0,16))^key + hexToLong(hash.substring(16, 16))^key;
+            
+            //long challenge = Long.parseLong(hash.substring(0,16).toUpperCase(),16)^key + Long.parseLong(hash.substring(16),16)^key;
+            System.out.println("Key:" + (0xec4917aa^0x69A5A771)); 
+	    System.out.println("Key:" + (0x5b301715^0xD4020628)); 
+	    System.out.println("Key:" + (0x9e3947f8^0x69A5A771)); 
+	    System.out.println("Key:" + (0xff981604^0xD4020628)); 
+	    String result = Integer.toHexString(0xec4917aa^0x69A5A771)+Integer.toHexString(0x5b301715^0xD4020628)+Integer.toHexString(0x9e3947f8^0x69A5A771)+Integer.toHexString(0xff981604^0xD4020628);
+	    System.out.println("Result:" + result); 
+	    //System.out.println("Challenge:" + Integer.toHexString((int)challenge));
+	    //hash = Long.parseLong(hash.substring(0,8))^high + Long.parseLong(hash.substring(8,16))^low +Long.parseLong(hash.substring(16,24))^high + Long.parseLong(hash.substring(24,32))^low;
+            // Gives 0x69a5a771d4020628 (7612674852469737000 decimal)            
             
             this.tr.newTransaction();
             this.tr.setType("QRY");
             this.tr.addArgument(this.ProductID);
-            this.tr.addArgument("32\r\n");
-            //this.tr.addArgument(longToHex(challenge));
+            //this.tr.addArgument("32\r\n"+Integer.toHexString((int)challenge));
             System.out.println(this.tr.toStringNN());
             
             this.sh.sendRequest(this.tr.toStringNN());            
