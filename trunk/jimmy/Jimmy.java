@@ -100,16 +100,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                 
 		thr_ = new Thread(this);
 		thr_.start();
-		
-		//protocolList_.addElement(new MSNProtocol(this));
-		//protocolList_.addElement(new JabberProtocol(this));
-		
-		//((MSNProtocol)protocolList_.elementAt(0)).login("slashrsm@rutka.net","");
-		//((Protocol)protocolList_.elementAt(0)).login("jimmyim@jabber.org","jimmy");
-		//((Protocol)protocolList_.elementAt(0)).login("thepianoguy@jabber.org","freshbreath");
-		//((Protocol)protocolList_.elementAt(0)).startThread();
-		
-	}
+        }
 	
 	public void run(){
 		//infinite loop
