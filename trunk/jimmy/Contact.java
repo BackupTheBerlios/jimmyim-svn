@@ -107,6 +107,15 @@ public class Contact {
 		screenName_ = screenName;
 	}
 	
+	/**
+	 * Set the current protocol
+	 * 
+	 * @param p protocol
+	 */
+	public void setProtocol(Protocol p){
+		this.protocol_ = p;
+	}
+	
 	public String userID() {return userID_;}
 	public String screenName() {return screenName_;}
 	public String groupName() {return groupName_;}
