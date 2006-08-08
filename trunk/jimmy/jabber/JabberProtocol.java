@@ -236,9 +236,10 @@ public class JabberProtocol extends Protocol {
     	contacts_.copyInto(c);
     }
     
-    public void addContact(Contact c){
-		String oString = "<presence from=\"" + account_.getUser() + "\" to=\"" + c.userID() + "\" type=\"subscribe\"/>";
+    public void addContact(Contact c) {
+		String oString = "<presence from=\"" + account_.getUser() + "\" to=\"" + c.userID() + "\" type=\"subscribe\"/>\n";
 		sh_.sendRequest(oString);
+		contacts_.addElement(c);
     }
     
     public boolean removeContact(Contact c) {

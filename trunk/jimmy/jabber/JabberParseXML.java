@@ -86,7 +86,7 @@ public class JabberParseXML {
 			x1 = in.indexOf("<") + 1;
 			x2 = in.indexOf(" ");	
 
-                        type = in.substring(x1, x2); //get the first word in <> stanza
+			type = in.substring(x1, x2); //get the first word in <> stanza
 			
 			if (type.compareTo("presence") == 0) {
 				in = parsePresence(in, protocol, jimmy);
@@ -189,8 +189,21 @@ public class JabberParseXML {
 		//a contact added you to his list
 		x2 = in.indexOf("type='subscribe'/>");
 		if ((x2 < x22) && (x2 != -1)) {
-			allowContact(c, protocol, jimmy);	//authorize contact to add 
+			allowContact(c, protocol, jimmy);	//authorize contact to add
+			
 			in = in.substring(x2 + 18);
+			return in;
+		}
+		
+		//contact has added you to his list, set the contact's list
+		x2 = in.indexOf("type='subscribed'/>");
+		if ((x2 < x22) && (x2 != -1)) {
+			setContactProperties(c, protocol);	//authorize contact to add 
+			in = in.substring(x2 + 19);
+			
+			//Let them know about our status "online"
+			protocol.getServerHandler().sendRequest("<presence type=\"available\"/>");
+			
 			return in;
 		}
 		
@@ -221,17 +234,45 @@ public class JabberParseXML {
 	static void allowContact(Contact c, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		String oString = "<presence from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "' type='subscribed'/>";
 		protocol.getServerHandler().sendRequest(oString);
-                jimmy.addContact(c);
-		protocol.addContact(c);              
+		
+		if (protocol.getContact(c.userID())==null) {
+			jimmy.addContact(c);
+			protocol.addContact(c);
+		}
 	}
 	
 	static String parseIq(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		///TODO Currently, this method only removes the <iq> stanza
-		return in.substring(in.indexOf("</iq>")+5);
+		if (in.indexOf("</iq>")==-1)
+			return in.substring(in.indexOf("/>")+2);
+		else
+			return in.substring(in.indexOf("</iq>")+5);
 	}
 
 	static String parseC(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		///TODO Currently, this method only removes the <c> stanza
 		return in.substring(in.indexOf("/>")+2);
+	}
+	
+	/**
+	 * Used on reply of 'subscribed' to set the contact group.
+	 */
+	static void setContactProperties(Contact c, JabberProtocol protocol) {
+		System.out.println("Setting contact's group:");
+		String oString =
+			"<iq type='set' from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "'>" +
+				"<query xmlns='jabber:iq:roster'>\n" +
+					"<item " +
+						"jid='" + c.userID() + "' " +
+						"subscription='from'" +
+						((c.screenName()!=null)?(" name='" + c.screenName() + "'"):"") + ">\n" +
+						((c.groupName()!=null)?("<group>" + c.groupName() + "</group>\n"):"") +
+					"</item>\n" +
+				"</query>\n" +
+			"</iq>\n";
+		
+		System.out.println(oString);
+		
+		protocol.getServerHandler().sendRequest(oString);
 	}
 }
