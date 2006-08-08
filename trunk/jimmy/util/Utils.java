@@ -51,6 +51,37 @@ public class Utils {
 		return b;
 	}
 	
+	 /**
+	 * Returns an long converted to a byte array.
+	 * 
+	 * @param l a long integer number
+	 * @param bigendian true if big-endian output
+	 * @return endian byte array
+	 */
+	public static byte[] longToBytes(long l, boolean bigendian){
+		byte[] b = new byte[8];
+		if(bigendian){
+			b[0] = (byte)(l >> 56);
+			b[1] = (byte)(l >> 48);
+			b[2] = (byte)(l >> 40);
+			b[3] = (byte)(l >> 32);
+			b[4] = (byte)(l >> 24);
+			b[5] = (byte)(l >> 16);
+			b[6] = (byte)(l >> 8);
+			b[7] = (byte)(l & 0xff);
+		}else{
+			b[0] = (byte)(l & 0xff);
+			b[1] = (byte)(l >> 8);
+			b[2] = (byte)(l >> 16);
+			b[3] = (byte)(l >> 24);
+			b[4] = (byte)(l >> 32);
+			b[5] = (byte)(l >> 40);
+			b[6] = (byte)(l >> 48);
+			b[7] = (byte)(l >> 54);
+		}
+		return b;
+	}
+	
 	/**
 	 * Returns a short converted from a byte array.
 	 * 
@@ -123,9 +154,69 @@ public class Utils {
 		}
 		return i;
 	}
+	
+	
+	/**
+	 * Returns a long converted to from a byte array.
+	 * 
+	 * 
+	 * @param by a byte array
+	 * @param bigendian true if big-endian output
+	 * @return 
+	 */
+	public static long bytesToLong(byte[] b, boolean bigendian){
+		int i = 0;
+		if (b.length == 1)
+			i = (int)(0xff & b[0]);
+		else if (b.length == 2){
+			if(bigendian){
+				i = (int) (((b[0] & 0xff) << 8) | (0xff & b[1]));
+			}else{
+				i = (int) (((b[1] & 0xff) << 8) | (0xff & b[1]));
+			}
+		}else if (b.length == 3){
+			if(bigendian){
+				i = (int) (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
+			}else{
+				i = (int) (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else if (b.length == 4){
+			if(bigendian){
+				i = (int) (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
+			}else{
+				i = (int) (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else if (b.length == 5){
+			if(bigendian){
+				i = (int) (((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[3])) << 8) | (0xff & b[4]));
+			}else{
+				i = (int) (((((((((b[4] & 0xff) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else if (b.length == 6){
+			if(bigendian){
+				i = (int) (((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (0xff & b[3])) << 8) | (0xff & b[4])) << 8) | (0xff & b[5]));
+			}else{
+				i = (int) (((((((((((b[5] & 0xff) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else if (b.length == 7){
+			if(bigendian){
+				i = (int) (((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[4])) << 8) | (0xff & b[5])) << 8) | (0xff & b[6]));
+			}else{
+				i = (int) ((((((((((((b[6] & 0xff) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}else if (b.length == 8){
+			if(bigendian){
+				i = (int) (((((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (0xff & b[5])) << 8) | (0xff & b[6])) << 8) | (0xff & b[7]));
+			}else{
+				i = (int) ((((((((((((((b[7] & 0xff) << 8) | (b[6] & 0xff)) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+			}
+		}
+		return i;
+	}
+	
 	/**
 	 * Returns a int converted from a hexadecimal number
-         *
+     *
 	 * @param s string representing a hexadecimal number
 	 * @return 
 	 */        
