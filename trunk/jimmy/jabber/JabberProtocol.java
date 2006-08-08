@@ -130,7 +130,7 @@ public class JabberProtocol extends Protocol {
 		jimmy_.addContacts(contacts_);
 		
 		//Set status "online"
-		oString = "<presence type=\"available\"/>";
+		oString = "<presence type='available'/>";
 		sh_.sendRequest(oString);
 
 		status_ = CONNECTED;
@@ -243,6 +243,18 @@ public class JabberProtocol extends Protocol {
     }
     
     public boolean removeContact(Contact c) {
+    	if (getContact(c.userID())==null)
+    		return false;
+    	
+    	String oString =
+    		"<iq from='" + getAccount().getUser() + "' type='set' id='roster_4'>\n" +
+    		"<query xmlns='jabber:iq:roster'>\n" +
+    		"<item jid='" + c.userID() + "' subscription='remove'/>\n" +
+    		"</query>\n" +
+    		"</iq>\n";
+    	
+    	sh_.sendRequest(oString);
+    	
     	return true;
     }
 }    
