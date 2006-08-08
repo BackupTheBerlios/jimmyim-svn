@@ -198,7 +198,7 @@ public class JabberParseXML {
 		//contact has added you to his list, set the contact's list
 		x2 = in.indexOf("type='subscribed'/>");
 		if ((x2 < x22) && (x2 != -1)) {
-			setContactProperties(c, protocol);	//authorize contact to add 
+			protocol.updateContactProperties(c);	//authorize contact to add 
 			in = in.substring(x2 + 19);
 			
 			//Let them know about our status "online"
@@ -252,27 +252,5 @@ public class JabberParseXML {
 	static String parseC(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		///TODO Currently, this method only removes the <c> stanza
 		return in.substring(in.indexOf("/>")+2);
-	}
-	
-	/**
-	 * Used on reply of 'subscribed' to set the contact group.
-	 */
-	static void setContactProperties(Contact c, JabberProtocol protocol) {
-		System.out.println("Setting contact's group:");
-		String oString =
-			"<iq type='set' from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "'>" +
-				"<query xmlns='jabber:iq:roster'>\n" +
-					"<item " +
-						"jid='" + c.userID() + "' " +
-						"subscription='from'" +
-						((c.screenName()!=null)?(" name='" + c.screenName() + "'"):"") + ">\n" +
-						((c.groupName()!=null)?("<group>" + c.groupName() + "</group>\n"):"") +
-					"</item>\n" +
-				"</query>\n" +
-			"</iq>\n";
-		
-		System.out.println(oString);
-		
-		protocol.getServerHandler().sendRequest(oString);
 	}
 }

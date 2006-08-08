@@ -259,6 +259,18 @@ public class JabberProtocol extends Protocol {
     }
     
     public void updateContactProperties(Contact c) {
-    
+   		String oString =
+   			"<iq type='set' from='" + getAccount().getUser() + "' to='" + c.userID() + "'>" +
+   				"<query xmlns='jabber:iq:roster'>\n" +
+   					"<item " +
+   						"jid='" + c.userID() + "' " +
+   						"subscription='from'" +
+   						((c.screenName()!=null)?(" name='" + c.screenName() + "'"):"") + ">\n" +
+   						((c.groupName()!=null)?("<group>" + c.groupName() + "</group>\n"):"") +
+   					"</item>\n" +
+   				"</query>\n" +
+   			"</iq>\n";
+   		
+   		sh_.sendRequest(oString);
     }
 }    
