@@ -708,15 +708,6 @@ public class ICQProtocol extends Protocol {
 	    
     }
 
-	public boolean removeContact(Contact c) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	public void updateContactProperties(Contact c) {
-		
-	}
-
 	public void updateContactProperties(Contact c) {
 		// TODO Auto-generated method stub
 		
@@ -726,4 +717,6 @@ public class ICQProtocol extends Protocol {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	
 }
