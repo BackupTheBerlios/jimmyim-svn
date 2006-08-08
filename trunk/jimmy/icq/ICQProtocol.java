@@ -350,7 +350,7 @@ public class ICQProtocol extends Protocol {
 		
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
-		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		//System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
 		
 		out = new ICQPackage();
@@ -371,31 +371,10 @@ public class ICQProtocol extends Protocol {
 		this.conn.sendPackage(out.getNetPackage());
 		
 		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		this.pkgDecode(in);
 		
-		System.out.println(Utils.byteArrayToHexString(b));
-		
-
-		
-
-		
-		b = this.conn.getNextPackage();
-		//System.out.println(Utils.byteArrayToHexString(b));
-		b = this.conn.getNextPackage();
-		//System.out.println(Utils.byteArrayToHexString(b));
-		
-		
-
-		
-		try{
-			Thread.sleep((long)1000);
-		}catch(InterruptedException e){}
-		
-		//System.out.println("Sending first message");
-		//this.sendMsg("Ala da vidimo kaj bo novega",this.startChatSession((Contact)this.contacts_.elementAt(0)));
-		//System.out.println("Message sent to: "+((Contact)this.contacts_.elementAt(0)).screenName());
-		//Awaiting for next package !!!! TEMPORARY !!!!
-		b = this.conn.getNextPackage();
-		System.out.println(Utils.byteArrayToHexString(b));
 		System.out.println(this.conn.getNumPackages());
 		
 		return true;
@@ -765,8 +744,73 @@ public class ICQProtocol extends Protocol {
 	
 	public void run() {
 		
-		ICQPackage refresh_c = new ICQPackage();
 		
+		//TODO: I WORK HERE
+		
+		
+		ICQPackage out = null;
+		ICQTlv t = null;
+		byte[] b = null;
+		byte[] h = null;
+//		Offline messages req
+		out = new ICQPackage();
+		out.setSnac(21,2,0,++this.s_seq);
+		t = new ICQTlv();
+		b = new byte[10];
+		b[0] = (byte)0x08;
+		b[1] = (byte)0x00;
+		h = Utils.intToBytes(Integer.parseInt(this.user),false);
+		b[2] = h[0];
+		b[3] = h[1];
+		b[4] = h[2];
+		b[5] = h[3];
+		//request id
+		b[6] = (byte)0x3c;
+		b[7] = (byte)0x00;
+		h = Utils.shortToBytes((short)this.s_seq,false);
+		b[8] = h[0];
+		b[9] = h[1];
+		t.setContent(b);
+		t.setHeader((short)1,(short)10);
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+
+		//User info permissions
+		out = new ICQPackage();
+		out.setSnac(21,2,0,++this.s_seq);
+		t = new ICQTlv();
+		b = new byte[16];
+		b[0] = (byte)0x0E;
+		b[1] = (byte)0x00;
+		h = Utils.intToBytes(Integer.parseInt(this.user),false);
+		b[2] = h[0];
+		b[3] = h[1];
+		b[4] = h[2];
+		b[5] = h[3];
+		//request id
+		b[6] = (byte)0xd0;
+		b[7] = (byte)0x07;
+		h = Utils.shortToBytes((short)this.s_seq,false);
+		b[8] = h[0];
+		b[9] = h[1];
+		b[10] = (byte)0x24;
+		b[11] = (byte)0x04;
+		b[12] = (byte)0x01;
+		b[13] = (byte)0x00;
+		b[14] = (byte)0x01;
+		b[15] = (byte)0x00;
+		t.setContent(b);
+		t.setHeader((short)1,(short)10);
+		out.addTlv(t);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		//rquest buddy statuses
+		out = new ICQPackage();
+		out.setSnac(19,7,0,++this.s_seq);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
 		
 		
 		this.stop_ = false;
