@@ -413,7 +413,7 @@ public class ICQProtocol extends Protocol {
 		ICQTlv off = new ICQTlv();
 		off.setHeader((short)6,(short)0);
 		ICQTlv m = new ICQTlv();
-		byte[] stuff = new byte[msg.length()+13+4];
+		byte[] stuff = new byte[msg.length()+13];
 		stuff[0] = (byte)5;
 		stuff[1] = (byte)1;
 		stuff[2] = (byte)0;
@@ -421,7 +421,7 @@ public class ICQProtocol extends Protocol {
 		stuff[4] = (byte)1;
 		stuff[5] = (byte)1;
 		stuff[6] = (byte)1;
-		byte[] b = Utils.shortToBytes((short)msg.length(),true);
+		byte[] b = Utils.shortToBytes((short)(msg.length()+4),true);
 		stuff[7] = b[0];
 		stuff[8] = b[1];
 		stuff[9] = (byte)0;
@@ -563,6 +563,13 @@ public class ICQProtocol extends Protocol {
 					this.conn.sendPackage(cp.getNetPackage());
 					cap = null;
 					cp = null;
+					break;
+				}
+				break;
+			case 0x0004:
+				switch(subtype){
+				case 0x000C:
+					System.out.println("Msg Ack");
 					break;
 				}
 				break;
