@@ -34,6 +34,10 @@ public class ICQProtocol extends Protocol {
 	private int bos_port = 5190;
 	private short f_seq = 0;
 	private int s_seq = 1;
+	
+	private long SSI_LAST_MODIFIED=0;
+	private short REPORT_INTERVAL = 0;
+	
 	private byte[] cookie;
 	private byte[] services;
 	private byte[] service_ver;
@@ -48,6 +52,8 @@ public class ICQProtocol extends Protocol {
 	
 	private String user;
 	private String pass;
+	
+	private boolean stop_;
 	
 	public ICQProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
@@ -277,6 +283,24 @@ public class ICQProtocol extends Protocol {
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
 		
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		this.pkgDecode(in);
+		
+		System.out.println("Asking for contacts");
+		out = new ICQPackage();
+		out.setSnac(19,4,0,++this.s_seq);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
+		
+		//Contact list
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println(Utils.byteArrayToHexString(b));
+		this.pkgDecode(in);
+		
+		
+		System.out.println("SNACK 4,2");
 		out = new ICQPackage();
 		out.setChannel((byte)0x02);
 		byte[] c = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0B,(byte)0x1F,(byte)0x40,(byte)0x03,(byte)0xE7,(byte)0x03,(byte)0xE7,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
@@ -289,16 +313,16 @@ public class ICQProtocol extends Protocol {
 		//END STAGE THREE
 		//STAGE FOUR
 		
-		out = new ICQPackage();
-		out.setSnac(1,30,0,++this.s_seq);
-		t = new ICQTlv();
-		byte[] d = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
-		t.setContent(d);
-		t.setHeader((short)0x0006,(short)t.getCLen());
-		out.addTlv(t);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		d=null;
+//		out = new ICQPackage();
+//		out.setSnac(1,30,0,++this.s_seq);
+//		t = new ICQTlv();
+//		byte[] d = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
+//		t.setContent(d);
+//		t.setHeader((short)0x0006,(short)t.getCLen());
+//		out.addTlv(t);
+//		out.setFlap(++this.f_seq);
+//		this.conn.sendPackage(out.getNetPackage());
+//		d=null;
 		
 		out = new ICQPackage();
 		byte[] used_families ={
@@ -324,7 +348,10 @@ public class ICQProtocol extends Protocol {
 		//END STAGE FOUR
 		used_families=null;
 		
-		System.out.println("Testiramo: \n"+Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		b = this.conn.getNextPackage();
+		in = new ICQPackage(b);
+		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+		this.pkgDecode(in);
 		
 		out = new ICQPackage();
 		out.setSnac(1,30,0,++this.s_seq);
@@ -336,38 +363,36 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
-		
+		out = new ICQPackage();
+		out.setChannel((byte)0x02);
+		out.setContent(h);
+		out.setSnac(1,17,0,++this.s_seq);
+		out.setFlap(++this.f_seq);
+		this.conn.sendPackage(out.getNetPackage());
 		
 		b = this.conn.getNextPackage();
 		
 		System.out.println(Utils.byteArrayToHexString(b));
 		
-		out = new ICQPackage();
-		out.setSnac(19,4,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
+
 		
 
 		
 		b = this.conn.getNextPackage();
-		System.out.println(Utils.byteArrayToHexString(b));
+		//System.out.println(Utils.byteArrayToHexString(b));
 		b = this.conn.getNextPackage();
-		System.out.println(Utils.byteArrayToHexString(b));
+		//System.out.println(Utils.byteArrayToHexString(b));
 		
 		
-		//Contact list
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		System.out.println(Utils.byteArrayToHexString(b));
-		this.pkgDecode(in);
+
 		
 		try{
 			Thread.sleep((long)1000);
 		}catch(InterruptedException e){}
 		
-		System.out.println("Sending first message");
-		this.sendMsg("Ala da vidimo kaj bo novega",this.startChatSession((Contact)this.contacts_.elementAt(0)));
-		System.out.println("Message sent to: "+((Contact)this.contacts_.elementAt(0)).screenName());
+		//System.out.println("Sending first message");
+		//this.sendMsg("Ala da vidimo kaj bo novega",this.startChatSession((Contact)this.contacts_.elementAt(0)));
+		//System.out.println("Message sent to: "+((Contact)this.contacts_.elementAt(0)).screenName());
 		//Awaiting for next package !!!! TEMPORARY !!!!
 		b = this.conn.getNextPackage();
 		System.out.println(Utils.byteArrayToHexString(b));
@@ -473,8 +498,13 @@ public class ICQProtocol extends Protocol {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	public void tlvDecode(ICQTlv t){
+	/**
+	 * Decodes a tlv package
+	 * 
+	 * @param t TLV package
+	 * @return true if successful
+	 */
+	public boolean tlvDecode(ICQTlv t){
 		
 		switch(t.getType()){
 		case	 0:
@@ -510,6 +540,8 @@ public class ICQProtocol extends Protocol {
 			break;
 				
 		}
+		
+		return true;
 	}
 	
 	/**
@@ -525,6 +557,8 @@ public class ICQProtocol extends Protocol {
 			switch(type){
 			case 0x0001:
 				switch(subtype){
+				case 0x0001:
+					return false;
 				case 0x0007:
 					//TODO: rate limit info classes
 					byte[] c = pak.getContent();
@@ -537,6 +571,8 @@ public class ICQProtocol extends Protocol {
 					ack.setContent(n);
 					ack.setFlap(++this.f_seq);
 					this.conn.sendPackage(ack.getNetPackage());
+					break;
+				case 0x000F:
 					break;
 				case 0x0013:
 					//TODO: MOTD
@@ -551,6 +587,8 @@ public class ICQProtocol extends Protocol {
 				break;
 			case 0x0002:
 				switch(subtype){
+				case 0x0001:
+					return false;
 				case 0x0003:
 					//TODO: Location service limitations/capabilities
 					ICQTlv cap = new ICQTlv();
@@ -568,17 +606,28 @@ public class ICQProtocol extends Protocol {
 				break;
 			case 0x0004:
 				switch(subtype){
+				case 0x0001:
+					return false;
 				case 0x000C:
 					System.out.println("Msg Ack");
 					break;
 				}
 				break;
+			case 0x000B:
+				byte[] b = new byte[2];
+				b[0] = pak.getContent()[0];
+				b[1] = pak.getContent()[1];
+				this.REPORT_INTERVAL = Utils.bytesToShort(b,true);
+				b = null;
+				break;
 			case 0x0013:
 				switch(subtype){
+				case 0x0001:
+					return false;
 				case 0x0006://ROSTER reply
 					byte[] pkg = pak.getContent();
 					
-					int start_point = 9;
+					int start_point = 1;
 					
 					byte[] it = new byte[2];
 					it[0] = pkg[start_point];
@@ -671,12 +720,21 @@ public class ICQProtocol extends Protocol {
 								ct.setScreenName(new String(nick));
 								ct.setGroupName(groups[gid]);
 								ct.setProtocol(this);
+								ct.setStatus(Contact.ST_OFFLINE);
 								this.contacts_.addElement(ct);
 							}
 							
 						}
 					}
-					groups = null;
+					it = null;
+					
+					it = new byte[4];
+					it[3] = pkg[pkg.length-1];
+					it[2] = pkg[pkg.length-2];
+					it[1] = pkg[pkg.length-3];
+					it[0] = pkg[pkg.length-4];
+					this.SSI_LAST_MODIFIED = Utils.bytesToLong(it,true);
+					
 					pkg = null;
 					break;
 				}
@@ -685,7 +743,7 @@ public class ICQProtocol extends Protocol {
 		
 		}
 		
-		return false;
+		return true;
 	}
 	
 	/**
@@ -706,8 +764,34 @@ public class ICQProtocol extends Protocol {
 	public String getServer(){return this.AUTH_SERVER;}
 	
 	public void run() {
-    	
-    }
+		
+		ICQPackage refresh_c = new ICQPackage();
+		
+		
+		
+		this.stop_ = false;
+		
+		while (!this.stop_) {
+    			try {
+    				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			ICQPackage in = null;
+			byte[] next = this.conn.getNextPackage();
+			if(next != null){
+				
+				in = new ICQPackage(next);
+				
+				if(!this.pkgDecode(in)){
+					//Some kind of error report
+				}
+				
+				
+			}
+		}
+	}
 
     
     
