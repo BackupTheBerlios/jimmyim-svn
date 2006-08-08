@@ -287,7 +287,6 @@ public class ICQProtocol extends Protocol {
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
 		
-		System.out.println("Asking for contacts");
 		out = new ICQPackage();
 		out.setSnac(19,4,0,++this.s_seq);
 		out.setFlap(++this.f_seq);
@@ -296,11 +295,10 @@ public class ICQProtocol extends Protocol {
 		//Contact list
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
-		System.out.println(Utils.byteArrayToHexString(b));
+		//System.out.println(Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
 		
 		
-		System.out.println("SNACK 4,2");
 		out = new ICQPackage();
 		out.setChannel((byte)0x02);
 		byte[] c = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0B,(byte)0x1F,(byte)0x40,(byte)0x03,(byte)0xE7,(byte)0x03,(byte)0xE7,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
@@ -372,7 +370,7 @@ public class ICQProtocol extends Protocol {
 		
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
-		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
+//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
 		
 		System.out.println(this.conn.getNumPackages());
@@ -823,16 +821,17 @@ public class ICQProtocol extends Protocol {
 			}
 			
 			ICQPackage in = null;
-			byte[] next = this.conn.getNextPackage();
-			if(next != null){
+			byte[] next = null;
+			while(this.conn.getNumPackages() != 0){
+				next = this.conn.getNextPackage();
+				if(next != null){
+
+					in = new ICQPackage(next);
 				
-				in = new ICQPackage(next);
-				
-				if(!this.pkgDecode(in)){
-					//Some kind of error report
+					if(!this.pkgDecode(in)){
+						//Some kind of error report
+					}
 				}
-				
-				
 			}
 		}
 	}

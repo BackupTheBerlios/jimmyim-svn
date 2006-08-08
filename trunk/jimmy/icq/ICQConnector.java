@@ -46,28 +46,35 @@ public class ICQConnector extends ServerHandler {
 			return p;
 		}else{
 			byte[] b = super.getReplyBytes();
-			int h = 0;
+//			int h = 0;
+//			if(b == null){
+//				while(b==null ){
+//					b = super.getReplyBytes();
+//					
+//				}
+//			}
 			if(b == null){
-				while(b==null ){
-					b = super.getReplyBytes();
-					
-				}
+				b = super.getReplyBytes();
+				if(b == null)
+					return b;
 			}
-			for(int i = 0; i < b.length;){
-				byte[] bplen = new byte[2];
-				bplen[0] = b[i+4];
-				bplen[1] = b[i+5];
-				int plen = Utils.bytesToInt(bplen,true)+6;
-				Vector p = new Vector();
-				int ind = i;
-				for(int j = i; j < ind+plen; j++){
-					p.addElement(new Byte(b[j]));
-					i++;
-					
+			
+//			if(b != null){
+				for(int i = 0; i < b.length;){
+					byte[] bplen = new byte[2];
+					bplen[0] = b[i+4];
+					bplen[1] = b[i+5];
+					int plen = Utils.bytesToInt(bplen,true)+6;
+					Vector p = new Vector();
+					int ind = i;
+					for(	int j = i; j < ind+plen; j++){
+						p.addElement(new Byte(b[j]));
+						i++;
+					}
+					this	.pkgs.addElement(p);
 				}
-				this	.pkgs.addElement(p);
-			}
-			return this.getNextPackage();
+				return this.getNextPackage();
+//			}
 		}
 	}
 	
