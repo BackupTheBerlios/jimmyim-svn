@@ -901,7 +901,8 @@ public class ICQProtocol extends Protocol {
 		byte[] b = null;
 		byte[] h = null;
 //		Offline messages req
-		out = new ICQPackage();
+		//TODO: enable in V1.1
+		/*out = new ICQPackage();
 		out.setSnac(21,2,0,++this.s_seq);
 		t = new ICQTlv();
 		b = new byte[10];
@@ -922,7 +923,7 @@ public class ICQProtocol extends Protocol {
 		t.setHeader((short)1,(short)10);
 		out.addTlv(t);
 		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
+		this.conn.sendPackage(out.getNetPackage());*/
 
 		//User info permissions
 		out = new ICQPackage();
