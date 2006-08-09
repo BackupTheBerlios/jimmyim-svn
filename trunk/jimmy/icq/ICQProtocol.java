@@ -309,17 +309,7 @@ public class ICQProtocol extends Protocol {
 		
 		//END STAGE THREE
 		//STAGE FOUR
-		
-//		out = new ICQPackage();
-//		out.setSnac(1,30,0,++this.s_seq);
-//		t = new ICQTlv();
-//		byte[] d = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
-//		t.setContent(d);
-//		t.setHeader((short)0x0006,(short)t.getCLen());
-//		out.addTlv(t);
-//		out.setFlap(++this.f_seq);
-//		this.conn.sendPackage(out.getNetPackage());
-//		d=null;
+
 		
 		out = new ICQPackage();
 		byte[] used_families ={
@@ -367,99 +357,10 @@ public class ICQProtocol extends Protocol {
 		out.setFlap(++this.f_seq);
 		this.conn.sendPackage(out.getNetPackage());
 		
-//		//
-//		out = new ICQPackage();
-//		out.setSnac(21,2,0,++this.s_seq);
-//		t = new ICQTlv();
-//		b = new byte[10];
-//		b[0] = (byte)0x08;
-//		b[1] = (byte)0x00;
-//		h = Utils.intToBytes(Integer.parseInt(this.user),false);
-//		b[2] = h[0];
-//		b[3] = h[1];
-//		b[4] = h[2];
-//		b[5] = h[3];
-//		//request id
-//		b[6] = (byte)0x3c;
-//		b[7] = (byte)0x00;
-//		h = Utils.shortToBytes((short)this.s_seq,false);
-//		b[8] = h[0];
-//		b[9] = h[1];
-//		t.setContent(b);
-//		t.setHeader((short)1,(short)10);
-//		out.addTlv(t);
-//		out.setFlap(++this.f_seq);
-//		this.conn.sendPackage(out.getNetPackage());
-//
-//		//User info permissions
-//		out = new ICQPackage();
-//		out.setSnac(21,2,0,++this.s_seq);
-//		t = new ICQTlv();
-//		b = new byte[16];
-//		b[0] = (byte)0x0E;
-//		b[1] = (byte)0x00;
-//		h = Utils.intToBytes(Integer.parseInt(this.user),false);
-//		b[2] = h[0];
-//		b[3] = h[1];
-//		b[4] = h[2];
-//		b[5] = h[3];
-//		//request id
-//		b[6] = (byte)0xd0;
-//		b[7] = (byte)0x07;
-//		h = Utils.shortToBytes((short)this.s_seq,false);
-//		b[8] = h[0];
-//		b[9] = h[1];
-//		b[10] = (byte)0x24;
-//		b[11] = (byte)0x04;
-//		b[12] = (byte)0x01;
-//		b[13] = (byte)0x00;
-//		b[14] = (byte)0x01;
-//		b[15] = (byte)0x00;
-//		t.setContent(b);
-//		t.setHeader((short)1,(short)10);
-//		out.addTlv(t);
-//		out.setFlap(++this.f_seq);
-//		this.conn.sendPackage(out.getNetPackage());
-//		
-//		//rquest buddy statuses
-//		out = new ICQPackage();
-//		out.setSnac(19,7,0,++this.s_seq);
-//		out.setFlap(++this.f_seq);
-//		this.conn.sendPackage(out.getNetPackage());
-		
-		
-		
-		
 		b = this.conn.getNextPackage();
 		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
 		this.pkgDecode(in);
-		
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-//		b = this.conn.getNextPackage();
-//		in = new ICQPackage(b);
-//		System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-		
+
 		System.out.println(this.conn.getNumPackages());
 		
 		return true;
@@ -772,6 +673,7 @@ public class ICQProtocol extends Protocol {
 				case 0x0001:
 					return false;
 				case 0x0007:
+					
 					break;
 				case 0x000C:
 					System.out.println("Msg Ack");
