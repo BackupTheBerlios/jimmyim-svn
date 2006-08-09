@@ -673,7 +673,59 @@ public class ICQProtocol extends Protocol {
 				case 0x0001:
 					return false;
 				case 0x0007:
-					
+					byte[] p = pak.getContent();
+					if(p[9] == (byte)0x01){
+						byte[] uin = new byte[p[10]];
+						for(byte j = 0; j < p[10]; j++){
+							uin[j] = p[j+11];
+						}
+						int start_point = 11+(byte)p[10];
+						
+						start_point += 2;
+						byte[] l = null;
+						start_point += 2;
+						Vector tlvs = new Vector();
+						ICQTlv msg = null;
+						for(int i = 0; start_point < p.length; i++){
+							l = new byte[2];
+							l[0] = p[start_point];
+							l[1] = p[start_point+1];
+							start_point += 2;
+							short tlvid = Utils.bytesToShort(l,true);
+							l = new byte[2];
+							l[0] = p[start_point];
+							l[1] = p[start_point+1];
+							start_point += 2;
+							short tlen = Utils.bytesToShort(l,true);
+							l = new byte[tlen];
+							for(short j = 0; j < tlen; j++){
+								l[j] = p[start_point];
+								start_point++;
+							}
+							ICQTlv bla = new ICQTlv();
+							bla.setHeader(tlvid,tlen);
+							bla.setContent(l);
+							if(tlvid == (short)0x0002){
+								msg = bla;
+							}
+							tlvs.addElement(bla);
+						}
+						byte[] c = msg.getContent();
+						byte[] d = new byte[2];
+						d[0] = c[2];
+						d[1] = c[3];
+						start_point = 12 + Utils.bytesToShort(d,true);
+						int ml = c.length - start_point;
+						d = new byte[ml];
+						for(int j = 0; j < ml; j++){
+							d[j] = c[start_point];
+							start_point++;
+						}
+						System.out.println("Msg sent by UIN: "+new String(uin)+"\nMSG: \n"+new String(d));
+						
+					}else{
+						System.out.println("Channel not supported");
+					}
 					break;
 				case 0x000C:
 					System.out.println("Msg Ack");
