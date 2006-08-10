@@ -49,17 +49,18 @@ public class YahooProtocol extends Protocol {
 		String iString=null;
 		
 		sh_ = new ServerHandler(DEFAULT_SERVER_, DEFAULT_PORT_);
+		sh_.setTimeout(10000);
 		sh_.connect();
 		if (sh_.isConnected() == false)
 			return false;
 		
 		//authentication 
-		oString = "YMSG" + (char)0x09 + (char)0x00 + (char)0x00 + (char)0x00;	//using Yahoo protocol version 9
-		oString = oString + (char)0x00 + (char)(account.getUser().length()+15);	//data length (yahoo username)
+		oString = "YMSG" + (char)0x00 + (char)0x09 + (char)0x00 + (char)0x00;	//using Yahoo protocol version 9
+		oString = oString + (char)0x00 + (char)(account.getUser().length()+5);	//data length (yahoo username) + 2 separators(= 4 bytes) + key(=1 byte) written in big endian format
 		oString = oString + (char)0x00 + (char)0x57;	//YAHOO_SERVICE_AUTH
-		oString = oString + (char)0x30 + (char)0x00 + (char)0x00 + (char)0x00;	//YAHOO_STATUS_AVAILABLE
-		oString = oString + (char)0x00 + (char)0x00 + (char)0x00 + (char)0x00; //+ (char)0x00 + (char)0x00 + (char)0x00 + (char)0x00 + (char)0x00;	//session ID
-		oString = oString + (char)0x31 + NL_ + account.getUser() + NL_;	//1 : userID
+		oString = oString + (char)0x00 + (char)0x00 + (char)0x00 + "0";	//status AVAILABLE
+		oString = oString + (char)0x00 + (char)0x00 + (char)0x00 + (char)0x00;	//session ID - 0 for the first AUTH request
+		oString = oString + "1" + NL_ + account.getUser() + NL_;	//1 : userID
 		
 		System.out.println("OUT:");
 		for (int i=0; i<oString.length(); i++)
