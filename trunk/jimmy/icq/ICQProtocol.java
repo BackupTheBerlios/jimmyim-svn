@@ -646,6 +646,7 @@ public class ICQProtocol extends Protocol {
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin))){
 							c.setStatus(st);
+							//this.me.changeContactStatus(c);
 							break;
 						}
 					}
@@ -662,6 +663,7 @@ public class ICQProtocol extends Protocol {
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin1))){
 							c.setStatus(Contact.ST_OFFLINE);
+							//this.me.changeContactStatus(c);
 							break;
 						}
 					}
