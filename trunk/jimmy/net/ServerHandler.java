@@ -167,7 +167,7 @@ public class ServerHandler
      * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
      * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)! 
      *  
-     * @return Message from the remote server as a String. null if timeout has occured
+     * @return Message from the remote server as a String in UTF-8 encoding, null if timeout has occured.
      */
     public String getReply()
     {          
@@ -191,7 +191,7 @@ public class ServerHandler
         	}
             
             if (buffer != null)
-            	return new String(buffer); //buffer was get, return the String
+            	return new String(buffer, "UTF-8"); //buffer was get, return the String
             else
             	return null;	//buffer was not get - timeout occured, return null
         } 
@@ -203,6 +203,46 @@ public class ServerHandler
         }
     }
     
+    /**
+     * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
+     * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)!
+     *  
+     * @param enc Return String in the given encoding. See http://java.sun.com/j2se/1.5.0/docs/api/java/nio/charset/Charset.html for additional information on String encodings.
+     * @return Message from the remote server as a String in UTF-8 encoding, null if timeout has occured.
+     */
+    public String getReply(String enc)
+    {          
+        try 
+        {
+            byte[] buffer = null;
+            
+            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
+            if (bs!=0) {
+                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
+                this.is_.read(buffer);	//read the whole buffer in the array
+            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
+                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
+                    Thread.sleep(this.SLEEPTIME_);
+                    if ((bs = this.is_.available()) != 0) {
+                        buffer = new byte[bs];
+                        this.is_.read(buffer);
+                        break;
+                    }
+                }
+        	}
+            
+            if (buffer != null)
+            	return new String(buffer, enc); //buffer was get, return the String
+            else
+            	return null;	//buffer was not get - timeout occured, return null
+        } 
+        catch (Exception ex) 
+        {
+            ex.printStackTrace();
+
+            return null;
+        }
+    }    
     /**
      * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
      * This method reads and empties the WHOLE buffer (ie. doesn't stop at new line)! 
