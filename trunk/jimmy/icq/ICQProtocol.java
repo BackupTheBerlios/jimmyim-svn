@@ -3,6 +3,7 @@
  */
 package jimmy.icq;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 import java.util.Random;
 
@@ -717,14 +718,44 @@ public class ICQProtocol extends Protocol {
 						d[0] = c[2];
 						d[1] = c[3];
 						start_point = 12 + Utils.bytesToShort(d,true);
+						int charset = start_point -2;
 						int ml = c.length - start_point;
 						d = new byte[ml];
 						for(int j = 0; j < ml; j++){
 							d[j] = c[start_point];
 							start_point++;
 						}
-						System.out.println("Msg sent by UIN: "+new String(uin)+"\nMSG: \n"+new String(d));
-						
+						//Support for multi encoding messages
+						byte[] ch = new byte[2];
+						ch[0] = c[charset];
+						ch[1] = c[charset+1];
+						charset = Utils.bytesToInt(ch,true);
+						String m = null;
+						String enc = null;
+						try{
+							if(charset == (int)0x0000){
+								enc = "ISO-8859-1";
+								m = new String(d,enc);
+							}else if(charset == (int)0x0002){
+								enc = "UTF-8";
+								m = new String(d,0,d.length,enc);
+							}
+						}catch (UnsupportedEncodingException ex){
+							ex.printStackTrace();
+							System.out.println("Unsupported encoding: "+enc);
+						}
+//						Contact cont = this.findContact(new String(uin));
+//						ChatSession csess = this.getChatSession(cont);
+//						this.me.msgRecieved(csess == null ? csess=this.getChatSession(cont) : csess ,cont,m);
+						System.out.print("Msg sent by UIN: "+new String(uin)+"\nMSG: \n");
+						System.out.println(m);
+						//System.out.println("Msg bytes: "+Utils.byteArrayToHexString(m.getBytes()));
+						try{
+							System.out.println("Msg back in "+enc+" bytes: "+Utils.byteArrayToHexString(m.getBytes(enc)));
+					}catch (UnsupportedEncodingException ex){
+						ex.printStackTrace();
+						System.out.println("Unsupported encoding: "+enc);
+					}
 					}else{
 						System.out.println("Channel not supported");
 					}
@@ -892,6 +923,17 @@ public class ICQProtocol extends Protocol {
 
 	public String getServer(){return this.AUTH_SERVER;}
 	
+	public Contact findContact(String uID){
+		Contact c = null;
+		for(int i = 0; i < this.contacts_.size(); i++){
+			c = (Contact)this.contacts_.elementAt(i);
+			if(c.userID().equals(uID)){
+				return c;
+			}
+		}
+		return null;
+	}
+	
 	public void run() {
 		
 		System.out.println("Running...");
@@ -965,25 +1007,21 @@ public class ICQProtocol extends Protocol {
 		
 		
 		this.stop_ = false;
-		System.out.println("going to loop");
 		while (!this.stop_) {		
-//			System.out.println("1st loop");
 			ICQPackage in = null;
 			byte[] next = null;
-			boolean hah = true;
 			while(true){
-//				System.out.println("2nd loop");
-				hah = false;
 				next = this.conn.getNextPackage();
 				if(next != null){
 
 					in = new ICQPackage(next);
 					System.out.println("I GOT:\n"+Utils.byteArrayToHexString(next));
 					if(!this.pkgDecode(in)){
+						
 						//Some kind of error report
+						
 					}
 				}
-//				System.out.println("end 2nd loop");
 				if(this.conn.getNumPackages() == 0)
 					break;
 			}
