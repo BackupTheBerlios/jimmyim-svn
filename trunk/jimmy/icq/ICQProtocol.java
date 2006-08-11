@@ -615,46 +615,53 @@ public class ICQProtocol extends Protocol {
 						tlvs.addElement(t);
 					}
 					//jimmy status codes
-					int stat = Utils.bytesToInt(status.getContent(),true);
+					byte[] bi = status.getContent();
 					int st = 0;
-					switch(stat){
-					case 0x0000:
-						st = Contact.ST_ONLINE;
-						break;
-					case 0x0001:
-						st = Contact.ST_AWAY;
-						break;
-					case 0x0002:
-						st = Contact.ST_BUSY;
-						break;
-					case 0x0004:
-						st = Contact.ST_AWAY;
-						break;
-					case 0x0008:
-						st = Contact.ST_ONLINE;
-						break;
-					case 0x0010:
-						st = Contact.ST_BUSY;
-						break;
-					case 0x0020:
-						st = Contact.ST_ONLINE;
-						break;
-					case 0x0100:
+					if(bi[2] == (byte)0x00){
+						switch(bi[3]){
+						case 0x00:
+							st = Contact.ST_ONLINE;
+							break;
+						case 0x01:
+							st = Contact.ST_AWAY;
+							break;
+						case 0x02:
+							st = Contact.ST_BUSY;
+							break;
+						case 0x03:
+							st = Contact.ST_BUSY;
+							break;
+						case 0x04:
+							st = Contact.ST_AWAY;
+							break;
+						case 0x05:
+							st = Contact.ST_AWAY;
+							break;
+						case 0x06:
+							st = Contact.ST_AWAY;
+							break;
+						case 0x07:
+							st = Contact.ST_AWAY;
+							break;
+						case 0x10:
+							st = Contact.ST_BUSY;
+							break;
+						case 0x20:
+							st = Contact.ST_ONLINE;
+							break;
+						case 0x30:
+							st = Contact.ST_BUSY;
+							break;
+						}
+					}else{
 						st = Contact.ST_OFFLINE;
-						break;
-					case 0x1000:
-						st = Contact.ST_ONLINE;
-						break;
-					case 0x2000:
-						st = Contact.ST_ONLINE;
-						break;
 					}
 					for(int i = 0; i < this.contacts_.size(); i++){
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin))){
-							System.out.print("User: "+c.userID());
-							System.out.print("changed status to: ");
-							System.out.println(c.status());
+//							System.out.print("User: "+c.userID());
+//							System.out.print("changed status to: ");
+//							System.out.println(c.status());
 							c.setStatus(st);
 							this.jimmy_.changeContactStatus(c);
 							break;

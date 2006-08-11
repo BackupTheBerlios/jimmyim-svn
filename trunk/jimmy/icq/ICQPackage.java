@@ -75,7 +75,7 @@ public class ICQPackage {
 						+ ICQPackage.SNACK_PKG_HEADER_SIZE];
 			else
 				this.pkg = new byte[data_size + ICQPackage.FLAP_HEADER_SIZE];
-		System.out.print("datasize ");System.out.println(data_size);
+//		System.out.print("datasize ");System.out.println(data_size);
 	}
 
 	/**
@@ -92,10 +92,10 @@ public class ICQPackage {
 		b[0] = this.pkg[4];
 		b[1] = this.pkg[5];
 		this.flap_size = Utils.bytesToUShort(b, true);
-		System.out.print("channel");
-		System.out.println(this.ch);
+//		System.out.print("channel");
+//		System.out.println(this.ch);
 		if(this.ch != 0x01){
-			System.out.println("dismanlte");
+//			System.out.println("dismanlte");
 			this.tlvs = new Vector();
 			dismantle();
 		}
@@ -111,7 +111,7 @@ public class ICQPackage {
 		if(this.ch == 0x02){
 			header = ICQPackage.SNACK_PKG_HEADER_SIZE;
 		}
-		System.out.println("dismanlte");
+//		System.out.println("dismanlte");
 		if (this.ch != 0x02) {
 			for (int i = header; i < this.pkg.length; i++) {
 				ICQTlv tlv = new ICQTlv();
@@ -150,7 +150,7 @@ public class ICQPackage {
 			int type = this.getSnackType();
 			int subtype = this.getSnackSubType();
 			//DISMANTLE SNAC BY SUBTYPE
-			System.out.println("dismantling SNAC");
+//			System.out.println("dismantling SNAC");
 			switch(type){
 			case 0x0017:
 				switch(subtype){
