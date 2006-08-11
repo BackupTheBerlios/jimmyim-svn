@@ -640,8 +640,88 @@ public class MSNProtocol extends Protocol
     }
     private void parseMessage(String data, int SHid)
     {
+        // there can be a lot of different structures of MSG incoming string
+        // therefore 
         System.out.println("parse message function **************");
-        if(data.indexOf("TypingUser:")==-1)
+        
+        int t = data.indexOf("MSG");
+        int end;
+        String msg;
+        while(t!=-1)
+        {
+            end = data.indexOf("MSG", t+1);
+            System.out.println("t:" + t + ", end:" + end);
+           
+            if(end == -1)
+            {   
+                // we have reached the last MSG piece in the string
+                 msg = data.substring(t);
+                 System.out.println("Last msg:" + msg);
+                 t = -1;
+                if(msg.indexOf("TypingUser:")==-1)
+                        {
+                            ChatSession activeCS = (ChatSession)this.chatSessions_.elementAt(SHid);
+
+                            Vector allContacts = activeCS.getContactsList();
+                            String uID =  msg.substring(4,msg.indexOf(" ", 10));
+                            System.out.println("Receiving message from:" + uID);
+                            Contact c = null;
+                            for(int i=0;i<allContacts.size(); i++)
+                            {
+                                c = (Contact)allContacts.elementAt(i);
+                                if(uID.compareTo(c.userID())==0)
+                                {
+                                    break;
+                                }
+                            }
+                            int marker = msg.indexOf("X-MMS-IM-Format:");
+                            if(marker==-1)
+                            {
+                                t = end;
+                                continue;
+                            }
+                            System.out.println("Message:"+ marker + msg.substring(msg.indexOf("\n",marker+4)+3));
+                            String message = msg.substring(msg.indexOf("\n",marker+4)+3);
+                            this.jimmy_.msgRecieved(activeCS, c, message);	    
+
+                        }                 
+            }
+            else
+            {
+                // 
+                msg = data.substring(t,end);
+                System.out.println("One msg:" + msg);                
+                if(msg.indexOf("TypingUser:")==-1)
+               {
+                    ChatSession activeCS = (ChatSession)this.chatSessions_.elementAt(SHid);
+
+                    Vector allContacts = activeCS.getContactsList();
+                    String uID =  msg.substring(4,msg.indexOf(" ", 10));
+                    System.out.println("Receiving message from:" + uID);
+                    Contact c = null;
+                    for(int i=0;i<allContacts.size(); i++)
+                    {
+                        c = (Contact)allContacts.elementAt(i);
+                        if(uID.compareTo(c.userID())==0)
+                        {
+                            break;
+                        }
+                    }
+                    int marker = msg.indexOf("X-MMS-IM-Format:");
+                    if(marker==-1)
+                    {
+                        t = end;
+                        continue;
+                    }
+                    System.out.println("Message:"+ marker + msg.substring(msg.indexOf("\n",marker+4)+3));
+                    String message = msg.substring(msg.indexOf("\n",marker+4)+3);
+                    this.jimmy_.msgRecieved(activeCS, c, message);	    
+
+                }                    
+                t = end;
+            }
+        }
+        /*if(data.indexOf("TypingUser:")==-1)
         {
             System.out.println("Prejeto:" + data);
             ChatSession activeCS = (ChatSession)this.chatSessions_.elementAt(SHid);
@@ -668,7 +748,7 @@ public class MSNProtocol extends Protocol
 	    } 
 	    this.jimmy_.msgRecieved(activeCS, c, message);	    
 
-        }
+        }*/
     }
     private void parseContacts(String data)
     {        
@@ -1262,6 +1342,7 @@ public class MSNProtocol extends Protocol
             {
                 ServerHandler shTemp = (ServerHandler)this.SessionHandlers_.elementAt(i);
                 reply = shTemp.getReply();
+                System.out.println("Session:" + reply);
                 if(reply!=null)
                 {
                     if(reply.indexOf("MSG")!=-1)
