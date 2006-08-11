@@ -46,8 +46,6 @@ public class ICQProtocol extends Protocol {
 			,(byte)0x09,(byte)0x46,(byte)0x13,(byte)0x4E,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00};
 	private ICQPackage response;
 	private ICQPackage service_versions = null;
-	private ProtocolInteraction me;
-	//private ServerHandler auth = null;
 	private ICQConnector conn = null;
 	
 	private String user;
@@ -364,6 +362,13 @@ public class ICQProtocol extends Protocol {
 
 		System.out.println(this.conn.getNumPackages());
 		
+		//send contacts to UI
+		this.jimmy_.addContacts(this.contacts_);
+		
+		//Set the connected status
+		this.status_ = Protocol.CONNECTED;
+		this.thread_.start();
+		
 		return true;
 	}
 
@@ -497,7 +502,7 @@ public class ICQProtocol extends Protocol {
 			switch(Utils.bytesToInt(t.getContent(),true)){
 				case 0x1E:
 						System.out.println("Incorrect uin &/or password");
-						this.me.stopProtocol(this);
+						this.jimmy_.stopProtocol(this);
 					break;
 			}
 			//Drops auth error message
@@ -610,8 +615,9 @@ public class ICQProtocol extends Protocol {
 						tlvs.addElement(t);
 					}
 					//jimmy status codes
-					int st = Utils.bytesToInt(status.getContent(),true);
-					switch(st){
+					int stat = Utils.bytesToInt(status.getContent(),true);
+					int st = 0;
+					switch(stat){
 					case 0x0000:
 						st = Contact.ST_ONLINE;
 						break;
@@ -646,8 +652,11 @@ public class ICQProtocol extends Protocol {
 					for(int i = 0; i < this.contacts_.size(); i++){
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin))){
+							System.out.print("User: "+c.userID());
+							System.out.print("changed status to: ");
+							System.out.println(c.status());
 							c.setStatus(st);
-							//this.me.changeContactStatus(c);
+							this.jimmy_.changeContactStatus(c);
 							break;
 						}
 					}
@@ -664,7 +673,7 @@ public class ICQProtocol extends Protocol {
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin1))){
 							c.setStatus(Contact.ST_OFFLINE);
-							//this.me.changeContactStatus(c);
+							this.jimmy_.changeContactStatus(c);
 							break;
 						}
 					}
@@ -744,18 +753,18 @@ public class ICQProtocol extends Protocol {
 							ex.printStackTrace();
 							System.out.println("Unsupported encoding: "+enc);
 						}
-//						Contact cont = this.findContact(new String(uin));
-//						ChatSession csess = this.getChatSession(cont);
-//						this.me.msgRecieved(csess == null ? csess=this.getChatSession(cont) : csess ,cont,m);
+						Contact cont = this.findContact(new String(uin));
+						ChatSession csess = this.getChatSession(cont);
+						this.jimmy_.msgRecieved(csess == null ? csess=this.startChatSession(cont) : csess ,cont,m);
 						System.out.print("Msg sent by UIN: "+new String(uin)+"\nMSG: \n");
 						System.out.println(m);
 						//System.out.println("Msg bytes: "+Utils.byteArrayToHexString(m.getBytes()));
-						try{
-							System.out.println("Msg back in "+enc+" bytes: "+Utils.byteArrayToHexString(m.getBytes(enc)));
-					}catch (UnsupportedEncodingException ex){
-						ex.printStackTrace();
-						System.out.println("Unsupported encoding: "+enc);
-					}
+//						try{
+//							System.out.println("Msg back in "+enc+" bytes: "+Utils.byteArrayToHexString(m.getBytes(enc)));
+//					}catch (UnsupportedEncodingException ex){
+//						ex.printStackTrace();
+//						System.out.println("Unsupported encoding: "+enc);
+//					}
 					}else{
 						System.out.println("Channel not supported");
 					}
@@ -1015,7 +1024,7 @@ public class ICQProtocol extends Protocol {
 				if(next != null){
 
 					in = new ICQPackage(next);
-					System.out.println("I GOT:\n"+Utils.byteArrayToHexString(next));
+//					System.out.println("I GOT:\n"+Utils.byteArrayToHexString(next));
 					if(!this.pkgDecode(in)){
 						
 						//Some kind of error report
