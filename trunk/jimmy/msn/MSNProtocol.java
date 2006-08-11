@@ -42,6 +42,33 @@ public class MSNProtocol extends Protocol
     private String password;
     private boolean connected_;
     private int port;
+    
+    private PassportNexus pn;
+    private MSNTransaction tr;
+    private Contact pendingUser = null;
+    private ServerHandler sh;
+    private boolean busy = false;
+    private ServerHandler NexusHandler;
+    private Vector contacts_;
+    /**
+     * A Vector of all ChatSession classes. Each ChatSession represents a conversation with a contact.
+     */
+    protected Vector chatSessions_;	//list of active chat sessions
+    /**
+     * A Vector of all ServerHandler classes that are required for Chatsessions. MSN 
+     * Protocol has different IP number for every conversation between two users, 
+     * therefore a ServerHandler for each conversation is required.
+     */
+    protected Vector SessionHandlers_;	//list of IPs of alive chat sessions   
+    /**
+     * This Hashtable maps Chatsessions and their Transaction IDs. With every message 
+     * the transaction ID of Chatsession increases.
+     */
+    protected Hashtable ChatIds_;
+    private Hashtable groupHash_;
+    private String mySwitchboard;    
+    
+    // definitions of constants
     final String NsURL = "messenger.hotmail.com";
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String ProductIDhash = "Q1P7W2E4J9R8U3S5";
@@ -49,30 +76,15 @@ public class MSNProtocol extends Protocol
     final String NSredirectURL = "baym-cs295.msgr.hotmail.com";
     private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1;
     final int serverPort = 1863;
-    final int NexusPort = 443;
-    private PassportNexus pn;
-    private MSNTransaction tr;
-    private Contact pendingUser=null;
-    private ServerHandler sh;
-    private boolean busy=false;
-    private ServerHandler NexusHandler;
-    private Vector contacts_;
-    protected Vector chatSessions_;	//list of active chat sessions
-    protected Vector SessionHandlers_;	//list of IPs of alive chat sessions   
-    protected Hashtable ChatIds_;
-    protected Hashtable csSHInteraction; //interaction between ChatSessions and ServerHandlers
-    
-    private Hashtable groupHash_;
-    private String mySwitchboard;
-    
-  final String               DALOGIN                      = "DALogin=";
-  final String               DASTATUS                     = "da-status=";
-  final String               TICKET                       = "from-PP=";
-  final String               SUCCESS                      = "success";
-  final String               KEY_PASSPORT_URLS            = "PassportURLs";
-  final String               KEY_LOCATION                 = "Location";
-  final String               KEY_AUTHENTICATION_INFO      = "Authentication-Info";
-  static final String        PASSPORT_LIST_SERVER_ADDRESS = "https://nexus.passport.com/rdr/pprdr.asp";
+    final int NexusPort = 443;    
+    final String               DALOGIN                      = "DALogin=";
+    final String               DASTATUS                     = "da-status=";
+    final String               TICKET                       = "from-PP=";
+    final String               SUCCESS                      = "success";
+    final String               KEY_PASSPORT_URLS            = "PassportURLs";
+    final String               KEY_LOCATION                 = "Location";
+    final String               KEY_AUTHENTICATION_INFO      = "Authentication-Info";
+    static final String        PASSPORT_LIST_SERVER_ADDRESS = "https://nexus.passport.com/rdr/pprdr.asp";
     
     
     
@@ -90,7 +102,7 @@ public class MSNProtocol extends Protocol
     }
     /**
      * 
-     * @see 
+     * @see method login(String, String)
      */
     public boolean login(Account acc)
     {
@@ -104,12 +116,12 @@ public class MSNProtocol extends Protocol
      */
     public boolean login(String username, String password)
     {
+        this.status_ = CONNECTING;
         this.username = username;
         this.password= password;          
         try
         {
-                this.sh= new ServerHandler(this.NsURL, this.serverPort);
-                
+                this.sh= new ServerHandler(this.NsURL, this.serverPort);           
                 this.tr = new MSNTransaction();
                 /*this.sh.connect();
                 this.tr.newTransaction();
@@ -231,6 +243,7 @@ public class MSNProtocol extends Protocol
         }
         catch (Exception e)
         {
+            this.status_ = NO_CONNECTION;
             e.printStackTrace();
             return false;
         }
@@ -243,335 +256,10 @@ public class MSNProtocol extends Protocol
             System.out.println("*************************************");
             System.out.println("Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
+            this.status_ = DISCONNECTED;
             System.out.println("Logout successful.");
 	    this.thread_.yield();
     }
-    /*public long longToHex(long n)
-    {
-        long r;     
-            switch (n)
-            {
-                case 48:
-                    r= 30;
-                    break;
-                case 49:
-                    r = 31;
-                    break;
-                case 50:
-                    r = 32;
-                    break;
-                case 51:
-                    r = 33;
-                    break;
-                case 52:
-                    r = 34;
-                    break;
-                case 53:
-                    r = 35;
-                    break;
-                case 54:
-                    r = 36;
-                    break;
-                case 55:
-                    r = 37;
-                    break;
-                case 56:
-                    r = 38;
-                    break;
-                case 57:
-                    r = 39;
-                    break; 
-                default:
-                    r = 0;
-                    break;
-            }            
-            return r;
-    } */   
-    public int intToHex(int n)
-    {
-        int r;     
-            switch (n)
-            {
-                case 48:
-                    r= 30;
-                    break;
-                case 49:
-                    r = 31;
-                    break;
-                case 50:
-                    r = 32;
-                    break;
-                case 51:
-                    r = 33;
-                    break;
-                case 52:
-                    r = 34;
-                    break;
-                case 53:
-                    r = 35;
-                    break;
-                case 54:
-                    r = 36;
-                    break;
-                case 55:
-                    r = 37;
-                    break;
-                case 56:
-                    r = 38;
-                    break;
-                case 57:
-                    r = 39;
-                    break; 
-                default:
-                    r = 0;
-                    break;
-            }            
-            return r;
-    }
-    
-    public int hexToInt(String s)
-    {
-        int[] n = new int[s.length()];
-        char c;
-        int sum = 0;
-        int koef = 1;
-        for(int i=n.length-1; i>=0; i--)
-        {
-            c = s.charAt(i);
-            //System.out.println(c);
-            switch ((char)c)
-            {
-                case 48:
-                    n[i] = 0;
-                    break;
-                case 49:
-                    n[i] = 1;
-                    break;
-                case 50:
-                    n[i] = 2;
-                    break;
-                case 51:
-                    n[i] = 3;
-                    break;
-                case 52:
-                    n[i] = 4;
-                    break;
-                case 53:
-                    n[i] = 5;
-                    break;
-                case 54:
-                    n[i] = 6;
-                    break;
-                case 55:
-                    n[i] = 7;
-                    break;
-                case 56:
-                    n[i] = 8;
-                    break;
-                case 57:
-                    n[i] = 9;
-                    break;                      
-                case 97:
-                    n[i] = 10;
-                    break;
-                case 98:
-                    n[i] = 11;
-                    break;
-                case 99:
-                    n[i] = 12;
-                    break;
-                case 100:
-                    n[i] = 13;
-                    break;
-                case 101:
-                    n[i] = 14;
-                    break;
-                case 102:
-                    n[i] = 15;
-                    break;
-            }
-            
-            sum = sum + n[i]*koef;
-            //System.out.println(sum);
-            koef=koef*16;
-        }
-        return sum;
-    }
-    public long hexToLong(String s)
-    {
-        long[] n = new long[s.length()];
-        char c;
-        long sum = 0;
-        long koef = 1;
-        for(int i=n.length-1; i>=0; i--)
-        {
-            c = s.charAt(i);
-            //System.out.println(c);
-            switch ((char)c)
-            {
-                case 48:
-                    n[i] = 0;
-                    break;
-                case 49:
-                    n[i] = 1;
-                    break;
-                case 50:
-                    n[i] = 2;
-                    break;
-                case 51:
-                    n[i] = 3;
-                    break;
-                case 52:
-                    n[i] = 4;
-                    break;
-                case 53:
-                    n[i] = 5;
-                    break;
-                case 54:
-                    n[i] = 6;
-                    break;
-                case 55:
-                    n[i] = 7;
-                    break;
-                case 56:
-                    n[i] = 8;
-                    break;
-                case 57:
-                    n[i] = 9;
-                    break;                      
-                case 97:
-                    n[i] = 10;
-                    break;
-                case 98:
-                    n[i] = 11;
-                    break;
-                case 99:
-                    n[i] = 12;
-                    break;
-                case 100:
-                    n[i] = 13;
-                    break;
-                case 101:
-                    n[i] = 14;
-                    break;
-                case 102:
-                    n[i] = 15;
-                    break;
-            }
-            
-            sum = sum + n[i]*koef;
-            //System.out.println(sum);
-            koef=koef*16;
-        }
-        return sum;
-    }    
-    /**
-     * This method ANDs a hexadecimal number(represented as a string) with 0x7FFFFFFF and returns the result as a string.
-     * @return A string representation of a hexadecimal number.
-     * @param s A string representation of the hexadecimal number.
-     */
-    public String andHex(String s)
-    {
-        StringBuffer sb = new StringBuffer();
-        
-        int n=0;
-        char c;
-       
-        for(int i=0; i<s.length(); i++)
-        {
-            c = s.charAt(i);
-            //System.out.println(c);
-            
-            switch ((char)c)
-            {
-                case 48:
-                    n = 0;
-                    break;
-                case 49:
-                    n = 1;
-                    break;
-                case 50:
-                    n = 2;
-                    break;
-                case 51:
-                    n = 3;
-                    break;
-                case 52:
-                    n = 4;
-                    break;
-                case 53:
-                    n = 5;
-                    break;
-                case 54:
-                    n = 6;
-                    break;
-                case 55:
-                    n = 7;
-                    break;
-                case 56:
-                    n = 8;
-                    break;
-                case 57:
-                    n = 9;
-                    break;                      
-                case 97:
-                    n = 10;
-                    break;
-                case 98:
-                    n = 11;
-                    break;
-                case 99:
-                    n = 12;
-                    break;
-                case 100:
-                    n = 13;
-                    break;
-                case 101:
-                    n = 14;
-                    break;
-                case 102:
-                    n = 15;
-                    break;
-            }
-            if(i==0)
-            {
-                n = n & 0x7;
-            }
-            else
-            {
-                n = n & 0xF;
-            }  
-            
-            switch(n)
-            {
-                case 10:
-                    sb.append('a');
-                    break;
-                case 11:
-                    sb.append('b');
-                    break;
-                case 12:
-                    sb.append('c');
-                    break;
-                case 13:
-                    sb.append('d');
-                    break;
-                case 14:
-                    sb.append('e');
-                    break;
-                 case 15:
-                    sb.append('f');
-                    break;      
-                 default:
-                     sb.append(n);
-                     break;
-            }
-                  
-        }
-        //System.out.println(sb.toString());
-        return sb.toString();
-    }    
-    
     /**
      * Parses a reply from the server according to first three letters.
      * @param reply raw data from the server, presented as a string
@@ -907,7 +595,7 @@ public class MSNProtocol extends Protocol
         switchHandler = new ServerHandler(line.substring(line.indexOf("SB")+3, line.indexOf("CKI")-6),1863);
         switchHandler.connect(); 
         switchHandler.sendRequest("USR 1 " + this.username + " " + line.substring(line.indexOf("CKI")+4, line.indexOf("\r")) + "\r\n");
-        System.out.println("Posiljam:USR 1 " + this.username + " " + line.substring(line.indexOf("CKI")+4, line.indexOf("\r")) + "\r\n");
+        //System.out.println("Posiljam:USR 1 " + this.username + " " + line.substring(line.indexOf("CKI")+4, line.indexOf("\r")) + "\r\n");
 	
 	switchHandler.sendRequest("CAL 2 "+this.pendingUser.userID()+"\r\n");
 	this.pendingUser = null;
@@ -1128,7 +816,6 @@ public class MSNProtocol extends Protocol
         }
         ChatSession cs = new ChatSession(this, c);
         this.ChatIds_.put(new Integer(cs.hashCode()), new Integer(2));
-        this.csSHInteraction.put(sbHandler, cs);
         this.chatSessions_.addElement(cs);   
 	
     }    
@@ -1155,6 +842,10 @@ public class MSNProtocol extends Protocol
       return "";
     }
     }    
+    /**
+     * yy
+     * @deprecated This method does nothing.
+     */
    public void disconnect()
    {
    
@@ -1205,6 +896,10 @@ public class MSNProtocol extends Protocol
        System.out.println("END OF GROUP LISTING");
        System.out.println("*********************************************************");           
    } 
+    /**
+     * returns Vector of all active ChatSesisons.
+     * @return returns Vector of all active ChatSesisons.
+     */
    public Vector getChatSessions() {return chatSessions_;}
     /**
      * This method start a Chatsession(a conversation) with a person. The person is given as a function parameter.
@@ -1309,7 +1004,6 @@ public class MSNProtocol extends Protocol
     }
     /**
      * This method is implemented by convenience.
-     * 
      * @param msg Message in String
      * @param user Specific user this message should be sent to
      * @param session Active Chat Session to send the message to
@@ -1317,8 +1011,17 @@ public class MSNProtocol extends Protocol
     public void sendMsg(String msg, Vector users, ChatSession session)
     {  
     }
+    /**
+     * returns a Vector of contacts(class Contact).
+     * @return Vector of contacts(class Contact).
+     */
     public Vector getContacts() { return this.contacts_; }
     
+    /**
+     * This method is called when Thread starts. It is a infinite loop that checks all
+     * ServerHandlers whether any message has arrived from servers(that you are 
+     * currently connected to).
+     */
     public void run() 
     {
         System.out.println("run method function **************");
@@ -1359,6 +1062,11 @@ public class MSNProtocol extends Protocol
             System.out.println("end of wihle loop **************");
         }  
     }
+    /**
+     * Removes a contact from all lists.
+     * @param Contact c the contact to be removed
+     * @return true for success or false if the Contact is not on local list of Contacts
+     */
     public boolean removeContact(Contact c)
     {
 
@@ -1378,6 +1086,11 @@ public class MSNProtocol extends Protocol
 	}
 	return false;
     }
+    /**
+     * This method adds a contact to the local list and then sends a message to the 
+     * MSN server in order to add a contact to the main list on the server.
+     * @param Contact c The contact to be removed.
+     */
     public void addContact(Contact c)
     {
 	//ADC 16 FL N=passport@hotmail.com F=Display%20Name\r\n
