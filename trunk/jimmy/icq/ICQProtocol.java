@@ -82,6 +82,8 @@ public class ICQProtocol extends Protocol {
 		this.user = username;
 		this.pass = passwd;
 		
+		//TODO: Change login sequence to a more dinamic shape
+		
 		//STAGE ONE LOGIN (AUTH)
 		//FIRST PART OF STAGE ONE
 		//Generation of first login package
@@ -209,7 +211,7 @@ public class ICQProtocol extends Protocol {
 		l.setFlap((short)1);
 		ha=null;
 		
-		//I SHOULD take the port toke too but...
+		//Now change the connection server to recieved BOS address
 		this.bos_port = Integer.parseInt(this.bos.substring(this.bos.indexOf(':')+1,this.bos.length()));
 		this.bos = this.bos.substring(0,this.bos.indexOf(":"));
 		this.conn.setPort(this.bos_port);
