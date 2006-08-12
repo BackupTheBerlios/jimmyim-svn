@@ -38,6 +38,8 @@ import javax.microedition.lcdui.Screen;
 
 import java.util.Vector;
 import java.util.Hashtable;
+import java.lang.String;
+import java.lang.StringBuffer;
 
 public class ContactsMenu extends List implements CommandListener {
     private Vector      contacts_;
@@ -103,7 +105,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    else{
 		group = new Vector();
 		contacts_.addElement(group);
-		this.append("--=="+current.groupName()+"==--",null);
+		this.append("--=="+insertSpaces(current.groupName())+"==--",null);
                 ui_.newGroup(current.groupName());
 	    }
 	    
@@ -118,7 +120,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    
 	    screenIndex += j;
 	    
-	    this.insert(screenIndex,name,chooseImage(current));	    
+	    this.insert(screenIndex,insertSpaces(name),chooseImage(current));	    
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -189,7 +191,7 @@ public class ContactsMenu extends List implements CommandListener {
 	else
 	    name = new String(currentContact.userID());
 	
-        this.set(screenIndex,name,chooseImage(currentContact));	
+        this.set(screenIndex,insertSpaces(name),chooseImage(currentContact));	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
     }
     
@@ -198,7 +200,7 @@ public class ContactsMenu extends List implements CommandListener {
      */
     public void startChat(){
 	int selected = this.getSelectedIndex(), i=0, j=0, selectedIndex;
-	Contact currentContact = this.findContact(selected,this.getString(selected));
+	Contact currentContact = this.findContact(selected,removeSpaces(this.getString(selected)));
 	System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
 
 	if(currentContact != null)
@@ -222,7 +224,7 @@ public class ContactsMenu extends List implements CommandListener {
                 else    
                     name = currentContact.userID();
 	    
-                Screen chat = new ChatWindow(name, cs);
+                Screen chat = new ChatWindow(insertSpaces(name), cs);
                 chatWindows_.put(cs,chat);
                 currentChats_.addElement(currentContact);
                 ui_.setView(JimmyUI.SCR_CHAT,cs);
@@ -306,6 +308,30 @@ public class ContactsMenu extends List implements CommandListener {
 	    }   
 	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage());};
 	return image;
+    }
+    
+    private String insertSpaces(String s){
+	StringBuffer sb = new StringBuffer(s);
+	for(int i=0; i<sb.length(); i++){
+	    if(sb.charAt(i) == '%' && sb.charAt(i+1) == '2' && sb.charAt(i+2) == '0'){
+		sb.delete(i,i+3);
+		sb.insert(i,' ');
+	    }
+	}
+	
+	return sb.toString();
+    }
+    
+    private String removeSpaces(String s){
+	StringBuffer sb = new StringBuffer(s);
+	for(int i=0; i<sb.length(); i++){
+	    if(sb.charAt(i) == ' '){
+		sb.delete(i,i+1);
+		sb.insert(i,"%20");
+	    }
+	}
+	
+	return sb.toString();	
     }
     
     public Vector getChatContactList(){return this.currentChats_;}
