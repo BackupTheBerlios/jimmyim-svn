@@ -38,7 +38,6 @@ import jimmy.util.Utils;
  */
 public class ICQConnector extends ServerHandler {
 	private Vector pkgs = null;
-	private final int TIMES_TO_TRY = 3;
 	
 	/**
 	 * constructs a new instance of this class using the supplide url and port

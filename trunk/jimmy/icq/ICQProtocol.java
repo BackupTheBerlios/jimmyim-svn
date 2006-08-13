@@ -67,7 +67,7 @@ public class ICQProtocol extends Protocol {
 			,(byte)0x09,(byte)0x46,(byte)0x13,(byte)0x4D,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00						//cross ICQ - AIM messaging
 			,(byte)0x09,(byte)0x46,(byte)0x13,(byte)0x4E,(byte)0x4C,(byte)0x7F,(byte)0x11,(byte)0xD1,(byte)0x82,(byte)0x22,(byte)0x44,(byte)0x45,(byte)0x53,(byte)0x54,(byte)0x00,(byte)0x00};
 	private ICQPackage response;
-	private ICQPackage service_versions = null;
+	//private ICQPackage service_versions = null;
 	private ICQConnector conn = null;
 	
 	private String user;
@@ -576,7 +576,7 @@ public class ICQProtocol extends Protocol {
 					break;
 				case 0x0018:
 					//TODO: Set the service version numbers
-					this.service_versions = pak;
+					//this.service_versions = pak;
 					System.out.println("decoding 18");
 					break;
 				}
