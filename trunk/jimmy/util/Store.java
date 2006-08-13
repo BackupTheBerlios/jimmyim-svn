@@ -135,6 +135,9 @@ public class Store
                     int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx))));
                     idx++;	//newline
                     boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
+		    
+		    if(server.equals(""))
+			server = null;
 
                     return new Account(userName, password, type, server, port, autoLogin);
                 }

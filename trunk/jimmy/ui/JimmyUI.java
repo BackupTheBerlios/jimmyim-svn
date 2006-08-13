@@ -53,6 +53,7 @@ public class JimmyUI {
         final public static int CMD_ACC    = 15;
         final public static int CMD_NEWCONT= 16;
         final public static int CMD_DELCONT= 17;
+	final public static int CMD_LOGOUT = 18;
         
 	//Screen codes
 	final public static int SCR_SPLASH  = 1;
@@ -81,6 +82,7 @@ public class JimmyUI {
         final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
         final private static Command cmdNewCont= new Command("Add contact", Command.ITEM,   1);
         final private static Command cmdDelCont= new Command("Remove contact",Command.ITEM,   1);
+	final private static Command cmdLogout = new Command("Logout",	    Command.ITEM,   1);
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -108,6 +110,7 @@ public class JimmyUI {
                 commands_.put(new Integer(CMD_ACC),     cmdAccount  );
                 commands_.put(new Integer(CMD_NEWCONT), cmdNewCont  );
                 commands_.put(new Integer(CMD_DELCONT), cmdDelCont  );
+		commands_.put(new Integer(CMD_LOGOUT),	cmdLogout   );
 	}
         
 	//Screens
@@ -202,6 +205,10 @@ public class JimmyUI {
             scrNewCont.addGroup(g);
         }
 	
+	public void removeGroup(String g){
+	    scrNewCont.delGroup(g);
+	}
+	
 	public static void jimmyCommand(Command c, Displayable d) {
             //commands from main menu
             if(d == scrMenu){
@@ -220,6 +227,13 @@ public class JimmyUI {
                     
                     jimmy_.setDisplay(scrContacts);
                 }//if c == cmdLogin
+		else if(c == cmdLogout){
+		    int selected = scrMenu.getSelectedIndex();
+		    System.out.println("[DEBUG] Index of selected account: "+selected);
+		    
+		    Account logoutAccount =  (Account)scrMenu.getAccounts().elementAt(selected);
+		    logout(logoutAccount);
+		}
                 else if(c == cmdDel){
                     int selected = scrMenu.getSelectedIndex();
                     Account account = (Account)scrMenu.getAccounts().elementAt(selected);
@@ -350,5 +364,13 @@ public class JimmyUI {
             jimmy_.setDisplay(currentWindow);
         }
 	
-
+	private static void logout(Account a){
+	    Protocol p = a.getProtocol();
+	    
+	    //Poberi contacte via
+	    scrContacts.removeContacts(p);
+	    scrNewCont.delAccount(a);
+	    p.logout();
+	    a.setConnected(false);
+	}
 }

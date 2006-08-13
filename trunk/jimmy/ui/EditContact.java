@@ -113,8 +113,31 @@ public class EditContact extends Form implements CommandListener{
         accounts_.append(a.getUser(),chooseImage(a));
     }
     
+    public void delAccount(Account a){
+	connections_.remove(a.getUser());
+	int i=0;
+	while(i<accounts_.size()){
+	    if(a.getUser().equals(accounts_.getString(i))){
+		accounts_.delete(i);
+		break;
+	    }
+	    i++;
+	}	
+    }
+    
     public void addGroup(String g){
         groups_.append(g,null);
+    }
+    
+    public void delGroup(String g){
+	int i=0;
+	while(i<groups_.size()){
+	    if(g.equals(groups_.getString(i))){
+		groups_.delete(i);
+		break;
+	    }
+	    i++;
+	}
     }
     
     public void clearForm(){

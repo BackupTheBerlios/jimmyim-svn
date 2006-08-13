@@ -47,7 +47,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	private static Display display_;						//Display object
 	private static Vector protocolList_;					//List of active protocols
 	private static Vector newConnections_; //List of connections to be established
-	private Thread thr_;        
+	private Thread thr_;      
 
 	//User interface stuff:
 	public static JimmyUI ui_; //User Interface object
@@ -177,10 +177,11 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
             switch(current.getProtocolType()){
                 case Protocol.JABBER:
                     JabberProtocol jabber = new JabberProtocol(this);
-                    current.setConnected(jabber.login(current.getUser(),current.getPassword()));
-                    //jabber.login(current);
+                    //current.setConnected(jabber.login(current.getUser(),current.getPassword()));
+                    current.setConnected(jabber.login(current));
                     protocolList_.addElement(jabber);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+		    current.setProtocol(jabber);
                     return jabber;
 
 		case Protocol.ICQ:
@@ -188,6 +189,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     current.setConnected(icq.login(current));
                     protocolList_.addElement(icq);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+		    current.setProtocol(icq);
                     return icq;
 
 		case Protocol.MSN:
@@ -195,6 +197,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     current.setConnected(msn.login(current.getUser(), current.getPassword()));
                     protocolList_.addElement(msn);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+		    current.setProtocol(msn);
                     return msn;
 
 		case Protocol.YAHOO:
@@ -202,6 +205,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     current.setConnected(yahoo.login(current));
                     protocolList_.addElement(yahoo);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
+		    current.setProtocol(yahoo);
                     return yahoo;
 
                 default:

@@ -106,7 +106,7 @@ public class ContactsMenu extends List implements CommandListener {
 		group = new Vector();
 		contacts_.addElement(group);
 		this.append("--=="+insertSpaces(current.groupName())+"==--",null);
-                ui_.newGroup(current.groupName());
+                ui_.newGroup(insertSpaces(current.groupName()));
 	    }
 	    
 	    if(current.screenName() != null)
@@ -265,7 +265,7 @@ public class ContactsMenu extends List implements CommandListener {
         }
         return null;
     }
-
+    
     /**
      * Called when action should be handled
      */
@@ -332,6 +332,34 @@ public class ContactsMenu extends List implements CommandListener {
 	}
 	
 	return sb.toString();	
+    }
+    
+    public void removeContacts(Protocol p){
+	Contact currContact = null;
+	Vector currGroup = null;
+	String groupName;
+	int index = 0, oldIndex;
+	
+	for(int i=0; i<this.contacts_.size(); i++){
+	    currGroup = (Vector)this.contacts_.elementAt(i);
+	    groupName = ((Contact)currGroup.elementAt(0)).groupName();
+	    oldIndex = index-1;
+	    for(int j=0;j<currGroup.size(); j++){
+		currContact = (Contact)currGroup.elementAt(j);
+		if(currContact.protocol().equals(p)){
+		    this.delete(index);
+		    currGroup.removeElementAt(j);
+		}
+		index++;
+	    }
+	    if(currGroup.isEmpty()){
+		ui_.removeGroup(insertSpaces(groupName));
+		contacts_.removeElementAt(i);
+		i--;
+		this.delete(oldIndex);
+	    }
+	    index++;
+	}
     }
     
     public Vector getChatContactList(){return this.currentChats_;}
