@@ -349,13 +349,16 @@ public class ContactsMenu extends List implements CommandListener {
 		if(currContact.protocol().equals(p)){
 		    this.delete(index);
 		    currGroup.removeElementAt(j);
+		    index--;
+		    j--;
 		}
 		index++;
 	    }
-	    if(currGroup.isEmpty()){
+	    if(currGroup.isEmpty() && i>0){
 		ui_.removeGroup(insertSpaces(groupName));
 		contacts_.removeElementAt(i);
 		i--;
+		index--;
 		this.delete(oldIndex);
 	    }
 	    index++;
