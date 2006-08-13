@@ -17,7 +17,7 @@
  **********************************************************************
  File: jimmy/Account.java
  Version: pre-alpha  Date: 2006/05/21
- Author(s): Dejan Sakelsak, Matevz Jekovec
+ Author(s): Dejan Sakelsak
  */
 
 /**
