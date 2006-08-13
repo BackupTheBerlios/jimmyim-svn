@@ -337,12 +337,13 @@ public class ContactsMenu extends List implements CommandListener {
     public void removeContacts(Protocol p){
 	Contact currContact = null;
 	Vector currGroup = null;
-	String groupName;
+	String groupName = null;
 	int index = 0, oldIndex;
 	
 	for(int i=0; i<this.contacts_.size(); i++){
 	    currGroup = (Vector)this.contacts_.elementAt(i);
-	    groupName = ((Contact)currGroup.elementAt(0)).groupName();
+	    if(!currGroup.isEmpty())
+		groupName = ((Contact)currGroup.elementAt(0)).groupName();
 	    oldIndex = index-1;
 	    for(int j=0;j<currGroup.size(); j++){
 		currContact = (Contact)currGroup.elementAt(j);
