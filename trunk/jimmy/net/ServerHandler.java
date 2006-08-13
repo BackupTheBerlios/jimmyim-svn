@@ -194,9 +194,15 @@ public class ServerHandler
             	return new String(buffer, "UTF-8"); //buffer was get, return the String
             else
             	return null;	//buffer was not get - timeout occured, return null
-        } 
-        catch (Exception ex) 
-        {
+        }catch (InterruptedIOException ex){
+//        		ex.printStackTrace();
+
+            return null;	
+        }catch (IOException ex){
+            ex.printStackTrace();
+
+            return null;
+        }catch (InterruptedException ex){
             ex.printStackTrace();
 
             return null;
@@ -235,9 +241,15 @@ public class ServerHandler
             	return new String(buffer, enc); //buffer was get, return the String
             else
             	return null;	//buffer was not get - timeout occured, return null
-        } 
-        catch (Exception ex) 
-        {
+        }catch (InterruptedIOException ex){
+//        		ex.printStackTrace();
+
+            return null;	
+        }catch (IOException ex){
+            ex.printStackTrace();
+
+            return null;
+        }catch (InterruptedException ex){
             ex.printStackTrace();
 
             return null;
@@ -274,9 +286,15 @@ public class ServerHandler
             	return buffer; //buffer was get, return the String
             else
             	return null;	//buffer was not get - timeout occured, return null
-        } 
-        catch (Exception ex) 
-        {
+        }catch (InterruptedIOException ex){
+//        		ex.printStackTrace();
+
+            return null;	
+        }catch (IOException ex){
+            ex.printStackTrace();
+
+            return null;
+        }catch (InterruptedException ex){
             ex.printStackTrace();
 
             return null;
