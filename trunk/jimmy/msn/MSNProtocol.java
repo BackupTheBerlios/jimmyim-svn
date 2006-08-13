@@ -797,10 +797,10 @@ public class MSNProtocol extends Protocol
         {
             this.ChatIds_ = new Hashtable();
         }   
-        if(this.csSHInteraction==null)
+        /*if(this.csSHInteraction==null)
         {
             this.csSHInteraction = new Hashtable();
-        }  
+        }  */
         this.SessionHandlers_.addElement(sbHandler);
         Contact c = null;
         int t = data.indexOf(" ", data.indexOf("CKI")+5);
@@ -921,10 +921,10 @@ public class MSNProtocol extends Protocol
         {
             this.ChatIds_ = new Hashtable();
         }     
-        if(this.csSHInteraction==null)
+        /*if(this.csSHInteraction==null)
         {
             this.csSHInteraction = new Hashtable();
-        }     
+        }   */  
         ChatSession cs = new ChatSession(this, c);
         this.busy = true;
         this.tr.newTransaction();
