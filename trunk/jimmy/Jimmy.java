@@ -57,7 +57,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	protected void startApp() throws MIDletStateChangeException {
 		jimmy_ = this;
 		newConnections_ = null;
-		protocolList_   = new Vector();
+		//protocolList_   = new Vector();
 		            
 		ui_ = new JimmyUI();
                 
@@ -149,7 +149,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	
 	public void stopProtocol(Protocol p) {
 		p.logout();
-		this.protocolList_.removeElement(p);
+		//this.protocolList_.removeElement(p);
 	}
 	
 	public void setProtocolStatus(Protocol p, byte status) {
@@ -179,7 +179,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     JabberProtocol jabber = new JabberProtocol(this);
                     //current.setConnected(jabber.login(current.getUser(),current.getPassword()));
                     current.setConnected(jabber.login(current));
-                    protocolList_.addElement(jabber);
+                    //protocolList_.addElement(jabber);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 		    current.setProtocol(jabber);
                     return jabber;
@@ -187,7 +187,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		case Protocol.ICQ:
                     ICQProtocol icq = new ICQProtocol(this);
                     current.setConnected(icq.login(current));
-                    protocolList_.addElement(icq);
+                    //protocolList_.addElement(icq);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 		    current.setProtocol(icq);
                     return icq;
@@ -195,7 +195,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		case Protocol.MSN:
                     MSNProtocol msn = new MSNProtocol(this);
                     current.setConnected(msn.login(current.getUser(), current.getPassword()));
-                    protocolList_.addElement(msn);
+                    //protocolList_.addElement(msn);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 		    current.setProtocol(msn);
                     return msn;
@@ -203,7 +203,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		case Protocol.YAHOO:
                     YahooProtocol yahoo = new YahooProtocol(this);
                     current.setConnected(yahoo.login(current));
-                    protocolList_.addElement(yahoo);
+                    //protocolList_.addElement(yahoo);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 		    current.setProtocol(yahoo);
                     return yahoo;
@@ -211,5 +211,5 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                 default:
                     return null;
             } //switch
-        }
+	}
 }

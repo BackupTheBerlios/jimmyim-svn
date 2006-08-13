@@ -367,7 +367,6 @@ public class JimmyUI {
 	private static void logout(Account a){
 	    Protocol p = a.getProtocol();
 	    
-	    //Poberi contacte via
 	    scrContacts.removeContacts(p);
 	    scrNewCont.delAccount(a);
 	    p.logout();
