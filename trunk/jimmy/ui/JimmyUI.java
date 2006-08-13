@@ -258,6 +258,11 @@ public class JimmyUI {
                     String port     = (String)data.elementAt(3);
                     byte protocol   = ((Integer)data.elementAt(4)).byteValue();
                     boolean auto    = ((Boolean)data.elementAt(5)).booleanValue();
+		    
+		    if(server.equals(""))
+			server  = null;
+			
+		    
                     
                     if(port.equals("")) port = "0";
                     /*System.out.println("----- Begin data entered for new account -----");

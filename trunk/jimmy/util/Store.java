@@ -136,7 +136,7 @@ public class Store
                     idx++;	//newline
                     boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
 		    
-		    if(server.equals(""))
+		    if(server.equals("") || server.equals("null"))
 			server = null;
 
                     return new Account(userName, password, type, server, port, autoLogin);
