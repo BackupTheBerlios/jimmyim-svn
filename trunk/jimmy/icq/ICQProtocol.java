@@ -65,14 +65,15 @@ public class ICQProtocol extends Protocol {
 		this.user = account.getUser();
 		this.pass = account.getPassword();
 		
-		
-		if(account.getServer() != null)
+		String acc = account.getServer();
+		int por = account.getPort();
+		if(acc != null && !acc.equals(""))
 			this.AUTH_SERVER = account.getServer();
 		
-		if(account.getPort() != 0)
+		if(por != 0)
 			this.AUTH_SERVER_PORT = account.getPort();
 		
-		if(login(account.getUser(),account.getPassword()))
+		if(this.login(this.user,this.pass))
 			return true;
 		
 		return false;
