@@ -28,11 +28,10 @@ package jimmy.icq;
 import jimmy.net.ServerHandler;
 import java.util.Vector;
 import jimmy.util.Utils;
+
 /**
  * Used to feed the ICQProtocol instance with packages arriving from the server.
- * The implementation is not clean. It has to be fixed.
- * 
- * TODO: Find another way for polling on the stream read buffer!
+ * The implementation is now just a step between ServerHandler and ICQProtocol.
  * 
  * @author dejan
  *
