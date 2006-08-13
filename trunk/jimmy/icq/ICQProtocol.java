@@ -401,6 +401,7 @@ public class ICQProtocol extends Protocol {
 
 		this.conn.disconnect();
 		this.status_ = Protocol.DISCONNECTED;
+		this.thread_.interrupt();
 	}
 
 	public ChatSession startChatSession(Contact user) {
