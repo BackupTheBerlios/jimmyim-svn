@@ -105,8 +105,8 @@ public class ContactsMenu extends List implements CommandListener {
 	    else{
 		group = new Vector();
 		contacts_.addElement(group);
-		this.append("--=="+insertSpaces(current.groupName())+"==--",null);
-                ui_.newGroup(insertSpaces(current.groupName()));
+		this.append("--=="+Contact.insertSpaces(current.groupName())+"==--",null);
+                ui_.newGroup(Contact.insertSpaces(current.groupName()));
 	    }
 	    
 	    if(current.screenName() != null)
@@ -120,7 +120,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    
 	    screenIndex += j;
 	    
-	    this.insert(screenIndex,insertSpaces(name),chooseImage(current));	    
+	    this.insert(screenIndex,Contact.insertSpaces(name),chooseImage(current));	    
             group.insertElementAt(current,j);
         }
         //addContactsToMenu();
@@ -193,7 +193,7 @@ public class ContactsMenu extends List implements CommandListener {
 	else
 	    name = new String(currentContact.userID());
 	
-        this.set(screenIndex,insertSpaces(name),chooseImage(currentContact));	
+        this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
 	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
     }
     
@@ -202,7 +202,7 @@ public class ContactsMenu extends List implements CommandListener {
      */
     public void startChat(){
 	int selected = this.getSelectedIndex(), i=0, j=0, selectedIndex;
-	Contact currentContact = this.findContact(selected,removeSpaces(this.getString(selected)));
+	Contact currentContact = this.findContact(selected,Contact.removeSpaces(this.getString(selected)));
 	System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
 
 	if(currentContact != null)
@@ -226,7 +226,7 @@ public class ContactsMenu extends List implements CommandListener {
                 else    
                     name = currentContact.userID();
 	    
-                Screen chat = new ChatWindow(insertSpaces(name), cs);
+                Screen chat = new ChatWindow(Contact.insertSpaces(name), cs);
                 chatWindows_.put(cs,chat);
                 currentChats_.addElement(currentContact);
                 ui_.setView(JimmyUI.SCR_CHAT,cs);
@@ -268,40 +268,52 @@ public class ContactsMenu extends List implements CommandListener {
         return null;
     }
     
+    public void removeContact(Contact currContact,int sel){
+	this.delete(sel);
+	int i=0;
+	Contact test;
+		
+	do{
+	    test = (Contact)((Vector)contacts_.elementAt(i)).firstElement();		    
+	    i++;
+	}while( currContact.groupName() != null && ( i==1 || !test.groupName().equals(currContact.groupName())));
+		
+	i--;
+	Vector group = ((Vector)contacts_.elementAt(i));
+	group.removeElement(currContact);
+	if(group.isEmpty() && i!=0){
+	    ui_.removeGroup(Contact.insertSpaces(currContact.groupName()));
+	    int index = 0;
+	    for(int j=0; j<i; j++){
+		if(j>0)
+		    index++;
+ 		index += ((Vector)contacts_.elementAt(j)).size();
+	    }
+	    this.delete(index);
+	}	
+    }
+    
     /**
      * Called when action should be handled
      */
     public void commandAction(Command c, Displayable d) {
         if(c == (Command)commands_.get(new Integer(ui_.CMD_DELCONT))){
             int sel = this.getSelectedIndex();
-	    Contact currContact = findContact(sel,removeSpaces(this.getString(sel)));
+	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
 	    
 	    if(currContact != null){
-		this.delete(sel);
-		int i=0;
-		Contact test;
-		
-		do{
-		    test = (Contact)((Vector)contacts_.elementAt(i)).firstElement();		    
-		    i++;
-		}while( currContact.groupName() != null && ( i==1 || !test.groupName().equals(currContact.groupName())));
-		
-		i--;
-		Vector group = ((Vector)contacts_.elementAt(i));
-		group.removeElement(currContact);
-		if(group.isEmpty() && i!=0){
-		    ui_.removeGroup(insertSpaces(currContact.groupName()));
-		    int index = 0;
-		    for(int j=0; j<i; j++){
-			if(j>0)
-			    index++;
- 			index += ((Vector)contacts_.elementAt(j)).size();
-		    }
-		    this.delete(index);
-		}
+		removeContact(currContact,sel);
 		currContact.protocol().removeContact(currContact);
 	    }
         }
+	else if(c == (Command)commands_.get(new Integer(ui_.CMD_EDIT))){
+            int sel = this.getSelectedIndex();
+	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
+	    
+	    if(currContact !=  null){
+		ui_.editContact(currContact,sel);
+	    }
+	}
         JimmyUI.jimmyCommand(c,d);
     }
     
@@ -339,30 +351,6 @@ public class ContactsMenu extends List implements CommandListener {
 	return image;
     }
     
-    private String insertSpaces(String s){
-	StringBuffer sb = new StringBuffer(s);
-	for(int i=0; i<sb.length(); i++){
-	    if(sb.charAt(i) == '%' && sb.charAt(i+1) == '2' && sb.charAt(i+2) == '0'){
-		sb.delete(i,i+3);
-		sb.insert(i,' ');
-	    }
-	}
-	
-	return sb.toString();
-    }
-    
-    private String removeSpaces(String s){
-	StringBuffer sb = new StringBuffer(s);
-	for(int i=0; i<sb.length(); i++){
-	    if(sb.charAt(i) == ' '){
-		sb.delete(i,i+1);
-		sb.insert(i,"%20");
-	    }
-	}
-	
-	return sb.toString();	
-    }
-    
     public void removeContacts(Protocol p){
 	Contact currContact = null;
 	Vector currGroup = null;
@@ -385,7 +373,7 @@ public class ContactsMenu extends List implements CommandListener {
 		index++;
 	    }
 	    if(currGroup.isEmpty() && i>0){
-		ui_.removeGroup(insertSpaces(groupName));
+		ui_.removeGroup(Contact.insertSpaces(groupName));
 		contacts_.removeElementAt(i);
 		i--;
 		index--;

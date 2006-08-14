@@ -122,4 +122,30 @@ public class Contact {
 	public int status() {return status_;}
 	public String statusMsg() {return statusMsg_;}
 	public Protocol protocol() {return protocol_;}	
+	
+    
+    public static String insertSpaces(String s){
+	StringBuffer sb = new StringBuffer(s);
+	for(int i=0; i<sb.length(); i++){
+	    if(sb.charAt(i) == '%' && sb.charAt(i+1) == '2' && sb.charAt(i+2) == '0'){
+		sb.delete(i,i+3);
+		sb.insert(i,' ');
+	    }
+	}
+	
+	return sb.toString();
+    }
+    
+    public static String removeSpaces(String s){
+	StringBuffer sb = new StringBuffer(s);
+	for(int i=0; i<sb.length(); i++){
+	    if(sb.charAt(i) == ' '){
+		sb.delete(i,i+1);
+		sb.insert(i,"%20");
+	    }
+	}
+	
+	return sb.toString();	
+    }
+	
 }

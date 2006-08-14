@@ -48,6 +48,8 @@ public class EditContact extends Form implements CommandListener{
     private Hashtable commands_;
     private Hashtable connections_;
     private boolean edit_;
+    private Contact editContact_;
+    private int editIndex_;
     
     private ChoiceGroup accounts_;
     private TextField   screenName_;
@@ -61,6 +63,8 @@ public class EditContact extends Form implements CommandListener{
         commands_ = ui_.getCommands();
         connections_ = new Hashtable();
         edit_ = false;
+	editContact_ = null;
+	editIndex_ = -1;
     
         try {
             setCommandListener(this);
@@ -86,25 +90,63 @@ public class EditContact extends Form implements CommandListener{
         otherGroup_.setLayout(Item.LAYOUT_NEWLINE_AFTER); append(otherGroup_);
     }
     
+    public boolean isInEditMode(){return this.edit_;}
+    
     public void commandAction(Command c, Displayable d){
         if(c == (Command)commands_.get(new Integer(JimmyUI.CMD_OK))){
-            String user = userID_.getString();
-            Protocol p = (Protocol)connections_.get(accounts_.getString(accounts_.getSelectedIndex()));
-            String nick = (screenName_.getString().equals("")) ? null:screenName_.getString();
-            String group;
-            if(groups_.getSelectedIndex() == 0)
-                group = otherGroup_.getString();
-            else if(groups_.getSelectedIndex() == 1)
-                group = null;
-            else
-                group = groups_.getString(groups_.getSelectedIndex());
-                    
-            Contact newCont = new Contact(user,p,Contact.ST_OFFLINE,group,nick);
-            p.addContact(newCont);
-            Vector addContact = new Vector();
-            addContact.addElement(newCont);
-            ui_.addContacts(addContact);
+	    if(edit_){
+		editContact_.setScreenName(screenName_.getString().equals("") ? null:Contact.removeSpaces(screenName_.getString()));
+		
+		String group;
+		if(groups_.getSelectedIndex() == 0){
+		    group = null;
+		}
+		else if(groups_.getSelectedIndex() == 1){
+		    group = Contact.removeSpaces(otherGroup_.getString());
+		}
+		else{
+		    group = Contact.removeSpaces(groups_.getString(groups_.getSelectedIndex()));
+		}
+		editContact_.setGroupName(group);
+		
+		ui_.modifyContact(editContact_,editIndex_);
+		
+		this.insert(0,accounts_);
+		this.insert(1,userID_);		
+		editContact_ = null;
+		editIndex_ = -1;
+		edit_ = false;	
+	    }
+	    else{
+		String user = userID_.getString();
+		Protocol p = (Protocol)connections_.get(accounts_.getString(accounts_.getSelectedIndex()));
+		String nick = (screenName_.getString().equals("")) ? null:screenName_.getString();
+		String group;
+		
+		if(groups_.getSelectedIndex() == 1)
+		    group = otherGroup_.getString();
+		else if(groups_.getSelectedIndex() == 0)
+		    group = null;
+		else
+		    group = groups_.getString(groups_.getSelectedIndex());
+
+		Contact newCont = new Contact(user,p,Contact.ST_OFFLINE,group,nick);
+		p.addContact(newCont);
+		Vector addContact = new Vector();
+		addContact.addElement(newCont);
+		ui_.addContacts(addContact);
+	    }
         }
+	else if(c == (Command)commands_.get(new Integer(JimmyUI.CMD_BACK))){
+	    if(edit_){
+		this.insert(0,accounts_);
+		this.insert(1,userID_);		
+		editContact_ = null;
+		editIndex_ = -1;
+		edit_ = false;	
+	    }
+	}
+	this.clearForm();
         JimmyUI.jimmyCommand(c,d);
     }
     
@@ -168,5 +210,24 @@ public class EditContact extends Form implements CommandListener{
 	}catch(Exception e){System.out.println("[ERROR] Problem loading account icon: "+e.getMessage());};
 	
 	return i;
+    }
+    
+    public void editMode(Contact c, int index){
+	this.delete(0);
+	this.delete(0);
+
+	String name = (c.screenName() == null)? "":c.screenName();
+	screenName_.setString(name);
+	
+	String currGroup = (c.groupName() == null) ? "No group":Contact.insertSpaces(c.groupName());
+	int i=0;
+	do{
+	     groups_.setSelectedIndex(i,true);
+	     i++;
+	}while(!groups_.getString(i-1).equals(currGroup));
+	
+	editContact_ = c;
+	editIndex_ = index;
+	edit_ = true;
     }
 }

@@ -323,6 +323,9 @@ public class JimmyUI {
                 else if(c == cmdNewCont){
                     jimmy_.setDisplay(scrNewCont);
                 }
+		else if(c == cmdEdit && scrNewCont.isInEditMode()){
+		    jimmy_.setDisplay(scrNewCont);
+		}
             }//d == scrContacts
             //commads from about page
             else if(d == scrAbout){
@@ -331,7 +334,6 @@ public class JimmyUI {
                 }// c == cmdBack
             }// if d == scrAbout
             else if(d == scrNewCont){
-                scrNewCont.clearForm();
                 jimmy_.setDisplay(scrContacts);                
             }
             else if(scrChats.contains(d)){
@@ -410,5 +412,15 @@ public class JimmyUI {
 	    scrAlert.setString(s);
 	    scrAlert.setType(AlertType.WARNING);
 	    jimmy_.setAlert(scrAlert,scrMenu);		    
+	}
+	
+	public void modifyContact(Contact c, int index){
+	    c.protocol().updateContactProperties(c);
+	    scrContacts.removeContact(c,index);
+	    scrContacts.addContact(c);
+	}
+	
+	public void editContact(Contact c, int index){
+	    scrNewCont.editMode(c,index);
 	}
 }
