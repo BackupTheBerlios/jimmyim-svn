@@ -75,12 +75,20 @@ public class ICQProtocol extends Protocol {
 	
 	private boolean stop_;
 	
+	/**
+	 * Creates a new instance of type ICQ with the interface to the core
+	 * 
+	 * @param jimmy interface to the core
+	 */
 	public ICQProtocol(ProtocolInteraction jimmy) {
 		super(jimmy);
 		this.status_ = DISCONNECTED;
 		this.protocolType_ = ICQ;
 	}
 	
+	/**
+	 * Logs in via the known account
+	 */
 	public boolean login(Account account) {
 		
 		this.account_ = account;
@@ -397,12 +405,19 @@ public class ICQProtocol extends Protocol {
 		return true;
 	}
 
+	/**
+	 * Logs out of this protocol
+	 */
 	public void logout() {
-		this.stop_=true;
-		this.conn.disconnect();
-		this.status_ = Protocol.DISCONNECTED;
+		
+		this.stop_=true; //Kills the thread by stopping the main loop
+		this.conn.disconnect(); //Disconnects from the server
+		this.status_ = Protocol.DISCONNECTED; //Sets the disconnected state
 	}
 
+	/**
+	 * Creates a new chat session
+	 */
 	public ChatSession startChatSession(Contact user) {
 		ChatSession cs = new ChatSession(this);
 		this.chatSessionList_.addElement(cs);
@@ -412,6 +427,9 @@ public class ICQProtocol extends Protocol {
 		return cs;
 	}
 
+	/**
+	 * Sends a message
+	 */
 	public void sendMsg(String msg, ChatSession session) {
 		
 		final byte[] MSG_TYPE = {(byte)0x00,(byte)0x01};
@@ -681,12 +699,10 @@ public class ICQProtocol extends Protocol {
 					}else{
 						st = Contact.ST_OFFLINE;
 					}
+					//let's change the status to a specific contact
 					for(int i = 0; i < this.contacts_.size(); i++){
 						Contact c = (Contact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin))){
-//							System.out.print("User: "+c.userID());
-//							System.out.print("changed status to: ");
-//							System.out.println(c.status());
 							c.setStatus(st);
 							this.jimmy_.changeContactStatus(c);
 							break;
