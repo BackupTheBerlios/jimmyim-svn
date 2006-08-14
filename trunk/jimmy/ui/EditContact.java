@@ -75,8 +75,8 @@ public class EditContact extends Form implements CommandListener{
         userID_ = new TextField("Username:","",100,TextField.ANY);
         screenName_ = new TextField("Screen name:","",100,TextField.ANY);
         groups_ = new ChoiceGroup("Group:",ChoiceGroup.POPUP);
+        groups_.append("No group",null);	
         groups_.append("Other",null);
-        groups_.append("No group",null);
         otherGroup_ = new TextField("Other group:","",100,TextField.ANY);
         
         accounts_.setLayout(Item.LAYOUT_NEWLINE_AFTER); append(accounts_);

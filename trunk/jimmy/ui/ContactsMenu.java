@@ -137,6 +137,8 @@ public class ContactsMenu extends List implements CommandListener {
      *  @param c contact to be modified.
      */
     public void changeContactStatus(Contact c) {
+	if(c.userID().equals(c.protocol().getAccount().getUser()))
+	    return;
 	Contact currentContact, firstInGroup;
 	Vector currentGroup;
 	String name;
@@ -270,8 +272,35 @@ public class ContactsMenu extends List implements CommandListener {
      * Called when action should be handled
      */
     public void commandAction(Command c, Displayable d) {
-        if(c == (Command)commands_.get(new Integer(ui_.CMD_DEL))){
+        if(c == (Command)commands_.get(new Integer(ui_.CMD_DELCONT))){
             int sel = this.getSelectedIndex();
+	    Contact currContact = findContact(sel,removeSpaces(this.getString(sel)));
+	    
+	    if(currContact != null){
+		this.delete(sel);
+		int i=0;
+		Contact test;
+		
+		do{
+		    test = (Contact)((Vector)contacts_.elementAt(i)).firstElement();		    
+		    i++;
+		}while( currContact.groupName() != null && ( i==1 || !test.groupName().equals(currContact.groupName())));
+		
+		i--;
+		Vector group = ((Vector)contacts_.elementAt(i));
+		group.removeElement(currContact);
+		if(group.isEmpty() && i!=0){
+		    ui_.removeGroup(insertSpaces(currContact.groupName()));
+		    int index = 0;
+		    for(int j=0; j<i; j++){
+			if(j>0)
+			    index++;
+ 			index += ((Vector)contacts_.elementAt(j)).size();
+		    }
+		    this.delete(index);
+		}
+		currContact.protocol().removeContact(currContact);
+	    }
         }
         JimmyUI.jimmyCommand(c,d);
     }
