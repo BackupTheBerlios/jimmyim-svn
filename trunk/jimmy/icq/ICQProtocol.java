@@ -222,7 +222,7 @@ public class ICQProtocol extends Protocol {
 		this.response = new ICQPackage(this.conn.getNextPackage());
 		this.tlvDecode(this.response.getTlv(1));
 		this.conn.disconnect();
-		System.out.println(this.bos);
+//		System.out.println(this.bos);
 		//END STAGE ONE
 		
 		//STAGE TWO
@@ -252,8 +252,9 @@ public class ICQProtocol extends Protocol {
 		this.conn.connect();
 		this.conn.sendPackage(l.getNetPackage());
 		
-		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
-		System.out.println("recieving auth...");
+//		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
+		this.conn.getNextPackage();
+//		System.out.println("recieving auth...");
 		byte[] hahaha = this.conn.getNextPackage();
 		ICQPackage in = new ICQPackage(hahaha);
 		this.services = in.getServices();
@@ -280,7 +281,7 @@ public class ICQProtocol extends Protocol {
 		b = this.conn.getNextPackage();
 
 		if(b != null){
-			System.out.println("Service versions");
+//			System.out.println("Service versions");
 			in = new ICQPackage(b);
 			this.pkgDecode(in);
 		}else{
@@ -393,8 +394,6 @@ public class ICQProtocol extends Protocol {
 		in = new ICQPackage(b);
 		this.pkgDecode(in);
 
-		System.out.println(this.conn.getNumPackages());
-		
 		//send contacts to UI
 		this.jimmy_.addContacts(this.contacts_);
 		
@@ -499,7 +498,7 @@ public class ICQProtocol extends Protocol {
 			ip.setFlap(++this.f_seq);
 			
 			this.conn.sendPackage(ip.getNetPackage());
-			System.out.println(Utils.byteArrayToHexString(ip.getNetPackage()));
+//			System.out.println(Utils.byteArrayToHexString(ip.getNetPackage()));
 		}
 		off = null;
 		m = null;
@@ -532,7 +531,7 @@ public class ICQProtocol extends Protocol {
 		case 4:
 			break;
 		case 5:
-			System.out.println("Got Cookie");
+//			System.out.println("Got Cookie");
 			this.bos = new String(t.getContent());
 			this.cookie = this.response.getTlv(2).getContent();
 			break;
@@ -590,12 +589,12 @@ public class ICQProtocol extends Protocol {
 					break;
 				case 0x0013:
 					//TODO: MOTD
-					System.out.println("MOTD");
+//					System.out.println("MOTD");
 					break;
 				case 0x0018:
 					//TODO: Set the service version numbers
 					//this.service_versions = pak;
-					System.out.println("decoding 18");
+//					System.out.println("decoding 18");
 					break;
 				}
 				break;
@@ -804,8 +803,8 @@ public class ICQProtocol extends Protocol {
 						Contact cont = this.findContact(new String(uin));
 						ChatSession csess = this.getChatSession(cont);
 						this.jimmy_.msgRecieved(csess == null ? csess=this.startChatSession(cont) : csess ,cont,m);
-						System.out.print("Msg sent by UIN: "+new String(uin)+"\nMSG: \n");
-						System.out.println(m);
+//						System.out.print("Msg sent by UIN: "+new String(uin)+"\nMSG: \n");
+//						System.out.println(m);
 						//System.out.println("Msg bytes: "+Utils.byteArrayToHexString(m.getBytes()));
 //						try{
 //							System.out.println("Msg back in "+enc+" bytes: "+Utils.byteArrayToHexString(m.getBytes(enc)));
@@ -818,7 +817,7 @@ public class ICQProtocol extends Protocol {
 					}
 					break;
 				case 0x000C:
-					System.out.println("Msg Ack");
+//					System.out.println("Msg Ack");
 					break;
 				}
 				break;
@@ -924,8 +923,8 @@ public class ICQProtocol extends Protocol {
 								for(int k = 0; k < l; k++){
 									nick[k] = data[k+4];
 								}
-								System.out.println(new String(item_name)+" : "+new String(nick)
-										+" in group: "+ groups[gid]);
+//								System.out.println(new String(item_name)+" : "+new String(nick)
+//										+" in group: "+ groups[gid]);
 								ct.setScreenName(new String(nick));
 								ct.setGroupName(groups[gid]);
 								ct.setProtocol(this);
@@ -993,7 +992,7 @@ public class ICQProtocol extends Protocol {
 	
 	public void run() {
 		
-		System.out.println("Running...");
+//		System.out.println("Running...");
 		//TODO: I WORK HERE
 		
 		

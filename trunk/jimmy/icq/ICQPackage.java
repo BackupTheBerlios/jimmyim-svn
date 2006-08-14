@@ -165,7 +165,7 @@ public class ICQPackage {
 					this.s = new byte[this.flap_size - ICQPackage.SNAC_HEADER_SIZE];
 					for(int i = ICQPackage.SNACK_PKG_HEADER_SIZE; i < pkg.length; i++)
 						s[i-ICQPackage.SNACK_PKG_HEADER_SIZE] = pkg[i];
-					System.out.println("reading services...");
+//					System.out.println("reading services...");
 					break;
 				case 0x0018:
 					
@@ -201,7 +201,7 @@ public class ICQPackage {
 				}
 			}
 		} else {
-			System.out.print("PKGlen: ");System.out.println(this.pkg.length);
+//			System.out.print("PKGlen: ");System.out.println(this.pkg.length);
 			if (this.ch == 0x02) {
 				for (int i = 0; i < content.length; i++) {
 					this.pkg[ICQPackage.SNACK_PKG_HEADER_SIZE + i] = content[i];
@@ -251,11 +251,11 @@ public class ICQPackage {
 			byte[] b = new byte[v.size()];
 			for (int i = 0; i < v.size(); i++) {
 				b[i] = ((Byte) v.elementAt(i)).byteValue();
-				System.out.println(((Byte) v.elementAt(i)).toString());
+//				System.out.println(((Byte) v.elementAt(i)).toString());
 				// v.removeElementAt(0);
 			}
 			v = null;
-			System.out.println(b.length);
+//			System.out.println(b.length);
 			return b;
 	}
 	
