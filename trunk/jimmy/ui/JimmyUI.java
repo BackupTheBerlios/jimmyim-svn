@@ -121,6 +121,7 @@ public class JimmyUI {
 	private static About        scrAbout;
 	private static Hashtable    scrChats;
         private static EditContact  scrNewCont;
+	private static Alert	    scrAlert;
 	
 	//private Vector contacts_;
         
@@ -153,6 +154,9 @@ public class JimmyUI {
 		scrChats =	new Hashtable();
 		scrContacts =   new ContactsMenu();
                 scrNewCont =    new EditContact();
+		scrAlert =	new Alert(null);
+		
+		scrAlert.setTimeout(Alert.FOREVER);
 	}
         
 	public static JimmyUI getInstance(){return jimmyUI_;}
@@ -221,18 +225,26 @@ public class JimmyUI {
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
 		    System.out.println("[DEBUG] Index of selected account: "+selected);
-                    Vector newConnections = new Vector();
-                    newConnections.addElement(scrMenu.getAccounts().elementAt(selected));
-                    jimmy_.setNewConnections(newConnections);
-                    
-                    jimmy_.setDisplay(scrContacts);
+		    Vector login = new Vector();
+		    Account currAcc = (Account)scrMenu.getAccounts().elementAt(selected); 
+                    login.addElement(currAcc);
+		    jimmy_.setNewConnections(login);
+		    
+		    ((Splash)scrSplash).setMess("Connecting "+currAcc.getUser()+"...");
+		    jimmy_.setDisplay(scrSplash);
                 }//if c == cmdLogin
 		else if(c == cmdLogout){
 		    int selected = scrMenu.getSelectedIndex();
 		    System.out.println("[DEBUG] Index of selected account: "+selected);
 		    
 		    Account logoutAccount =  (Account)scrMenu.getAccounts().elementAt(selected);
-		    logout(logoutAccount);
+		    if(logoutAccount.isConnected())
+			logout(logoutAccount);
+		    else{
+			scrAlert.setString("Account is not connected!");
+			scrAlert.setType(AlertType.WARNING);
+			jimmy_.setAlert(scrAlert,scrMenu);
+		    }
 		}
                 else if(c == cmdDel){
                     int selected = scrMenu.getSelectedIndex();
@@ -376,5 +388,27 @@ public class JimmyUI {
 	    scrNewCont.delAccount(a);
 	    p.logout();
 	    a.setConnected(false);
+	}
+	
+	public void warning(String s,int display){
+	    Displayable disp = null;
+	    switch (display) {
+                    case 1:
+                        disp = scrSplash;
+			break;
+                    case 2:
+			disp = scrMenu;
+			break;
+                    case JimmyUI.SCR_NEWACC:
+                        disp = scrNewAcc;
+                        break;
+		    case 6:
+			disp = scrContacts;
+			break;
+		}
+	    
+	    scrAlert.setString(s);
+	    scrAlert.setType(AlertType.WARNING);
+	    jimmy_.setAlert(scrAlert,scrMenu);		    
 	}
 }

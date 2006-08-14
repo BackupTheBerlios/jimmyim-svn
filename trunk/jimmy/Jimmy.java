@@ -24,6 +24,7 @@ package jimmy;
 
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Alert;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
@@ -84,6 +85,15 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                             ui_.setSplashMess("Connecting to "+a.getUser()+"...");
                             connectAccount(a);
                             connect = true;
+			    
+			    if(!a.isConnected()){
+				protocolList_.removeElementAt(protocolList_.size()-1);				
+				ui_.setSplashMess("Connecting to "+a.getUser()+" failed!!!");
+				try{
+				    Thread.sleep(1000);
+				}catch(Exception e){System.out.println(e.getMessage());}
+			    }
+				
                         }
                     }
                     if(connect)
@@ -117,6 +127,13 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					System.out.println("[DEBUG] Logging in user: " + current.getUser());
 					
                                         connectAccount(current);
+					if(current.isConnected())
+					    ui_.setView(JimmyUI.SCR_CONT);
+					else{
+					    protocolList_.removeElementAt(protocolList_.size()-1);
+					    ui_.warning("Failed to connect! Check settings.",JimmyUI.SCR_MAIN);
+					}
+					    
 				} //for i < newConnections_.size()
                     
 				newConnections_ = null;
@@ -147,6 +164,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public void setNewConnections(Vector list)  {this.newConnections_ = list;}
 	
 	public void setDisplay(Displayable d){Display.getDisplay(this).setCurrent(d);}
+	public void setAlert(Alert a, Displayable d){Display.getDisplay(this).setCurrent(a,d);}
 	
 	public void stopProtocol(Protocol p) {
 		p.logout();
@@ -173,12 +191,11 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		ui_.changeContactStatus(c);
 	}
         
-        private Protocol connectAccount(Account current){
+        public Protocol connectAccount(Account current){
             //which protocol to connect?
             switch(current.getProtocolType()){
                 case Protocol.JABBER:
                     JabberProtocol jabber = new JabberProtocol(this);
-                    //current.setConnected(jabber.login(current.getUser(),current.getPassword()));
                     current.setConnected(jabber.login(current));
                     protocolList_.addElement(jabber);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
