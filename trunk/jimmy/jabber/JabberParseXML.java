@@ -10,6 +10,8 @@ public class JabberParseXML {
 		int x1, x2;
 		int item2;
 		String cName, cJid, cGroup;	//contact's screen name, jabber id, group name
+		System.out.println("parseContacts:\n"+in);
+		
 		while (in.indexOf("<item") != -1) {	//until only query and iq
 			in = in.substring(in.indexOf("<item"));	//trim anything before the first <item occurance
 
@@ -22,10 +24,8 @@ public class JabberParseXML {
 			x1 = in.indexOf("name='");
 			if ((x1 != -1) && (x1 < item2)) {
 				x1 += 6;	//the end of name='
-				in = in.substring(x1); item2 -= x1;
-				x2 = in.indexOf("'");
-				cName = in.substring(0, x2);
-				in = in.substring(x2 + 1); item2 -= (x2+1);
+				x2 = in.indexOf("'", x1);
+				cName = in.substring(x1, x2);
 			} else
 				cName = null;
 			
@@ -33,10 +33,8 @@ public class JabberParseXML {
 			x1 = in.indexOf("jid='");
 			if ((x1 != -1) && (x1 < item2)) {
 				x1 += 5;	//the end of jid='
-				in = in.substring(x1); item2 -= x1;
-				x2 = in.indexOf("'");
-				cJid = in.substring(0,x2);
-				in = in.substring(x2 + 1); item2 -= (x2+1);
+				x2 = in.indexOf("'", x1);
+				cJid = in.substring(x1,x2);
 			} else
 				cJid = null;
 			
@@ -44,13 +42,13 @@ public class JabberParseXML {
 			x1 = in.indexOf("<group>");
 			if ((x1 != -1) && (x1 < item2)) {
 				x1 += 7;	//the end of <group>
-				in = in.substring(x1); item2 -= x1;
 				x2 = in.indexOf("</group>");
-				cGroup = in.substring(0,x2);
-				in = in.substring(x2+8); item2 -= (x2+8); //cut off </group></item>
+				cGroup = in.substring(x1,x2);
 			} else
 				cGroup = null;
 			
+			in = in.substring(item2);
+			System.out.println(cJid+":"+cGroup+":"+cName);
 			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
 		}
 
