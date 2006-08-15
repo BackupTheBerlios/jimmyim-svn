@@ -10,7 +10,6 @@ public class JabberParseXML {
 		int x1, x2;
 		int item2;
 		String cName, cJid, cGroup;	//contact's screen name, jabber id, group name
-		System.out.println("parseContacts:\n"+in);
 		
 		while (in.indexOf("<item") != -1) {	//until only query and iq
 			in = in.substring(in.indexOf("<item"));	//trim anything before the first <item occurance
@@ -48,7 +47,6 @@ public class JabberParseXML {
 				cGroup = null;
 			
 			in = in.substring(item2);
-			System.out.println(cJid+":"+cGroup+":"+cName);
 			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
 		}
 
@@ -184,6 +182,28 @@ public class JabberParseXML {
 			return in;
 		}
 		
+		//a contact removed you from his list, keep the contact visible, but set it offline
+		x2 = in.indexOf("type='unsubscribe'/>");
+		x22 = in.indexOf(">");
+
+		if ((x2 < x22) && (x2 != -1)) {
+			c.setStatus(Contact.ST_OFFLINE);
+			jimmy.changeContactStatus(c);
+			in = in.substring(x2 + 20);
+			return in;
+		}
+
+		//a contact removed you from his list, keep the contact visible, but set it offline
+		x2 = in.indexOf("type='unsubscribed'/>");
+		x22 = in.indexOf(">");
+
+		if ((x2 < x22) && (x2 != -1)) {
+			c.setStatus(Contact.ST_OFFLINE);
+			jimmy.changeContactStatus(c);
+			in = in.substring(x2 + 20);
+			return in;
+		}
+
 		//a contact added you to his list
 		x2 = in.indexOf("type='subscribe'/>");
 		if ((x2 < x22) && (x2 != -1)) {
