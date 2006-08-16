@@ -206,7 +206,7 @@ public class ContactsMenu extends List implements CommandListener {
     public void startChat(){
 	int selected = this.getSelectedIndex(), i=0, j=0, selectedIndex;
         if(selected > -1){
-            Contact currentContact = this.findContact(selected,Contact.removeSpaces(this.getString(selected)));
+            Contact currentContact = this.findContact(selected,this.getString(selected));
             System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
 
             if(currentContact != null)
@@ -239,7 +239,6 @@ public class ContactsMenu extends List implements CommandListener {
         }
         else
             System.out.println("[DEBUG] None selected.");
-        
     }
     
     private Contact findContact(int selected, String name){
@@ -253,9 +252,17 @@ public class ContactsMenu extends List implements CommandListener {
             for(int j=0; j<group.size(); j++){
                 current = (Contact)group.elementAt(j);
                 
-                if(current.screenName() != null && current.screenName().equals(name) || current.userID().equals(name)){
-                    candidates.addElement(current);
-                    index.addElement(new Integer(indexCount+j));
+                if(current.protocol().getType() == Protocol.MSN){
+                    if(current.screenName() != null && Contact.insertSpaces(current.screenName()).equals(name) || current.userID().equals(name)){
+                        candidates.addElement(current);
+                        index.addElement(new Integer(indexCount+j));
+                    }                    
+                }
+                else{
+                    if(current.screenName() != null && current.screenName().equals(name) || current.userID().equals(name)){
+                        candidates.addElement(current);
+                        index.addElement(new Integer(indexCount+j));
+                    }
                 }
             }
             indexCount += group.size();
@@ -308,7 +315,7 @@ public class ContactsMenu extends List implements CommandListener {
         if(c == (Command)commands_.get(new Integer(ui_.CMD_DELCONT))){
             int sel = this.getSelectedIndex();
             if(sel > -1){
-        	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
+        	    Contact currContact = findContact(sel,this.getString(sel));
 	    
                 if(currContact != null){
                     removeContact(currContact,sel);
@@ -321,7 +328,7 @@ public class ContactsMenu extends List implements CommandListener {
 	else if(c == (Command)commands_.get(new Integer(ui_.CMD_EDIT))){
             int sel = this.getSelectedIndex();
             if(sel > -1){
-                Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
+                Contact currContact = findContact(sel,this.getString(sel));
 
                 if(currContact !=  null){
                     ui_.editContact(currContact,sel);
