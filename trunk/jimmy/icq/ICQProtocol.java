@@ -58,6 +58,7 @@ public class ICQProtocol extends Protocol {
 	private int s_seq = 1;
 	
 	private long SSI_LAST_MODIFIED=0;
+	private short SSI_ITEMS=0;
 	private short REPORT_INTERVAL = 0;
 	
 	private byte[] cookie;
@@ -618,7 +619,12 @@ public class ICQProtocol extends Protocol {
 				}
 				break;
 			case 0x0003:
+				//Contact list actions
 				switch(subtype){
+				case 0x000A:
+					//Contact refused to add him
+					//TODO: remove contact from list
+					break;
 				case 0x000B:
 					//user status changed OL
 					byte[] data = pak.getContent();
@@ -829,6 +835,7 @@ public class ICQProtocol extends Protocol {
 				b = null;
 				break;
 			case 0x0013:
+				//SSI reply part
 				switch(subtype){
 				case 0x0001:
 					return false;
@@ -841,6 +848,7 @@ public class ICQProtocol extends Protocol {
 					it[0] = pkg[start_point];
 					it[1] = pkg[start_point+1];
 					short items = Utils.bytesToShort(it,true); 
+					this.SSI_ITEMS = items;
 					it=null;
 					start_point += 2;
 					
@@ -944,6 +952,15 @@ public class ICQProtocol extends Protocol {
 					this.SSI_LAST_MODIFIED = Utils.bytesToLong(it,true);
 					
 					pkg = null;
+					break;
+				case 0x0019:
+					//Contact auth request
+					break;
+				case 0x001B:
+					//Contact auth reply
+					break;
+				case 0x001C:
+					//"You were added"
 					break;
 				}
 				break;
@@ -1092,16 +1109,15 @@ public class ICQProtocol extends Protocol {
     
     
     public void addContact(Contact c){
-	    
+	    // TODO: Send snack 0x0003,0x0004
     }
 
 	public void updateContactProperties(Contact c) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public boolean removeContact(Contact c) {
-		// TODO Auto-generated method stub
+		// TODO: Send snack 0x0003, 0x0005
 		return false;
 	}
 
