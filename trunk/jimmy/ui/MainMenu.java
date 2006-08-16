@@ -59,7 +59,7 @@ public class MainMenu extends List implements CommandListener {
         
         //add accounts to menu
         this.al_ = new Vector();
-	//addAccounts(accounts);    
+	addAccounts(Store.getAccounts());    
     }
     
     /**
