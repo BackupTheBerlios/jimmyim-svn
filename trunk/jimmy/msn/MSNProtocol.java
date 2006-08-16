@@ -420,7 +420,7 @@ public class MSNProtocol extends Protocol
                 i++;
             }
             person = new Contact(username.toString(), (Protocol)this);
-	    this.userHashes.put(username.toString(), contactHash);
+	    //this.userHashes.put(username.toString(), contactHash);
 	    
             // parse nickname
             ind = contact.toString().indexOf("F=");
@@ -559,8 +559,9 @@ public class MSNProtocol extends Protocol
                 i++;
             }
 	    System.out.print("First:"+groupID.toString().substring(0, groupID.length()-1)+", \nsecond:"+group.toString());
-	    this.groupID.put(group.toString(), new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()));
-            count++;
+	    //this.groupID.put(group.toString(), new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()));
+	    this.groupID.put(new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()), group.toString());
+	    count++;
             t = data.indexOf("LSG", t+3);
         }
     } 
