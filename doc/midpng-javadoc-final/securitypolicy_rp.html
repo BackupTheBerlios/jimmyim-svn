@@ -1,0 +1,1796 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"><html><head>
+	<meta http-equiv="CONTENT-TYPE" content="text/html;
+	      charset=iso-8859-1"><title>The Recommended Security Policy for GSM/UMTS Compliant Devices</title>
+	<!-- Changed by: Roger Riggs - Sun Microsystems Inc, 25-Jul-2002 -->
+	<!-- Changed by: Gary Adams - SMI Software Development, 30-Jul-2002 -->
+	
+	<meta name="GENERATOR" content="StarOffice 6.0  (Solaris Sparc)">
+	<meta name="CREATED" content="20020719;16144600">
+	<meta name="CHANGED" content="20020719;17014700">
+	<meta name="ProgId" content="Word.Document">
+	<meta name="Originator" content="Microsoft Word 9">
+    <link REL="STYLESHEET" href="stylesheet.css" charset="ISO-8859-1" type="text/css">
+	<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>CHANDRASIRIP</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>CHANDRASIRIP</o:LastAuthor>
+  <o:Revision>10</o:Revision>
+  <o:TotalTime>2663</o:TotalTime>
+  <o:LastPrinted>2002-07-09T08:30:00Z</o:LastPrinted>
+  <o:Created>2002-07-09T08:36:00Z</o:Created>
+  <o:LastSaved>2002-07-09T08:50:00Z</o:LastSaved>
+  <o:Pages>50</o:Pages>
+  <o:Words>6111</o:Words>
+  <o:Characters>34838</o:Characters>
+  <o:Company>Vodafone Group </o:Company>
+  <o:Lines>290</o:Lines>
+  <o:Paragraphs>69</o:Paragraphs>
+  <o:CharactersWithSpaces>42783</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+	<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:View>Normal</w:View>
+  <w:Zoom>130</w:Zoom>
+  <w:HyphenationZone>21</w:HyphenationZone>
+  <w:DrawingGridVerticalSpacing>0 pt</w:DrawingGridVerticalSpacing>
+  <w:Compatibility>
+   <w:UseFELayout/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+ </w:WordDocument>
+</xml><![endif]-->
+	<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1027"/>
+</xml><![endif]-->
+	<!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+	<style>
+
+	<!--
+
+		TD P { color: #000000 }
+
+		H2 { color: #000000 }
+
+		P { color: #000000 }
+
+		H3 { color: #000000 }
+
+		H4 { color: #000000 }
+
+		A:link { color: #0000ff }
+
+		A:visited { color: #0000ff }
+
+	-->
+
+	</style></head><body lang="en-GB" text="#000000" link="#0000ff" vlink="#0000ff">
+<h2 class="DocumentTitle">The Recommended Security Policy for GSM/UMTS Compliant Devices</h2>
+<h4 class="TitleContinuation">Addendum to the Mobile Information Device Profile version 2.0</h4>
+    <hr>
+<h5 class="TitleContinuation"><i>Copyright 2002, Sun Microsystems,
+      Inc. ALL RIGHTS RESERVED.</i></h5>
+    <hr>
+<h2 class="ChapterTitle">Preface</h2>
+<p class="Paragraph">This document, <i>The Recommended Security Policy for GSM/UMTS
+	Compliant Devices</i> is an addendum to
+the <a href="http://jcp.org/jsr/detail/118.jsp">Mobile Information Device Profile (MIDP) version 2.0</a> for the
+Java<sup>TM</sup> 2 Platform, Micro Edition (J2ME<sup>TM</sup>).
+</p>
+<p class="Paragraph">The terminology used herein is defined by
+that specification except where noted. 
+</p>
+
+<h2 class="ChapterTitle">Who Should Use This Document</h2>
+<p class="Paragraph">The audience for this document is the Java
+Community Process (JCP) Expert Group that defined the MIDP,
+implementers of the MIDP, application developers using the MIDP,
+service providers deploying MIDP applications, and wireless operators
+deploying the infrastructure to support MIDP devices. This document
+specifically targets network operators, manufacturers, and
+service and application providers operating in GSM and UMTS networks.
+</p>
+<h2 class="ChapterTitle">Scope of This Document</h2>
+<p class="Paragraph">This addendum is informative.
+However, all implementations of MIDP 2.0 on GSM/UMTS-compliant
+devices are expected to comply with this addendum.</p>
+
+<p class="Paragraph"> MIDP 2.0 defines the framework for
+authenticating the source of a MIDlet suite and authorizing the
+MIDlet suite to perform protected functions by granting permissions
+it may have requested based on the security policy on the device. It
+also identifies functions that are deemed security-vulnerable and
+defines permissions for those protected functions. Additionally, MIDP
+2.0 specifies  the common rules for APIs that can be used
+together with the MIDP but are specified outside the MIDP. MIDP 2.0
+specification does not mandate a single trust model but rather allows
+the model to accord with the device trust policy. 
+</p>
+<p class="Paragraph">The purpose of this addendum is to extend the base MIDlet suite
+security framework defined in MIDP 2.0 and to define the following
+areas: 
+</p>
+<ul type="disc">
+	<li class="Bullet1">The required trust model for GSM/UMTS-compliant devices 
+	</li>
+	<li class="Bullet1">The domain number and structure, as reflected in the
+	       policy file
+	</li>
+	<li class="Bullet1">The mechanism of reading root keys
+	  from sources external to the device 
+	</li>
+	<li class="Bullet1">Capabilities allowed the
+	  applications within permissions defined by MIDP 2.0 and other JSRs 
+	</li>
+	<li class="Bullet1">Application behaviour in the roaming network
+	</li>
+	<li class="Bullet1">Application behaviour when SIM/USIM is changed 
+	</li>
+	<li class="Bullet1">The use of user permission types 
+	</li>
+	<li class="Bullet1">Guidelines on user prompts and notifications 
+	</li>
+</ul>
+<h2 class="ChapterTitle">How This Specification Is Organized</h2>
+<p class="Paragraph">This specification is organized as follows:</p>
+
+<p class="Paragraph"> Sections 2 to 4 establish the relationship
+between the policy file, different security domains, and requirements
+concerning certificate storage on smart cards. Section 5 specifies
+the function groups and identifies the permissions and the APIs that
+need to be protected using the MIDP 2.0 security framework. Sections
+6 and 7 specify rules that must be followed when permissions are
+granted, and also requirements of user notifications. Finally Section
+8 specifies the MIDlet behaviour during roaming and after changing
+the smart card.</p>
+<h2 class="ChapterTitle">References</h2>
+    <ol>
+      <li class="List1">
+        Connected Limited Device Configuration (CLDC)<br> <a
+        href="http://jcp.org/jsr/detail/30.jsp">http://jcp.org/jsr/detail/30.jsp</a>
+      </li>
+      <li class="List1">
+	Mobile Information Device Profile (MIDP) 2.0<br> <a
+	href="http://jcp.org/jsr/detail/118.jsp">
+	http://jcp.org/jsr/detail/118.jsp</a>
+      </li>
+      <li class="List1">
+	HTTP 1.1 Specification<br>
+	<a href="http://www.ietf.org/rfc/rfc2616.txt">
+	  http://www.ietf.org/rfc/rfc2616.txt</a>
+      </li>
+      <li class="List1">
+	WAP Wireless Identity Module Specification (WIM)
+	WAP-260-WIM-20010712-a<br>
+	<a href="http://www.wapforum.org/what/technical.htm">
+	  http://www.wapforum.org/what/technical.htm</a>
+      </li>
+      <li class="List1">
+	WAP Smart Card Provisioning (SCPROV) WAP-186-ProvSC-20010710-a<br>
+	<a href="http://www.wapforum.org/what/technical.htm">
+	  http://www.wapforum.org/what/technical.htm</a>
+      </li>
+      <li class="List1">
+	PKCS#15 v.1.1 <br>
+	<a href="http://www.rsasecurity.com/rsalabs/pkcs/pkcs-15/">
+	  http://www.rsasecurity.com/rsalabs/pkcs/pkcs-15/</a>
+      </li>
+      <li class="List1">
+	USIM, 3GPP TS 31.102: "Characteristics of the USIM
+	applications" <br>
+	<a href="http://www.3gpp.org/">http://www.3gpp.org</a>
+      </li>
+      <li class="List1">
+	RFC3280<br>
+	<a href="http://www.ietf.org/rfc">
+	  http://www.ietf.org/rfc</a>
+      </li>
+    </ol>
+
+<p class="Paragraph"><h2 class="ChapterTitle">1  General</h2></p>
+<p class="Paragraph">GSM/UMTS-compliant devices MUST follow the
+security framework specified in the MIDP 2.0. Additionally, devices
+that support trusted applications MUST follow the PKI-based
+authentication scheme as defined in MIDP 2.0 specification. 
+</p>
+<h2 class="ChapterTitle">2  Domains in the Policy File</h2>
+<p class="Paragraph">A domain is a way to differentiate between
+downloaded MIDlets based on their origin, and to grant or make
+available to a MIDlet suite a set of permissions. A domain binds a
+root certificate to a set of permissions. The permissions are
+specified in the domain policy. A policy file or policy has as many
+entries as there are domains available on the device.  A domain
+can exist only for root certificates that contain the
+<code>id-kp-codeSigning</code> extended key usage extension.</p>
+<p class="Paragraph">Applications that authenticate to a trusted root key are treated
+as trusted, and assigned to the corresponding  protection
+domain. An application MUST be assigned to only one protection
+domain. A MIDlet suite cannot belong to more than one protection
+domain. 
+</p>
+<p class="Paragraph">The representation of domains in the device is
+implementation-specific.</p>
+<h2 class="ChapterTitle">3  Security Domains and the Permissions
+Framework</h2>
+<p class="Paragraph">This document specifies two different
+requirements as to how the MIDP permissions framework should be used,
+depending on the security domain an application executes.</p>
+<p class="Paragraph"> </p>
+<p class="Paragraph"><b>Manufacturer and Operator Domains</b> &#8211;
+Applications are responsible for prompting the user, using the MIDP
+2.0 permissions framework when accessing functions for which security
+policies are specified in Tables 2 through 6 in this document.</p>
+<p class="Paragraph"> </p>
+<p class="Paragraph"><b>Third-Party and Untrusted Domains</b> &#8211;
+The device implementation is responsible for prompting the user
+according to the security policies specified in Tables 1 through 5 in
+this document.</p>
+<h4>3.1 Manufacturer Domain</h4>
+<p class="Paragraph">The trusted root certificate of the device manufacturer is related
+to manufacturer applications and MUST have a domain
+identified in the policy file. If a given device has no Manufacturer
+domain but is capable of authenticating manufacturer-signed
+applications (that is, it has a manufacturer root certificate
+installed) they will be authorized only as untrusted and will belong
+to the Untrusted domain.</p>
+<p class="Paragraph">The Manufacturer domain cannot be deleted or modified by the user
+or any other party, except by a device-provisioned capability. 
+If the manufacturer root certificate is updated, it MUST be mapped
+onto the same Manufacturer-domain policy file. If the manufacturer
+root certificate is no longer present on the device, the Manufacturer
+domain may be removed by a device-provisioned capability. 
+</p>
+<p class="Paragraph">Permissions in the Manufacturer domain are all marked as
+<i>Allowed</i> (see MIDP 2.0 for the definition). Permissions granted by
+the Manufacturer domain as <i>Allowed</i> imply that downloaded and
+authenticated manufacturer applications perform consistently with
+applications pre-installed by the manufacturer in terms of security
+and prompts to the user whenever events that require user
+acknowledgment occur. Manufacturer applications SHOULD seek
+permission from the user when accessing security-vulnerable APIs and
+functions. Permissions defined by MIDP 2.0 and other APIs give the
+guidelines of which functions are seen as security-vulnerable and
+need protection. It is expected that manufacturer applications will
+give prompts and notifications to the user consistently regarding
+these security-protected functions. The implementation MUST present
+the user with the <i>Subject</i> field of the root certificate
+containing the manufacturer root public key whenever a new
+application is installed in the Manufacturer domain. This user
+notification MUST take place at application installation.</p>
+<p class="Paragraph">The Manufacturer domain imposes no restriction on the capabilities
+specified in the MIDP 2.0 and other JSRs. 
+</p>
+<h4>3.2 Operator Domain</h4>
+<p class="Paragraph">The trusted operator root certificate MUST be
+mapped onto the policy file describing the Operator domain on the
+device. A device MUST support the policy file describing the Operator
+domain.</p>
+
+<p class="Paragraph">If a given device has no Operator domain but is
+capable of authenticating operator-signed applications (that is, it
+is able to obtain an operator root certificate from a smart card)
+they will be authorized only as untrusted and will belong to the Untrusted domain. 
+</p>
+
+<p class="Paragraph">Trusted root certificates are read from the Certificate Directory
+File (CDF) for trusted certificates [WIM]. Root certificates found in
+the trustedCertificates file on the WIM are mapped onto the Operator
+domain or onto the Trusted Third-Party domain,
+depending on the trustedUsage field in the
+CommonCertificateAttributes associated with the certificate
+[PKCS15]:</p>
+<blockquote>
+<p class="Paragraph">If the trustedUsage field is present and contains the OID for key usage
+&#8220;Operator Domain&#8221; (to be defined), then the certificate
+is to be mapped onto the Operator domain.</p>
+<p class="Paragraph">If the trustedUsage
+field is not present, or does not contain the OID for key usage
+&#8220;Operator Domain,&#8221; then the certificate is to be mapped
+onto the Trusted Third-Party domain.</p>
+</blockquote>
+
+<p class="Paragraph">Operator-trusted root certificates may be placed
+in the trustedCertificates Certificate Directory File (CDF) of a WIM,
+SIM, or USIM. If operator root certificates are stored directly on a
+SIM or USIM, that is, not under the WIM application, then they shall
+be stored in the EF trustedCertificates CDF located under
+DF(PKCS#15), as defined by [SCPROV]. Operator root certificates can
+be obtained only from the trusted CDF or equivalent directory (the
+card holder can not update this directory) and not from any
+other directory of the smart card. 
+</p>
+<p class="Paragraph">As operator root certificates are external to the device itself,
+and it is not known in advance which root certificates are available
+for authenticating downloaded operator applications at the time the
+smart card can be changed, mapping of the operator root certificates
+onto the Operator domain is implementation-specific. Any operator
+root certificate MUST, however, be mapped onto the same set of
+<i>Allowed </i>permissions in the Operator domain. The Operator
+domain cannot be deleted or modified by the user or any other party,
+except by a device-provisioned capability. 
+</p>
+<p class="Paragraph">A signed and authenticated application MUST be authorized to the Operator
+domain if the application was authenticated to the operator root public key.
+The operator root public key MUST be obtained from the trusted CDF of a currently
+inserted and enabled smart card and not from any other location on the smart
+card or the device. The implementation MUST present the user with the <e>Subject</i>
+field of the root certificate containing the operator root public
+key whenever a new application is installed in the Operator domain.
+This user notification MUST take place at application
+installation.</p>
+
+<p class="Paragraph">Permissions in the Operator domain are all marked as<i> Allowed
+</i>(see MIDP 2.0 for the definition). Permissions granted by the Operator domain as <i>Allowed</i> imply that downloaded and
+authenticated operator applications perform consistently with other
+applications installed by the operator in terms of security and
+prompts to the user whenever events that require user acknowledgment
+occur. Operator applications SHOULD seek permission from the user
+when accessing security-vulnerable APIs and functions. Permissions
+defined by MIDP 2.0 and other APIs provide guidelines as to which
+functions are seen as security-vulnerable and need protection. It is
+expected that operator-trusted applications will give prompts and
+notifications to the user when accessing these security-protected
+functions.</p>
+
+<p class="Paragraph">The Operator domain imposes no restriction on the capabilities
+specified in the MIDP 2.0 and other APIs unless stated otherwise.</p>
+<p class="Paragraph">MIDlets installed in the Operator domain MUST store, along with
+the application itself, a hash of the root certificate public key
+under which the signing certificate used to sign the application was
+issued. The hash algorithm to be used is the following: starting with
+the root certificate, compute the 20-byte SHA-1 hash of the value of
+the BIT STRING subjectPublicKey (excluding the tag, length, and
+number of unused bits) of that certificate.  This method is
+commonly used to compute key identifiers, especially to accelerate
+trust-chain building [RFC3280, &sect;4.2.1.2]. The implementation
+MUST NOT assume for optimization purposes that X.509 key identifiers
+or PKCS#15 labels are the correct value; however, and MUST compute
+the hash themselves. This hash MUST be used by the device to decide
+when a given program should be deactivated, as specified in Section
+8. 
+</p>
+<h4>3.3 Trusted Third-Party Domain</h4>
+<p class="Paragraph">There is no explicit limitation on the number of
+domains available in a given device.  Applications that
+authenticate to a trusted third-party root certificate MUST belong to
+a Third-Party domain. If a given device has no Third-Party domain in
+the policy file, then a third-party application MUST be authorized
+and installed only as untrusted and MUST belong to the Untrusted
+domain. 
+</p>
+<p class="Paragraph">Third-party root certificates downloaded after device
+manufacture MUST NOT be used for authentication of MIDlets.</p>
+<p class="Paragraph">The implementation MUST present the user with the <i>Subject</i>field
+of the signing certificate of a MIDlet whenever a new MIDlet is
+installed in the Third-Party domain. This user notification MUST take
+place at MIDlet installation. When the user is
+prompted to grant permissions to an application, the prompt MUST
+identify the trusted source with the <i>Subject</i> field of the signing
+certificate.</p>
+<p class="Paragraph">The user must be able to delete or disable trusted third-party
+certificates. If a third-party root certificate is to be deleted, the
+implementation SHOULD warn the user of the consequence of the
+deletion adequately. The user MUST be able to enable a disabled
+third-party root certificate. A disabled third-party root certificate
+MUST NOT be used to verify downloaded MIDlets. Furthermore,  if
+a third-party root certificate is deleted or disabled (for example,
+revoked, deleted, or disabled by the user) the Third-Party domain
+must no longer be associated with this root certificate. If the user
+chooses to delete the root certificate, implementation may provide an
+option to delete the applications authenticated to it. 
+</p>
+<p class="Paragraph">Trusted third-party applications are not granted any permissions
+<i>Allowed</i> by the Third-Party domain. All permissions granted by
+the Third-Party domain are <i>User</i> permissions, that is, user
+interaction is required for permission to be granted. Table 1
+specifies the function groups and the available user permission
+types for applications in the Third-Party domain. Tables 2 through 6
+specify the mapping of permissions and APIs onto different function
+groups.
+</p>
+<h4>3.4 Untrusted Domain</h4>
+<p class="Paragraph"><b>MIDlets that are
+unsigned will belong to the Untrusted domain.</b></p>
+<p class="Paragraph">The implementation MUST inform the
+user whenever a new MIDlet is installed in the Untrusted domain. The
+notification MUST indicate that the application does not come from a
+trusted source.  The user must be able to make an informed
+decision based on the available information before granting
+permissions to an application. 
+</p>
+
+<p class="Paragraph">When the user is prompted to grant
+permissions to an application the prompt MUST indicate that the
+application does not come from a trusted source.</p>
+<p class="Paragraph">Untrusted applications MUST NOT gain read access directly to PIM
+data through the API defined in JSR 75 (see Table 1 in Section 5).
+Interactions between an untrusted application and the PIM data can be
+enabled, however, by implementations of the javax.microedition.lcdui
+package: when the application programmer sets the constraint
+TextField.PHONENUMBER, an implementation of the TextField class MAY
+propose that the user look up a number in his or her phone book and
+copy it to the TextField item.  For example, when the TextField
+item has input focus, the user can access a menu to enter the phone
+book; when the user selects an entry in the phone book, the contents
+of the selected entry are "copied and pasted" into the
+TextField item.  
+</p>
+<p class="Paragraph">Table 1 specifies the function groups and the available user
+permissions for applications in the Untrusted domain. Tables 2
+through 6 specify the mapping of permissions and APIs onto different
+function groups.</p>
+<h2 class="ChapterTitle">4  Remotely Located Policy File</h2>
+<p class="Paragraph">The MIDP 2.0 specification defines the generic
+format for the policy file that can be read from removable media.
+GSM/UMTS-compliant devices are not expected to use it in the first
+phase, but rather to use a single policy file resident on the
+device.  The possibility of remotely located policy files is
+left for further consideration. 
+</p>
+<h2 class="ChapterTitle">5  Permissions for Downloaded MIDlet Suites</h2>
+<p class="Paragraph"><b>Mapping MIDP 2.0 Permissions onto Function Groups in
+Protected Domains</b></p>
+<p class="Paragraph">A device with a small display may not be able to
+present all permissions to the user in a single configuration
+settings menu in a user-friendly manner. Therefore the device is not
+required to present all individual permissions for user confirmation.
+Rather, a certain higher-level action triggered by the protected
+function should be brought to the user for acceptance.  The
+high-level functions presented to the user essentially capture and
+reflect the actions and consequences of the underlying individual
+permissions. The function groups are as follows: 
+</p>
+<p class="Paragraph">Network/cost-related groups: 
+</p>
+<p class="Paragraph"><b>Phone Call</b> &#8211; the group represents permissions to
+any function that results in a voice call. 
+</p>
+<p class="Paragraph"><b>Net Access</b> &#8211; the group represents permissions to any
+function that results in an active network data connection (for
+example GSM, GPRS, UMTS, etc&#8230;); such functions must be mapped to this
+group.<br>
+</p>
+<p class="Paragraph"><b>Messaging</b> &#8211; the group represents permissions to
+any function that allows sending or receiving messages (for example,
+SMS, MMS, etc.) 
+</p>
+
+<p class="Paragraph"><b>Application Auto Invocation</b> &#8211; the group represents
+permissions to any function that allows a MIDlet to be invoked
+automatically (for example, push, timed MIDlets, etc.) 
+</p>
+<p class="Paragraph"><b>Local Connectivity</b> &#8211; the group represents
+permissions to any function that activates a local port for further
+connection (for example, COMM port, IrDa, Bluetooth, etc.) 
+</p>
+<p class="Paragraph">User-privacy-related groups: 
+</p>
+<p class="Paragraph"><b>Multimedia recording</b> &#8211; the group represents
+permissions to any function that gives a MIDlet the ability to
+capture still images, or to record video or audio clips.</p>
+<p class="Paragraph"><b>Read User Data Access</b> &#8211; the group represents
+permissions to any function that gives a MIDlet the ability to read a
+user's phone book, or any other data in a file or directory. 
+</p>
+<p class="Paragraph"><b>Write User Data Access</b> &#8211; the group represents
+permissions to any function that gives a MIDlet the ability to add or
+modify a user's phone book, or any other data in a file or directory.
+</p>
+<p class="Paragraph">Whenever new features are added to the MIDP they should be
+assigned to the appropriate function group. In addition, APIs that
+are specified elsewhere (that is, in other JSRs) but rely on the MIDP
+security framework should also be assigned to an appropriate
+function group. If none of the function groups defined in this
+section is able to capture the new feature and reflect it to the user
+adequately, however, then a new function group MUST be defined in
+this document.</p>
+<p class="Paragraph">If a new function group is to be added, the following should be
+taken into consideration: the group to be added MUST not introduce
+any redundancy to the existing groups, the new group MUST be capable
+of protecting a wide range of similar features. The latter
+requirement is to prevent introducing narrowly scoped groups. 
+</p>
+<p class="Paragraph">It is the function groups and not the individual permissions that
+should be presented when the user is prompted.  Furthermore, it
+is the function groups that should be presented to the user in the
+settings of a given MIDlet suite. 
+</p>
+<p class="Paragraph">Table 1 presents the policy that must be enforced using the
+security framework as defined in MIDP 2.0. The table specifies the
+available permission settings for each function group defined. 
+Settings that are effective at the time the MIDlet is invoked for the
+first time, and remain effective until the user changes them in the
+MIDlet's configuration menu, are called "default settings."
+  Settings available to the user in the configuration menu, to
+which the user can change from a default setting, are called "other
+settings." Together, default and other settings form a pool of
+available configuration settings for the MIDlet. Default and other
+settings are presented for each function group and each protection
+domain. The naming of the function groups is implementation-specific
+but MUST follow the guidelines of the function-group names defined in
+this document as well as the definitions of these groups. 
+</p>
+<p class="Paragraph">Tables 2 through 5 present individual permissions defined in the
+MIDP 2.0 and other JSRs, and map to the function groups specified
+in this section. An individual permission MUST occur in only one
+function group. 
+</p>
+<p class="Paragraph">It is not mandatory for manufacturer and operator-trusted
+applications to adhere to the settings defined in the following
+tables, as the necessary user prompts should be given by the
+application itself.  It is recommended that the manufacturer and
+operator-trusted applications adhere to the permission guidelines
+provided in the tables, and present appropriate prompts to the user
+for the functions identified as security-protected.  <br>  
+</p>
+<p align="center">  Table 1: Function groups and user settings 
+</p>
+<table width="72%" border="1" cellpadding="0" cellspacing="3" align="center">
+	<tbody><tr>
+		<td width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b>Function group</b></p>
+		</td>
+		<td colspan="2" width="32%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Trusted Third-Party  domain</b></p>
+		</td>
+		<td colspan="2" width="40%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Untrusted  domain</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2">
+			<p style="border: medium none ; padding: 0cm;">
+			 Phone Call</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;"> default
+			setting</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td>
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Messaging</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Application Auto Invocation</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Local Connectivity</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;"> other
+			settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Blanket, No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Multimedia recording</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session, No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			 Read User Data Access</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session, Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" width="24%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Write User Data Access</p>
+		</td>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot 
+			</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 default setting</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Oneshot</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="14%">
+			<p style="border: medium none ; padding: 0cm;">
+			 other settings</p>
+		</td>
+		<td width="18%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Session, Blanket, No</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> other
+			settings</p>
+		</td>
+		<td width="26%">
+			<p style="border: medium none ; padding: 0cm;">
+			 No</p>
+		</td>
+	</tr>
+</tbody></table>
+<p class="Paragraph">The device MAY enhance and
+simplify the user experience by applying a single set of
+configuration settings (default or other), not just to a single
+MIDlet, but to all MIDlets for a given signer. This option MUST
+NOT compromise the function groups and available settings defined in
+Table 1. If such an option exists, the user will be prompted to save
+the settings and reuse them in future for applications from the same
+source. Such a feature MAY also inform the user that a given source
+has already been accepted and has an alias to the saved configuration
+settings.</p>
+<p class="Paragraph">For each trusted or untrusted application, the implementation MAY
+read requested permissions from the MIDlet-Permissions and
+MIDlet-PermissionsOpt attributes, notify the user which capability
+the application requires, and prompt the user to accept or reject
+installation of the application. 
+</p>
+<p class="Paragraph">Note:  For applications in the Third-Party or the Untrusted domain, if any of the groups Net Access,
+Messaging, and Local Connectivity has a Blanket permission, neither
+Multimedia recording nor Read User Data Access can have a Blanket
+permission, and vice versa.  This restriction is to ensure that
+a MIDlet cannot activate both network connectivity and
+user-privacy-related functions without user consent.<br><br>Similarly,
+the Blanket setting for Application Auto Invocation and the Blanket
+setting for Net Access are mutually exclusive. This constraint is to
+prevent an application from auto-invoking itself, then accessing a
+chargeable network without the user being aware.</p>
+<p class="Paragraph">In the event that Net Access is
+given Blanket permission in any of these combinations of
+permissions, it MUST be downgraded to Session permission.</p>
+<p class="Paragraph">For each Phone Call and Messaging
+action, the implementation MUST present the user with the destination
+phone number before the user approves the action. For the Messaging
+group, if the implementation maps a single API call to more than one
+message (that is, the implementation supports
+disassembly/reassembly), the implementation MUST present the user
+with the number of messages that will actually be sent out. This
+requirement is to ensure that the user always understands the network
+costs associated with running the program, whatever API calls are
+involved.  </p>
+<p align="center">Table 2: Assigning permissions specified in MIDP 2.0
+to function groups</p>
+<table width="85%" border="1" cellpadding="0" cellspacing="3" align="center">
+	<tbody><tr>
+		<td colspan="3" width="99%">
+			<p align="center" style="border: medium none ; padding: 0cm;">
+			<b>MIDP 2.0 </b>&#8211;<b>
+			JSR 118</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Permission</b></p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Protocol</b></p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Function group</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.http</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 http</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.https</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 https</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;">
+			 javax.microedition.io.Connector.datagram</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 datagram</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.datagramreceiver</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 datagram server (without host)</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;">
+			 javax.microedition.io.Connector.socket</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 socket</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;">
+			 javax.microedition.io.Connector.serversocket</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 server socket (without host)</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.ssl</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 ssl</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Net Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="67%" valign="middle">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.comm</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 comm</p>
+		</td>
+		<td width="17%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Local Connectivity</p>
+		</td>
+	</tr>
+</tbody></table>
+<p align="center"> <br>Table 3: Assigning proposed permissions and
+API calls specified in the Personal Information Management Package of
+the PDA Profile to function groups</p>
+
+<p class="Paragraph">Editor&#8217;s Note:  The current PIM API package does not
+specify a write-only API. The necessary permissions to protect the
+PIM API are not specified in the PIM package either. This table will
+be updated once these changes are incorporated into the PIM API
+package. 
+</p>
+<table border="1" cellpadding="0" cellspacing="3">
+	<tbody><tr>
+		<td colspan="3" width="99%">
+			<p align="center" style="border: medium none ;">
+			<b>PDAP PIM Package API (JSR75)</b></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			<b> Policy File Identifier</b></p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			<b> Permitted Java API Calls</b></p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			<b> Function group</b></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>contact.readonly</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listContactLists()<br>
+			 PIM.openContactList(READ_ONLY)<br>
+			 PIM.openContactList(READ_ONLY, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			 Read User Data Access</p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>contact.readwrite</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listContactLists()<br>
+			 PIM.openContactList(READ_ONLY)<br>
+			 PIM.openContactList(READ_WRITE)<br>
+			 PIM.openContactList(READ_ONLY, listName)<br>
+			 PIM.openContactList(READ_WRITE, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			 Write User Data Access</p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>event.readonly</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listEventLists()<br>
+			 PIM.openEventList(READ_ONLY)<br>
+			 PIM.openEventList(READ_ONLY, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			 Read User Data Access</p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>event.readwrite</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listEventLists()<br>
+			 PIM.openEventList(READ_ONLY)<br>
+			 PIM.openEventList(READ_WRITE)<br>
+			 PIM.openEventList(READ_ONLY, listName)<br>
+			 PIM.openEventList(READ_WRITE, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			 Write User Data Access</p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>todo.readonly</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listToDoLists()<br>
+			 PIM.openToDoList(READ_ONLY)<br>
+			 PIM.openToDoList(READ_ONLY, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;"> Read
+			User Data Access</p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="32%">
+			<p style="border: medium none ;">
+			 javax.microedition.pim.PIM.<br>todo.readwrite</p>
+		</td>
+		<td width="41%">
+			<p style="border: medium none ;">
+			 PIM.listToDoLists()<br>
+			 PIM.openToDoList(READ_ONLY)<br>
+			 PIM.openToDoList(READ_WRITE)<br>
+			 PIM.openToDoList(READ_ONLY, listName)<br>
+			 PIM.openToDoList(READ_WRITE, listName)</p>
+		</td>
+		<td width="25%">
+			<p style="border: medium none ;">
+			 Write User Data Access</p>
+		</td>
+	</tr>
+</tbody></table>
+<p class="Paragraph"> </p>
+<p class="Paragraph">Implementation MUST ensure
+that the user is informed of the nature of user data an application
+has access to (for instance, events or to-do lists) before allowing
+the application access to these functions. Whenever a MIDlet adds a
+new PIM entry, the implementation MUST display it to the user for
+acknowledgement.</p>
+<p align="center">Table 4: Assigning proposed permissions and API calls
+specified in the Bluetooth API to function groups</p>
+<table border="1" cellpadding="0" cellspacing="3">
+	<tbody><tr>
+		<td colspan="3" width="99%">
+			<p align="center" style="border: medium none ; padding: 0cm;">
+			<b>Bluetooth API</b>&#8211;<b>
+			JSR 82</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Policy File Identifiers (Proposed Permission)</b></p>
+		</td>
+		<td width="51%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Permitted API calls</b></p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b>Function group</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.bluetooth.client</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			  Connector.open(&#8220;btspp://&lt;server
+			  BD_ADDR&gt;&#8230;&#8221;)<br>
+			  Connector.open(&#8220;btl2cap://&lt;server
+			  BD_ADDR&gt;&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Local
+			Connectivity</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;">
+			  javax.microedition.io.Connector.obex.client</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> 
+			  Connector.open(&#8220;btgoep://&lt;server
+			  BD_ADDR&gt;&#8230;&#8221;)<br>
+			  Connector.open(&#8220;irdaobex://discover&#8230;&#8221;)<br>
+			  Connector.open(&#8220;irdaobex://addr&#8230;&#8221;)<br>
+			  Connector.open(&#8220;irdaobex://conn&#8230;&#8221;)<br>
+			  Connector.open(&#8220;irdaobex://name&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Local
+			Connectivity</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.obex.client.tcp</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> Connector.open(&#8220;tcpobex://&lt;server
+			IP_ADDR&gt;&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Net
+			Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.bluetooth.server</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			Connector.open(&#8220;btspp://localhost:&#8230;&#8221;)<br>
+			Connector.open(&#8220;btl2cap://localhost:&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Local
+			Connectivity</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.obex.server</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			Connector.open(&#8220;btgoep://localhost:&#8230;&#8221;)<br>
+			Connector.open(&#8220;irdaobex://localhost:&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Local
+			Connectivity</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.obex.server.tcp</p>>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			Connector.open(&#8220;tcpobex://:&lt;PORT&gt;&#8221;) <br>
+			Connector.open(&#8220;tcpobex://&#8221;)</p> 
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Net
+			Access</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.PushRegistry.bluetooth.server</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			  PushRegistry.registerConnection(&#8220;btspp://&lt;server
+			  BD_ADDR&gt;:&lt;channel ID&gt;&#8221;)<br>
+			  PushRegistry.registerConnection(&#8220;btl2cap://&lt;server
+			  BD_ADDR&gt;:&lt;PSM&gt;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Application
+			Auto Invocation</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.PushRegistry.obex.server</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> PushRegistry.registerConnection(&#8220;btgoep://&lt;server
+			BD_ADDR&gt;:&lt;channel ID&gt;&#8221;)</p>
+			<p style="border: medium none ; padding: 0cm;"> PushRegistry.registerConnection(&#8220;irdaobex://???&#8230;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Application
+			Auto Invocation</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="34%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.PushRegistry.obex.server.tcp</p>
+		</td>
+		<td width="51%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> PushRegistry.registerConnection(&#8220;tcpobex://:&lt;PORT&gt;&#8221;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;"> Application
+			Auto Invocation</p>
+		</td>
+	</tr>
+</tbody></table>
+<p class="Paragraph">Note: The permissions proposed for Bluetooth API are yet to be
+defined in JSR82.</p>
+<p align="center">Table 5: Assigning proposed permissions and API calls
+specified in the Wireless Messaging API to function groups</p>
+<table border="1" cellpadding="0" cellspacing="3">
+	<tbody><tr>
+		<td colspan="3" width="98%">
+			<p align="center" style="border: medium none ; padding: 0cm;">
+			<b>Wireless Messaging API </b>&#8211;<b>
+			JSR 120</b></p>
+		</td>
+		
+	</tr>
+	<tr>
+		<td width="30%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Policy File Identifier (Proposed Permission)</b></p>
+		</td>
+		<td width="49%">
+			<p style="border: medium none ; padding: 0cm;"> 
+			  <b>Permitted API calls</b></p>
+		</td>
+		<td colspan="1" width="19%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b> Function group</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="30%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.sms.send</p>
+		</td>
+		<td width="49%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			  Connector.open("sms://&#8230;", WRITE)<br>
+			  Connector.open("sms://&#8230;", WRITE, Bool)</p>
+		</td>
+		<td colspan="1" width="19%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Messaging</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="30%" valign="top">
+			<p style="border: medium none ; padding: 0cm;">
+			  javax.microedition.io.Connector.sms.receive</p>
+		</td>
+		<td width="49%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> 
+			  Connector.open("sms://&#8230;", READ)<br>
+			  Connector.open("sms://&#8230;", READ, Bool)</p>
+		</td>
+		<td colspan="1" width="19%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Messaging</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="30%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.sms</p>
+		</td>
+		<td width="49%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> 
+			  Connector.open("sms://&#8230;")<br>
+			  Connector.open("sms://&#8230;", READ)<br>
+			Connector.open("sms://&#8230;", READ, Bool)<br>
+			Connector.open("sms://&#8230;", WRITE)<br>
+			Connector.open("sms://&#8230;", WRITE, Bool)<br>
+			Connector.open("sms://&#8230;", READ_WRITE)<br>
+			Connector.open("sms://&#8230;", READ_WRITE,  Bool)</p>
+		</td>
+		<td colspan="1" width="19%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Messaging</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="30%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.io.Connector.cbs.receive</p>
+		</td>
+		<td width="49%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> 
+			  Connector.open("cbs://&#8230;")<br>
+			  Connector.open("cbs://&#8230;", READ)<br>
+			  Connector.open("cbs://&#8230;", READ, Bool)</p>
+		</td>
+		<td colspan="1" width="19%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Messaging<!--[if !supportMisalignedColumns]--></p>
+		</td>
+	</tr>
+	
+</tbody></table>
+
+<p class="Paragraph">Note: The
+permissions for Wireless Messaging API are yet to be defined in
+JSR120.</p>
+<p align="center">
+Table 6: Assigning proposed permissions and API calls specified in
+the Mobile Media API to function groups</p>
+<table border="1" cellpadding="0" cellspacing="3">
+	<tbody><tr>
+		<td colspan="3" width="99%">
+			<p align="center" style="border: medium none ; padding: 0cm;">
+			<b>Mobile Media API</b>&#8211;<b>JSR 135</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="42%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b>Policy File Identifiers (Proposed Permissions)</b></p>
+		</td>
+		<td width="42%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b>Permitted API calls</b></p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			<b>Function group</b></p>
+		</td>
+	</tr>
+	<tr>
+		<td width="42%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.media.RecordControl.startRecord</p>
+		</td>
+		<td width="42%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> RecordControl.startRecord
+			( )</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Multimedia recording</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="42%">
+			<p style="border: medium none ; padding: 0cm;"> javax.microedition.media.VideoControl.getSnapshot</p>
+		</td>
+		<td width="42%" valign="top">
+			<p style="border: medium none ; padding: 0cm;"> VideoControl.getSnapshot
+			(&#8230;)</p>
+		</td>
+		<td width="13%">
+			<p style="border: medium none ; padding: 0cm;">
+			 Multimedia recording</p>
+		</td>
+	</tr>
+</tbody></table>
+
+<p class="Paragraph">
+Note: The permissions for Mobile Media API are
+yet to be defined in JSR135.</p>
+<p class="Paragraph">Implementations MUST ensure that I/O access from the Mobile Media
+API follows the same security requirements as the Generic Connection
+Framework, as specified in the package documentation for
+javax.microedition.io.  Example methods include
+javax.microedition.media.Player.start,
+javax.microedition.media.Player.prefetch, etc.  When these
+methods are used to fetch the content for the player via an HTTP
+connection, the implementation MUST enforce the security requirements
+specified for HTTP.</p>
+<p class="Paragraph">When the user grants permission to a function group, this action
+effectively grants access to all individual permissions under this
+function group to which a MIDlet was authorized. This MUST not
+include all the individual permissions from the group.  For
+example, if a MIDlet was authorized to make an HTTP connection and
+was not authorized to access any other protected functions from the
+Net Access group, Blanket permission to a Net Access means permission
+to make HTTP connections only. Individual permissions that were not
+granted to the MIDlet by the MIDP authorization framework will not be
+granted by a user allowing Net Access, as function groups are
+served for the user representation only. 
+</p>
+<p class="Paragraph">Implementation notes:</p>
+<ol>
+	<li class="Bullet1">
+    <p class="Paragraph">An implementation MUST guarantee that a Security exception is
+	thrown when the caller does not have the appropriate security
+	permissions.</p>
+  </li>
+  <li class="Bullet1">
+    <p class="Paragraph">If a messaging group is granted a Oneshot
+	permission, it translates into a Blanket permission for
+	javax.microedition.io.Connector.sms and
+	javax.microedition.io.Connector.cbs, as well as to permissions that
+	enable receiving the messages.  Permission for sending the
+	messages is still Oneshot, however; that is, the user grants
+	permission to each message sent out by the MIDlet within an open
+	connection. The
+	same applies to the Session permission: functions related to sending
+	the messages get Session permission, but other functions get Blanket
+	permission."
+	Blanket permission and No permission granted to the Messaging group
+	apply to all individual permissions under this group.<br>
+    </p>
+
+  </li>
+</ol>
+
+<p class="Paragraph">If a MIDlet uses the capabilities defined in MIDP and other APIs,
+the following rules MUST apply: 
+</p>
+<ul type="disc">
+	<li class="Bullet1">All the external API functions
+	  that need to be protected by MIDP 2.0 security framework MUST have
+	  permissions defined in the subsequent JSRs, and follow the naming
+	  rules identified in the MIDP 2.0 Specification, 
+	  titled "Security for MIDP Applications."
+	</li>
+	<li class="Bullet1">The functions that are not deemed
+	  security-protected by specification can be accessed explicitly by
+	  trusted and untrusted MIDlets, as per general MIDP security rules. 
+	</li>
+	<li class="Bullet1">If an external API does not define
+	  permissions for security-protected functions because the API
+	  specification is released earlier than MIDP 2.0, any functions that
+	  relate to network access MUST still have the user prompt implemented
+	  by the device.
+	</li>
+	<li class="Bullet1">A device cannot access the network
+	  without appropriate user notification. 
+	</li>
+	<li class="Bullet1">All licensee open classes MUST adhere to the permission
+	  framework as defined in this document. 
+	</li>
+</ul>
+<h2 class="ChapterTitle">6  Permissions Granted to a
+MIDlet Suite by the Authorization Mechanism</h2>
+<p class="Paragraph">As defined in the "Security for MIDP Applications" section of the MIDP 2.0
+specification, MIDlet suite permissions are effectively the
+intersection of the domain permissions Midlet-Permission and
+Midlet-Permission-Opt found in the JAR manifest. The way in which a
+MIDlet's granted permissions are presented to the user is
+implementation-specific, but the following rules must apply:
+</p>
+<ul type="disc">
+	<li class="Bullet1">The user must
+	be able to change the default permission setting to any setting
+	available for a given MIDlet permission, with default and available
+	sets of user permission types provided as guides in the tables in
+	Section 5. This latitude will allow the user to upgrade or downgrade
+	the default permissions as required.
+	</li>
+	<li class="Bullet1">If MIDlet
+	permissions are grouped according to capabilities they represent,
+	permissions granted to a MIDlet suite will be rendered into the
+	function groups to be presented to the user. If function grouping
+	is used, default permission applies to the whole group of
+	permissions under the group. So does the available set of types of
+	user permissions. If the default permission is changed, the change
+	is effective for the entire group at once rather than to the
+	individual permissions under this group. 
+	</li>
+	<li class="Bullet1">A function group cannot be a union of
+	permissions with different default settings and other settings. 
+	Therefore the tables in Section 5 follow the convention of having
+	the same default and available settings for all permissions in a
+	single function group. This rule must be taken into account when
+	designing new permissions and policies.
+	
+</li></ul>
+
+<p class="Paragraph">A device MUST maintain security-related data for
+each installed MIDlet, in addition to generic MIDlet information such
+as MIDlet name and version number. The data MUST include at least the
+following: 
+</p>
+<ul type="disc">
+	<li class="Bullet1">The MIDlet's source, if the
+	application was signed. At least MIDlet-Vendor MUST be stored along
+	with the installed MIDlet. 
+	</li>
+	<li class="Bullet1">Data related to the root
+	    certificate a signed MIDlet was authenticated to; at minimum the
+	    Subject field of the root certificate. 
+	</li>
+	<li class="Bullet1">Data related to a signer
+	    certificate that signed the MIDlet; at minimum the certificate's
+	    Subject, Issuer, and Serial Number<i> </i>fields.  (As an
+	    alternative, a device may store the entire certificate chain that
+	    came with the MIDlet descriptor file.)
+	</li>
+	<li class="Bullet1">A list of permissions granted to the MIDlet. 
+	</li>
+</ul>
+
+
+<p class="Paragraph">A device MUST be able to present information
+related to the application signer in a user-friendly manner. 
+</p>
+<h2 class="ChapterTitle">7  User Prompts and Notifications</h2>
+<p class="Paragraph">The following rules MUST be followed in order to
+ensure informed user consent to MIDlet actions: 
+</p>
+<ul type="disc">
+	<li class="Bullet1">Any chargeable event generated by
+	the MIDlet MUST be preceded by user notification, for example,
+	showing the phone number the MIDlet is dialing, the URL being
+	connected to, or the recipient of an SMS.
+	</li>
+	<li class="Bullet1">Any chargeable event in progress
+	(for example, peer-to-peer connection the user is charged for) MUST
+	be indicated to the user. 
+
+	</li>
+	<li class="Bullet1">A MIDlet MUST get user approval to
+	connect to the network, in accordance with user permission settings
+	of the policy. 
+	
+	</li>
+	<li class="Bullet1">Any MIDlet permissions must be
+	presented to the user in an intuitive, user-friendly manner. 
+	
+	</li>
+	<li class="Bullet1">A MIDlet MUST not be able to
+	override security prompts and notifications to the user generated by
+	the system or virtual machine. 
+	
+	</li>
+	<li class="Bullet1">A MIDlet MUST not be able to
+	simulate security warnings to mislead the user. 
+	
+	</li>
+	<li class="Bullet1">A MIDlet MUST not be able to simulate key-press events to
+	mislead the user. 
+	</li>
+</ul>
+<h2 class="ChapterTitle">8  MIDlet Download and Execution While Roaming
+and After Changing the Smart Card</h2>
+<p class="Paragraph">All previously authorized and installed MIDlets
+MUST act in accordance with the device policy when the device is
+roaming, or when the device smart card is changed. Newly downloaded
+MIDlets are authenticated to the root certificates currently
+available in the certificate store and are authorized in accordance
+with the device policy. 
+</p>
+<p class="Paragraph">If device roaming or a smart-card change causes failure to access
+network resources that the MIDlet was previously authorized to
+access, then the implementation MUST NOT throw a SecurityException.
+This failure is not related to MIDlet authorization, so the
+implementation MUST throw an IOException instead.</p>
+<p class="Paragraph">The permissions assigned to MIDlets installed in
+the Manufacturer, Trusted Third-Party, and Untrusted domains are not
+affected by changes of the (U)ICC [(U)ICC], but MIDlets
+installed in the Operator domain MUST NOT execute if, after a
+smart-card change, the SIM no longer holds the certificate containing
+the operator root public key that was used to authenticate the MIDlet
+to the Operator domain (the "authenticating root";
+see Section 3.2, "Operator Domain").
+</p>
+
+<p Detection of whether a MIDlet in the Operator
+domain can be executed  SHOULD follow the following mechanism:</p>
+
+<ul type="disc">
+	<li class="Bullet1">When a MIDlet is installed in the Operator domain,
+it is 	signed by a certificate whose certification chain ends with the 	authenticating
+root certificate, stored in the smart card with the Operator-domain key-usage
+field.  The 20-byte SHA-1 hash of the 	value of the BIT STRING subjectPublicKey
+(excluding the tag, length, 	and number of unused bits) from that root certificate,
+termed  	the "authenticating root key hash" of the MIDlet, is 	stored
+in the device along with the MIDlet (as specified in Section 	3.2).  	
+	</li><li class="Bullet1">Whenever the smart card is changed, the 20-byte SHA-1
+hash of 	the value of the BIT STRING subjectPublicKey (excluding the tag, 
+	length, and number of unused bits) of each certificate stored in the 	new
+smart card with the Operator-domain key-usage field (Operator-domain root
+key hashes) is computed and stored before any MIDlet in 	the Operator domain
+is executed.  	
+	</li><li class="Bullet1">A MIDlet in the Operator domain is disabled if
+its 	authenticating root key hash does not correspond to one of the new Operator-domain
+root key hashes generated after the smart card was 	changed.  	
+</li></ul>
+
+
+<p class="Paragraph">Whether a MIDlet in the Operator domain can
+  be executed depends on a comparison of "root key hash"
+  values, computed as the 20-byte SHA-1 hash of the value of the BIT
+  STRING subjectPublicKey (excluding the tag, length, and number of
+  unused bits) of a root certificate.  The decision process SHOULD
+  follow the following mechanism:</p>
+      <ul type="disc">
+
+	<li class="Bullet1">When a MIDlet is installed in the Operator domain, it
+	      is signed by a certificate whose certification chain
+	      ends with the authenticating root certificate, stored in
+	      the smart card with the Operator-domain key-usage
+	      field.  The hash value of that certificate's
+	      subjectPublicKey, termed the "authenticating root key
+	      hash" of the MIDlet, is stored in the device along with
+	      the MIDlet (as specified in Section 3.2).
+	</li>
+	<li class="Bullet1">Whenever the smart card is changed, the "Operator-domain
+	      root key hash" of each certificate stored in the new
+	      smart card is computed and stored before any MIDlet in
+	      the Operator domain is executed.
+	
+	</li>
+	<li class="Bullet1">A MIDlet in the Operator domain is disabled if its
+	      authenticating root key hash does not correspond to one
+	      of the new Operator-domain root key hashes generated
+	      after the smart card was changed 
+	</li>
+	<li class="Bullet1">When a MIDlet is installed in the Operator domain, it is
+	signed by a certificate whose certification chain ends with the
+	authenticating root certificate. The hash value of that
+	certificate's subjectPublicKey, termed the "authenticating root
+	key hash" of the MIDlet, is stored in the device along with the
+	MIDlet (as specified in Section 3.2).
+	</li>
+	<li class="Bullet1">Whenever the smart card is changed, the root key hash of each
+	certificate stored in the new smart card is computed and stored
+	before any MIDlet in the Operator domain is executed. 
+	</li>
+	<li class="Bullet1">A MIDlet in the Operator domain is disabled if its
+	      authenticating root key hash does  
+	      not correspond to one of the new Operator-domain root key
+	      hashes generated after the smart card was changed 
+	</li>
+      </ul>
+</p>
+
+
+
+<p class="Paragraph">Note: In this mechanism, there are two steps the device
+performs after the smart card has been changed: 1) computing the new Operator-domain
+root key hashes; 2) for each MIDlet in the Operator domain, checking whether
+its authenticating root key hash belongs to the set of new Operator-domain
+root key hashes. An implementation MAY perform these two steps at any time,
+provided NO Operator-domain MIDlet is executed after a smart card change
+if its authenticating root key hash does NOT correspond to one of the new
+Operator-domain root key hashes. Step 2 MAY be performed right after Step
+1; alternatively, Steps 1 and 2 MAY be separated in time, in which case the
+implementation SHOULD store the results of Step 1 securely so they will be
+available in Step 2.</p>
+
+<p class="Paragraph">If the Operator-domain root
+certificate is not present at the specified location, the user MUST
+be informed that the application cannot be executed without the
+authorizing root certificate. The device
+SHOULD also give the user the option to get information on the root
+certificate that was used to authenticate the application to the Operator domain. This information SHOULD include the <i>Subject</i>
+field of the root certificate.</p>
+
+<p class="Paragraph">Although it is mandatory only
+to check whether authenticating roots are still present in the smart
+card when the smart card is changed, an implementation MAY choose to
+check on more occasions and, accordingly, to disable applications in
+the Operator domain as specified.</p>
+<p class="Paragraph">If a MIDlet cannot be executed because the
+authenticating Operator root public key is absent, the device MUST
+NOT delete the application. The device MAY inform the user in advance
+via an appropriate mechanism whether an application could execute or
+not, for example using a "disabled" look-and-feel in the
+display. However, the user MUST be able to delete these
+disabled applications.</p>
+
+</body></html>

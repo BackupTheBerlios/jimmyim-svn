@@ -1,0 +1,934 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+  <HEAD>
+    <TITLE>JSR-118 Overview</TITLE>
+    <!-- Changed by: Gary Adams - SMI Software Development, 17-May-2002 -->
+    <!-- Changed by: Roger Riggs - Sun Microsystems Inc, 25-Jul-2002 -->
+    <link REL="STYLESHEET" href="stylesheet.css" charset="ISO-8859-1" type="text/css">
+    <meta name="Author" content="James E. Van Peursem">
+  </HEAD>
+  <BODY>
+    <h1 class="ChapterTitle">Mobile Information Device Profile, v2.0
+      (JSR-118)</h1>
+    <h3 class="SectionTitle">JCP Public Draft Specification</h3>
+    <h3 class="SectionTitle">Java 2 Platform, Micro Edition<sup><font size=-2>TM</font></sup></h3>
+    <hr>
+    <h5 class="TitleContinuation"><i>Copyright 2000,2002, Motorola,
+    Inc. and Sun Microsystems, Inc. ALL RIGHTS RESERVED.</i></h5>
+    <p class="Paragraph">
+      <b>This document and all associated documents are subject to the
+      terms of the <a href="Specification.License.html">Specification
+      License</a></b></p>
+    <hr>
+    <h3 class="SectionTitle">Preface</h3>
+    <p class="Paragraph">
+      These documents define the <em>Mobile Information Device Profile
+      (MIDP) v2.0 Specification</em> for the Java 2 Platform, Micro
+      Edition (J2ME<sup><font size=-2>TM</font></sup>).</p>
+    <p class="Paragraph">
+      A <em>profile</em> of J2ME defines device-type-specific sets of
+      APIs for a particular vertical market or industry. Profiles are
+      more exactly defined in the related publication,
+      <em>Configurations and Profiles Architecture Specification</em>,
+      Sun Microsystems, Inc.
+
+    <h3 class="SectionTitle">Revision History</h3>
+    <table class="Table" border="1" cellpadding="3">
+    <tr>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">Date</p>
+      </th>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">
+	  Version</p>
+      </th>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">
+	  Description</p>
+      </th>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">1-September-2000</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 1.0 Specification</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Final MIDP 1.0 specification</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">23-October-2001</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 2</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">First complete draft published to the
+	Expert Group</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">6-November-2001</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 3</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes made during 30-31
+	October Expert Group meeting</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">20-November-2001</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 4</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes discussed on EG
+	mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">18-December-2001</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 5</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes made during 5-6
+	December Expert group meeting and EG mailing lists. Published
+	for Community Review</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">12-February-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 6</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes made during
+	  Community Review and internal EG mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">12-March-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 7</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes made during 20-21
+	February Expert group meeting and EG mailing lists. Published
+	for Public Review</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">09-April-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 8</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes made during 26
+	March Expert group meeting and EG mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">23-April-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 9</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes discussed in the EG
+	mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">9-May-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 10</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes discussed in the EG
+	mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">29-May-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 11</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes discussed in the EG
+	mailing lists.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">11-June-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 12</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated changes discussed in the EG
+	mailing lists. This draft is considered final in terms of
+	functionality in all areas. Further clarifications and
+	editorial changes may be made in one more revision, but only
+	if necessary.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">15-July-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 13</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated editorial changes and
+	clarifications discussed in the EG mailing lists. This is
+	final draft candidate 1.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">02-August-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 14</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated editorial changes and
+	clarifications from the RI and TCK teams and EG. This draft is
+	being submitted to the PMO as Proposed Final Draft.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">04-September-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, EG Draft 15</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated minor editorial changes and
+	clarifications from the RI and TCK teams and EG.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">05-November-2002</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP 2.0, Final Specification</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Incorporated minor changes to the
+	Security Policy Appendix, fixed an incorrect IETF URL,
+	corrected MIDlet.platformRequest() method signature, finalized
+	copyright co-ownership, and incorporated final license.</p>
+      </td>
+    </tr>
+  </table>
+
+    <h3 class="SectionTitle">Who Should Use This Specification</h3>
+    <p class="Paragraph">
+      This document is targeted at the following audiences:</p>
+    <ul>
+      <li class="Bullet1">
+	The Java Community Process (JCP) expert group defining this
+	profile</li>
+      <li class="Bullet1">
+	Implementers of the MIDP</li>
+      <li class="Bullet1">
+	Application developers targeting the MIDP</li>
+      <li class="Bullet1">
+	Network operators deploying infrastructure to support MIDP
+	devices</li>
+    </ul>
+
+    <h3 class="SectionTitle">How This Specification Is Organized</h3>
+    <p class="Paragraph">
+      This specification is contained in this HTML file and the
+      following related documents:</p>
+    <ul>
+      <li class="Bullet1">
+	<a href="javadoc/index.html">JavaDoc API Documentation</a></li>
+      <li class="Bullet1">
+	<a href="OTASpecification.html">OTA User Initiated
+	Provisioning Specification</a></li>
+      <li class="Bullet1">
+	<a
+	href="javadoc/javax/microedition/midlet/doc-files/Authorization.html">Security
+	for MIDlet suites</a></li>
+      <li class="Bullet1">
+	<a href="Recommended.GSM.UMTS.SecurityPolicy.html">The Recommended Security
+	Policy for GSM/UMTS Compliant Devices</a>
+      </LI>
+    </ul>
+    <p class="Paragraph">
+      There are requirements listed both in this document and the <a
+      href="javadoc/index.html">API documentation</a>. Where there are
+      conflicts, the requirements listed in this document override the
+      API documentation.</p>
+
+    <h3 class="SectionTitle">Related Literature</h3>
+    <ul>
+      <li class="Bullet1">
+	<em>The Java Language Specification, Second Edition</em> by
+	James Gosling, Bill Joy, and Guy L. Steele. Addison-Wesley,
+	June 2000, ISBN 0-201-31008-2</li>
+      <li class="Bullet1">
+	<em>The Java Virtual Machine Specification (Java Series),
+	Second Edition</em> by Tim Lindholm and Frank
+	Yellin. Addison-Wesley, 1999, ISBN 0-201-43294-3</li>
+      <li class="Bullet1">
+	<a href="http://jcp.org/jsr/detail/30.jsp">Connected,
+	Limited Device Configuration (JSR-30), Sun Microsystems,
+	Inc</a>.</li>
+      <li class="Bullet1">
+	<a href="http://jcp.org/jsr/detail/37.jsp">Mobile,
+	Information Device Profile (JSR-37), Sun Microsystems,
+	Inc</a>.</li>
+      <li class="Bullet1">
+	<a href="http://jcp.org/jsr/detail/139.jsp">Connected,
+	Limited Device Configuration 1.1 (JSR-139), Sun Microsystems,
+	Inc</a>.</li>
+    </ul>
+
+    <h3 class="SectionTitle">Report and Contact</h3>
+    <p class="Paragraph">
+      Your comments on this specification are welcome and
+      appreciated. Please send your comments to:</p>
+    <p class="Paragraph">
+      <em class="Code"><a href="mailto:jsr-118-comments@jcp.org">jsr-118-comments@jcp.org</a></em></p>
+
+    <a name="Definitions"></a>
+    <h3 class="SectionTitle">Definitions</h3>
+    <p class="Paragraph">
+      This document uses definitions based upon those specified in <a
+      href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>.
+    </p>
+    <br><b>Specification Terms</b>
+    <table class="Table" border="1" cellpadding="3">
+    <tr>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">Term</p>
+      </th>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">
+	  Definition</p>
+      </th>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MUST</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">The associated definition is an absolute
+	requirement of this specification.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MUST NOT</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">The definition is an absolute prohibition
+	of this specification.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">SHOULD</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Indicates a recommended practice. There
+	may exist valid reasons in particular circumstances to ignore
+	this recommendation, but the full implications must be
+	understood and carefully weighed before choosing a different
+	course.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">SHOULD NOT</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Indicates a non-recommended
+	practice. There may exist valid reasons in particular
+	circumstances when the particular behavior is acceptable or
+	even useful, but the full implications should be understood
+	and the case carefully weighed before implementing any
+	behavior described with this label.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MAY</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Indicates that an item is truly optional.</p>
+      </td>
+    </tr>
+  </table>
+
+    <h3 class="SectionTitle">Contributors</h3>
+    <p class="Paragraph">
+      This specification was produced by the JSR-118 Expert Group, as
+      a part of the Java Community Process. The following companies
+      and individuals, listed in alphabetical order, were members of
+      the Expert Group:</p>
+    <ul>
+      <li class="Bullet1">
+	Companies:
+	<ul>
+	  <li class="Bullet2">
+	    4thpass Inc</li>
+	  <li class="Bullet2">
+	    AGEA Corporation</li>
+	  <li class="Bullet2">
+	    Alcatel</li>
+	  <li class="Bullet2">
+	    Aplix Corporation</li>
+	  <li class="Bullet2">
+	    AromaSoft Corp</li>
+	  <li class="Bullet2">
+	    Baltimore Technologies</li>
+	  <li class="Bullet2">
+	    CELLon France</li>
+	  <li class="Bullet2">
+	    Distributed Systems Technology Centre</li>
+	  <li class="Bullet2">
+	    Elata PLC</li>
+	  <li class="Bullet2">
+	    Esmertec</li>
+	  <li class="Bullet2">
+	    Espial Group Inc</li>
+	  <li class="Bullet2">
+	    France Telecom / Orange</li>
+	  <li class="Bullet2">
+	    Fujitsu Limited</li>
+	  <li class="Bullet2">
+	    German Aerospace Center (DLR), Institute of Communications and Navigation </li>
+	  <li class="Bullet2">
+	    Hitachi Ltd./Digital Media Group</li>
+	  <li class="Bullet2">
+	    In Fusio</li>
+	  <li class="Bullet2">
+	    J-PhoneEast Co. Ltd</li>
+	  <li class="Bullet2">
+	    Logica Mobile Networks</li>
+	  <li class="Bullet2">
+	    Mitsubishi Electric Corp</li>
+	  <li class="Bullet2">
+	    Mobile Scope AG</li>
+	  <li class="Bullet2">
+	    Mobilitec</li>
+	  <li class="Bullet2">
+	    Motorola</li>
+	  <li class="Bullet2">
+	    NEC Corporation</li>
+	  <li class="Bullet2">
+	    Nextel Communications Inc</li>
+	  <li class="Bullet2">
+	    Nokia</li>
+	  <li class="Bullet2">
+	    NTT DoCoMo, Inc</li>
+	  <li class="Bullet2">
+	    Omnitel Pronto Italia S.p.A</li>
+	  <li class="Bullet2">
+	    One 2 One</li>
+	  <li class="Bullet2">
+	    Openwave Systems, Inc</li>
+	  <li class="Bullet2">
+	    Orange (UK)</li>
+	  <li class="Bullet2">
+	    Palm</li>
+	  <li class="Bullet2">
+	    Philips Consumer Communications</li>
+	  <li class="Bullet2">
+	    Philips Semiconductors</li>
+	  <li class="Bullet2">
+	    Research In Motion (RIM)</li>
+	  <li class="Bullet2">
+	    Samsung Electronics Co., Ltd</li>
+	  <li class="Bullet2">
+	    Sharp Labs</li>
+	  <li class="Bullet2">
+	    Siemens AG</li>
+	  <li class="Bullet2">
+	    Siemens ICM</li>
+	  <li class="Bullet2">
+	    Smart Fusion</li>
+	  <li class="Bullet2">
+	    Sony Ericsson Mobile Communications</li>
+	  <li class="Bullet2">
+	    Sun Microsystems, Inc</li>
+	  <li class="Bullet2">
+	    Symbian Ltd</li>
+	  <li class="Bullet2">
+	    Telefónica Móviles España</li>
+	  <li class="Bullet2">
+	    Vaultus, Inc</li>
+	  <li class="Bullet2">
+	    Veloxsoft, Inc</li>
+	  <li class="Bullet2">
+	    Vodafone Global Platform &amp; Internet Services</li>
+	  <li class="Bullet2">
+	    Vodafone Group Services Limited</li>
+	  <li class="Bullet2">
+	    Vodafone Multimedia</li>
+	  <li class="Bullet2">
+	    Zucotto Wireless</li>
+	</ul> 
+      </li>
+    <li class="Bullet1">
+      Individuals:
+      <ul>
+	<li class="Bullet2">
+	  Fabio Ciucci</li>
+	<li class="Bullet2">
+	  Glen Cordrey</li>
+	<li class="Bullet2">
+	  Jon Eaves</li>
+	<li class="Bullet2">
+	  David Hook</li>
+	<li class="Bullet2">
+	  Myank Jain</li>
+	<li class="Bullet2">
+	  Neil Katin</li>
+	<li class="Bullet2">
+	  Steve Ma</li>
+	<li class="Bullet2">
+	  Ravi Reddy</li>
+	<li class="Bullet2">
+	  Wai Kit Tony Fung</li>
+      </ul>
+    </li>
+  </ul>
+
+<hr>
+    <h3 class="SectionTitle">Introduction</h3>
+    <p class="Paragraph">
+      This document, produced as a result of Java Specification
+      Request (JSR) 118, defines the Mobile Information Device Profile
+      (MIDP) v2.0 for the Java 2 Platform, Micro Edition
+      (J2ME<sup><font size=-2>TM</font></sup>). The goal of this
+      specification is to define an enhanced architecture and the
+      associated APIs required to enable an open, third-party,
+      application development environment for mobile information
+      devices, or MIDs.</p>
+    <p class="Paragraph">
+      The MIDP 2.0 specification is based on the MIDP 1.0
+      specification and provides backward compatibility with MIDP 1.0
+      so that MIDlets written for MIDP 1.0 can execute in MIDP 2.0
+      environments.
+    <p class="Paragraph">
+      The MIDP is designed to operate on top of the Connected, Limited
+      Device Configuration (CLDC) which is described in <a
+      href="http://jcp.org/jsr/detail/30.jsp"><em>Connected,
+      Limited Device Configuration (JSR-30)</em></a>, Sun
+      Microsystems, Inc. While the MIDP 2.0 specification was designed
+      assuming only CLDC 1.0 features, it will also work on top of <a
+      href="http://jcp.org/jsr/detail/139.jsp"><em>CLDC 1.1
+      (JSR-139)</em></a>, and presumably any newer versions. It is
+      anticipated that most MIDP 2.0 implementations will be based on
+      CLDC 1.1.</p>
+
+    <h3 class="SectionTitle">Scope</h3>
+    <p class="Paragraph">
+      Mobile Information Devices (MIDs) span a potentially wide set of
+      capabilities. Rather than try to address all such capabilities,
+      the MIDP 1.0 (JSR-037) and MIDP 2.0 (JSR-118) expert groups
+      agreed to limit the set of APIs specified, addressing only those
+      functional areas that were considered absolute requirements to
+      achieve broad portability and successful deployments. These
+      include:</p>
+    <ul>
+      <li class="Bullet1">
+	Application delivery and billing</li>
+      <li class="Bullet1">
+	Application lifecycle (i.e., defining the semantics of a MIDP
+	application and how it is controlled)</li>
+      <li class="Bullet1">
+	Application signing model and privileged domains security
+	model</li>
+      <li class="Bullet1">
+	End-to-end transactional security (https)</li>
+      <li class="Bullet1">
+	MIDlet push registration (server push model)</li>
+      <li class="Bullet1">
+	Networking</li>
+      <li class="Bullet1">
+	Persistent storage</li>
+      <li class="Bullet1">
+	Sound</li>
+      <li class="Bullet1">
+	Timers</li>
+      <li class="Bullet1">
+	User interface (UI) (including display and input, as well as
+	the unique requirements for games).</li>
+    </ul>
+    <p class="Paragraph">
+      The above features are discussed in more depth in the associated
+      <a href="javadoc/index.html">Javadoc</a>.</p>
+    <p class="Paragraph">
+      By the same reasoning, some areas of functionality were
+      considered to be outside the scope of the MIDP. These areas
+      include:</p>
+    <ul>
+      <li class="Bullet1">
+	System-level APIs: The emphasis on the MIDP APIs is, again, on
+	enabling application programmers, rather than enabling system
+	programming. Thus, low-level APIs that specify a system
+	interface to, for example, a MID's power management or voice
+	CODECs are beyond the scope of this specification.</li>
+      <li class="Bullet1">
+	Low-level security: The MIDP specifies no additional low-level
+	security features other than those provided by the CLDC. </li>
+    </ul>
+
+    <h3 class="SectionTitle">Architecture</h3>
+    <p class="Paragraph">
+      This section addresses issues that both implementers and
+      developers will encounter when implementing and developing
+      MIDP. While not comprehensive, this chapter does reflect the
+      most important issues raised during deliberations of the
+      MIDP Expert Group (MIDPEG).</p>
+    <p class="Paragraph">
+      As stated before, the goal of the MIDP is to create an open,
+      third-party application development environment for MIDs. In a
+      perfect world, this specification would only have to address
+      functionality defined by the MIDP specification. In reality,
+      most devices that implement the MIDP specification will be, at
+      least initially, devices that exist on the market today. The <a
+      href="#ArchFig">High-Level Architecture</a> shows a high-level
+      view of how the MIDP fits into a device. Note that not all
+      devices that implement the MIDP specification will have all the
+      elements shown in this figure, nor will every device necessarily
+      layer its software as depicted in this figure.</p>
+    <p class="Paragraph">
+      In the <a href="#ArchFig">High-Level Architecture</a>, the
+      lowest-level block (MID) represents the Mobile Information
+      Device hardware. On top of this hardware is the native system
+      software. This layer includes the operating system and libraries
+      used by the device.</p>
+    <p class="Paragraph">
+      Starting at the next level, from left to right, is the next
+      layer of software, the CLDC. This block represents the Virtual
+      Machine and associated libraries defined by the CLDC
+      specification. This block provides the underlying Java
+      functionality upon which higher-level Java APIs may be
+      built.</p>
+    <a name="ArchFig"></a>
+    <h6>High-Level Architecture View</h6>
+    <img src="Arch-4.gif" width=362 height=228>
+
+    <p class="Paragraph">
+      Two categories of APIs are shown on top of the CLDC:</p>
+    <ul>
+      <li class="Bullet1">
+	MIDP APIs: The set of APIs defined in this specification.</li>
+      <li class="Bullet1">
+	OEM-specific APIs: Given the broad diversity of devices in the
+	MIDP space, it is not possible to fully address all device
+	requirements. These classes may be provided by an OEM to
+	access certain functionality specific to a given device. These
+	applications may not be portable to other MIDs.</li>
+    </ul>
+    <p class="Paragraph">
+      Note that in the figure, the CLDC is shown as the basis of the
+      MIDP and device-specific APIs. This does not imply that these APIs
+      cannot have native functionality (i.e., methods declared as
+      native). Rather, the intent of the figure is to show that any
+      native methods on a MID are actually part of the virtual
+      machine, which maps the Java-level APIs to the underlying native
+      implementation.</p>
+    <p class="Paragraph">
+      The top-most blocks in <a href="#ArchFig">the figure above</a>
+      represent the application types possible on a MID. A short
+      description of each application type is shown in the <a
+      href="#AppTypes">table</a> below.</p>
+    <a name="AppTypes"></a>
+    <br><b>MID Application Types</b>
+    <table class="Table" border="1" cellpadding="3">
+    <tr>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">Application Type</p>
+      </th>
+      <th rowspan="1" colspan="1">
+	<p class="TableHead">Description</p>
+      </th>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">MIDP</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">
+	  A MIDP application, or MIDlet, is one that uses only the
+	  APIs defined by the MIDP and CLDC specifications. This type
+	  of application is the focus of the MIDP specification and is
+	  expected to be the most common type of application on a
+	  MID.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">OEM-Specific</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">
+	  An OEM-specific application depends on classes that are not
+	  part of the MIDP specification (i.e., the OEM-specific
+	  classes). These applications are not portable across
+	  MIDs.</p>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">Native</p>
+      </td>
+      <td rowspan="1" colspan="1">
+	<p class="TableText">
+	  A native application is one that is not written in Java and
+	  is built on top of the MID's existing, native system
+	  software.</p>
+      </td>
+    </tr>
+  </table>
+    <p class="Paragraph">
+      It is beyond the scope of this specification to address
+      OEM-specific or native applications.</p>
+
+    <h3 class="SectionTitle">Device Requirements</h3>
+    <p class="Paragraph">
+      The requirements listed in this chapter are additional
+      requirements above those found in <em>Connected, Limited Device
+      Configuration (JSR-30 and JSR-139)</em>, Sun Microsystems, Inc.
+    <p class="Paragraph">
+      At a high level, the MIDP specification assumes that the MID is
+      limited in its processing power, memory, connectivity, and
+      display size.
+    <h4 class="SectionTitle">Hardware</h4>
+    <p class="Paragraph">
+      As mentioned before, the main goal of the MIDP is to establish
+      an open, third-party application development environment for
+      MIDs. To achieve this goal, the MIDPEG has defined a MID to be a
+      device that SHOULD have the following minimum characteristics:
+    <ul>
+      <li class="Bullet1">
+	Display:</li>
+    <ul>
+      <li class="Bullet2">Screen-size: 96x54</li>
+      <li class="Bullet2">Display depth: 1-bit</li>
+      <li class="Bullet2">Pixel shape (aspect ratio): approximately 1:1</li>
+    </ul>
+    <li class="Bullet1">Input:</li>
+    <ul>
+      <li class="Bullet2">
+	One or more of the following user-input mechanisms: one-handed
+	keyboard, two-handed keyboard, or touch screen</li>
+      </ul>
+    <li class="Bullet1">Memory:</li>
+    <ul>
+      <li class="Bullet2">
+	256 kilobytes of non-volatile memory for the MIDP
+	implementation, beyond what's required for CLDC.</li>
+      <li class="Bullet2">
+	8 kilobytes of non-volatile memory for application-created
+	persistent data</li>
+      <li class="Bullet2">
+	128 kilobytes of volatile memory for the Java runtime (e.g.,
+	the Java heap)</li>
+    </ul>
+    <li class="Bullet1">Networking:</li>
+    <ul>
+      <li class="Bullet2">
+	Two-way, wireless, possibly intermittent, with limited
+	bandwidth</li>
+    </ul>
+    <li class="Bullet1">Sound:</li>
+    <ul>
+      <li class="Bullet2">
+	The ability to play tones, either via dedicated hardware, or
+	via software algorithm.</li>
+    </ul>
+  </ul>
+    <p class="Paragraph">
+      Examples of MIDs include, but are not restricted to, cellular
+      phones, two-way pagers, and wireless-enabled personal digital
+      assistants (PDAs).  
+    <h4 class="SectionTitle">Software</h4>
+    <p class="Paragraph">
+      For devices with the aforementioned hardware characteristics,
+      there is still a broad range of possible system software
+      capabilities. Unlike the consumer desktop computer model where
+      there are large, dominant system software architectures, the MID
+      space is characterized by a wide variety of system software. For
+      example, some MIDs may have a full-featured operating system
+      that supports multi-processing and hierarchical filesystems,
+      while other MIDs may have small, thread-based operating systems
+      with no notion of a filesystem. Faced with such variety, the
+      MIDP makes minimal assumptions about the MID's system
+      software. These requirements are as follows:</p>
+    <ul>
+      <li class="Bullet1">
+	A minimal kernel to manage the underlying hardware (i.e.,
+	handling of interrupts, exceptions, and minimal
+	scheduling). This kernel must provide at least one schedulable
+	entity to run the Java Virtual Machine (JVM). The kernel does
+	not need to support separate address spaces (or processes) or
+	make any guarantees about either real-time scheduling or
+	latency behavior.</li>
+      <li class="Bullet1">
+	A mechanism to read and write from non-volatile memory to
+	support the requirements of the Record Management System (RMS)
+	APIs for persistent storage.</li>
+      <li class="Bullet1">
+	Read and write access to the device's wireless networking to
+	support the Networking APIs.</li>
+      <li class="Bullet1">
+	A mechanism to provide a time base for use in time-stamping
+	the records written to Persistent Storage and to provide the
+	basis for the Timer APIs.</li>
+      <li class="Bullet1">
+	A minimal capability to write to a bit-mapped graphics
+	display.</li>
+      <li class="Bullet1">
+	A mechanism to capture user input from one (or more) of the
+	three input mechanisms previously discussed.</li>
+      <li class="Bullet1">
+	A mechanism for managing the application life-cycle of the
+	device.</li>
+    </ul>
+
+    <a name="SpecReqs"></a><h3 class="SectionTitle">Specification Requirements</h3>
+    <p class="Paragraph">
+      This section lists some explicit requirements of this
+      specification. Other requirements can be found in the associated
+      Javadoc. If any requirements listed here differ from
+      requirements listed elsewhere in the specification, the
+      requirements here take precedence and replace the conflicting
+      requirements.</p>
+    <p class="Paragraph">
+      Compliant MIDP 2.0 implementations:</p>
+    <ul>
+      <li class="Bullet1">
+	MUST support MIDP 1.0 and MIDP 2.0 MIDlets and MIDlet Suites.</li>
+      <li class="Bullet1">
+	MUST include all packages, classes, and interfaces described
+	in this specification.</li>
+      <li class="Bullet1">
+	MUST implement the OTA User Initiated Provisioning specification.</li>
+      <li class="Bullet1">
+	MAY incorporate zero or more supported protocols for
+	push.</li>
+      <li class="Bullet1">
+	MUST give the user a visual indication of network usage
+	generated when using the mechanisms indicated in this
+	specification.</li>
+      <li class="Bullet1">
+	MAY provide support for accessing any available serial ports
+	on their devices through the CommConnection interface.</li>
+      <li class="Bullet1">
+	MUST provide support for accessing HTTP 1.1 servers and
+	services either directly, or by using gateway services such as
+	provided by WAP or i-mode.</li>
+      <li class="Bullet1">
+	MUST provide support for secure HTTP connections either
+	directly, or by using gateway services such as provided by WAP
+	or i-mode.</li>
+      <li class="Bullet1">
+	SHOULD provide support for datagram connections.</li>
+      <li class="Bullet1">
+	SHOULD provide support for server socket stream
+	connections.</li>
+      <li class="Bullet1">
+	SHOULD provide support for socket stream connections.</li>
+      <li class="Bullet1">
+	SHOULD provide support for secure socket stream
+	connections.</li>
+      <li class="Bullet1">
+	MUST support PNG image transparency.</li>
+      <li class="Bullet1">
+	MAY include support for additional image formats.</li>
+      <li class="Bullet1">
+	MUST support Tone Generation in the media package.</li>
+      <li class="Bullet1">
+	MUST support 8-bit, 8 KHz, mono linear PCM wav format IF any
+	sampled sound support is provided.</li>
+      <li class="Bullet1">
+	MAY include support for additional sampled sound formats.</li>
+      <li class="Bullet1">
+	MUST support <a href="#MIDI-1">Scalable Polyphony MIDI
+	(SP-MIDI)</a> and <a href="#MIDI-2">SP-MIDI Device 5-to-24
+	Note Profile</a> IF any synthetic sound support is
+	provided.</li>
+      <li class="Bullet1">
+	MAY include support for additional MIDI formats.</li>
+      <li class="Bullet1">
+	MUST implement the mechanisms needed to support "Untrusted
+	MIDlet Suites".</li>
+      <li class="Bullet1">
+	MUST implement "Trusted MIDlet Suite Security" unless the
+	device security policy does not permit or support trusted
+	applications.</li>
+      <li class="Bullet1">
+	MUST implement "Trusted MIDlet Suites Using X.509 PKI" to
+	recognize signed MIDlet suites as trusted unless PKI is not
+	used by the device for signing applications.</li>
+      <li class="Bullet1">
+	MUST implement "MIDP x.509 Certificate Profile" for
+	certificate handling of HTTPS and SecureConnections.</li>
+      <li class="Bullet1">
+	MUST enforce the same security requirements for I/O access
+	from the Media API as from the Generic Connection framework,
+	as specified in the package documentation for
+	javax.microedition.io.
+      <li class="Bullet1">
+	MUST support at least the <a
+	href="http://ietf.org/rfc/rfc2279.txt">UTF-8</a> character
+	encoding for APIs that allow the application to define
+	character encodings.</li>
+      <li class="Bullet1">
+	MAY support other character encodings.</li>
+      <li class="Bullet1">
+	SHOULD NOT allow copies to be made of any MIDlet suite unless
+	the device implements a copy protection mechanism.</li>
+    </ul>
+
+    <h5 class="SectionTitle">References</h5>
+    <ol>
+      <li class="List1">
+	<a name="MIDI-1"></a>
+	Scalable Polyphony MIDI Specification Version 1.0, MIDI
+	Manufacturers Association, Los Angeles, CA, USA, February 2002.
+      </li>
+      <li class="List1">
+	<a name="MIDI-2"></a> Scalable Polyphony MIDI Device 5-to-24
+	Note Profile for 3GPP Version 1.0, RP-35, MIDI Manufacturers
+	Association, Los Angeles, CA, USA, February 2002.
+      </li>
+    </ol>
+  </body>
+</html>

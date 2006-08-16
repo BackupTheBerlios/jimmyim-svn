@@ -1,0 +1,1124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta HTTP-EQUIV="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta HTTP-EQUIV="Content-Style-Type" content="text/css">
+    <meta name="Author" content="James E. Van Peursem">
+    <link REL="STYLESHEET" href="stylesheet.css" charset="ISO-8859-1" type="text/css">
+    <title>Over The Air User Initiated<br>
+      Provisioning Specification</title>
+    <!-- Changed by: Gary Adams - SMI Software Development, 07-Aug-2002 -->
+  </head>
+  <body bgcolor="#ffffff">
+    <h1 class="DocumentTitle">Over The Air User Initiated<br>
+      Provisioning Specification</h1>
+    <h4 class="TitleContinuation">for the Mobile Information Device Profile</h4>
+    <hr>
+    <h2 class="ChapterTitle">Preface</h2>
+    <p class="Paragraph">
+      This document, <em>Over The Air User Initiated
+      Provisioning</em>, is for the <a href="overview.html"> Mobile
+      Information Device Profile (MIDP) specification version
+      2.0</a>. The original JSR and expert group details can be found
+      at <a href="http://jcp.org/jsr/detail/118.jsp">
+      http://jcp.org/jsr/detail/118.jsp</a>.  The terminology used
+      herein is defined in the <a
+      href="overview.html#Definitions">Definitions</a> section of the
+      MIDP 2.0 specification except where noted.</p>
+
+    <h3 class="SectionTitle">How This Specification Is Organized</h3>
+    <p class="Paragraph">
+      The topics in this specification are organized in the following
+      sections:</p>
+    <ul>
+      <li class="Bullet1">
+	<a href="#Section1"><em>Section 1, "Over The Air User
+	Initiated Provisioning"</em></a>, defines how MIDP
+	applications should be distributed to wireless devices.</li>
+      <li class="Bullet1">
+	<a href="#Section2"><em>Section 2, "MIDP Provisioning
+	and Networking in the WAP June2000 Environment"</em></a>,
+	describes the specific requirements for deploying MIDP
+	applications via a proxied WAP Gateway.</li>
+    </ul>
+
+    <h3 class="SectionTitle">References</h3>
+    <ol>
+      <li class="List1">
+	Connected, Limited Device Configuration (CLDC)<br> <a
+	href="http://jcp.org/jsr/detail/30.jsp">http://jcp.org/jsr/detail/30.jsp</a>
+      </li>
+      <li class="List1">
+	Mobile Information Device Profile (MIDP 1.0)<br> <a
+	href="http://jcp.org/jsr/detail/37.jsp">http://jcp.org/jsr/detail/37.jsp</a>
+      </li>
+      <li class="List1">
+	Mobile Information Device Profile 2.0 (MIDP 2.0)<br> <a
+	href="http://jcp.org/jsr/detail/118.jsp">http://jcp.org/jsr/detail/118.jsp</a>
+      </li>
+      <li class="List1">
+	HTTP 1.1 Specification<br> <a
+	href="http://www.ietf.org/rfc/rfc2616.txt">http://www.ietf.org/rfc/rfc2616.txt</a>
+      </li>
+      <li class="List1">
+	HTTP Authentication: Basic and Digest Access
+	Authentication<br> <a
+	href="http://www.ietf.org/rfc/rfc2617.txt">http://www.ietf.org/rfc/rfc2617.txt</a>
+      </li>
+      <li class="List1">
+	Java(tm) Servlet 2.3 Specification<br> <a
+	href="http://jcp.org/jsr/detail/53.jsp">http://jcp.org/jsr/detail/53.jsp</a>
+      </li>
+    </ol>
+
+    <h3 class="SectionTitle">Changes since the OTA Recommended Practice</h3>
+    <p class="Paragraph">
+      After the MIDP 1.0 specification was published, a document
+      entitled, <em>Over The Air User Initiated Provisioning
+      Recommended Practice for the Mobile Information Device Profile,
+      was published</em>. This specification replaces that document,
+      and the following changes were made for MIDP 2.0:</p>
+    <ul>
+      <li class="Bullet1">
+	Removed the Cookie support requirement. This was necessary
+	because in some network architectures the cookie information
+	may not be transmitted to the client. The cookies were used to
+	maintain state information between the Application Descriptor,
+	JAR downloads, and Install-Notify reports. An alternative
+	approach of URL rewriting is possible, and can serve the same
+	purpose. For example, when sending the Application Descriptor,
+	the server can insert unique JAR, MIDlet-Install-Notify, and
+	MIDlet-Delete-Notify URLs that associate these with this a
+	particular download session. Other options may also be
+	possible.</li>
+    </ul>
+
+    <a name="Section1"></a>
+    
+      <h2 class="ChapterTitle">Section 1, Over The Air User Initiated Provisioning</h2>
+
+      <h3 class="SectionTitle">Overview and Goals</h3>
+      <p class="Paragraph">
+	The purpose of this document is to describe how MIDlet suites
+	can be deployed Over-The-Air (OTA), and the requirements
+	imposed upon the client device to support these
+	deployments. Following these recommendations will help ensure
+	interoperability between clients and servers from all
+	manufacturers and provide guidance to mobile network operators
+	deploying MIDP devices.</p>
+      <p class="Paragraph">
+	Devices MUST provide mechanisms that allow users to discover
+	MIDlet suites that can be loaded into the device. In some
+	cases, discovery will be via the device's resident browser
+	(e.g., i-mode or WAP). In other cases, it may be a resident
+	application written specifically to identify MIDlet suites for
+	the user to download. Throughout this document, an application
+	with this functionality will be referred to as the discovery
+	application, or <em>DA</em>.</p>
+      <p class="Paragraph">
+        Other installation mechanisms (e.g. Bluetooth<sup><font
+        size=-2>TM</font></sup> wireless technology, serial cable,
+        IrDA<sup><font size=-2>TM</font></sup>, etc.) MAY be supported
+        by devices, but are outside the scope of this version of the
+        specification.</p>
+      <p class="Paragraph">
+	The term Application Management Software (AMS) is a generic
+	term used to describe the software on the device that manages
+	the downloading and lifecycle of MIDlets. This term does not
+	refer to any specific implementation and is used for
+	convenience only. In some implementations, the term Java
+	Application Manager (JAM) is used interchangeably.</p>
+      <p class="Paragraph">
+	This document describes the general functional requirements on
+	the device and the functions supporting the MIDlet suite
+	lifecycle. The lifecycle of a MIDlet suite consists of
+	discovery, installation, update, invocation and
+	removal. Descriptions are included for additional Application
+	Descriptor attributes and mechanisms that identify the device
+	type and characteristics to servers providing MIDlet
+	suites.</p>
+
+      <h3 class="SectionTitle">Functional Requirements</h3>
+      <p class="Paragraph">
+	A MIDP-compliant device MUST be capable of:</p>
+      <ul>
+	<li class="Bullet1">
+	  Browsing, or otherwise locating MIDlet suite Application
+	  Descriptors in the network.</li>
+	<li class="Bullet1">
+	  Transferring a MIDlet suite and its associated Application
+	  Descriptor to the device from a server using HTTP 1.1 or a
+	  session protocol that implements the HTTP 1.1 functionality
+	  (including the header and entity fields) as required in this
+	  document.</li>
+	<li class="Bullet1">
+	  Responding to a 401 (<em>Unauthorized</em>) or 407
+	  (<em>Proxy Authentication Required</em>) response to an HTTP
+	  request by asking the user for a user name and password and
+	  re-sending the HTTP request with the credentials
+	  supplied. The device MUST be able to support at least the
+	  RFC2617 Basic Authentication Scheme.</li>
+	<li class="Bullet1">
+	  Installing the MIDlet suite on the device</li>
+	<li class="Bullet1">
+	  Invoking MIDlets</li>
+	<li class="Bullet1">
+	  Allowing the user to delete MIDlet suites stored on the
+	  device. Single MIDlets cannot be deleted since the MIDlet
+	  suite is the unit of transfer and installation.</li>
+      </ul>
+
+    <a name="AppDiscovery"></a>
+    <h3 class="SectionTitle">MIDlet Suite Discovery</h3>
+    <p class="Paragraph">
+      Application discovery is the process by which a user locates a
+      MIDlet suite using the device. User-initiated discovery and
+      installation of MIDlet suites MUST be supported in the following
+      high-level manner:</p>
+    <ul>
+      <li class="Bullet1">
+	While using the DA, the user is presented with a link to a
+	MIDlet suite or Application Descriptor.</li>
+      <li class="Bullet1">
+	The user selects the link to begin the installation
+	process</li>
+      <li class="Bullet1">
+	If available, the Application Descriptor is transferred to the
+	device first. This descriptor contains information about the
+	MIDlet suite and can be used by the device's AMS to start
+	installation</li>
+      <li class="Bullet1">
+	If the Application Descriptor is not available, or after the
+	AMS has downloaded the Application Descriptor and determined
+	that installation should continue, the MIDlet suite JAR file
+	download begins.</li>
+    </ul>
+    <p class="Paragraph">
+      Using the DA, the user SHOULD be able to access a network
+      location and see a description of the MIDlet suite along with a
+      link that, when selected, initiates the installation of the
+      MIDlet suite. If the link refers to a JAR file as described in
+      the MIDP specification, the JAR file and its URL are passed to
+      the AMS on the device to start the installation process. If the
+      link refers to an Application Descriptor, as described in the
+      MIDP specification:</p>
+        <ol>
+	  <li class="List1">
+	    Once the link has been selected, the server MUST indicate
+	    in the response that the data being transferred (i.e., the
+	    Application Descriptor) has a MIME type of "<em
+	    class="Code">text/vnd.sun.j2me.app-descriptor</em>".</li>
+	  <li class="List1">
+            After completing this transfer, the application descriptor
+            and its URL are passed to the AMS on the device to start
+            the installation process. The Application Descriptor is
+            used by the AMS to determine if the associated MIDlet
+            suite can be successfully installed and executed on the
+            device. If not, the user MUST be notified of the
+            conditions that prevent its installation. The user SHOULD
+            be informed of unusual conditions as early as possible to
+            minimize wasted time and network bandwidth. The
+            request-header attributes described in <a
+            href="#DevIdReqHdr">Device Identification and Request
+            Headers</a> SHOULD be used when retrieving the Application
+            Descriptor.</li>
+	  <li class="List1">
+	    The Application Descriptor MUST be converted from its
+	    transport format to the Unicode-encoding that is specified
+	    by the MIDP specification before it can be used. The
+	    default character set specified for the MIME type "<em
+	    class="Code">text/vnd.sun.j2me.app-descriptor</em>" is
+	    "<em class="Code">UTF-8</em>". If the device supports
+	    other character sets, the appropriate <em
+	    class="Code">Accept-Charset</em> header SHOULD be included
+	    in the request, and the content SHOULD be converted based
+	    on the <em class="Code">charset</em> attribute returned on
+	    the <em class="Code">Content-Type</em> header. If <em
+	    class="Code">charset</em> is undefined, the encoding
+	    defaults to "<em class="Code">UTF-8</em>", and it SHOULD
+	    be converted accordingly. The attributes in the descriptor
+	    MUST be formatted according to the syntax in the MIDP
+	    specification and all of the attributes required by the MIDP
+	    specification MUST be present in the descriptor. If this is
+	    not the case, then the client MUST return
+	    <a href="#StatusCodes"><em class="Code">Status Code
+	    906</em></a> in the status report.</li>
+	  <li class="List1">
+	    Using the information in the Application Descriptor
+	    including the vendor, name, version, and size attributes,
+	    the user SHOULD be given a chance to confirm that they
+	    want to install the MIDlet suite. Situations such as
+	    trying to install an older version, or installing the same
+	    version, SHOULD be brought to the user's
+	    attention. Conditions that can prevent the successful
+	    installation and execution of the MIDlet suite SHOULD be
+	    identified, and the user notified. For example, if it is
+	    known that insufficient memory is available, the software
+	    SHOULD aid the user in reviewing memory usage and freeing
+	    sufficient memory for installation of the new MIDlet
+	    suite.</li>
+        </ol>
+
+      <a name="AppInstall"></a>
+      <h3 class="SectionTitle">MIDlet Suite Installation</h3>
+      <p class="Paragraph">
+	Application installation is the process by which a MIDlet
+	suite is downloaded onto the device and made available to the
+	user. Application installation MUST be supported. The network
+	supporting the devices, as well any proxies and origin servers
+	that are used during provisioning, MUST be able to support
+	this requirement. The user retains control of the resources
+	used by MIDlet suites on the device and MUST be allowed to
+	delete or install MIDlet suites.</p>
+      <p class="Paragraph">
+	The device MUST make the MIDlet(s) in the MIDlet suite
+	available for execution by the user. When multiple MIDlets are
+	contained in a MIDlet suite, the user MAY need to be aware
+	that there is more than one. The device MAY run a MIDlet from
+	the MIDlet suite immediately at the user's option.</p>
+      <p class="Paragraph">
+        During installation, the user SHOULD be informed of progress
+        and MUST be given an opportunity to cancel the
+        process. Interrupting installation MUST leave the device in
+        the state it was in before installation began.</p>
+      <p class="Paragraph">
+        If the MIDlet suite is already installed on the device, it
+        SHOULD be treated as an update. See <a
+        href="MIDletUpdate">MIDlet Suite Update</a> for additional
+        information on how to handle an update.</li>
+      <p class="Paragraph">
+        To install a MIDlet suite, the AMS performs the following
+        series of steps and checks and provides the user with feedback
+        about the progress:</p>
+      <ol>
+	<li class="List1">
+	  The device initiates the download of the MIDlet suite via
+	  HTTP. If an Application Descriptor was first downloaded as
+	  described in the <a href="#AppDiscovery">MIDlet suite
+	  Discovery</a> section, the request for the MIDlet suite MUST
+	  be for exactly the URL specified in the descriptor;
+	  additional headers are unnecessary.</li>
+	<li class="List1">
+	  If the server or proxy responds to the request for the
+	  MIDlet suite with a 401 (<em class="Code">Unauthorized</em>)
+	  or 407 (<em class="Code">Proxy Authentication
+	  Required</em>), the device SHOULD re-send the request with
+	  the user-supplied credentials in an <em class="Code">
+	  Authorization</em> or <em class="Code">
+	  Proxy-Authorization</em> header field as specified in
+	  RFC2617. The credentials SHOULD be provided by the user--for
+	  example, a common mechanism would be to present a dialog to
+	  the user to enter a user name and password. The device MUST
+	  be able to support at least the Basic Authentication Scheme
+	  as described in RFC2617.</li>
+	<li class="List1">
+	  The MIDlet suite and the headers that are received MUST be
+	  checked to verify that the retrieved MIDlet suite is valid
+	  and can be installed on the device. The user MUST be alerted
+	  to at least the following problems that prevent
+	  installation:</li>
+          <ul>
+	  <li class="Bullet1">
+	    If there is insufficient memory to store the MIDlet suite
+	    on the device, the device MUST return <a
+	    href="#StatusCodes"><em class="Code">Status Code
+	    901</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the JAR is not available at the
+	    <em class="Code">MIDlet-Jar-URL</em> attribute
+	    in the descriptor, the device MUST return
+	    <a href="#StatusCodes"><em class="Code">Status Code
+	    907</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the received JAR file size does not match the size
+	    specified in the Application Descriptor, the device MUST
+	    return <a href="#StatusCodes"><em class="Code">Status Code
+	    904</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the manifest or any other file can not be extracted
+	    from the JAR, the device MUST return
+	    <a href="#StatusCodes"><em class="Code">Status Code
+	    907</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the JAR manifest is not in the correct syntax, or if any
+	    of the required attributes are missing in the JAR manifest,
+	    the device MUST return
+	    <a href="#StatusCodes"><em class="Code">Status Code
+	    907</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the mandatory attributes in the descriptor "<em
+	    class="Code">MIDlet-Name</em>", "<em
+	    class="Code">MIDlet-Version</em>", and "<em
+	    class="Code">MIDlet-Vendor</em>" do not match those
+	    in the JAR manifest, the device MUST return <a
+	    href="#StatusCodes"><em class="Code">Status Code
+	    905</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the MIDlet suite is trusted, then the values in the
+	    application descriptor for MIDlet-* attributes MUST be
+	    identical to the corresponding attribute values in the
+	    Manifest. If not, the device MUST return <a
+	    href="#StatusCodes"><em class="Code">Status Code
+	    905</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the application failed to be authenticated, the device
+	    MUST return
+	    <a href="#StatusCodes"><em class="Code">Status Code
+	    909</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the application is an unsigned version of an installed
+	    signed version of the same application, the device MUST
+	    return <a href="#StatusCodes"><em class="Code">Status Code
+	    910</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the application is not authorized for a permission
+	    listed in the <em class="Code">MIDlet-Permissions</em> attribute,
+	    the device MUST return
+	    <a href="#StatusCodes"><em class="Code">Status
+	    Code 910</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If a static push registration fails for a reason other than
+	    not being authorized, the device MUST
+	    return <a href="#StatusCodes"><em class="Code">Status
+	    Code 911</em></a> in the Status Report.</li>
+	  <li class="Bullet1">
+	    If the network service is lost during installation, <a
+	    href="#StatusCodes"><em class="Code">Status Code
+	    903</em></a> SHOULD be used in a Status Report if possible
+	    (it may be impossible to deliver the status report due to
+	    the network-service outage).</li>
+          </ul>
+	<li class="List1">
+	  Provided there are no problems that prevent installation,
+	  the MIDlets contained in the MIDlet suite MUST be installed
+	  and made available for execution by the user via the
+	  device's MIDlet selection mechanism.</li>
+	<li class="List1">
+	  Installation is complete when the MIDlet suite has been made
+	  available on the device, or an unrecoverable failure has
+	  occurred. In either case, the status MUST be reported as
+	  described in <a href="#StatusReport">Installation
+	  Status Reports.</a>.</li>
+      </ol>
+
+    <a name="MIDletUpdate"></a>
+    <h2 class="SectionTitle">MIDlet Suite Update</h2>
+    <p class="Paragraph">
+      A MIDlet suite update is defined as the operation of installing
+      a specific MIDlet suite when that same MIDlet suite (either the
+      same version or a different version) is already installed on the
+      device. Devices MUST support the updating of MIDlet suites. In
+      order to be meaningful to the user, the device MUST allow the
+      user to obtain information about the MIDlet suite(s) on the
+      device and determine which versions of software are
+      installed. See <a href="#DevIdReqHdr">Device Identification and
+      Request Headers.</a> for the attributes that apply to
+      updates.</p>
+    <p class="Paragraph">
+      When a MIDlet suite update is started, the device MUST notify
+      the user if the MIDlet suite is a newer, older, or the same
+      version of an existing MIDlet suite and MUST get confirmation
+      from the user before proceeding.</p>
+    <p class="Paragraph">
+      The RMS record stores of a MIDlet suite being updated MUST be
+      managed as follows:</p>
+    <ul>
+      <li class="Bullet1">
+	If the <a
+	href="javadoc/javax/microedition/midlet/doc-files/PKITrust.html">
+	cryptographic signer</a> of the new MIDlet suite and the
+	original MIDlet suite are identical, then the RMS record
+	stores MUST be retained and made available to the new MIDlet
+	suite.</li>
+      <li class="Bullet1">
+	If the scheme, host, and path of the URL that the new
+	Application Descriptor is downloaded from is identical to the
+	scheme, host, and path of the URL the original Application
+	Descriptor was downloaded from, then the RMS MUST be retained
+	and made available to the new MIDlet suite.</li>
+      <li class="Bullet1">
+	If the scheme, host, and path of the URL that the new MIDlet
+	suite is downloaded from is identical to the scheme, host, and
+	path of the URL the original MIDlet suite was downloaded from,
+	then the RMS MUST be retained and made available to the new
+	MIDlet suite.</li>
+      <li class="Bullet1">
+	If the above statements are false, then the device MUST ask
+	the user whether the data from the original MIDlet suite
+	should be retained and made available to the new MIDlet
+	suite.</li>
+    </ul>
+    <p class="Paragraph">
+      In all cases, an unsigned MIDlet MUST NOT be allowed to update a
+      signed MIDlet suite. The format, contents and versioning of the
+      record stores is the responsibility of the MIDlet suite. The
+      user-granted permissions given to the original MIDlet suite
+      SHOULD also be given to the new MIDlet suite, if they are in the
+      security domain of the new MIDlet suite.</p>
+
+    <h2 class="SectionTitle">MIDlet Suite Execution</h2>
+    <p class="Paragraph">
+      When the user selects a MIDlet to be run, the device MUST invoke
+      the MIDlet with the CLDC and MIDP classes required by the MIDP
+      specification. If multiple MIDlets are present, the user
+      interface MUST allow the user to select each one for
+      execution.</p>
+
+    <h2 class="SectionTitle">MIDlet Suite Removal</h2>
+    <p class="Paragraph">
+      Devices MUST allow users to remove MIDlet suites. When a MIDlet
+      suite is to be removed from the device, the user SHOULD be
+      prompted to confirm that the MIDlet suite may be removed. The
+      device SHOULD warn the user of any special circumstances that
+      arise during the deletion of the MIDlet suite. For example, the
+      MIDlet suite MAY contain multiple MIDlets, and the user SHOULD
+      be made aware that all of the MIDlets and associated RMS record
+      stores are being removed.</p>
+    <p class="Paragraph">
+      If the Application Descriptor includes the attribute
+      MIDlet-Delete-Confirm, its value SHOULD be included in the
+      prompt. This will allow the MIDlet suite provider to highlight
+      any specific conditions that might arise if the MIDlet suite
+      were to be removed.</p>
+
+    <a name="StatusReport"></a>
+    <h2 class="SectionTitle">Installation/Deletion Status Reports</h2>
+    <p class="Paragraph">
+      The success or failure of the installation, upgrade, or deletion
+      of a MIDlet suite is of interest to the service providing the
+      MIDlet suite. The service MAY specify URLs in the Application
+      Descriptor that MUST be used to report installation and deletion
+      status. See <a href="#AdditionalAttributes">Additional
+      Descriptor Attributes</a> for more information. If the device
+      cannot send the installation status report, the requested action
+      MUST still be completed. For example, if the device cannot send
+      the installation status report to the MIDlet-Install-Notify URL,
+      the MIDlet suite MUST still be enabled, and the user MUST be
+      allowed to use it. Likewise if the device cannot send the
+      deletion status report to the MIDlet-Delete-Notify URL, the
+      MIDlet suite MUST still be deleted.</p>
+    <p class="Paragraph">
+      The operation status is reported by means of an HTTP POST to the
+      URL specified in the <em class="Code">MIDlet-Install-Notify</em>
+      attribute for installations, or the <em
+      class="Code">MIDlet-Delete-Notify</em> attribute for
+      deletions. The only protocol that MUST be supported is "<em
+      class="Code">http://</em>". Other protocols MAY be ignored
+      by the device.</p>
+    <p class="Paragraph">
+      The content of the body of the POST request MUST include a
+      status code and status message on the first line. See <A
+      HREF="#StatusCodes">Status Codes and Message</a> for list of
+      valid codes and status messages.</p>
+    <p class="Paragraph">
+      In the case of a deletion status report, the notification is
+      sent only when the MIDlet is deleted; <a href="#StatusCodes"><em
+      class="Code">Status Code 912</em></a> MUST be sent, notifying that
+      the deletion occurred.</p>
+    <p class="Paragraph">
+      In response to a status report, the server MUST reply with
+      a "<em class="Code">200 OK</em>" response. No content
+      SHOULD be returned to the device and, if any is sent, it MUST be
+      ignored. If a response is received the request SHOULD NOT be
+      retried. Contrary to the MIDP 1.0 OTA Recommended Practice, the
+      server MUST NOT include a <em class="Code">Set-Cookie</em>
+      header with the attribute <em class="Code">Max-Age=0</em> to
+      request that the <em class="Code">cookie</em> be discarded. If
+      such an attribute is received, the device MUST ignore it. As an
+      example, please see <a href="#InstStatExample">Example: Install
+      Status via HTTP Post Request</a>.</p>
+    <p class="Paragraph">
+      For installations, if the status report cannot be sent, or if
+      the server reply is not received, the installation status report
+      MAY be sent again (as described above) each time a MIDlet in
+      this suite is executed and the device has data network
+      connectivity. This will improve the likelihood of the status
+      report being successfully sent. The number of retries attempted
+      SHOULD be kept small since each one may result in a charge to
+      the user's bill. The MIDlet suite MUST be made available for
+      use, whether or not the installation status report has been
+      successfully sent and the acknowledgement have been
+      received.</p>
+    <p class="Paragraph">
+      For deletions, an attempt to send the status report MUST be made
+      the next time either an OTA installation is performed or an
+      installation status report is being sent. This will improve the
+      likelihood of the status report being successfully sent and will
+      minimize confusion by the user when they see network
+      activity. If the status report cannot be sent, or if the server
+      reply is not received, the deletion status report MAY be sent
+      again (as described above) each time an OTA installation
+      installation is performed or an installation status report is
+      being sent. The number of retries attempted SHOULD be kept small
+      since each one may result in a charge to the user's bill. The
+      MIDlet suite MUST be removed from memory, whether or not the
+      installation status report has been successfully sent and the
+      acknowledgement have been received.</p>
+
+    <a name="StatusCodes"></a>
+    <br><b>Install Status Codes and Message</b>
+      <table class="Table" border="1" cellpadding="3">
+      <tr>
+	<th rowspan="1" colspan="1">
+	  <p class="TableHead">
+	    Status Code</p>
+	</th>
+	<th rowspan="1" colspan="1">
+	  <p class="TableHead">
+	    Status Message</p>
+	</th>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    900</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Success</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    901</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Insufficient Memory</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    902</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    User Cancelled</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    903</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Loss of Service</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    904</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    JAR size mismatch</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    905</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Attribute Mismatch</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    906</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Invalid Descriptor</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    907</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Invalid JAR</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    908</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Incompatible Configuration or Profile</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    909</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Application authentication failure</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    910</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Application authorization failure</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    911</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Push registration failure</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    912</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    Deletion Notification</p>
+	</td>
+      </tr>
+    </table>
+
+    <a name="AdditionalAttributes"></a>
+    <h2 class="SectionTitle">Additional Descriptor Attributes</h2>
+      <p class="Paragraph">
+	The following additional attributes are defined in the
+	Application Descriptor. Each may appear only once in the
+	descriptor.</p>
+      <br><b>MIDlet Attributes</b>
+      <table class="Table" border="1">
+      <tr>
+	<th rowspan="1" colspan="1">
+	  <p class="TableHead">
+	    Attribute Name </p>
+	</th>
+	<th rowspan="1" colspan="1">
+	  <p class="TableHead">
+	    Attribute Description</p>
+	</th>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    MIDlet-Install-Notify</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    The URL to which a POST request is sent to report the
+	    installation status (whether a new installation or MIDlet
+	    suite update) of this MIDlet suite. The device MUST use
+	    this URL unmodified. The URL MUST be no longer than 256
+	    UTF-8 encoded characters. If the device receives a URL
+	    longer than 256 UTF-8 encoded characters it MUST reject
+	    the installation and return <a href="#StatusCodes"><em
+	    class="Code">Status Code 906</em></a> in the status
+	    report.</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    MIDlet-Delete-Notify</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    The URL to which a POST request is sent to report the
+	    deletion of this MIDlet suite. The device MUST use this
+	    URL unmodified. The URL MUST be no longer than 256 UTF-8
+	    encoded characters. If the device receives a URL longer
+	    than 256 UTF-8 encoded characters it MUST reject the
+	    installation and return <a href="#StatusCodes"><em
+	    class="Code">Status Code 906</em></a> in the status
+	    report.</p>
+	</td>
+      </tr>
+      <tr>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    MIDlet-Delete-Confirm</p>
+	</td>
+	<td rowspan="1" colspan="1">
+	  <p class="TableText">
+	    A text message to be provided to the user when prompted to
+	    confirm deletion of this MIDlet suite</p>
+	</td>
+      </tr>
+    </table>
+
+    <a name="DevIdReqHdr"></a>
+    <h2 class="SectionTitle">Device Identification and Request Headers</h2>
+    <p class="Paragraph">
+      The process of discovering a MIDlet suite via the DA can be
+      customized by the device sending information about itself to the
+      server. The DA MUST provide the network server with information
+      (e.g. the manufacturer and device model number) so that the
+      server can determine the device's capabilities. In many cases, a
+      DA will already have identified the device type to the server by
+      means consistent with its network connection and markup
+      language.</p>
+    <p class="Paragraph">
+      During the download of a MIDlet suite, a device SHOULD identify
+      its characteristics and the type of the content being requested
+      as completely as possible to the server. The HTTP
+      request-headers used to fetch the content MUST include, <em
+      class="Code">User-Agent, Accept-Language</em>, and <em
+      class="Code">Accept</em>. Servers SHOULD use this additional
+      information to select the appropriate Application Descriptor for
+      the device.</p>
+
+    <h3 class="SectionTitle">User-Agent Product Tokens</h3>
+    <p class="Paragraph">
+      The MIDP specification identifies HTTP <em class="Code">
+      User-Agent</em> request headers to identify the client to the
+      server. RFC2616 specifies a format for product tokens such
+      as:</p>
+    <p class="Codeline">
+      <em class="Code">"User-Agent" ":" 1*(product
+      | comment)</em></p>
+    <p class="Paragraph">
+      The product tokens used to identify the device as supporting
+      CLDC and MIDP are specified the <a
+      href="javadoc/javax/microedition/io/package-summary.html#UserAgentHeaders">Networking</a>
+      portion of the MIDP specification. As in RFC2616, the comment
+      field is optional.</p>
+    <p class="Paragraph">
+      In addition, the device SHOULD further identify itself by adding
+      a device-specific product token to the <em class="Code">
+      User-Agent</em> header as defined by RFC2616. The
+      device-identifying token SHOULD be the first token. The
+      product-token and product-version values are specific to each
+      device and are outside of the scope of this specification.</p>
+
+    <h3 class="SectionTitle">Accept-Language Header</h3>
+    <p class="Paragraph">
+      The device MAY supply the <em class="Code">Accept-Language</em>
+      request-header as specified in RFC2616 to indicate the language
+      that is in use on the device.</p>
+
+    <h3 class="SectionTitle">Accept Header</h3>
+    <p class="Paragraph">
+      The <em class="Code">Accept</em> HTTP header is used to indicate
+      the type of content being requested. When requesting MIDlet
+      suites, this header SHOULD include <em class="Code">
+      application/java-archive</em>. For retrieving application
+      descriptors, this header SHOULD include <em class="Code">
+      text/vnd.sun.j2me.app-descriptor</em>.</p>
+
+    <h3 class="SectionTitle">
+      Example: HTTP Request for Application Descriptor</h3>
+    <p class="Paragraph">
+      When requesting the download of an Application Descriptor, the
+      request headers might look as follows:</p>
+    <p class="Codeline">
+      GET http://host.foo.bar/app-dir/game.jad HTTP/1.1<br>
+      Host: host.foo.bar<br>
+      Accept: text/vnd.sun.j2me.app-descriptor<br>
+      User-Agent: CoolPhone/1.4 Profile/MIDP-2.0 Configuration/CLDC-1.0<br>
+      Accept-Language: en-US, fi, fr<br>
+      Accept-Charset: utf-8</p>
+    <p class="Paragraph">
+      The response headers from the server might look as follows:</p>
+    <p class="Codeline">
+      HTTP/1.1 200 OK<br>
+      Server: CoolServer/1.3.12<br>
+      Content-Length: 2345<br>
+      Content-Type: text/vnd.sun.j2me.app-descriptor; charset=utf-8</p>
+
+    <h3 class="SectionTitle">
+      Example: HTTP Request to Install/Update a MIDlet
+      suite</h3>
+    <p class="Paragraph">
+      When requesting the download of a MIDlet suite JAR file, the request
+      headers might look as follows:</p>
+    <p class="Codeline">
+      GET http://host.foo.bar/app-dir/game.jar HTTP/1.1<br>
+      Host: host.foo.bar<br>
+      Accept: application/java, application/java-archive</p>
+    <p class="Paragraph">
+      The response headers from the server might look as follows:</p>
+    <p class="Codeline">
+      HTTP/1.1 200 OK<br>
+      Server: CoolServer/1.3.12<br>
+      Content-Length: 25432<br>
+      Content-Type: application/java-archive</p>
+
+    <a name="InstStatExample"></a>
+    <h3 class="SectionTitle">
+      Example: Install Status via HTTP Post Request</h3>
+    <p class="Paragraph">
+      For example, installing a MIDlet suite with an application
+      descriptor given below:</p>
+    <p class="Codeline">
+      ...<br>
+      MIDlet-Install-Notify: http://foo.bar.com/status<br>
+      ...</p>
+    <p class="Paragraph">
+      After a successful install of the MIDlet suite, the following
+      would be posted:</p>
+    <p class="Codeline">
+      POST http://foo.bar.com/status HTTP/1.1<br>
+      Host: foo.bar.com<br>
+      Content-Length: 13<br>
+      900 Success</p>
+    <p class="Codeline">
+      The response from the server might be:</p>
+    <p class="Codeline">
+      HTTP/1.1 200 OK<br>
+      Server: CoolServer/1.3.12</p>
+
+    <a name="Section2"></a>
+    
+      <h2 class="ChapterTitle">
+	Section 2, MIDP Provisioning and Networking in the WAP June2000 Environment
+      </h2>
+
+      <h3 class="SectionTitle">Purpose of This Section</h3>
+	<p class="Paragraph">
+	  The purpose of this section is to complement the OTA and
+	  MIDP specifications by providing requirements and
+	  recommendations specific to MIDP Over The Air Provisioning
+	  and MIDlet networking in the WAP June2000
+	  environment. Future WAP developments will be addressed in
+	  future versions of the MIDP. Following these recommendations
+	  will help ensure interoperability between different WAP
+	  elements from all manufacturers. It will also provide
+	  guidance to network operators in deploying MIDP services
+	  when provisioning is performed via a browser using the WAP
+	  protocol stack, as well as to MIDlet developers in creating
+	  MIDlets that function optimally when the transport is
+	  WSP.</p>
+
+      <h3 class="SectionTitle">Overview</h3>
+	<p class="Paragraph">
+	  MIDlet suites are downloaded using HTTP from a provisioning
+	  server (possibly via a gateway in between). Also, the MIDP
+	  library MUST support network access in the form of the
+	  HTTP/1.1 protocol.</p>
+	<p class="Paragraph">
+	  Depending on the end-user device and the wireless network,
+	  the communication MAY occur between the end-user device and
+	  provisioning server with the HTTP protocol end-to-end, or
+	  the end-user device MAY use another protocol, and have a
+	  gateway convert this protocol to HTTP. The provisioning
+	  server needs to only support HTTP in any case (unless there
+	  are other reasons for the same service provider to operate
+	  the protocol gateway as well). In WAP June2000 environments,
+	  there is always a WAP gateway between the terminal and the
+	  provisioning server to translate between the WSP protocol
+	  used to communicate with the device and TCP/IP used to
+	  communicate with the server. </p>
+	<p class="Paragraph">
+	  There are essentially two basic interfaces that need to be
+	  considered:</p>
+	<ul>
+	  <li class="Bullet1">
+	    the interface from the end-user device to the network</li>
+	  <li class="Bullet1">
+	    the interface from the provisioning server to the network</li>
+	</ul>
+	<p class="Paragraph">
+	  The latter of these interfaces will always be HTTP carried
+	  as usual over TCP/IP.</p>
+	<p class="Paragraph">
+	  For the former interface, this document describes one of the
+	  two basic cases: </p>
+	<ul>
+	  <li class="Bullet1">
+	    the end-user device uses a browser using the WAP protocol
+	    stack and </li>
+	  <li class="Bullet1">
+	    the WSP protocol is used for communication between the
+	    terminal and the WAP gateway.</li>
+	</ul>
+	<p class="Paragraph">
+	  When the end-user device uses a browser using the WAP
+	  protocol stack and has the WAP transport protocols, WSP MAY
+	  be used instead of HTTP in the end-user device. Only
+	  connection-oriented WSP and only the following WAP protocol
+	  stack configurations and bearers are supported:</p>
+	<ul>
+	  <li class="Bullet1">
+	    WAP/UDP/IPv4/PPP/CSD</li>
+	  <li class="Bullet1">
+	    WAP/UDP/IPv4/GPRS</li>
+	</ul>
+	<p class="Paragraph">
+	  Where WAP can be either:</p>
+	<ul>
+	  <li class="Bullet1">
+	    WSP/WTP/WTLS, or</li>
+	  <li class="Bullet1">
+	    WSP/WTP</li>
+	</ul>
+	<p class="Paragraph">
+	  (The other bearers in [<a href="#WAP_WDPS">WAP_WDPS.</a>],
+	  such as SMS- or USSD -based bearers are not
+	  supported). These restrictions are made in order to achieve
+	  maximal interoperability in MIDP provisioning in WAP
+	  environments.</p>
+	<p class="Paragraph">
+	  Depending on the wireless network and the capabilities of
+	  the end-user device, different mechanisms for obtaining the
+	  IP connection are used. These mechanisms and their required
+	  configurations are outside the scope of this document.</p>
+
+	<h3 class="SectionTitle">
+	  Terminal Requirements and Recommendations</h3>
+	<p class="Paragraph">
+	  This section lists the requirements and recommendations
+	  related to the WAP terminals. In the case of common
+	  requirements to both terminals and gateways, the
+	  requirements and recommendations are listed in both terminal
+	  and gateway sections.</p>
+	<p class="Paragraph">
+	  WAP terminals used MUST be <a href="#WAP_JUNE2000">WAP
+	  June2000</a> conformant.</p>
+	<p class="Paragraph">
+	  <em class="Bold">
+	    Specifically, the following issues are critical:</em>
+        </p>
+	<ul>
+	  <li class="Bullet1">
+	    JAD and JAR MIME-types, as described in previous sections,
+	    MUST be supported.</li>
+	  <li class="Bullet1">
+	    HTTP authentication (server responses 401 and 407) MUST be
+	    supported.</li>
+	  <li class="Bullet1">
+	    POST-messages from the terminal to provisioning server
+	    MUST be supported.</li>
+	</ul>
+	<h3 class="SectionTitle">
+	  Requirements and recommendations in addition to those in the
+	  WAP Specifications</h3>
+	<p class="Paragraph">
+	  In the case where the HTTP connections are implemented over
+	  WSP, the system implementation of HTTP MUST add the request
+	  header "<em class="Code">Accept: */*</em>" to GET
+	  and POST requests when a MIDlet creates an HTTP-request, but
+	  the MIDlet does not include a non-empty <em
+	  class="Code">Accept</em> header in the request. This ensures
+	  that the WAP Gateway will always have an explicit set of
+	  types and will pass the requested data. This is conceptually
+	  the same as leaving out the <em class="Code>Accept</em>
+	  header from an HTTP-request on other transports. If the
+	  MIDlet sets a non-empty <em class="Code>Accept</em> header
+	  for its HTTP-request, no change is made (the MIDlet's own
+	  <em class="Code>Accept</em> field is the only one sent).</p>
+
+      <h3 class="SectionTitle">
+	  Gateway Requirements and Recommendations</h3>
+	<p class="Paragraph">
+	  This section lists the requirements and recommendations
+	  related to the WAP gateways. The purpose of presenting these
+	  issues here is to make sure that they are taken into
+	  consideration when WAP-based MIDlet provisioning is
+	  considered.</p>
+	<p class="Paragraph">
+	  WAP gateways used MUST be <a href="#WAP_JUNE2000">WAP
+	  June2000</a> conformant.</p>
+	<p class="Paragraph">
+	  <em class="Bold">
+	    Specifically, the following issues are critical:</em>
+	</p>
+	<ul>
+	  <li class="Bullet1">
+	    JAD and JAR MIME-types MUST be supported. WAP Gateway must
+	    follow the rules for HTTP proxies (RFC2616) these
+	    MIME types.</li>
+	  <li class="Bullet1">
+	    HTTP authentication (server responses 401 and 407) MUST be
+	    supported.</li>
+	  <li class="Bullet1">
+	    Data of any kind MUST be passed to the terminal, if the
+	    terminal's request has included "<em class="Code">
+	    Accept: */*</em>" header.</li>
+	  <li class="Bullet1">
+	    POST-messages from the terminal to provisioning server
+	    MUST be supported.</li>
+	</ul>
+
+      <h3 class="SectionTitle">
+	  MIDlet/MIDlet Suite Recommendations</h3>
+	<p class="Paragraph">
+	  MIDlets SHOULD function correctly even with long connection
+	  setup delays and long breaks in connection. Long connection
+	  setup delays affect circuit-switched data connections, and
+	  long breaks affect GPRS connections.</p>
+
+	<h3 class="SectionTitle">References</h3>
+	<ol>
+	  <li class="List1">
+	    OTA<br>
+	    Over The Air User Initiated Provisioning for Mobile
+	    Information Device Profile
+	  </li>
+	<li class="List1">MIDP<br>
+	    Mobile Information Device Profile Specification 1.0,
+	    <a href="http://jcp.org/jsr/detail/37.jsp">http://jcp.org/jsr/detail/37.jsp</a>
+	  </li>
+	<li class="List1">MIDP 2.0<br>
+	    Mobile Information Device Profile Specification 2.0,
+	    <a href="http://jcp.org/jsr/detail/118.jsp">http://jcp.org/jsr/detail/118.jsp</a>
+	  </li>
+        <li class="List1">
+	  <a name="WAP_JUNE2000"></a>
+	    WAP_JUNE2000<br>
+	    WAP June2000 Conformance Release,
+	    <a href="http://www.wapforum.org/what/technical.htm">http://www.wapforum.org/what/technical.htm</a>
+	  </li>
+	  <li class="List1">
+	    <a name="WAP_WDPS"></a>
+	    WAP_WDPS<br>
+	    WAP Wireless Datagram Protocol Specification,
+	    <a href="http://www.wapforum.org/what/technical.htm">http://www.wapforum.org/what/technical.htm</a>
+	  </li>
+        </ol>
+
+      <h3 class="SectionTitle">Terms</h3>
+      <ul>
+	<li class="List1">
+	  CSD = Circuit Switched Data
+	</li>
+	<li class="List1">
+	  GPRS = General Packet Radio Service
+	</li>
+	<li class="List1">
+	  PPP = Point-to-Point Protocol
+	</li>
+	<li class="List1">
+	  SMS = Short Message Service
+	</li>
+	<li class="List1">
+	  USSD = Unstructured Supplementary Services Data
+	</li>
+	<li class="List1">
+	  WAP = Wireless Application Protocol
+	</li>
+	<li class="List1">
+	  WSP = Wireless Session Protocol
+	</li>
+<!-- @since MIDP 2.0 -->
+  </body>
+</html>
