@@ -137,8 +137,8 @@ public class ContactsMenu extends List implements CommandListener {
      *  @param c contact to be modified.
      */
     public void changeContactStatus(Contact c) {
-	if(c.userID().equals(c.protocol().getAccount().getUser()))
-	    return;
+	//if(c.userID().equals(c.protocol().getAccount().getUser()))
+	  //  return;
 	Contact currentContact, firstInGroup;
 	Vector currentGroup;
 	String name;
