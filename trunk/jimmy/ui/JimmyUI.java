@@ -414,6 +414,7 @@ public class JimmyUI {
 	    
 	    scrContacts.removeContacts(p);
 	    scrNewCont.delAccount(a);
+            jimmy_.getProtocolList().removeElement(p);
 	    p.logout();
 	    a.setConnected(false);
 	}
