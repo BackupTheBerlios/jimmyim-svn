@@ -96,8 +96,10 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 				
                         }
                     }
-                    if(connect)
+                    if(connect){
+                        ui_.setAccount(accounts);
                         ui_.setView(JimmyUI.SCR_CONT);
+                    }
                     else{
                         ui_.setSplashMess("Welcome to Jimmy!");
                         try{

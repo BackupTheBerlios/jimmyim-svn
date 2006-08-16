@@ -101,34 +101,12 @@ public class MainMenu extends List implements CommandListener {
     /**
      * Sets vector of accounts to be displayed in main menu. Vector is beeing sorted here.
      * @param a accounts to be displayed in main menu
-     */    
+     */
     public void setAccounts(Vector a){
 	this.deleteAll();
-	this.al_ = a;		//set local account list
+	this.al_ = new Vector();		//set local account list
 	
-	//Sort account list
-	Object temp;
-	int index;
-	for(int i=0; i<al_.size(); i++){
-	    temp = al_.elementAt(i);
-	    index = i;
-	    for(int j=0; j<al_.size();j++){
-		if( ((Account)al_.elementAt(i)).getUser().compareTo(((Account)al_.elementAt(j)).getUser()) < 0 ){
-		    al_.removeElementAt(index);
-		    al_.insertElementAt(al_.elementAt(j),index);
-		    
-		    al_.removeElementAt(j);
-		    al_.insertElementAt(temp,j);
-		    index = j;
-		}
-	    }
-	}
-	
-	Image icon;
-	for(int i=0; i<a.size(); i++){
-	    icon = chooseImage((Account)a.elementAt(i));
-	    this.append(((Account)a.elementAt(i)).getUser(),icon);   //add to screen
-	}
+        this.addAccounts(a);
     }
         
     public Vector getAccounts(){return this.al_;}

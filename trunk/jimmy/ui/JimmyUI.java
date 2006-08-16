@@ -224,38 +224,64 @@ public class JimmyUI {
                 }//if c == cmdNew
                 else if(c == cmdLogin){
                     int selected = scrMenu.getSelectedIndex();
-		    System.out.println("[DEBUG] Index of selected account: "+selected);
-		    Vector login = new Vector();
-		    Account currAcc = (Account)scrMenu.getAccounts().elementAt(selected); 
-                    login.addElement(currAcc);
-		    jimmy_.setNewConnections(login);
-		    
-		    ((Splash)scrSplash).setMess("Connecting "+currAcc.getUser()+"...");
-		    jimmy_.setDisplay(scrSplash);
+                    if(selected > -1){
+                        System.out.println("[DEBUG] Index of selected account: "+selected);
+                        Account currAcc = (Account)scrMenu.getAccounts().elementAt(selected); 
+
+                        if(currAcc.isConnected()){
+                            scrAlert.setString("Alredy connected!");
+                            scrAlert.setType(AlertType.WARNING);
+                            jimmy_.setAlert(scrAlert,scrMenu);                        
+                        }
+                        else{
+                            Vector login = new Vector();
+                            login.addElement(currAcc);
+                            jimmy_.setNewConnections(login);
+
+                            ((Splash)scrSplash).setMess("Connecting "+currAcc.getUser()+"...");
+                            jimmy_.setDisplay(scrSplash);
+                        }
+                    }
+                    else
+                        System.out.println("[DEBUG] None selected.");                     
                 }//if c == cmdLogin
 		else if(c == cmdLogout){
 		    int selected = scrMenu.getSelectedIndex();
-		    System.out.println("[DEBUG] Index of selected account: "+selected);
-		    
-		    Account logoutAccount =  (Account)scrMenu.getAccounts().elementAt(selected);
-		    if(logoutAccount.isConnected())
-			logout(logoutAccount);
-		    else{
-			scrAlert.setString("Account is not connected!");
-			scrAlert.setType(AlertType.WARNING);
-			jimmy_.setAlert(scrAlert,scrMenu);
-		    }
+                    if(selected > -1){
+                        System.out.println("[DEBUG] Index of selected account: "+selected);
+
+                        Account logoutAccount =  (Account)scrMenu.getAccounts().elementAt(selected);
+                        if(logoutAccount.isConnected())
+                            logout(logoutAccount);
+                        else{
+                            scrAlert.setString("Account is not connected!");
+                            scrAlert.setType(AlertType.WARNING);
+                            jimmy_.setAlert(scrAlert,scrMenu);
+                        }
+                    }
+                    else
+                        System.out.println("[DEBUG] None selected.");                        
 		}
                 else if(c == cmdDel){
                     int selected = scrMenu.getSelectedIndex();
-                    Account account = (Account)scrMenu.getAccounts().elementAt(selected);
-                    Store.removeAccount(account);
-                    jimmyUI_.removeAccount(selected);
+                    if(selected > -1){
+                        Account account = (Account)scrMenu.getAccounts().elementAt(selected);
+                        if(account.isConnected())
+                            logout(account);
+                        Store.removeAccount(account);
+                        jimmyUI_.removeAccount(selected);
+                    }
+                    else
+                        System.out.println("[DEBUG] None selected.");                        
                 }//if c == cmdDel
                 else if(c == cmdEdit){
                     int selected = scrMenu.getSelectedIndex();
-                    scrNewAcc.enableEdit((Account)scrMenu.getAccounts().elementAt(selected),selected);
-                    jimmy_.setDisplay(scrNewAcc);
+                    if(selected > -1){
+                        scrNewAcc.enableEdit((Account)scrMenu.getAccounts().elementAt(selected),selected);
+                        jimmy_.setDisplay(scrNewAcc);
+                    }
+                    else
+                        System.out.println("[DEBUG] None selected.");                    
                 }//if c == cmdEdit
             }//if d == scrMenu
             
@@ -285,7 +311,7 @@ public class JimmyUI {
                         newAccount = scrNewAcc.getEditAccount();
                         Store.removeAccount(newAccount);
                         
-                        newAccount.setUser(user);
+                        //newAccount.setUser(user);
                         newAccount.setPassword(pass);
                         newAccount.setServer(server);
                         newAccount.setPort(Integer.parseInt(port));

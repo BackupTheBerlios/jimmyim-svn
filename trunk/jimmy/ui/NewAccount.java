@@ -58,7 +58,7 @@ public class NewAccount extends Form implements CommandListener {
      * constructor
      */
     public NewAccount() {
-        super("Add/edit account:");
+        super("Add account:");
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         
@@ -115,10 +115,12 @@ public class NewAccount extends Form implements CommandListener {
         protocol_.setSelectedIndex(0,true);
         autoLogin_.setSelectedIndex(0,true);
         if(edit_ == true){
+            this.setTitle("Add account:");
             edit_ = false;
             editIndex_ = -1;
             editAcc_ = null;
             this.insert(0,protocol_);
+            this.insert(1,user_);
         }
     }
     
@@ -127,13 +129,15 @@ public class NewAccount extends Form implements CommandListener {
         this.editIndex_ = index;
         this.editAcc_ = a;
         
-        user_.setString(a.getUser());
+        //user_.setString(a.getUser());
+        this.setTitle("Edit account "+a.getUser()+":");
         pass_.setString(a.getPassword());
         server_.setString(a.getServer());
         port_.setString(Integer.toString(a.getPort()));
         protocol_.setSelectedIndex((int)a.getProtocolType(),true);
         int auto = (a.getAutoLogin()) ? 0 : 1;
         autoLogin_.setSelectedIndex(auto,true);
+        this.delete(0);
         this.delete(0);
     }
     

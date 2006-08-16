@@ -137,8 +137,6 @@ public class ContactsMenu extends List implements CommandListener {
      *  @param c contact to be modified.
      */
     public void changeContactStatus(Contact c) {
-	//if(c.userID().equals(c.protocol().getAccount().getUser()))
-	  //  return;
 	Contact currentContact, firstInGroup;
 	Vector currentGroup;
 	String name;
@@ -163,38 +161,43 @@ public class ContactsMenu extends List implements CommandListener {
 	
 	//Find contact in appropriate group
 	currentContact = (Contact)currentGroup.elementAt(j);
-	while( j<currentGroup.size() && !(currentContact.userID().equals(c.userID()))){
+	while(j<currentGroup.size()-1 && !(currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() == c.protocol().getType())){
 	    j++;
 	    currentContact = (Contact)currentGroup.elementAt(j);
 	    
-	    if( currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() != c.protocol().getType() ){
+	    /*if( currentContact.userID().equals(c.userID()) && currentContact.protocol().getType() != c.protocol().getType() ){
 		j++;
 		currentContact = (Contact)currentGroup.elementAt(j);
-	    }
-	} 
-	System.out.println("[DEBUG] Found user "+currentContact.userID()+".");
-	
-	//set status
-	currentContact.setStatus(c.status());
-	currentContact.setStatusMsg(c.statusMsg());
-	
-	//change display string
-	if(currentContact.groupName() != null){
-	    for(int k=0; k<i; k++)
-		screenIndex += ((Vector)contacts_.elementAt(k)).size()+1;
-	    screenIndex += j;
+	    }*/
 	}
-	else
-	    screenIndex = j;
-		
-	
-	if(currentContact.screenName() != null)
-	    name = new String(currentContact.screenName());
-	else
-	    name = new String(currentContact.userID());
-	
-        this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
-	System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
+        if(currentContact.userID().equals(c.userID())){
+            System.out.println("[DEBUG] Found user "+currentContact.userID()+".");
+
+            //set status
+            currentContact.setStatus(c.status());
+            currentContact.setStatusMsg(c.statusMsg());
+
+            //change display string
+            if(currentContact.groupName() != null){
+                for(int k=0; k<i; k++)
+                    screenIndex += ((Vector)contacts_.elementAt(k)).size()+1;
+                screenIndex += j;
+            }
+            else
+                screenIndex = j;
+
+
+            if(currentContact.screenName() != null)
+                name = new String(currentContact.screenName());
+            else
+                name = new String(currentContact.userID());
+
+            this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
+            System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
+        }
+        else{
+            System.out.println("[DEBUG] No user found!");            
+        }
     }
     
     /**
@@ -202,36 +205,41 @@ public class ContactsMenu extends List implements CommandListener {
      */
     public void startChat(){
 	int selected = this.getSelectedIndex(), i=0, j=0, selectedIndex;
-	Contact currentContact = this.findContact(selected,Contact.removeSpaces(this.getString(selected)));
-	System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
+        if(selected > -1){
+            Contact currentContact = this.findContact(selected,Contact.removeSpaces(this.getString(selected)));
+            System.out.println("[DEBUG] User to start chat with: "+this.getString(selected));
 
-	if(currentContact != null)
-	    System.out.println("[DEBUG] Found Contact to start chat with: "+currentContact.userID());
-	else
-	    System.out.println("[DEBUG] You want to chat with group label!");
-	
-	if(currentContact != null){
-            if(currentChats_.contains(currentContact)){
-                ChatSession cs = currentContact.protocol().getChatSession(currentContact);
-                ChatWindow currentWindow = (ChatWindow)ui_.getChatWindows().get(cs);
-                ui_.setView(JimmyUI.SCR_CHAT,cs);
-            }
-            else{
-                ChatSession cs;
-                String name;
-                cs = currentContact.protocol().startChatSession(currentContact);
-	    
-                if(currentContact.screenName() != null)
-                    name = currentContact.screenName();
-                else    
-                    name = currentContact.userID();
-	    
-                Screen chat = new ChatWindow(Contact.insertSpaces(name), cs);
-                chatWindows_.put(cs,chat);
-                currentChats_.addElement(currentContact);
-                ui_.setView(JimmyUI.SCR_CHAT,cs);
-            }
-	}	
+            if(currentContact != null)
+                System.out.println("[DEBUG] Found Contact to start chat with: "+currentContact.userID());
+            else
+                System.out.println("[DEBUG] You want to chat with group label!");
+
+            if(currentContact != null){
+                if(currentChats_.contains(currentContact)){
+                    ChatSession cs = currentContact.protocol().getChatSession(currentContact);
+                    ChatWindow currentWindow = (ChatWindow)ui_.getChatWindows().get(cs);
+                    ui_.setView(JimmyUI.SCR_CHAT,cs);
+                }
+                else{
+                    ChatSession cs;
+                    String name;
+                    cs = currentContact.protocol().startChatSession(currentContact);
+
+                    if(currentContact.screenName() != null)
+                        name = currentContact.screenName();
+                    else    
+                        name = currentContact.userID();
+
+                    Screen chat = new ChatWindow(Contact.insertSpaces(name), cs);
+                    chatWindows_.put(cs,chat);
+                    currentChats_.addElement(currentContact);
+                    ui_.setView(JimmyUI.SCR_CHAT,cs);
+                }
+            }	
+        }
+        else
+            System.out.println("[DEBUG] None selected.");
+        
     }
     
     private Contact findContact(int selected, String name){
@@ -299,20 +307,28 @@ public class ContactsMenu extends List implements CommandListener {
     public void commandAction(Command c, Displayable d) {
         if(c == (Command)commands_.get(new Integer(ui_.CMD_DELCONT))){
             int sel = this.getSelectedIndex();
-	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
+            if(sel > -1){
+        	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
 	    
-	    if(currContact != null){
-		removeContact(currContact,sel);
-		currContact.protocol().removeContact(currContact);
-	    }
+                if(currContact != null){
+                    removeContact(currContact,sel);
+                    currContact.protocol().removeContact(currContact);
+                }
+            }
+            else
+                System.out.println("[DEBUG] None selected.");            
         }
 	else if(c == (Command)commands_.get(new Integer(ui_.CMD_EDIT))){
             int sel = this.getSelectedIndex();
-	    Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
-	    
-	    if(currContact !=  null){
-		ui_.editContact(currContact,sel);
-	    }
+            if(sel > -1){
+                Contact currContact = findContact(sel,Contact.removeSpaces(this.getString(sel)));
+
+                if(currContact !=  null){
+                    ui_.editContact(currContact,sel);
+                }
+            }
+            else
+                System.out.println("[DEBUG] None selected.");            
 	}
         JimmyUI.jimmyCommand(c,d);
     }
