@@ -645,11 +645,11 @@ public class MSNProtocol extends Protocol
 	//ANS 1 name_123@hotmail.com 18321026.739392 11752013\r\n
         System.out.println("SB handle function **************");
         String authNr = data.substring(data.indexOf(" ")+1, data.indexOf(" ", 7));
-        //System.out.println("Number:"+authNr);
+        System.out.println("Number:"+authNr);
         String sbIP = data.substring(data.indexOf(" ", 7)+1,data.indexOf("CKI")-1);
-        //System.out.println("Switchboard IP:"+sbIP);
+        System.out.println("Switchboard IP:"+sbIP);
         String authKey = data.substring(data.indexOf("CKI")+4, data.indexOf(" ", data.indexOf("CKI")+5));
-        //System.out.println(authKey);
+        System.out.println(authKey);
         MSNTransaction answer = new MSNTransaction();
         answer.newTransaction();    //set id to 1
         answer.setType("ANS");
@@ -657,7 +657,7 @@ public class MSNProtocol extends Protocol
         answer.addArgument(authKey);
         answer.addArgument(authNr);
         
-        //System.out.println("Transaction:" + answer.toString());
+        System.out.println("Transaction:" + answer.toString());
         ServerHandler sbHandler = new ServerHandler(sbIP);
         sbHandler.connect();
         sbHandler.sendRequest(answer.toString());
@@ -676,19 +676,25 @@ public class MSNProtocol extends Protocol
         this.SessionHandlers_.addElement(sbHandler);
         Contact c = null;
         int t = data.indexOf(" ", data.indexOf("CKI")+5);
-        String uID = data.substring(t, data.indexOf(" ", t+1));
-        //System.out.println("[DEBUG] Calling user:" + uID);
+        String uID = data.substring(t+1, data.indexOf(" ", t+1));
+        System.out.println("[DEBUG] Calling user:" + uID+this.contacts_.size());
         for(int i=0; i<this.contacts_.size();i++)
         {
             c = (Contact)this.contacts_.elementAt(i);
-            if(uID.compareTo(c.userID())==0)
-            {
+	    System.out.println(c.userID()+c.screenName());
+            if(c.userID().equals(uID))
+	    {
+		System.out.println("BREAK!!!");
                 break;
             }
         }
+	System.out.print("test1");
         ChatSession cs = new ChatSession(this, c);
+	System.out.print("test2");
         this.ChatIds_.put(new Integer(cs.hashCode()), new Integer(2));
-        this.chatSessions_.addElement(cs);   
+	System.out.print("test3");
+        this.chatSessions_.addElement(cs);
+	System.out.print("END of SBhandle");
     }    
     
     private String getField( String strKey, String strField )  
@@ -811,6 +817,7 @@ public class MSNProtocol extends Protocol
     {
         int Sid;    // session ID
         Integer id;
+	System.out.println("AAAAAA:"+this.contacts_.size());
         for(int i=0; i<this.chatSessions_.size();i++)
         {
             if(this.chatSessions_.elementAt(i).equals(session))
