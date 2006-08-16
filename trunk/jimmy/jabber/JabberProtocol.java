@@ -154,7 +154,6 @@ public class JabberProtocol extends Protocol {
 		oString = "<presence type='offline'/>";
 		sh_.sendRequest(oString);
 		stop_ = true;	//stops the thread
-		sh_.disconnect();
 		status_ = DISCONNECTED;
 	}
 
@@ -230,6 +229,8 @@ public class JabberProtocol extends Protocol {
     		if (in != null)
     			JabberParseXML.genericParse(in, this, jimmy_);
     	}
+
+    	sh_.disconnect();
     }
     
     public void parseNewContacts(Contact[] c) {
