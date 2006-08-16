@@ -114,6 +114,8 @@ public class JabberParseXML {
 				in = parseIq(in, protocol, jimmy);
 			} else if (type.compareTo("c") == 0) {
 				in = parseC(in, protocol, jimmy);
+			} else if (type.compareTo("x") == 0) {
+				in = parseX(in, protocol, jimmy);
 			} else
 				break;
 		}
@@ -194,57 +196,51 @@ public class JabberParseXML {
 		
 		//contact was found, proceed
 		//checking, if the contact became off-line
-		x2 = in.indexOf("type='unavailable'/>");
-		x22 = in.indexOf(">");
+		x2 = in.indexOf("type='unavailable'");
+		x22 = in.indexOf("<",1);
 
 		if ((x2 < x22) && (x2 != -1)) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
-			in = in.substring(x2 + 20);
-			return in;
+			return removeStanza(in, "presence");
 		}
 		
 		//a contact removed you from his list, keep the contact visible, but set it offline
-		x2 = in.indexOf("type='unsubscribe'/>");
-		x22 = in.indexOf(">");
+		x2 = in.indexOf("type='unsubscribe'");
+		x22 = in.indexOf("<");
 
 		if ((x2 < x22) && (x2 != -1)) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
-			in = in.substring(x2 + 20);
-			return in;
+			return removeStanza(in, "presence");
 		}
 
 		//a contact removed you from his list, keep the contact visible, but set it offline
-		x2 = in.indexOf("type='unsubscribed'/>");
-		x22 = in.indexOf(">");
+		x2 = in.indexOf("type='unsubscribed'");
+		x22 = in.indexOf("<");
 
 		if ((x2 < x22) && (x2 != -1)) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
-			in = in.substring(x2 + 20);
-			return in;
+			return removeStanza(in,"presence");
 		}
 
 		//a contact added you to his list
-		x2 = in.indexOf("type='subscribe'/>");
+		x2 = in.indexOf("type='subscribe'");
 		if ((x2 < x22) && (x2 != -1)) {
 			allowContact(c, protocol, jimmy);	//authorize contact to add
-			
-			in = in.substring(x2 + 18);
-			return in;
+			return removeStanza(in, "presence");
 		}
 		
 		//contact has added you to his list, set the contact's list
-		x2 = in.indexOf("type='subscribed'/>");
+		x2 = in.indexOf("type='subscribed'");
 		if ((x2 < x22) && (x2 != -1)) {
 			protocol.updateContactProperties(c);	//authorize contact to add 
-			in = in.substring(x2 + 19);
 			
 			//Let them know about our status "online"
-			protocol.getServerHandler().sendRequest("<presence type=\"available\"/>");
+			protocol.getServerHandler().sendRequest("<presence type='available'/>");
 			
-			return in;
+			return removeStanza(in, "presence");
 		}
 		
 		//contact is not off-line
@@ -263,12 +259,7 @@ public class JabberParseXML {
 
 		jimmy.changeContactStatus(c);
 		
-		if (in.indexOf("<presence", 1) != -1)
-			in = in.substring(in.indexOf("<presence", 1));
-		else
-			in = "";
-
-		return in;
+		return removeStanza(in, "presence");
 	}
 	
 	static void allowContact(Contact c, JabberProtocol protocol, ProtocolInteraction jimmy) {
@@ -283,14 +274,31 @@ public class JabberParseXML {
 	
 	static String parseIq(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		///TODO Currently, this method only removes the <iq> stanza
-		if (in.indexOf("</iq>")==-1)
-			return in.substring(in.indexOf("/>")+2);
-		else
-			return in.substring(in.indexOf("</iq>")+5);
+		return removeStanza(in, "iq");
 	}
 
 	static String parseC(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
 		///TODO Currently, this method only removes the <c> stanza
-		return in.substring(in.indexOf("/>")+2);
+		return removeStanza(in, "c");
+	}
+
+	static String parseX(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
+		///TODO Currently, this method only removes the <x> stanza
+		return removeStanza(in, "x");
+	}
+	
+	/**
+	 * Remove the stanza with the given tag.
+	 * This work for both stanzas which don't contain characters (end with />) and for stanzas which include characters (and finish with /tag). 
+	 * 
+	 * @param in Input string.
+	 * @param tag Stanza tag.
+	 * @return The shortened string for that stanza.
+	 */
+	static String removeStanza(String in, String tag) {
+		if (in.indexOf(">", 1)-1 != in.indexOf("/>"))
+			return in.substring(in.indexOf("</"+tag)+3+tag.length());
+		else
+			return in.substring(in.indexOf("/>")+2);
 	}
 }
