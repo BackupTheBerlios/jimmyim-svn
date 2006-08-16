@@ -285,25 +285,34 @@ public class ContactsMenu extends List implements CommandListener {
     
     public void removeContact(Contact currContact,int sel){
 	this.delete(sel);
-	int i=0;
+	int i=1, index=0;
 	Contact test;
-		
-	do{
-	    test = (Contact)((Vector)contacts_.elementAt(i)).firstElement();		    
-	    i++;
-	}while( currContact.groupName() != null && ( i==1 || !test.groupName().equals(currContact.groupName())));
-		
-	i--;
-	Vector group = ((Vector)contacts_.elementAt(i));
+        Vector group;
+	
+        if(currContact.groupName() == null){
+            group = ((Vector)contacts_.firstElement());
+            i=0;
+        }
+        else{
+            do{
+                test = (Contact)((Vector)contacts_.elementAt(i)).firstElement();		    
+                i++;
+            }while( !test.groupName().equals(currContact.groupName()) );
+
+            i--;
+            group = ((Vector)contacts_.elementAt(i));
+        }
+        currContact.protocol().removeContact(currContact);
+        
 	group.removeElement(currContact);
 	if(group.isEmpty() && i!=0){
 	    ui_.removeGroup(Contact.insertSpaces(currContact.groupName()));
-	    int index = 0;
-	    for(int j=0; j<i; j++){
-		if(j>0)
-		    index++;
- 		index += ((Vector)contacts_.elementAt(j)).size();
-	    }
+            contacts_.removeElementAt(i);
+            for(int j=0; j<i; j++){
+                if(j>0)
+                    index++;
+                index += ((Vector)contacts_.elementAt(j)).size();
+            }
 	    this.delete(index);
 	}	
     }

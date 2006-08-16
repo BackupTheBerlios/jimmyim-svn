@@ -58,7 +58,7 @@ public class EditContact extends Form implements CommandListener{
     private TextField   otherGroup_;    
     
     public EditContact() {
-        super("Add/edit contact:");
+        super("Add contact:");
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         connections_ = new Hashtable();
@@ -188,6 +188,7 @@ public class EditContact extends Form implements CommandListener{
         screenName_.setString("");
         groups_.setSelectedIndex(0,true);
         otherGroup_.setString("");
+        this.setTitle("Add contact:");
     }
     
     private Image chooseImage(Account a){
@@ -218,6 +219,7 @@ public class EditContact extends Form implements CommandListener{
 
 	String name = (c.screenName() == null)? "":c.screenName();
 	screenName_.setString(name);
+        this.setTitle("Edit "+name+":");
 	
 	String currGroup = (c.groupName() == null) ? "No group":Contact.insertSpaces(c.groupName());
 	int i=0;
