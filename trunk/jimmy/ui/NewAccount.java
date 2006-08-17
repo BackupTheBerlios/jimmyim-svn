@@ -43,7 +43,7 @@ public class NewAccount extends Form implements CommandListener {
     final private TextField port_     = new TextField("Port:",        "", 10, TextField.DECIMAL );
     
     final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
-    final private String[] auto_ = {"Yes","No"};
+    final private String[] auto_ = {"No","Yes"};
     final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null);
     final private ChoiceGroup autoLogin_ = new ChoiceGroup("AutoLogin:",Choice.EXCLUSIVE,auto_,null);
     
