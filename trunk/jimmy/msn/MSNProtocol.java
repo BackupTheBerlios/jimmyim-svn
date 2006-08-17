@@ -257,9 +257,10 @@ public class MSNProtocol extends Protocol
      */
     public void logout()
     {
+	    this.status_ = DISCONNECTED;
             System.out.println("[DEBUG] Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
-            this.status_ = DISCONNECTED;
+
 	    this.stop = true;
             System.out.println("[DEBUG] Logout successful.");
 	    this.thread_.interrupt();
@@ -912,10 +913,11 @@ public class MSNProtocol extends Protocol
             {
                 ServerHandler shTemp = (ServerHandler)this.SessionHandlers_.elementAt(i);
                 reply = shTemp.getReply();
-                if(reply!=null)
+                if(reply!=null && this.status_==CONNECTED)
                 {
                     if(reply.indexOf("MSG")!=-1)
                     {
+			System.out.println(reply);
                         parseMessage(reply, i);
                     }
                 }
@@ -985,10 +987,28 @@ public class MSNProtocol extends Protocol
 	    this.tr.setType("ADC");
 	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
 	    //System.out.println(this.tr.toString());
-	    this.sh.sendRequest(this.tr.toString());    
+	    this.sh.sendRequest(this.tr.toString());   
+
+	    this.tr.newTransaction();
+	    this.tr.setType("ADC");
+	    this.tr.addArgument("AL N="+c.userID() + " " + "F="+c.screenName());
+	    //System.out.println(this.tr.toString());
+	    this.sh.sendRequest(this.tr.toString());    	    
+	    if(c.groupName()!=null)
+	    {
+		this.tr.newTransaction();
+		this.tr.setType("ADC");
+		this.tr.addArgument("FL C=" + this.userHashes.get(new Integer(c.hashCode())));
+		this.tr.addArgument(" "+this.groupID.get(new Integer(c.groupName().hashCode())));
+		System.out.println("ADD"+this.tr.toString());
+		this.sh.sendRequest(this.tr.toString());
+	    }
     }
     public void updateContactProperties(Contact c) 
     {
-    	
+    	this.tr.newTransaction();
+	this.tr.setType("REA");
+	this.tr.addArgument("zoran.mesec@siol.net Zorane");
+	this.sh.sendRequest(this.tr.toString());
     }
 }
