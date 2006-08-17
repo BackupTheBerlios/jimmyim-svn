@@ -961,6 +961,9 @@ public class ICQProtocol extends Protocol {
 					
 					pkg = null;
 					break;
+				case 0x000e:
+					//SSI ack
+					break;
 				case 0x0019:
 					//Contact auth request
 					break;
