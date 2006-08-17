@@ -283,7 +283,7 @@ public class ContactsMenu extends List implements CommandListener {
         return null;
     }
     
-    public void removeContact(Contact currContact,int sel){
+    public void removeContact(Contact currContact,int sel, boolean remove){
 	this.delete(sel);
 	int i=1, index=0;
 	Contact test;
@@ -302,7 +302,8 @@ public class ContactsMenu extends List implements CommandListener {
             i--;
             group = ((Vector)contacts_.elementAt(i));
         }
-        currContact.protocol().removeContact(currContact);
+        if(remove)
+            currContact.protocol().removeContact(currContact);
         
 	group.removeElement(currContact);
 	if(group.isEmpty() && i!=0){
@@ -327,7 +328,7 @@ public class ContactsMenu extends List implements CommandListener {
         	    Contact currContact = findContact(sel,this.getString(sel));
 	    
                 if(currContact != null){
-                    removeContact(currContact,sel);
+                    removeContact(currContact,sel,true);
                     currContact.protocol().removeContact(currContact);
                 }
             }

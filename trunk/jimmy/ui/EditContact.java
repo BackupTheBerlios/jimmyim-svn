@@ -102,7 +102,10 @@ public class EditContact extends Form implements CommandListener{
 		    group = null;
 		}
 		else if(groups_.getSelectedIndex() == 1){
-		    group = Contact.removeSpaces(otherGroup_.getString());
+                    if(otherGroup_.getString().equals(""))
+                        group = null;
+                    else
+                        group = Contact.removeSpaces(otherGroup_.getString());
 		}
 		else{
 		    group = Contact.removeSpaces(groups_.getString(groups_.getSelectedIndex()));
@@ -124,7 +127,10 @@ public class EditContact extends Form implements CommandListener{
 		String group;
 		
 		if(groups_.getSelectedIndex() == 1)
-		    group = otherGroup_.getString();
+                    if(otherGroup_.getString().equals(""))
+                        group = null;
+                    else                    
+                        group = otherGroup_.getString();
 		else if(groups_.getSelectedIndex() == 0)
 		    group = null;
 		else

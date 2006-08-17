@@ -443,7 +443,7 @@ public class JimmyUI {
 	
 	public void modifyContact(Contact c, int index){
 	    c.protocol().updateContactProperties(c);
-	    scrContacts.removeContact(c,index);
+	    scrContacts.removeContact(c,index,false);
 	    scrContacts.addContact(c);
 	}
 	
