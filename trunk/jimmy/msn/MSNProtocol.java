@@ -42,6 +42,7 @@ public class MSNProtocol extends Protocol
     private String username;
     private String password;
     private boolean connected_;
+    private boolean stop;
     private int port;
     
     private PassportNexus pn;
@@ -50,8 +51,13 @@ public class MSNProtocol extends Protocol
     private ServerHandler sh;
     private boolean busy = false;
     private ServerHandler NexusHandler;
-    private Hashtable userHashes;
+    private Hashtable userHashes; 
+    private Hashtable userLists;
     private Vector contacts_;
+
+	public Hashtable getChatIds_() {
+		return ChatIds_;
+	}
     /**
      * A Vector of all ChatSession classes. Each ChatSession represents a conversation with a contact.
      */
@@ -235,6 +241,7 @@ public class MSNProtocol extends Protocol
                     parseReply(reply);
                 }    
                 this.status_ = CONNECTED;
+		this.stop = false;
                 this.thread_.start();
                 return true;
         }
@@ -253,6 +260,7 @@ public class MSNProtocol extends Protocol
             System.out.println("[DEBUG] Logging out.");         
             this.sh.sendRequest(this.tr.getLogoutString());
             this.status_ = DISCONNECTED;
+	    this.stop = true;
             System.out.println("[DEBUG] Logout successful.");
 	    this.thread_.interrupt();
     }
@@ -412,6 +420,19 @@ public class MSNProtocol extends Protocol
 	    int cID = cLine.indexOf("C=");
 	    String contactHash = cLine.substring(cID+2, cLine.indexOf(" ", cID+2));            
              // parse email
+	    int m = cLine.indexOf(" ", cID+2);
+	    String lists;
+	     if(cLine.indexOf(" ", m+1)!=-1)
+	     {
+		lists = cLine.substring(m+1, cLine.indexOf(" ", m+1));
+		System.out.println("LIST"+lists+",hash:"+contactHash);
+	     }
+	     else
+	     {
+		lists = cLine.substring(m+1, cLine.indexOf('\r', m));
+		System.out.println("LIST"+lists+",hash"+contactHash);
+		
+	     }
             ind = cLine.indexOf("N=");           
             i = ind+2;
             while((c=contact.charAt(i))!= ' ')
@@ -420,7 +441,17 @@ public class MSNProtocol extends Protocol
                 i++;
             }
             person = new Contact(username.toString(), (Protocol)this);
-	    //this.userHashes.put(username.toString(), contactHash);
+	    
+	    if(this.userHashes==null)
+	    {
+		this.userHashes = new Hashtable();
+	    }
+	    if(this.userLists==null)
+	    {
+		this.userLists = new Hashtable();
+	    }	    
+	    this.userHashes.put(new Integer(person.hashCode()), contactHash);
+	    this.userLists.put(new Integer(person.hashCode()), lists);
 	    
             // parse nickname
             ind = contact.toString().indexOf("F=");
@@ -862,7 +893,7 @@ public class MSNProtocol extends Protocol
      */
     public void run() 
     {
-        while(true)
+        while(!stop)
         {
             try 
             {
@@ -895,6 +926,7 @@ public class MSNProtocol extends Protocol
             }
             parseReply(this.sh.getReply());
         }  
+	this.connected_ = false;
     }
     /**
      * Removes a contact from all lists.
@@ -909,10 +941,27 @@ public class MSNProtocol extends Protocol
 	     con = (Contact)this.contacts_.elementAt(i);
 	     if(con.userID().compareTo(c.userID())==0)
 	     {
-		 this.tr.newTransaction();
-		 this.tr.setType("REM");
-		 this.tr.addArgument("AL "+c.userID());
-		 this.sh.sendRequest(this.tr.toString());
+		 String list = (String)this.userLists.get(new Integer(con.hashCode()));
+		 System.out.println("LisT:" + list);
+		 int l = Integer.parseInt(list);
+
+		 switch (l)
+		 {
+		     case 11:
+			 this.tr.newTransaction();
+			 this.tr.setType("REM");	
+			 this.tr.addArgument("AL "+c.userID());
+			 this.sh.sendRequest(this.tr.toString());
+			 System.out.println("gggggg"+this.tr.toString());
+		     case 1:
+			 this.tr.newTransaction();
+			 this.tr.setType("REM");			 
+			 this.tr.addArgument("FL "+this.userHashes.get(new Integer(con.hashCode())));
+			 this.sh.sendRequest(this.tr.toString());
+			 System.out.println("jjjjjjj"+this.tr.toString());
+			 break; 
+		 }
+				 
 		 this.contacts_.removeElementAt(i);
 		 return true;
 	     }
