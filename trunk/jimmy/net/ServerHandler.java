@@ -100,12 +100,12 @@ public class ServerHandler
             this.os_ = this.sc_.openDataOutputStream();
             this.is_ = this.sc_.openDataInputStream();
             this.connected_ = true;
-       }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            connected_ = false;
-        }
+       }catch(SecurityException e){
+    	   		//in case NO is pressed on overair question
+       }catch (IOException e){
+    	   	e.printStackTrace();
+    	   	this.connected_ = false;
+    	   }
     }
     
     /**
