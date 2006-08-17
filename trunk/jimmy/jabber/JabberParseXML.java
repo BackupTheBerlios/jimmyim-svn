@@ -194,12 +194,13 @@ public class JabberParseXML {
 		if (c==null)
 			c = new Contact(from, protocol);
 		
+		
+		x22 = in.indexOf(">",1);
+
 		//contact was found, proceed
 		//checking, if the contact became off-line
 		x2 = in.indexOf("type='unavailable'");
-		x22 = in.indexOf("<",1);
-
-		if ((x2 < x22) && (x2 != -1)) {
+		if ( (x2 < x22) && (x2!=-1) ) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
 			return removeStanza(in, "presence");
@@ -207,9 +208,7 @@ public class JabberParseXML {
 		
 		//a contact removed you from his list, keep the contact visible, but set it offline
 		x2 = in.indexOf("type='unsubscribe'");
-		x22 = in.indexOf("<");
-
-		if ((x2 < x22) && (x2 != -1)) {
+		if ( (x2 < x22) && (x2!=-1) ) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
 			return removeStanza(in, "presence");
@@ -217,9 +216,7 @@ public class JabberParseXML {
 
 		//a contact removed you from his list, keep the contact visible, but set it offline
 		x2 = in.indexOf("type='unsubscribed'");
-		x22 = in.indexOf("<");
-
-		if ((x2 < x22) && (x2 != -1)) {
+		if ( (x2 < x22) && (x2!=-1) ) {
 			c.setStatus(Contact.ST_OFFLINE);
 			jimmy.changeContactStatus(c);
 			return removeStanza(in,"presence");
@@ -227,14 +224,14 @@ public class JabberParseXML {
 
 		//a contact added you to his list
 		x2 = in.indexOf("type='subscribe'");
-		if ((x2 < x22) && (x2 != -1)) {
+		if ( (x2 < x22) && (x2!=-1) ) {
 			allowContact(c, protocol, jimmy);	//authorize contact to add
 			return removeStanza(in, "presence");
 		}
 		
 		//contact has added you to his list, set the contact's list
 		x2 = in.indexOf("type='subscribed'");
-		if ((x2 < x22) && (x2 != -1)) {
+		if ( (x2 < x22) && (x2!=-1) ) {
 			protocol.updateContactProperties(c);	//authorize contact to add 
 			
 			//Let them know about our status "online"

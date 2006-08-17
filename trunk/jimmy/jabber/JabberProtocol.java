@@ -255,17 +255,18 @@ public class JabberProtocol extends Protocol {
     		"</iq>\n";
     	
     	sh_.sendRequest(oString);
+    	contacts_.removeElement(c);
     	
     	return true;
     }
     
     public void updateContactProperties(Contact c) {
    		String oString =
-   			"<iq type='set' from='" + getAccount().getUser() + "' to='" + c.userID() + "'>" +
+   			"<iq type='set' from='" + getAccount().getUser() + "'>\n" +
    				"<query xmlns='jabber:iq:roster'>\n" +
    					"<item " +
    						"jid='" + c.userID() + "' " +
-   						"subscription='from'" +
+   						"subscription='both'" +
    						((c.screenName()!=null)?(" name='" + c.screenName() + "'"):"") + ">\n" +
    						((c.groupName()!=null)?("<group>" + c.groupName() + "</group>\n"):"") +
    					"</item>\n" +
