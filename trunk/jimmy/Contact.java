@@ -32,6 +32,8 @@ public class Contact {
 	private String userID_; //user ID
 	private String screenName_; //user's nick/screen name
 	private String groupName_; //group which this contact is part of
+	private short IcqID = 0;
+	private short IcqGID = 0;
 	
 	//contact possible status follow
 	public static final byte ST_OFFLINE = 0;
@@ -115,6 +117,20 @@ public class Contact {
 	public void setProtocol(Protocol p){
 		this.protocol_ = p;
 	}
+	
+	/**
+	 * Sets the ICQ contact ID for later use
+	 * 
+	 * @param i icq user id
+	 */
+	public void setIcqID(short i){this.IcqID=i;}
+	
+	/**
+	 * Sets the ICQ contact group ID for later use
+	 * 
+	 * @param g icq contact GID
+	 */
+	public void setIcqGID(short g){this.IcqGID=g;}
 	
 	public String userID() {return userID_;}
 	public String screenName() {return screenName_;}
