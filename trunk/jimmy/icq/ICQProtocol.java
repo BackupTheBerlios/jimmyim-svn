@@ -56,6 +56,8 @@ public class ICQProtocol extends Protocol {
 	private int bos_port = 5190;
 	private short f_seq = 0;
 	private int s_seq = 1;
+	private String[] groups;
+	private short[] max_id;
 	
 	private long SSI_LAST_MODIFIED=0;
 	private short SSI_ITEMS=0;
@@ -852,7 +854,8 @@ public class ICQProtocol extends Protocol {
 					it=null;
 					start_point += 2;
 					
-					String[] groups = new String[items];
+					this.groups = new String[items+10];
+					this.max_id = new short[items+10];
 					this.contacts_ = new Vector();
 					for(short i = 0; i < items; i++){
 						int item_name_len = 0;
@@ -877,7 +880,7 @@ public class ICQProtocol extends Protocol {
 						
 						it[0] = pkg[start_point];
 						it[1] = pkg[start_point+1];
-//						int iid = Utils.bytesToInt(it,true);
+						int iid = Utils.bytesToInt(it,true);
 						
 						start_point += 2;
 						
@@ -920,8 +923,11 @@ public class ICQProtocol extends Protocol {
 						
 						//here we can check the groups that can see you but on the GSM...
 						if(itid == 1){ //if group
-							groups[gid] = new String(item_name);
+							this.groups[gid] = new String(item_name);
 						}else if(itid == 0){ //if buddy 
+							//if the id of the maximum id of the group is lower then this contacts one change it to this
+							if(this.max_id[gid] > iid)
+								this.max_id[gid] = (short)iid;
 							Contact ct = new Contact(new String(item_name),this);
 							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
 								it[0] = data[2];
@@ -934,7 +940,9 @@ public class ICQProtocol extends Protocol {
 //								System.out.println(new String(item_name)+" : "+new String(nick)
 //										+" in group: "+ groups[gid]);
 								ct.setScreenName(new String(nick));
-								ct.setGroupName(groups[gid]);
+								ct.setIcqID((short)iid);
+								ct.setGroupName(this.groups[gid]);
+								ct.setIcqGID((short)gid);
 								ct.setProtocol(this);
 								ct.setStatus(Contact.ST_OFFLINE);
 								this.contacts_.addElement(ct);
