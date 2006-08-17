@@ -961,6 +961,18 @@ public class ICQProtocol extends Protocol {
 					break;
 				case 0x001C:
 					//"You were added"
+					byte[] c = pak.getContent();
+					byte[] sv = new byte[2];
+					sv[0] = c[0];
+					sv[1] = c[1];
+					int st_point = 2+Utils.bytesToShort(sv,true);
+					sv = new byte[c[st_point]];
+					st_point++;
+					for(int i = 0; i<sv.length; i++){
+						sv[i] = c[st_point];
+						st_point++;
+					}
+					System.out.println("You were added by: "+new String(sv));
 					break;
 				}
 				break;
