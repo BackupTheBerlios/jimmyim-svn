@@ -1128,8 +1128,43 @@ public class ICQProtocol extends Protocol {
 			}
 		}
 	}
-
+	
+	/**
+	 * Returns the GID of @param g
+	 * 
+	 * @param g group
+	 * @return GID
+	 */
+    protected short groupID(String g){
+    		for(short i = 0; i < this.groups.length; i++){
+    			if(this.groups[i]!=null){
+    				if(this.groups[i].equals(g))
+    					return i;
+    			}
+    		}
+    		return -1;
+    }
     
+    /**
+     * It gets a free GID if not possible, then extends the group array
+     * 
+     * @return free GID
+     */
+    protected short getGID(){
+    		for(short i = 0; i < this.groups.length; i++)
+    			if(this.groups == null)
+    				return i;
+    		String[] grp = new String[this.groups.length+10];
+    		short[] mid = new short[this.groups.length+10];
+    		for(int i = 0; i < this.groups.length;i++){
+    			grp[i] = this.groups[i];
+    			mid[i] = this.max_id[i];
+    		}
+    		short id = (short)this.groups.length;
+    		this.groups = grp;
+    		this.max_id = mid;
+    		return id;
+    }
     
     public void addContact(Contact c){
 	    // TODO: Send snack 0x0003,0x0004
