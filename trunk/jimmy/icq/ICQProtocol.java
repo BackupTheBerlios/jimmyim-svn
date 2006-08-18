@@ -1146,7 +1146,7 @@ public class ICQProtocol extends Protocol {
     }
     
     /**
-     * It gets a free GID if not possible, then extends the group array
+     * It gets a free GID, if not possible, then extends the group array
      * 
      * @return free GID
      */
@@ -1167,7 +1167,7 @@ public class ICQProtocol extends Protocol {
     }
     
     public void addContact(Contact c){
-	    // TODO: Send snack 0x0003,0x0004
+	    // TODO: Send snack 0x0013,0x0008
     }
 
 	public void updateContactProperties(Contact c) {
@@ -1175,7 +1175,7 @@ public class ICQProtocol extends Protocol {
 	}
 
 	public boolean removeContact(Contact c) {
-		// TODO: Send snack 0x0003, 0x0005
+		// TODO: Send snack 0x0013, 0x000a
 		return false;
 	}
 
