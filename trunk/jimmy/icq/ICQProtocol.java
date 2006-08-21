@@ -1157,7 +1157,11 @@ public class ICQProtocol extends Protocol {
     		short gid = 0;
 		
     		if((gid = this.groupID(ic.groupName())) == -1){
-    			//ic.setGroupName("Pimpeki");
+    			
+    			//temporarly fix TODO: fix :)
+    			if(ic.groupName() == null)
+    				ic.setGroupName("Top-level");
+    			
     			//Default settings
     			gid = this.getFreeGID();
     			this.groups[gid] = ic.groupName();
@@ -1251,7 +1255,7 @@ public class ICQProtocol extends Protocol {
     			
     			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
     			
-    			this.jimmy_.addContact(ic);
+//    			this.jimmy_.addContact(ic);
     			
     		}else{
     			//TODO: send add buddy and modify buddy using the awaiting auth hashtable
@@ -1350,7 +1354,7 @@ public class ICQProtocol extends Protocol {
     			
     			this.conn.sendPackage(buddy.getNetPackage());
     			
-    			this.jimmy_.addContact(ic);
+    			//this.jimmy_.addContact(ic);
     		}
     		
     }
