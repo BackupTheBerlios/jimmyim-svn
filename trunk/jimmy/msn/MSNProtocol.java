@@ -281,11 +281,7 @@ public class MSNProtocol extends Protocol
             this.connected_=false;
             this.status_=DISCONNECTED;
             this.logout();  
-        }           
-        if(reply.indexOf("ILN")!=-1)
-        {
-            parsePresence(reply);   
-        }        
+        }                  
         if(reply.indexOf("LSG")!=-1)
         {
             parseGroups(reply);
@@ -305,12 +301,16 @@ public class MSNProtocol extends Protocol
         if(reply.indexOf("LST")!=-1)
         {
             parseContacts(reply);
-        }     
+        }    
+        if(reply.indexOf("ILN")!=-1)
+        {
+            parsePresence(reply);   
+        }         
         if(reply.indexOf("NLN")!=-1)
         {
             changePresence(reply);
         }     
-        if(reply.indexOf("Adg")!=-1)
+        if(reply.indexOf("ADG")!=-1)
         {
             groupAdded(reply);
         }         
@@ -399,6 +399,18 @@ public class MSNProtocol extends Protocol
             }
 	}
     }
+    private void parseADC(String data)
+    {
+        //ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso
+        //data = "ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso";
+        if(data.substring(6,8).compareTo("RL")==0)
+        {
+            String userID = data.substring(11,data.indexOf("F=")-1);
+            //System.out.println(userID);
+            Contact c = new Contact(userID, this);
+            this.addContact(c);
+        }
+    }
     private void userBYE(String data, int SHid)
     {
         //BYE zoran.mesec@siol.net
@@ -477,7 +489,7 @@ public class MSNProtocol extends Protocol
             if(ind ==-1)
             {
                 //user doesn't belong to a group
-                lists = cLine.substring(ind2, cLine.length()-2);
+                lists = cLine.substring(ind2+1, cLine.length()-1);
             }
             else
             {   
@@ -488,22 +500,30 @@ public class MSNProtocol extends Protocol
             }
             
             System.out.println("Lists:"+lists);
+            int list = Integer.parseInt(lists);
+            switch (list)
+            {
+                case 1:
+                case 2:
+                case 3:
+                case 11:
+                    if(this.userHashes==null)
+                    {
+                        this.userHashes = new Hashtable();
+                    }
+                    if(this.userLists==null)
+                    {
+                        this.userLists = new Hashtable();
+                    }	   
+                    this.userHashes.put(new Integer(person.hashCode()), contactHash);
+                    this.userLists.put(new Integer(person.hashCode()), lists);            
 
-            
-	    if(this.userHashes==null)
-	    {
-		this.userHashes = new Hashtable();
-	    }
-	    if(this.userLists==null)
-	    {
-		this.userLists = new Hashtable();
-	    }	   
-	    this.userHashes.put(new Integer(person.hashCode()), contactHash);
-	    this.userLists.put(new Integer(person.hashCode()), lists);            
-            
-                
-            this.contacts_.addElement(person);
-            newContacts.addElement(person);
+                    this.contacts_.addElement(person);
+                    newContacts.addElement(person);   
+                  break;
+                default:
+                    break;
+            }
             t = data.indexOf("LST", t+3);
         }
         jimmy_.addContacts(newContacts);
@@ -616,6 +636,7 @@ public class MSNProtocol extends Protocol
     } 
     private void parsePresence(String data)
     {
+         this.printContacts();
          int t = data.indexOf("ILN");
          int ind;
          int count=0;
@@ -629,14 +650,15 @@ public class MSNProtocol extends Protocol
          while(t!=-1)
          {   
              presence = data.substring(t+6, t+9);
-             //System.out.println("[DEBUG] type:" + presence);
+             System.out.println("[DEBUG] type:" + presence);
              uID = data.substring(t+10, data.indexOf(' ', t+11));
-             //System.out.println("[DEBUG] user:" + uID);
+             System.out.println("[DEBUG] user:" + uID);
              for(int i=0; i<this.contacts_.size(); i++)
              {
                  con = (Contact)this.contacts_.elementAt(i);
                  if(con.userID().compareTo(uID)==0)
                  {
+                     System.out.println("Found user!!!");
                     if(presence.compareTo("BSY")==0)
                     {
                         con.setStatus(Contact.ST_BUSY);  
@@ -652,8 +674,7 @@ public class MSNProtocol extends Protocol
 		    else
 		    {
 			con.setStatus(Contact.ST_ONLINE);
-		    }
-			   
+		    }   
                     this.jimmy_.changeContactStatus(con);
                  }  
              }
@@ -780,7 +801,7 @@ public class MSNProtocol extends Protocol
    {
    
    }   
-/*   public void printContacts() 
+   public void printContacts() 
    {
        System.out.println("*********************************************************");
        System.out.println("START OF CONTACT LISTING");
@@ -795,13 +816,13 @@ public class MSNProtocol extends Protocol
             for(int i = 0; i<this.contacts_.size();i++)
             {
                c =(Contact) this.contacts_.elementAt(i);
-                System.out.println("Contact " + i +":" + c.screenName() + ", group:" + c.groupName() + ", status:" + c.status());
+                System.out.println("Contact " + i +":"+c.userID()+", screen:" + c.screenName() + ", group:" + c.groupName() + ", status:" + c.status());
             }
         }  
        System.out.println("*********************************************************");
        System.out.println("END OF CONTACT LISTING");
        System.out.println("*********************************************************");        
-   }*/   
+   }  
 /*   void printGroups() 
    {
        System.out.println("*********************************************************");
@@ -952,6 +973,7 @@ public class MSNProtocol extends Protocol
             parseReply(this.sh.getReply());
         }  
 	this.connected_ = false;
+        System.out.println("End of run() method!");
     }
     /**
      * Removes a contact from all lists.
