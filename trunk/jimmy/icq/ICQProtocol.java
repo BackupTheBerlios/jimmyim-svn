@@ -480,7 +480,7 @@ public class ICQProtocol extends Protocol {
 		tri.setHeader((short)3,(short)0);
 		
 		for(int i = 0; i < cl.size(); i++){
-			Contact c = (Contact)cl.elementAt(i);
+			ICQContact c = (ICQContact)cl.elementAt(i);
 			byte[] uin = c.userID().getBytes();
 			byte[] pak = new byte[11 + uin.length];
 			for(int j = 0; j < time.length; j++){
@@ -708,7 +708,7 @@ public class ICQProtocol extends Protocol {
 					}
 					//let's change the status to a specific contact
 					for(int i = 0; i < this.contacts_.size(); i++){
-						Contact c = (Contact)this.contacts_.elementAt(i);
+						ICQContact c = (ICQContact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin))){
 							c.setStatus(st);
 							this.jimmy_.changeContactStatus(c);
@@ -725,7 +725,7 @@ public class ICQProtocol extends Protocol {
 						uin1[i] = data1[i+1];
 					}
 					for(int i = 0; i < this.contacts_.size(); i++){
-						Contact c = (Contact)this.contacts_.elementAt(i);
+						ICQContact c = (ICQContact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin1))){
 							c.setStatus(Contact.ST_OFFLINE);
 							this.jimmy_.changeContactStatus(c);
@@ -808,7 +808,7 @@ public class ICQProtocol extends Protocol {
 							ex.printStackTrace();
 							System.out.println("Unsupported encoding: "+enc);
 						}
-						Contact cont = this.findContact(new String(uin));
+						ICQContact cont = this.findContact(new String(uin));
 						ChatSession csess = this.getChatSession(cont);
 						this.jimmy_.msgRecieved(csess == null ? csess=this.startChatSession(cont) : csess ,cont,m);
 //						System.out.print("Msg sent by UIN: "+new String(uin)+"\nMSG: \n");
@@ -928,7 +928,7 @@ public class ICQProtocol extends Protocol {
 							//if the id of the maximum id of the group is lower then this contacts one change it to this
 							if(this.max_id[gid] > iid)
 								this.max_id[gid] = (short)iid;
-							Contact ct = new Contact(new String(item_name),this);
+							ICQContact ct = new ICQContact(new String(item_name),this);
 							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
 								it[0] = data[2];
 								it[1] = data[3];
@@ -1019,10 +1019,10 @@ public class ICQProtocol extends Protocol {
 
 	public String getServer(){return this.AUTH_SERVER;}
 	
-	public Contact findContact(String uID){
-		Contact c = null;
+	public ICQContact findContact(String uID){
+		ICQContact c = null;
 		for(int i = 0; i < this.contacts_.size(); i++){
-			c = (Contact)this.contacts_.elementAt(i);
+			c = (ICQContact)this.contacts_.elementAt(i);
 			if(c.userID().equals(uID)){
 				return c;
 			}
