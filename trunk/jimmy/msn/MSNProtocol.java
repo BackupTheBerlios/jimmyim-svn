@@ -389,6 +389,25 @@ public class MSNProtocol extends Protocol
             }
 	}
     }
+    private void userBYE(String data, int SHid)
+    {
+        //BYE zoran.mesec@siol.net
+
+        String uID = data.substring(3);
+        System.out.println(uID);
+    	ChatSession activeCS = (ChatSession)this.chatSessions_.elementAt(SHid);
+        Contact c = null;
+        Vector allContacts = activeCS.getContactsList();
+        for(int i=0;i<allContacts.size(); i++)
+        {
+            c = (Contact)allContacts.elementAt(i);
+            if(uID.compareTo(c.userID())==0)
+            {
+                break;
+            }
+        }
+        this.jimmy_.msgRecieved(activeCS, c, c.screenName() + " has closed the conversation window.");
+    }
     private void parseContacts(String data)
     {        
          Vector newContacts = new Vector(); 
@@ -849,7 +868,7 @@ public class MSNProtocol extends Protocol
     {
         int Sid;    // session ID
         Integer id;
-	System.out.println("AAAAAA:"+this.contacts_.size());
+	//System.out.println("AAAAAA:"+this.contacts_.size());
         for(int i=0; i<this.chatSessions_.size();i++)
         {
             if(this.chatSessions_.elementAt(i).equals(session))
@@ -860,13 +879,13 @@ public class MSNProtocol extends Protocol
                 id = (Integer)this.ChatIds_.get(new Integer(session.hashCode()));
                 Sid = id.intValue();
                 sh.sendRequest("MSG " + Sid + " U "+payload.length() + "\r\n"+payload);              
-                //System.out.println("[DEBUG] MSG "+session.getID()+" U "+payload.length() + "\r\n"+payload);
+                System.out.println("[DEBUG] MSG "+ Sid + " U "+payload.length() + "\r\n"+payload);
                 Sid++;
                 
                 payload = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-MMS-IM-Format: FN=MS%20Sans%20Serif; EF=; CO=0; CS=0; PF=0\r\n\r\n";              
                 sh.sendRequest("MSG "+Sid+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
                 Sid++;
-                //System.out.println("[DEBUG] MSG "+session.getID()+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
+                System.out.println("[DEBUG] MSG "+Sid+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
                 this.ChatIds_.put(new Integer(session.hashCode()), new Integer(Sid));
                 return;
             }
@@ -913,8 +932,14 @@ public class MSNProtocol extends Protocol
             {
                 ServerHandler shTemp = (ServerHandler)this.SessionHandlers_.elementAt(i);
                 reply = shTemp.getReply();
+                System.out.println("[DEBUG]"+reply);
                 if(reply!=null && this.status_==CONNECTED)
                 {
+                    if(reply.indexOf("BYE")!=-1)
+                    {
+			System.out.println(reply);
+                        userBYE(reply, i);
+                    }                    
                     if(reply.indexOf("MSG")!=-1)
                     {
 			System.out.println(reply);
