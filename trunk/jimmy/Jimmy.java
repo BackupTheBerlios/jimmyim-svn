@@ -30,6 +30,7 @@ import javax.microedition.midlet.MIDletStateChangeException;
 
 import java.io.IOException;
 import java.util.Vector;
+import java.lang.Runtime;
 
 import jimmy.jabber.JabberProtocol;
 import jimmy.msn.MSNProtocol;
@@ -38,8 +39,6 @@ import jimmy.yahoo.YahooProtocol;
 import jimmy.util.Store;
 
 import jimmy.ui.JimmyUI;
-import jimmy.ui.MainMenu;
-import jimmy.ui.Splash;
 
 public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
@@ -52,8 +51,6 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 
 	//User interface stuff:
 	public static JimmyUI ui_; //User Interface object
-	public static Splash splash_; //Splash screen object
-	public static MainMenu mainMenu_; //Main menu object
 	
 	protected void startApp() throws MIDletStateChangeException {
 		jimmy_ = this;
@@ -144,11 +141,19 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	}//run
 
 	public void exitJimmy(){
-		//display_.setCurrent(null);
+		ui_.setSplashMess("Destroying Jimmy...");
+		ui_.setView(JimmyUI.SCR_SPLASH);
 		
-		for (int i=0; i<protocolList_.size(); i++)
+		for (int i=0; i<protocolList_.size(); i++){
 			((Protocol)protocolList_.elementAt(i)).logout();
+		}
 		protocolList_.removeAllElements();
+		protocolList_ = null;
+		thr_ = null;
+		ui_ = null;
+		
+		Runtime r = Runtime.getRuntime();
+		r.gc();
 		
 		try {
 			destroyApp(true);
