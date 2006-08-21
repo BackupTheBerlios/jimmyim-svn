@@ -1,0 +1,48 @@
+\documentclass[a4paper,11pt]{report}
+%
+%--------------------   start of the 'preamble'
+%
+%\usepackage{graphicx,amssymb}  %% ... with default font
+\usepackage[slovene]{babel} % slovenski izpis naslovov in "c"s"z 
+\usepackage[latin2]{inputenc} % vnos è¹¾ po ISO Latin 2 
+%\usepackage{graphicx,amssymb,mathptmx}  %%% times roman font
+%\usepackage{graphicx,amssymb,mathpazo}   %%% another font
+%\usepackage{graphicx,amssymb,newcent}   %%% another font
+%\usepackage{graphicx,amssymb,cmbright}   %% yet another
+%%%%%%%%%     more fonts in Chap 7 of the 'Companion'
+%
+%\newcommand\etc{\textsl{etc}}
+%\newcommand\eg{\textsl{eg.}\ }
+%\newcommand\etal{{\em et al.}}
+%\newcommand\Quote[1]{\lq\textsl{#1}\rq}
+%\newcommand\fr[2]{{\textstyle\frac{#1}{#2}}}
+%
+%---------------------   end of the 'preamble'
+%
+\begin{document}
+%-----------------------------------------------------------
+\title{JimmyIM - J2ME klient za takoj¹nje sporoèanje}
+\author{\textbf{Avtorji (v abecednem vrstnem redu):}\\Matev¾ Jekovec (Jabber)\\Zoran Mesec (MSN)\\Dejan Sakel¹ak (ICQ)\\Janez Urevc (uporabni¹ki vmesik)}
+\maketitle
+%-----------------------------------------------------------
+\begin{abstract}\centering
+JimmyIM je J2ME aplikacija za takoj¹nje sporoèanje. Podpira naslednje protokole: 
+Jabber, MSN in ICQ. Aplikacija je namenjena za uporabo na vseh mobilnih napravah, 
+ki podpirajo Javo\footnote{Java in J2ME sta za¹èiteni blagovni znamki podjetja 
+Sun Microsystems}.
+\end{abstract}
+%-----------------------------------------------------------
+\tableofcontents
+%-----------------------------------------------------------
+\include{uvod}
+\include{protokoli}
+\include{ui}
+%-----------------------------------------------------------
+\addcontentsline{toc}{chapter}{\numberline{4}Viri}
+\include{viri}
+%-----------------------------------------------------------
+%\appendix
+%\include{app1}
+%\include{app2}
+%-----------------------------------------------------------
+\end{document}

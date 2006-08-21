@@ -1,0 +1,276 @@
+\chapter{Opis protokolov}
+\section{Jabber--XMPP}
+\subsection{Splo¹no}
+Jabber (http://www.jabber.org) je najbolj raz¹irjen odprt protokol za neposredno 
+sporoèanje. Temelji na XML sintaksi. Osnovni, jedrni del je dokaj enostaven z obilico 
+prostora za raz¹iritve. Trenutno ¾e obstaja veliko odjemalcev (MirandaIM za Windows, 
+Kopete za KDE, Gaim napisan v gtk+, deluje pod veliko OS, Bombus za J2ME in mnogi drugi), 
+kot tudi stre¾nikov (najbolj znan je v Javi napisan Wildfire). Ravno v tem èasu tudi 
+Google razvija svoj Google Chat, ki uporablja XMPP kot temeljno sintakso za neposredno 
+sporoèanje, za prenos zvoka pa algoritem Speex (http://www.speex.org), vgnezden v XMPP 
+sintakso. Naj omenim, da tudi danes najbolj popularen program za pogovor preko interneta, 
+Skype (http://www.skype.org), uporablja Speex algoritem za kompresijo zvoka. Problem je le 
+v zaprtosti protokola, saj je Skype lastni¹ki komercialni program. Upajmo, da bo Googleova 
+tradicionalna naklonjenost odprtokodni skupnosti tudi tokrat obrodila sadove.
+
+Prav odprtost in enostavnost dajeta Jabberju prednost pred ostalimi protokoli. Jabber 
+ni centraliziran, ampak obstaja celotna mre¾a med seboj povezanih razliènih stre¾nikov 
+(npr. jabber.org, gristle.org, predoslje.org). Vsak uporabnik ima svoje unikatno ime v 
+obliki ime@stre¾nik.
+
+Jabber prav tako podpira razlièno enkripcijo pri prenosu sporoèil. Poleg standardne SASL 
+in TLS povezave je na voljo tudi vi¹jenivojska moèna SHA1 (temeljeèa na kljuèih oz. 
+certifikatih) enkripcija podatkovenga dela XML kitice. Enkriptirani podatki se prena¹ajo med 
+odjemalcem in stre¾nikom, kot tudi med stre¾niki.
+
+Prav tako zanimiva lastnost Jabber stre¾nikov je t.i. prehod (gateway) med Jabberjem in 
+ostalimi protokoli, torej da pretvorbo sporoèil in stanj uporabnikov v druge protokole 
+izvaja Jabber stre¾nik samodejno (npr. za Wildfire obstaja kopica raz¹iritev za razliène 
+protokole). Odjemalec mora poznati le Jabber sintakso.
+
+\subsection{Znaèilnosti}
+\begin{itemize}
+\item odprt protokol, jasna specifikacija
+\item XML sintaksa
+\item moèna enkripcija celotno pot od odjemalca do odjemalca
+\item hranjenje sporoèil na stre¾niku, èe uporabnik trenutno ni dosegljiv
+\item mo¾nost raz¹iritev obstojeèe sintakse na druga podroèja (npr. VoIP)
+\item konferenèna povezava
+\item prenos datotek
+\end{itemize}
+
+\subsection{Implementacija}
+
+\textbf{jimmy.jabber.JabberProtocol}
+
+Osnovni razred, ki predstavlja protokol Jabber je JabberProtocol. Po stvaritvi objekta 
+se poklièe metoda login(), ki aktivira nit (ki ves èas preverja stanje prejetih 
+Jabber sporoèil), metoda pa vrne true ob uspe¹ni prijavi ali false ob napaki. JabberProtocol 
+se privzeto prijavi na stre¾nik, ki je podan ob uporabni¹kem imenu. Za po¹iljanje 
+sporoèil se uporablja standardna metoda sendMsg(), za odjavo pa logout().
+
+JabberProtocol ne uporablja splo¹nega DOM ali SAX razèlenjevalnika (eng. parser), 
+ampak smo zaradi hitrosti in optimizacije kode napisali specifièni razèlenjevalnik 
+JabberParseXML namenjen prav branju sporoèil, stanja kontaktov, spreminjanju 
+lastnosti itd. za XMPP protokol.
+
+JabberProtocol ne podpira ¹e nobene enkripcije linije, kot tudi ne enkripcije XML kitic. 
+Vsi podatki se prena¹ajo v èistem tekstovnem naèinu v UTF-8 kodnem naboru.
+
+\subsection{Podprte znaèilnosti}
+\begin{itemize}
+\item podpora veèih Jabber raèunov hkrati
+\item zaèetek pogovora s poljubnim kontaktom na poljubnem Jabber stre¾niku, èe je pobudnik JIMMY uporabnik
+\item zaèetek pogovora s poljubnim kontaktom na poljubnem Jabber stre¾niku, èe je kontakt pobudnik pogovora
+\item prikaz stanj kontaktov (online, offline, busy, away)
+\item urejanje lastnosti kontakta in dodeljevanje skupinam
+\item dodajanje kontaktov, èe je pobudnik JIMMY uporabnik
+\item dodajanje kontaktov, èe je pobudnik kontakt
+\item brisanje kontaktov
+\end{itemize}
+
+\section{MSNP}
+MSN Messenger je program za neposredno sporoèanja, sicer produkt podjetja Microsoft. 
+Na trgu je vse od leta 1999, od takrat je do¾ivel veliko izbolj¹av in pohitritev. Program 
+za komunikacijo uporablja tekstovni protokol, ki se imenuje MSN Messenger protokol (z angle¹ko 
+kratico MSNP). Program sodi med ¹tiri najpriljubljenej¹e programe za neposredno sporoèanje, 
+najbr¾ lahko reèemo, da je med slovenskimi uporabniki kar najpogostej¹i. Razlog, da smo v 
+Jimmy-iju implementirali MSN protokol je  pogostosti uporabe med slovenskimi uporabniki. 
+
+Program MSN Messenger, ki deluje v okolju Windows je t.i. klient, oziroma program, ki teèe 
+na uporabnikovem raèunalniku, za delovanje pa potrebuje oddaljeni stre¾nik s katerim ves 
+èas delovanja komunicira. Program lokalno ne hrani nobenih podatkov o seznamu kontaktov 
+in skupin, temveè informacije dobiva preko povezave s centralnim stre¾nikom. Pri komunikaciji 
+med stre¾nikom in MSN Messengerjem se uporablja MSN protokol (MSNP). Program  MSN Messenger 
+je bil izhodi¹èe za implementacijo MSN protokola na Jimmy-ju. Sorodnosti med programoma 
+so oèitne, mo¾no je opaziti tudi podobnosti z drugimi protokoli in programi za neposredno 
+sporoèanje. 
+
+Program na osebnem raèunalniku se imenuje MSN Messenger ``klient''. Njegova naloga je, da 
+se preko interneta pove¾e na MSN Messenger stre¾nik. Gledano ¹ir¹e, vsaka menjava informacije 
+med razliènimi klient programi, poteka preko centralnega stre¾nika, mimo te povezave sporoèanje 
+med uporabniki ni mo¾no. Med delovanjem bo torej na¹ program ``govoril'' oz. po¹iljal 
+informacije do centralnega stre¾nika, ki bo nato poskrbel, da paketi pridejo do pravega 
+naslovnika. Kakorkoli ¾e, obstajajo tudi doloèeni ukazi protokola za katere velja, da 
+jih centralni stre¾nik ne obdela, temveè samo posreduje do naslovnika -- ukazi se nato 
+procesirajo pri naslovniku (o tak¹nih ukazih veè kasneje). 
+
+\begin{quotation}
+Microsoft recommends MSN Messenger for most Windows users, except on Windows XP, where 
+Windows Messenger is bundled with the operating system. Other people and companies have 
+written "third party" MSN Messenger clients. You can see some of them listed on the 
+resources page. MSN Messenger is generally considered the de-facto standard client, 
+and most clients take their lead from its behaviour, so it's referred to as 
+``the official client'' on this site.
+\end{quotation}
+
+Microsoft priporoèa program MSN Messenger vsem uporabnikom operacijskega sistema MS 
+Windows kot nekak¹en de facto standard za neposredno sporoèanje (na Windows XP je program 
+vkljuèen v osnovnem namestitvenem paketu), kar bi lahko oznaèili za manj¹o la¾. S tem si 
+podjetje seveda zagotovi zvestobo uporabnikov in nadaljno uporabo njihovih storitev vkljuèno 
+z MSN protokolom. Politika tega podjetja je, kot ¾e najbr¾ ves èas obstoja, predvsem 
+pridobitni¹ka. Ta miselnost  zajema tako denarno plat raèunalni¹tva, kot tudi vpliva na 
+¾ivljenjski slog uporabnikov, ki jih je  Microsoft ``podjarmil'' s svojimi produkti. 
+Seveda za vsako izreèeno mislijo obstaja ozadje in tudi tu verjetno ne gre iskati izjem.
+
+Zgolj pljuvati in blatiti ime Microsoft na raèun njihove kapitalistiène usmerjenosti 
+in monopolizma bi bilo slaboumno in zato tega v tem besedilu ne bom poèel. 
+S stali¹èa raèunalni¹kega in¾enirja pa lahko izrazim doloèene kritike do politike podjetja. 
+Kot sem ¾e napisal, se za vsako izjavo skriva ozadje. MSN Messenger ni nakljuèno edini 
+uradni program za sporoèanje preko MSN protokola. Izbran je bil, ker deluje samo na 
+o.s. MS Windows. kot t.i. ``MS Windows service'' ali drugaèe, je ena izmed funkcionalnosti 
+o.s. MS Windows. S to potezo si je Microsoft monopolistièno pridr¾al uporabnike in pravico 
+do uporabe svojega protokola. Vsak drug program, ki uporablja MSN protokol (angle¹ki 
+izraz je ``third party client'') je avtomatièno neza¾elen in Microsoft se z vsako novo 
+verzijo protokola vztrajno trudi, da bi tak¹ne programe odgnal. V proces preverjanja 
+prisotnosti, so tako na primer v verzijo 11 vgradili kompleksen algoritem, ki je izredno 
+zahteven za implementacijo in naj bi slu¾il ravno temu namenu. V krvi raèunalni¹kih 
+in¾enirjev je, da tak¹ne poteze grajamo. Potreba po standardizaciji tako na internetu kot 
+na podroèju programske opreme je danes zaradi porasta razliènih tehnologij, ki temeljijo 
+na razliènih jedrih, nujnej¹a kot kdajkoli prej in za¾eleno je, da so standardi odprte 
+narave (bodisi odprtokodni ali pa potrjeni od organizacij za standardizacijo kot je npr. ISO), 
+ravno zaradi prenosljivosti in dostopnosti. Nasploh je zadnja leta v raèunalni¹tvi èutiti 
+tendenco po veè platformnih re¹itvah in resno konkurenco odprto-kodnih re¹itve. Microsoftove 
+odloèitve vejijo v nasprotno smer. Tu naj omenim, da je bila dokumentacija za MSN protokol, 
+ki je dostopna ¹ir¹i javnosti, spisano s pomoèjo t.i. ``reverse engineering-a''. To dejstvo 
+dokazuje moje trditve, da ¾eli Microsoft odvrniti ostale razvijalce programske opreme od 
+uporabe MSN protokola. 
+
+Na globalnem trgu obstaja med operacijskimi sistemi velik boj za uporabnike. Razlog zakaj 
+je Microsoft najuspe¹nej¹i predvsem pri domaèih uporabnikih je pretanjeno  
+
+
+
+V Jimmy-ju smo tako implementirali verzijo MSN protokola 9 in 10, kar nam omogoèa, da na 
+v enem programu zdru¾imo veè t.i. klientov. Jimmy
+
+\section{ICQ}
+\subsection{Protokol --  ``OSCAR''}
+OSCAR (Open System for ComunicAtion in Realtime) je binarni protokol za instantno sporocanje, 
+ki je leta 2001 nadomestil takratni ICQ-jev TOC protokol. Neglede na njegovo ime, je protokol 
+zaprt in specifikacijo si lasti AOL. Do ``odprtih'' in nenatanènih specifikacij protokola 
+so se nekateri prebili z obratnim in¾iniringom. OSCAR se trenutno uporablja za ICQ in AIM 
+komunikacijska sistema. Sistema uporabljata skupni nabor enot protokola, a vsak od njiju 
+ima tudi entitete, ki niso skupne skupne obema.
+
+Komunikacija med stre¾niki in klienti poteka v paketni obliki. OSCAR vsebuje tri nivoje 
+paketov in sicer FLAP, SNAC in TLV. Vèasih se v FLAP ali SNAC paketu nahajajo tudi goli 
+podatki, ki niso v paketni obliki.
+
+\begin{enumerate}
+\item FLAP: osnovni nivo, preko katerega se prena¹ajo vsi podatki. Vsebuje informacijo 
+  o kanalu (tipu podatkov, v njemu), dol¾ini podatkov, zaporedno ¹tevilko paketa ter podatke.
+  \begin{enumerate}
+  \item Kanal 1 -- "Hello": je namenjen osnovni avtentifikaciji.
+  \item Kanal 2 -- "SNAC": samo preko tega kanala se prena¹ajo SNAC "paketi".
+  \item Kanal 3 -- "Error": ko se prejme nepravilen paket oziroma pride do napake 
+    na FLAP nivoju, se klientu/stre¾niku po¹lje informacija o napaki preko tega kanala.
+  \item Kanal 4 -- "Disconnect": ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
+  \item Kanal 5 -- "Keepalive": da stre¾niku vedeti, da je klient ¹evedno ¾iv.
+  \end{enumerate}
+\item SNAC: storitveni nivo, ki natanèneje definira vsebino paketa. V glavi je zabele¾ena 
+dru¾ina stortve, ukaz, zastavice ter referenca zahtevka. Poznanih je pribli¾no 23 dru¾in 
+storitev od katerih ICQ uporablja pribli¾no polovico.
+\item TLV: ime tega nivjo je kratica za, Type Lenght Value, kar nam pri¹epne, da so v 
+teh paketih dejanski podatki. V glavi paketa je zapisano ime podatka ter njegova dol¾ina.
+\end{enumerate}
+
+Storitev, ki so mo¾ne v ICQ sistemu je veliko. Od obièajnega pogovarjanja in sledenja 
+kontaktom do reklam itd.
+
+\subsection{Implementacija}
+Implementacija protokola je deljena na dve stopnji. Na stopnjo prijave in stopnjo avtomata. 
+Stopnja prijave je trenutno v statièni obliki, kar ni najbolj priroèno ob izjemah, a 
+problem pomanjkanja dokumentacije je tukaj oèiten. Za bolj¹o implementacijo prijavne sekvence 
+bi bilo potrebno poznavanje delovanja stre¾ni¹kih sistemov na AOL-u. Avtomatski del poganja 
+neskonèna zanka, ki dr¾i tekoèo nit pri ¾ivljenju. V zanki se vsak cikel preverja izravnalnik 
+toka, èe vsebuje nove pakete.
+
+Paketi v sistem pridejo v obliki tabele bajtov ter se pretvorijo v objekte na katerih so 
+definirane doloèene operacije. Po pretvarjanju (rezanju glav paketov) se paket tolmaèi. 
+Tolmaè pakete spu¹èa skozi switch stavek, ko se ujame se iz njega izvleèejo podatki in 
+glede na njih izvede neko akcijo.
+
+Po¹iljanje paketov izgleda podobno, le da v veèini primerov njihovo po¹iljanje povzroèi 
+klic metode iz jimmyjevega jedra. Paket se pripravi z generiranjem novega osnovnega paketa, 
+èe bo paket vseboval SNAC podatke, bo potrebno nastaviti tudi parametre SNAC glave. Ker je 
+vsebina paketa lahko zelo razlièna, je potrebno tudi to nastaviti po doloèenem postopku. 
+Podatke, ki so ``prosto plavajoèi'' se nastavi kot vsebino v obliki tabele bajtov. Èe ¾elimo 
+pripeti tudi TLV paket, moramo ustvariti nov TLV objekt in mu nastaviti vse kolièine ter ga 
+dodati v listo TLV paketov v na¹em osnovnem paketu. Ko so vsi podatki v njem, se poklièe 
+metodo, ki vrne paket v tabeli bajtov in jo po¹lje v tok.
+
+Implementacija protokola je za na¹ primer omejena samo na ICQ sistem. Razporejena je èez veè 
+javinih razredov: Protocol, ICQProtokol, ICQPackage, ICQTlv, ServerHandler, ICQConnector, 
+ICQContact, Utils ter ostale razrede za interakcijo z jedrom. ICQProtokol je raz¹iritev 
+abstraktnega razreda Protokol, ki je gradnik implementacij vseh protokolov v Jimmyju vsebuje 
+poleg osnovega nabora atributov ter metod ¹e doloèene za ICQ specifiène kot so metode za 
+tolmaèenje, metode za spreminjanje stanj v instanci ter metode za branje vrednosti iz jedra. 
+ICQPackage je splo¹na specifièna podatkovna struktura, ki ima definirane operacije zase. 
+Vsebuje doloèene kolekcije ter metode za vraèanje vsebine in nastavljanje vsebine. ICQTlv je 
+namenjena generiranju TLV paketov. Definirana je sama zase, da lahko nje naredimo veè instanc. 
+Vsebuje operacije ter strukture nad katerimi izvajamo te operacije. ICQConnector je raz¹iritev 
+ServerHandler razreda, ki omogoèa enostavnej¹e branje paketov. ServerHanler, namreè, vraèa 
+vse kar se je spravilo v bralni izravnalnik, kar pa se lahko odra¾a z veèjim ¹tevilom FLAP 
+paketov. S klicem metode za vraèanje paketa v ICQConnectorju tako to informacijo razre¾emo 
+na pakete in shranimo v kolekciji ter ob vsakem ciklu zankepreverimo ¹tevilo paketov v njej 
+ali preberemo novo iz izravnalnika. ICQContact je samo raz¹iritev splo¹nega razreda Contact. 
+Ima dodatna polja za hranjenje informacij os ID-ju skupine in samega kontkata v SSI 
+(Server Side Information) listi.
+
+Ker so v OSCAR-ju vsi podatki v binarni obliki potrebujemo pripomoèke za pretvorbe med 
+razliènimi tipi. V paketu Utils tako najdemo statiène metode, za pretvarjanje iz tabel 
+bajtov v short, int ali long primitive ter obratno.
+
+\subsection{Problemi}
+Na poti do uspe¹nega delovanja sem se sreèal z velikim ¹tevilom problemov, ki so mi od¾rli 
+marsikateri dan ¾ivljenja. Problemi so sicer nastali zaradi pomanjkljive in nepopolne 
+dokumentacije protokola, a so v veliki meri nastale tudi zaradi slabega naèrtovanja. 
+
+Najhuj¹i problem je bil z razumevanjem prijavne sekvence, ker v nobeni dokumentaciji ni 
+pisalo kako toèno prijava izgleda. V doloèenih dokumentacijah je bila prijava celo pretirano 
+napihnjena in zakomplicirana. Pri tem problemu so me re¹ile ¾e narejene implementacije. Z 
+orodjem za bele¾enje mre¾nih paketov (ethereal) sem bele¾il komunikacijo s stre¾nikom in na 
+tak naèin spraskal nekako pravilna zaporedja. Ko sem pa ¾elel doloèeno funkcionalnost 
+izklopiti zaradi omejitve na GSM aparatih sem do¾ivel tudi spremembo zaporedja, kar je 
+vplivalo tudi na motivacijo. 
+
+Problem je nastal tudi pri razumevanju vsebine paketa s kontaktno listo in skupinami, ker 
+sem zaradi drugaènega prijavnega zaporedja v njem dobil ¹e doloèene neznane podatke, ki so 
+mi podrli logiko.
+
+Del, ki ¹e ni popolnoma implementiran je dodajanje in odstranjevanje kontaktov, kajti v 
+nobeni dokumentaciji ne pi¹e kako se to poène in je potrebno vse bele¾iti in iskati izjeme 
+ter ugotavljati delovanje.
+
+Sreèal sem se tudi s problemom pretvarjanja sprejetega teksta iz Unicode tabele bajtov v 
+Unicode tekst. Tega problema ¹e nisem odpravil, bo pa nujno to realizirati, kajti nesmiselno 
+je sprejemanje dvojne kolièine podatkov, èe jih potem ne moremo uporabit.
+
+\subsection{Lastno mnenje}
+Med implementacijo sem se velikokrat spra¹eval, zakaj je ta protokol tak kot je. Ugotovitve 
+pa so bile, da je bil zastavljen pre¹iroko. Èe pogledamo doloèene lastnosti bomo opazili 
+nesmisle za trenutno obliko. Kot primer vzemimo polje v SNAC glavi, ki nam povestoritvene 
+dru¾ine. To polje je veliko 2 bajta, vseh dru¾in pa je zgolj 23. Taka zasnova nas pripelje 
+do velikih redundanc v paketih. 
+
+Veliko sem se spra¹eval tudi zakaj je mo¾no imeti podatke tudi zunaj TLV paketov. TLV 
+paket ima svoj namen in ne vidim razloga zakaj ga ne uporabit. Èe vzamemo kot primer paket 
+s kontaktno listo, vsebuje vsak vnos veè stvari. Prvi podatek, ki je dolg dva bajta, vsebuje 
+dol¾ino niza, ki mu sledi, sledi mu niz, ¹tiri bajti za razvr¹èanje po skupinah ter dva bajta 
+za dol¾ino ostalih podatkov, ki pa so v obliki verige TLV paketov. Takih vnosov pa je mo¾nih 
+pribli¾no 700 v tem paketu. Spra¹ujem se, zakaj, èe protokol omogoèa hierarhièno strukturo 
+tega niso izkoristili.
+
+Trenutna implementacija OSCARja v Jimmyju ni lepo realizirana, kajti lepa realizacija zahteva 
+dobro specifikacijo protokola, katere za tale protokol ni. Odloèil sem se, da bom uporabljeno 
+dokumentacijo strnil v popolnej¹o obliko ter doloèene podatke popravil in dopolnil razlage 
+sekvenc. V Jimmyja bo potrebno vlo¾iti ¹e marsikatero uro dela, za popravke, izbolj¹ave 
+ter vgradnjo dodatne funkcionalnosti.
+
+Kar se protokola tièe, je bil v osnovi dobro zami¹ljen, a pritisk trga je z njim odigral grdo 
+igro z vrivanjem nepremi¹ljenih funkcionalnosti. Povozili so ga tudi rivali, ki uporabljajo 
+novej¹e principe kot je prenos informacije v obliki XML.
+
+Protokol zaradi pre¹iroke zasnove tako povzroèa velike redundance poslanih paketov. Veliko 
+¹tevilo neuporabljenih atributov in nesmiselnih podatkov se na tak naèin prena¹a preko mre¾e.
