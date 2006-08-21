@@ -161,12 +161,12 @@ podatki, ki niso v paketni obliki.
 \item FLAP: osnovni nivo, preko katerega se prena¹ajo vsi podatki. Vsebuje informacijo 
   o kanalu (tipu podatkov, v njemu), dol¾ini podatkov, zaporedno ¹tevilko paketa ter podatke.
   \begin{enumerate}
-  \item Kanal 1 -- "Hello": je namenjen osnovni avtentifikaciji.
-  \item Kanal 2 -- "SNAC": samo preko tega kanala se prena¹ajo SNAC "paketi".
-  \item Kanal 3 -- "Error": ko se prejme nepravilen paket oziroma pride do napake 
+  \item Kanal 1 -- 'Hello': je namenjen osnovni avtentifikaciji.
+  \item Kanal 2 -- 'SNAC': samo preko tega kanala se prena¹ajo SNAC "paketi".
+  \item Kanal 3 -- 'Error': ko se prejme nepravilen paket oziroma pride do napake 
     na FLAP nivoju, se klientu/stre¾niku po¹lje informacija o napaki preko tega kanala.
-  \item Kanal 4 -- "Disconnect": ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
-  \item Kanal 5 -- "Keepalive": da stre¾niku vedeti, da je klient ¹evedno ¾iv.
+  \item Kanal 4 -- 'Disconnect': ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
+  \item Kanal 5 -- 'Keepalive': da stre¾niku vedeti, da je klient ¹evedno ¾iv.
   \end{enumerate}
 \item SNAC: storitveni nivo, ki natanèneje definira vsebino paketa. V glavi je zabele¾ena 
 dru¾ina stortve, ukaz, zastavice ter referenca zahtevka. Poznanih je pribli¾no 23 dru¾in 
@@ -259,7 +259,7 @@ paket ima svoj namen in ne vidim razloga zakaj ga ne uporabit. Èe vzamemo kot pr
 s kontaktno listo, vsebuje vsak vnos veè stvari. Prvi podatek, ki je dolg dva bajta, vsebuje 
 dol¾ino niza, ki mu sledi, sledi mu niz, ¹tiri bajti za razvr¹èanje po skupinah ter dva bajta 
 za dol¾ino ostalih podatkov, ki pa so v obliki verige TLV paketov. Takih vnosov pa je mo¾nih 
-pribli¾no 700 v tem paketu. Spra¹ujem se, zakaj, èe protokol omogoèa hierarhièno strukturo 
+pribli¾no 700 v tem paketu. Spra¹ujem se, zakaj, èe protokol omogoèa hierarhièno strukturo,
 tega niso izkoristili.
 
 Trenutna implementacija OSCARja v Jimmyju ni lepo realizirana, kajti lepa realizacija zahteva 
