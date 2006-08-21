@@ -453,7 +453,8 @@ public class MSNProtocol extends Protocol
             int ind3 = data.indexOf("\n", t);
             if(ind3==-1)
             {
-                return;
+                t = data.indexOf("LST", t+1);
+                continue;
             }
             String cLine = data.substring(t, ind3);
             System.out.println("[DEBUG] Parsed contact line:"+cLine);
@@ -462,10 +463,11 @@ public class MSNProtocol extends Protocol
             int ind2 = cLine.indexOf(" ", ind+1);
             if(ind==-1 || ind2==-1)
             {
-                return;
+                t = data.indexOf("LST", t+1);
+                continue;
             }            
             username = cLine.substring(ind+2, ind2);
-            System.out.println("Username:" + username);
+            //System.out.println("Username:" + username);
             person = new Contact(username, (Protocol)this);
 	     
             
@@ -473,16 +475,17 @@ public class MSNProtocol extends Protocol
 	    ind = cLine.indexOf("C=");
             if(ind==-1)
             {
-                return;
+                t = data.indexOf("LST", t+1);
+                continue;
             }
             username = cLine.substring(ind2+3,ind-1);
-            System.out.println("Screen name:"+username);
+            //System.out.println("Screen name:"+username);
             person.setScreenName(username);
             
             ind2 = cLine.indexOf(" ", ind);
 
 	    String contactHash = cLine.substring(ind+2, ind2);   
-            System.out.println("UserHash:" + contactHash);
+            //System.out.println("UserHash:" + contactHash);
             
             ind = cLine.indexOf(" ", ind2+1);
             String lists;
@@ -495,11 +498,11 @@ public class MSNProtocol extends Protocol
             {   
                 lists = cLine.substring(ind2+1, ind);
                 username = cLine.substring(ind+1, cLine.length()-1);
-                System.out.println("User group hash:"+username);
+                //System.out.println("User group hash:"+username);
                 person.setGroupName((String)this.groupID.get(new Integer(username.hashCode())));   
             }
             
-            System.out.println("Lists:"+lists);
+            //System.out.println("Lists:"+lists);
             int list = Integer.parseInt(lists);
             switch (list)
             {
@@ -518,13 +521,14 @@ public class MSNProtocol extends Protocol
                     this.userHashes.put(new Integer(person.hashCode()), contactHash);
                     this.userLists.put(new Integer(person.hashCode()), lists);            
 
+                    //System.out.println("Adding contact:" + person.userID() + person.groupName()+person.screenName());
                     this.contacts_.addElement(person);
                     newContacts.addElement(person);   
                   break;
                 default:
                     break;
             }
-            t = data.indexOf("LST", t+3);
+            t = data.indexOf("LST", t+1);
         }
         jimmy_.addContacts(newContacts);
     }
@@ -626,7 +630,7 @@ public class MSNProtocol extends Protocol
                 groupID.append(c);
                 i++;
             }
-	    System.out.println("First:"+groupID.toString().substring(0, groupID.length()-1)+", \nsecond:"+group.toString());
+	    //System.out.println("First:"+groupID.toString().substring(0, groupID.length()-1)+", \nsecond:"+group.toString());
 	    //this.groupID.put(group.toString(), new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()));
 	    this.groupID.put(new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()), group.toString());
             this.groupHashes.put(new Integer(group.toString().hashCode()), groupID.toString().substring(0, groupID.length()-1));
@@ -636,7 +640,7 @@ public class MSNProtocol extends Protocol
     } 
     private void parsePresence(String data)
     {
-         this.printContacts();
+         //this.printContacts();
          int t = data.indexOf("ILN");
          int ind;
          int count=0;
@@ -650,15 +654,14 @@ public class MSNProtocol extends Protocol
          while(t!=-1)
          {   
              presence = data.substring(t+6, t+9);
-             System.out.println("[DEBUG] type:" + presence);
+             //System.out.println("[DEBUG] type:" + presence);
              uID = data.substring(t+10, data.indexOf(' ', t+11));
-             System.out.println("[DEBUG] user:" + uID);
+             //System.out.println("[DEBUG] user:" + uID);
              for(int i=0; i<this.contacts_.size(); i++)
              {
                  con = (Contact)this.contacts_.elementAt(i);
                  if(con.userID().compareTo(uID)==0)
                  {
-                     System.out.println("Found user!!!");
                     if(presence.compareTo("BSY")==0)
                     {
                         con.setStatus(Contact.ST_BUSY);  
@@ -674,7 +677,7 @@ public class MSNProtocol extends Protocol
 		    else
 		    {
 			con.setStatus(Contact.ST_ONLINE);
-		    }   
+		    } 
                     this.jimmy_.changeContactStatus(con);
                  }  
              }
@@ -887,7 +890,6 @@ public class MSNProtocol extends Protocol
     {
         int Sid;    // session ID
         Integer id;
-	//System.out.println("AAAAAA:"+this.contacts_.size());
         for(int i=0; i<this.chatSessions_.size();i++)
         {
             if(this.chatSessions_.elementAt(i).equals(session))
@@ -901,7 +903,7 @@ public class MSNProtocol extends Protocol
                 System.out.println("[DEBUG] MSG "+ Sid + " U "+payload.length() + "\r\n"+payload);
                 Sid++;
                 
-                payload = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-MMS-IM-Format: FN=MS%20Sans%20Serif; EF=; CO=0; CS=0; PF=0\r\n\r\n";              
+                payload = "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-MMS-IM-Format: FN=MS%20Sans%20Serif; EF=; CO=0; CS=0; PF=0\r\n\r\n";                                      
                 sh.sendRequest("MSG "+Sid+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
                 Sid++;
                 System.out.println("[DEBUG] MSG "+Sid+" U "+(payload.length()+msg.length())+"\r\n"+payload+msg);
