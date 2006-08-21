@@ -81,7 +81,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     boolean connect = false;
                     for(int i=0; i<accounts.size(); i++){
                         a = (Account)accounts.elementAt(i);
-                        if(a.getAutoLogin()){
+                        if(!a.getAutoLogin()){
                             ui_.setSplashMess("Connecting to "+a.getUser()+"...");
                             connectAccount(a);
                             connect = true;
