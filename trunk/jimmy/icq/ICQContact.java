@@ -19,6 +19,10 @@ public class ICQContact extends Contact {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public ICQContact(Contact c){
+		super(c.userID(),c.protocol(),c.status(),c.groupName(),c.screenName());
+	}
+	
 	/**
 	 * Sets the ICQ contact ID for later use
 	 * 

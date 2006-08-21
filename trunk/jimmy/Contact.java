@@ -70,7 +70,16 @@ public class Contact {
 	public Contact(String userID, Protocol protocol) {
 		this(userID, protocol, 0, null, null);
 	}
-
+	
+	/**
+	 * Sets a new user ID
+	 * 
+	 * @param s ID
+	 */
+	public void setUserID(String s){
+		this.userID_ = s;
+	}
+	
 	/**
 	 * Change user's status
 	 * 
