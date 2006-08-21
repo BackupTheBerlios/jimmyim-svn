@@ -26,6 +26,7 @@
 package jimmy.icq;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Random;
 
@@ -63,6 +64,7 @@ public class ICQProtocol extends Protocol {
 	private short SSI_ITEMS=0;
 	private short REPORT_INTERVAL = 0;
 	
+	private Hashtable awaiting_auth = null;
 	private byte[] cookie;
 	private byte[] services;
 	private byte[] service_ver;
@@ -87,6 +89,7 @@ public class ICQProtocol extends Protocol {
 		super(jimmy);
 		this.status_ = DISCONNECTED;
 		this.protocolType_ = ICQ;
+		this.awaiting_auth = new Hashtable();
 	}
 	
 	/**
@@ -636,23 +639,17 @@ public class ICQProtocol extends Protocol {
 						uin[i] = data[i+1];
 					}
 					byte[] l = new byte[2];
-					l[0] = data[uin_l+3];
-					l[1] = data[uin_l+4];
-					short ntlvs = Utils.bytesToShort(l,true);
+					short ntlvs = this.bytesToShort(data[uin_l+3],data[uin_l+4]);
 					int start_point = uin_l+5;
 					Vector tlvs = new Vector();
 					ICQTlv status = null;
 					for(short i = 0; i < ntlvs; i++){
 						l = new byte[2];
 						ICQTlv t = new ICQTlv();
-						l[0] = data[start_point];
-						l[1] = data[start_point+1];
+						short tid = this.bytesToShort(data[start_point],data[start_point+1]);
 						start_point +=2;
-						short tid = Utils.bytesToShort(l,true);
-						l[0] = data[start_point];
-						l[1] = data[start_point+1];
+						short len = this.bytesToShort(data[start_point],data[start_point+1]);
 						start_point +=2;
-						short len = Utils.bytesToShort(l,true);
 						t.setHeader(tid,len);
 						l = new byte[len];
 						for(short j = 0; j < len; j++){
@@ -753,17 +750,14 @@ public class ICQProtocol extends Protocol {
 						start_point += 2;
 						Vector tlvs = new Vector();
 						ICQTlv msg = null;
+						
 						for(int i = 0; start_point < p.length; i++){
-							l = new byte[2];
-							l[0] = p[start_point];
-							l[1] = p[start_point+1];
+							
+							short tlvid = this.bytesToShort(p[start_point],p[start_point+1]);
 							start_point += 2;
-							short tlvid = Utils.bytesToShort(l,true);
-							l = new byte[2];
-							l[0] = p[start_point];
-							l[1] = p[start_point+1];
+							short tlen = this.bytesToShort(p[start_point],p[start_point+1]);
 							start_point += 2;
-							short tlen = Utils.bytesToShort(l,true);
+							
 							l = new byte[tlen];
 							for(short j = 0; j < tlen; j++){
 								l[j] = p[start_point];
@@ -778,22 +772,17 @@ public class ICQProtocol extends Protocol {
 							tlvs.addElement(bla);
 						}
 						byte[] c = msg.getContent();
-						byte[] d = new byte[2];
-						d[0] = c[2];
-						d[1] = c[3];
-						start_point = 12 + Utils.bytesToShort(d,true);
+
+						start_point = 12 + this.bytesToShort(c[2],c[3]);
 						int charset = start_point -2;
 						int ml = c.length - start_point;
-						d = new byte[ml];
+						byte[] d = new byte[ml];
 						for(int j = 0; j < ml; j++){
 							d[j] = c[start_point];
 							start_point++;
 						}
 						//Support for multi encoding messages
-						byte[] ch = new byte[2];
-						ch[0] = c[charset];
-						ch[1] = c[charset+1];
-						charset = Utils.bytesToInt(ch,true);
+						charset = this.bytesToShort(c[charset],c[charset+1]);
 						String m = null;
 						String enc = null;
 						try{
@@ -830,11 +819,7 @@ public class ICQProtocol extends Protocol {
 				}
 				break;
 			case 0x000B:
-				byte[] b = new byte[2];
-				b[0] = pak.getContent()[0];
-				b[1] = pak.getContent()[1];
-				this.REPORT_INTERVAL = Utils.bytesToShort(b,true);
-				b = null;
+				this.REPORT_INTERVAL = this.bytesToShort(pak.getContent()[0],pak.getContent()[1]);
 				break;
 			case 0x0013:
 				//SSI reply part
@@ -846,12 +831,10 @@ public class ICQProtocol extends Protocol {
 					
 					int start_point = 1;
 					
-					byte[] it = new byte[2];
-					it[0] = pkg[start_point];
-					it[1] = pkg[start_point+1];
-					short items = Utils.bytesToShort(it,true); 
+					//byte[] it = new byte[2];
+					short items = this.bytesToShort(pkg[start_point],pkg[start_point+1]); 
 					this.SSI_ITEMS = items;
-					it=null;
+					//it=null;
 					start_point += 2;
 					
 					this.groups = new String[items+10];
@@ -859,11 +842,10 @@ public class ICQProtocol extends Protocol {
 					this.contacts_ = new Vector();
 					for(short i = 0; i < items; i++){
 						int item_name_len = 0;
-						it = new byte[2];
-						it[0] = pkg[start_point];
-						it[1] = pkg[start_point+1];
+						//it = new byte[2];
+												
+						item_name_len = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						start_point += 2;
-						item_name_len = Utils.bytesToInt(it,true);
 						
 						byte[] item_name = new byte[item_name_len];
 						
@@ -872,27 +854,20 @@ public class ICQProtocol extends Protocol {
 						}
 						
 						start_point += item_name_len;
-						it[0] = pkg[start_point];
-						it[1] = pkg[start_point+1];
-						int gid = Utils.bytesToInt(it,true);
+						
+						int gid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						it[0] = pkg[start_point];
-						it[1] = pkg[start_point+1];
-						int iid = Utils.bytesToInt(it,true);
+						int iid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						it[0] = pkg[start_point];
-						it[1] = pkg[start_point+1];
-						int itid = Utils.bytesToInt(it,true);
+						int itid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						it[0] = pkg[start_point];
-						it[1] = pkg[start_point+1];
-						int data_len = Utils.bytesToInt(it,true);
+						int data_len = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
@@ -930,9 +905,7 @@ public class ICQProtocol extends Protocol {
 								this.max_id[gid] = (short)iid;
 							ICQContact ct = new ICQContact(new String(item_name),this);
 							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
-								it[0] = data[2];
-								it[1] = data[3];
-								int l = Utils.bytesToInt(it,true);
+								int l = this.bytesToShort(data[2],data[3]);
 								byte[] nick = new byte[l];
 								for(int k = 0; k < l; k++){
 									nick[k] = data[k+4];
@@ -950,9 +923,9 @@ public class ICQProtocol extends Protocol {
 							
 						}
 					}
-					it = null;
+//					it = null;
 					
-					it = new byte[4];
+					byte[] it = new byte[4];
 					it[3] = pkg[pkg.length-1];
 					it[2] = pkg[pkg.length-2];
 					it[1] = pkg[pkg.length-3];
@@ -973,11 +946,8 @@ public class ICQProtocol extends Protocol {
 				case 0x001C:
 					//"You were added"
 					byte[] c = pak.getContent();
-					byte[] sv = new byte[2];
-					sv[0] = c[0];
-					sv[1] = c[1];
-					int st_point = 2+Utils.bytesToShort(sv,true);
-					sv = new byte[c[st_point]];
+					int st_point = 2+this.bytesToShort(c[0],c[1]);
+					byte[] sv = new byte[c[st_point]];
 					st_point++;
 					for(int i = 0; i<sv.length; i++){
 						sv[i] = c[st_point];
@@ -1033,8 +1003,6 @@ public class ICQProtocol extends Protocol {
 	public void run() {
 		
 //		System.out.println("Running...");
-		//TODO: I WORK HERE
-		
 		
 		ICQPackage out = null;
 		ICQTlv t = null;
@@ -1166,8 +1134,18 @@ public class ICQProtocol extends Protocol {
     		return id;
     }
     
+    public short bytesToShort(byte b1, byte b2){
+    		byte[] b = new byte[2];
+    		b[0] = b1;
+    		b[1] = b2;
+    		
+    		return Utils.bytesToShort(b,true);
+    }
+    
     public void addContact(Contact c){
 	    // TODO: Send snack 0x0013,0x0008
+    		
+    		
     }
 
 	public void updateContactProperties(Contact c) {
