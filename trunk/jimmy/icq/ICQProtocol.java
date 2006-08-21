@@ -827,6 +827,7 @@ public class ICQProtocol extends Protocol {
 				case 0x0001:
 					return false;
 				case 0x0006://ROSTER reply
+					System.out.println(Utils.byteArrayToHexString(pak.getNetPackage()));
 					byte[] pkg = pak.getContent();
 					
 					int start_point = 1;
@@ -936,6 +937,7 @@ public class ICQProtocol extends Protocol {
 					break;
 				case 0x000e:
 					//SSI ack
+					System.out.println("Srv ack:\n"+Utils.byteArrayToHexString(pak.getNetPackage()));
 					break;
 				case 0x0019:
 					//Contact auth request
@@ -1118,7 +1120,7 @@ public class ICQProtocol extends Protocol {
      * 
      * @return free GID
      */
-    protected short getGID(){
+    protected short getFreeGID(){
     		for(short i = 0; i < this.groups.length; i++)
     			if(this.groups == null)
     				return i;
@@ -1144,7 +1146,109 @@ public class ICQProtocol extends Protocol {
     
     public void addContact(Contact c){
 	    // TODO: Send snack 0x0013,0x0008
-    		
+    		c.setProtocol(this);
+    		ICQContact ic = new ICQContact(c);
+    		short gid = 0;
+		ic.setGroupName("Pimpeki");
+    		if((gid = this.groupID(ic.groupName())) == -1){
+    			//Default settings
+    			gid = this.getFreeGID();
+    			this.groups[gid] = ic.groupName();
+    			this.max_id[gid] = (short)0x01;
+    			ic.setIcqGID(gid);
+    			ic.setIcqID(this.max_id[gid]);
+    			this.contacts_.addElement(ic);
+    			
+    			//TODO: send add budy with new group
+    			//creating the byte array to send
+
+    			int it_size = 10 + ic.groupName().length() + 6+10 + ic.userID().length() + 4 + ic.screenName().length();; 
+    			byte[] new_cont = new byte[it_size];
+    			//set group name len
+    			byte[] g = Utils.shortToBytes((short)ic.groupName().length(),true);
+    			new_cont[0] = g[0];
+    			new_cont[1] = g[1];
+    			int s_point = 2;
+    			//set group name
+    			byte[] name = ic.groupName().getBytes();
+    			for(int i = 0; i < name.length; i++){
+    				new_cont[s_point] = name[i];
+    				s_point++;
+    			}
+    			//set GID
+    			g = Utils.shortToBytes(gid,true);
+    			new_cont[s_point] = g[0];
+    			new_cont[s_point+1] = g[1];
+    			s_point += 2;
+    			//set bID
+    			new_cont[s_point] = 0;
+    			new_cont[s_point+1] = 0;
+    			s_point += 2;
+    			//set type (0x0001 = group)
+    			new_cont[s_point] = 0;
+    			new_cont[s_point+1] = 1;
+    			s_point += 2;
+    			//set group members tlv len -> first time created so 6 bytes
+    			new_cont[s_point] = 0;
+    			new_cont[s_point+1] = 6;
+    			s_point += 2;
+    			new_cont[s_point] = 0;
+    			new_cont[s_point+1] = (byte)0xc8;
+    			new_cont[s_point+2] = 0;
+    			new_cont[s_point+3] = 2;
+    			new_cont[s_point+4] = 0;
+    			new_cont[s_point+5] = 1;
+    			s_point += 6;
+    			
+    			//set id len
+    			g = Utils.shortToBytes((short)ic.userID().length(),true);
+    			new_cont[s_point] = g[0];
+    			new_cont[s_point+1] = g[1];
+    			s_point += 2;
+    			g = ic.userID().getBytes();
+    			for(int i = 0; i < g.length; i++){
+    				new_cont[s_point] = g[i];
+    				s_point++;
+    			}
+    			g = Utils.shortToBytes(gid,true);
+    			new_cont[s_point] = g[0];
+    			new_cont[s_point+1] = g[1];
+    			new_cont[s_point+2] = 0;
+    			new_cont[s_point+3] = 1;
+    			new_cont[s_point+4] = 0;
+    			new_cont[s_point+5] = 0;
+    			s_point += 6;
+    			g = Utils.shortToBytes((short)(4+ic.screenName().length()),true);
+    			new_cont[s_point] = g[0];
+    			new_cont[s_point+1] = g[1];
+    			new_cont[s_point+2] = (byte)0x01;
+    			new_cont[s_point+3] = (byte)0x31;
+    			s_point += 4;
+    			g = Utils.shortToBytes((short)ic.screenName().length(),true);
+    			new_cont[s_point] = g[0];
+    			new_cont[s_point+1] = g[1];
+    			s_point += 2;
+    			g = ic.screenName().getBytes();
+    			for(int i = 0; i < g.length; i++){
+    				new_cont[s_point] = g[i];
+    				s_point++;
+    			}
+    			
+    			ICQPackage ssi = new ICQPackage();
+    			ssi.setChannel((byte)0x02);
+    			ssi.setContent(new_cont);
+    			ssi.setSnac(19,8,0,++this.s_seq);
+    			ssi.setFlap(++this.f_seq);
+    			
+    			this.conn.sendPackage(ssi.getNetPackage());
+    			
+    			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
+    			
+    			this.jimmy_.addContact(ic);
+    			
+    		}else{
+    			//TODO: send add buddy and modify buddy using the awaiting auth hashtable
+    		}
     		
     }
 
