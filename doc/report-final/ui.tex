@@ -1,29 +1,30 @@
 \chapter{Uporabni¹ki vmesnik}
 
 \section{Uvod}
-Izvorne datoteke razredov uporabni¹kega vmesnika se nahajajo v podimeniku ./ui, 
+Izvorne datoteke razredov uporabni¹kega vmesnika se nahajajo v
+podimeniku {\tt ./ui}, 
 kateri se nahaja v korenskem imeniku z izvorno kodo. Imenik vsebuje naslednje datoteke:
 
 \begin{itemize}
-\item JimmyUI.java -- v tej datoteki se nahaja razred, ki je osnova za komunikacijo med 
-uporabni¹kim vmesnikom in ostalimi deli aplikacije.  Ves pretok informacij med uporabni¹kim 
-vmesnikom in razredi, ki skrbijo za protokol, poteka preko tega razreda.
-\item MainMenu.java -- izvorna koda okna, kjer lahko uporabnik dodaja, bri¹e in spreminja 
-podatke o raèunih za razliène protokole. Poleg tega lahko uporabnik na tej strani 
-spro¾i vzpostavljanje ali prekinitev povezave,
-\item NewAccount.java -- podokno, kjer uporabnik doloèi podrobnosti (uporabni¹ko ime, 
-geslo, ...) za ustvarjanje novega ali spremembo obstojeèega raèuna,
-\item ContactsMenu.java -- okno, kjer se izpi¹e seznam kontaktov za vse raèune, ki so 
-trenutno povezani. Kontakti so razdeljeni v skupine;
-\item EditContact.java -- podokno, kjer uporabnik dodaja nove ali spreminja obstojeèe kontakte;
-\item ChatWindow.java -- okno za komunikacijo z izbranim uporabnikom;
-\item About.java -- okno s podatki o avtorjih in osnovnih informacijah o programu;
-\item Splash.java -- pozdravno okno, ki se prika¾e ob zagonu programa in med operacijami, ko 
-je program zaseden
+ \item \textbf{JimmyUI.java} -- v tej datoteki se nahaja razred, ki je osnova za komunikacijo med 
+       uporabni¹kim vmesnikom in ostalimi deli aplikacije.  Ves pretok informacij med uporabni¹kim 
+       vmesnikom in razredi, ki skrbijo za protokol, poteka preko tega razreda.
+ \item \textbf{MainMenu.java} -- izvorna koda okna, kjer lahko uporabnik dodaja, bri¹e in spreminja 
+       podatke o raèunih za razliène protokole. Poleg tega lahko uporabnik na tej strani 
+       spro¾i vzpostavljanje ali prekinitev povezave.
+ \item \textbf{NewAccount.java} -- podokno, kjer uporabnik doloèi podrobnosti (uporabni¹ko ime, 
+       geslo, ...) za ustvarjanje novega ali spremembo obstojeèega raèuna.
+ \item \textbf{ContactsMenu.java} -- okno, kjer se izpi¹e seznam kontaktov za vse raèune, ki so 
+       trenutno povezani. Kontakti so razdeljeni v skupine.
+ \item \textbf{EditContact.java} -- podokno, kjer uporabnik dodaja nove ali spreminja obstojeèe kontakte.
+ \item \textbf{ChatWindow.java} -- okno za komunikacijo z izbranim uporabnikom.
+ \item \textbf{About.java} -- okno s podatki o avtorjih in osnovnih informacijah o programu.
+ \item \textbf{Splash.java} -- pozdravno okno, ki se prika¾e ob zagonu programa in med operacijami, ko 
+       je program zaseden.
 \end{itemize}
 
-Razen razreda JimmyUI, so vsi izpeljani (extendani) iz razliènih implementacoij razreda 
-Displayable. Vsak objekt tega tipa se lahko samostojno prika¾e na zaslonu naprave kot 
+Razen razreda {\it JimmyUI}, so vsi izpeljani (extendani) iz razliènih implementacoij razreda 
+{\it Displayable}. Vsak objekt tega tipa se lahko samostojno prika¾e na zaslonu naprave kot 
 samostojno okno. Posamezne implementacije slu¾ijo specifiènim problemom. Programer lahko 
 za vsako okno izbere podrazred, ki mu za realizacijo doloèenega okna najbolj ustreza. Na 
 voljo imamo forme, sezname, tekstovna okna ipd.
@@ -33,113 +34,151 @@ razredov Javine knji¾nice in jim dodal ¾eljene funkcionalnosti. Ob zagonu progra
 celoten uporabni¹ki vmesnik ustvari kot objekt tipa JimmyUI, preko katerega se posredno 
 ustvarijo vsa okna in gumbe.
 
-Objekt JimmyUI skrbi za pravilno interpretiranje ukazov in komunikacijo med protokoli in 
+Objekt JimmyUI skrbi za pravilno interpretiranje ukazov, ter komunikacijo med protokoli in 
 uporabni¹kim vmesnikom. Èe ¾eli protokol posredovati informacijo v uporabni¹ki vmesnik, 
 to stori s klicem ustrezne metode iz vmesnika ProtocolInteraction.
 
-\section{Opis dogajanja ob zagonu programa}
+\section{Dogajanje ob zagonu programa}
 Ob zagonu programa se na zaslonu najprej prika¾e pozdravno okno, ki uporabnika med procesom 
 zaganjanja obve¹èa o trenutnem dogajanju. Temu sledi branje podatkov o raèunih in  nastavitev 
 iz pomnilnika. Zaradi  narave implementacije pomnilnika se nato izvede optimizacija spomina. 
-Java podatke  shranjuje kot seznam zapisov. Problem je v tem, da brisanje zapisa dejansko ne 
-izbri¹e, ampak samo oznaèi kot neuporabnega. Med optimizacijo zato celoten spomin izbri¹emo 
+\footnote{Java podatke  shranjuje kot seznam zapisov. Problem je v tem, da brisanje zapisa dejansko ne 
+izbri¹e, ampak samo oznaèi kot neuporabnega.} Med optimizacijo celoten spomin izbri¹emo 
 in ponovno shranimo podatke o raèunih in nastavitvah. S tem se uspe¹no znebimo neuporabnih 
 zapisov v pomnilniku.
 
 Od tu naprej imamo veè mo¾nosti:
-\begin{enumerate}
-\item èe ne obstaja ¹e noben raèun, se uporabniku odpre okno za kreiranje novega raèuna;
-\item v kolikor noben od obstojeèih raèunov ne zahteva avtomatiène prijave, se odpre okno s 
-seznamom ustvarjenih raèunov, kjer uporabnik izbere raèun s katerim se ¾eli prijaviti;
-\item v primeru, da kateri od raèunov zahteva avtomatièno prijavo, se ta izvede. Po uspe¹no 
-izvedeni prijavi se uporabniku prika¾e okno s seznamom knotaktov.
-\end{enumerate}
+ \begin{enumerate}
+  \item èe ne obstaja ¹e noben raèun, se uporabniku odpre okno za kreiranje novega raèuna;
+  \item v kolikor noben od obstojeèih raèunov ne zahteva avtomatiène prijave, se odpre okno s 
+	seznamom ustvarjenih raèunov, kjer uporabnik izbere raèun s katerim se ¾eli prijaviti;
+  \item v primeru, da kateri od raèunov zahteva avtomatièno prijavo, se ta izvede. Po uspe¹no 
+	izvedeni prijavi se uporabniku prika¾e okno s seznamom knotaktov.
+ \end{enumerate}
+ 
+\section{Moduli uporabni¹kega vmesnika}
 
-\section{Opis posameznih modulov uporabni¹kega vmesnika}
-
-V tem poglavju bom vsak del vmesnika opisal bolj podrobno. Opisane podrobnosti se nana¹ajo 
-na uporabni¹ki vmesnik, kakr¹nega prika¾e Sunov emulator za J2ME aplikacije. Zaradi narave 
-Javinih knji¾nic za uporabni¹ki vmesnik lahko na razliènih napravah pride do razlik v prikazu 
-in razporeditvi ukazov na zaslonu.
+V tem poglavju je vsak del vmesnika opisan bolj podrobno. Opisane podrobnosti se nana¹ajo 
+na uporabni¹ki vmesnik, kakr¹nega prika¾e \textit{Sunov} emulator za J2ME aplikacije. Zaradi narave 
+Javinih knji¾nic za uporabni¹ki vmesnik lahko na razliènih napravah pride do \textbf{razlik v prikazu 
+in razporeditvi ukazov na zaslonu}.
 
 
 
 \subsection{Okno s seznamom aktivnih raèunov}
+
 V tem oknu so prikazani ustvarjeni uporabni¹ki raèuni. Poleg uporabni¹kega imena je prikazan 
-tudi logotip protokola (slièice so last avtorjev KDE progama Kopete). Uporabnik lahko v meniju 
+tudi logotip protokola\footnote{Slièice so last KDE progama Kopete}. Uporabnik lahko v meniju 
 izbere naslednje ukaze:
 
+\begin{figure}[ht]\centering
+  \includegraphics[width=.95\textwidth]{accounts.png}
+  \caption{Na sliki a) vidimo primer seznama raèunov. Vsak raèun ima
+ pripadajoè logotip. Na sliki b) je viden meni v seznamu raèunov.}
+ \label{fig:accounts}
+\end{figure}
+
 \begin{itemize}
-\item Login -- povzroèi prijavo trenutno izbranega raèuna. Med povezovanjem se prika¾e 
-pozdravno okno. Èe je prijava uspe¹na, se prika¾e seznam kontaktov, v nasprotnem primeru 
-pa je uporabnik o neuspehu obve¹èen. Istoèasno je lahko povezanih veè reèunov;
-\item Logout -- povzroèi odjavo trenutno izbranega raèuna. Poleg tega se iz seznama 
-odstranijo vsi kontakti, ki so pripadali tej povezavi;
-\item New -- odpre okno za ustvarjanje novega raèuna;
-\item Edit -- odpre okno za spreminjanje nastavitev izbranega raèuna;
-\item Delete -- izbri¹e izbrani raèun;
-\item Back -- zapre okno in se vrne na seznam kontaktov
+\item \textbf{Login} -- Povzroèi prijavo trenutno izbranega raèuna. Med povezovanjem se prika¾e 
+      pozdravno okno. Èe je prijava uspe¹na, se prika¾e seznam kontaktov, v nasprotnem primeru 
+      pa je uporabnik o neuspehu obve¹èen. Istoèasno je lahko povezanih veè reèunov.
+\item \textbf{Logout} -- Povzroèi odjavo trenutno izbranega raèuna. Poleg tega se iz seznama 
+      odstranijo vsi kontakti, ki so pripadali tej povezavi.
+\item \textbf{New} -- Odpre okno za ustvarjanje novega raèuna.
+\item \textbf{Edit} -- Odpre okno za spreminjanje nastavitev izbranega raèuna.
+\item \textbf{Delete} -- Izbri¹e izbrani raèun.
+\item \textbf{Back} -- Zapre okno in se vrne na seznam kontaktov.
 \end{itemize}
 
+
 \subsection{Okno za dodajanje novega raèuna}
-Okno vsebuje naslednja polja:
-\begin{itemize}
-\item seznam protokolov;
-\item polje za uporabni¹ko ime. Uporabni¹ko ime se vnese v obliki uporabjnik@domena. Polje 
-je obvezno.
-\item polje za geslo. Geslo se med vna¹anjem zamaskira z zvezdicami. Polje je obvezno;
-\item polje za ime stre¾nika. Èe se ne uporablja privzeti, uporabnik sem vnese ime 
-nadomestnega stre¾nika. Polje ni obvezno;
-\item polje za ¹tevilko vrat. Uporablja se samo, èe se ne uporaljajo standardna vrata. Polje 
-ni obvezno
-\item izbira avtomatiène prijave ob zagonu;
-\end{itemize}
+\begin{center}
+\begin{minipage}[c]{.45\textwidth}
+ Okno vsebuje naslednja polja:
+ \begin{itemize}
+  \item Seznam protokolov;.
+  \item Polje za uporabni¹ko ime. Uporabni¹ko ime se vnese v obliki {\tt
+	uporabnik@domena}. Polje je obvezno.
+  \item Polje za geslo. Geslo se med vna¹anjem zamaskira z zvezdicami. Polje je obvezno.
+  \item Polje za ime stre¾nika. Èe se ne uporablja privzeti uporabnik sem vnese ime 
+	nadomestnega stre¾nika. Polje ni obvezno.
+  \item Polje za ¹tevilko vrat. Uporablja se samo, èe se ne uporaljajo standardna vrata. Polje 
+	ni obvezno.
+  \item Izbira avtomatiène prijave ob zagonu.
+ \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{.45\textwidth}
+ \centering
+ \includegraphics[width=.95\textwidth]{addAcc.png}
+\end{minipage}
+\end{center}
 
 S klikom na gumb OK, se raèun shrani in prika¾e na seznamu obstojeèih raèunov. Back povzroèi 
 brisanje vne¹enih parametrov in vraèanje na seznam raèunov.
 
 
 \subsection{Okno za sreminjanje nastavitev obstojeèega raèuna}
-Okno vsebuje naslednja polja:
-\begin{itemize}
-\item geslo;
-\item ime dodatnega stre¾nika;
-\item vrata;
-\item izbira avtomatiène prijave ob zagonu;
-\end{itemize}
+\begin{center}
+\begin{minipage}[c]{.45\textwidth}
+ Okno vsebuje naslednja polja:
+ \begin{itemize}
+  \item geslo;
+  \item ime dodatnega stre¾nika;
+  \item vrata;
+  \item izbira avtomatiène prijave ob zagonu.
+ \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{.45\textwidth}
+ \centering
+ \includegraphics[width=.95\textwidth]{editAcc.png}
+\end{minipage}
+\end{center}
 
 Okno je zelo podobno tistemu za dodajanje novega raèuna. V posameznih poljih se nahajajo 
 trenutno nastavljene vrednosti, ki jih uporabnik lahko spremeni. Spremembe se shranijo s 
 klikom na OK, pobri¹ejo pa s klikom na Back. V obeh primerih se ponovno prika¾e okno s 
 seznamom raèunov.
 
+
 \subsection{Okno s seznamom kontakotv}
 V tem oknu se nahaja seznam kontaktov vseh trenutno povezanih raèunov. Kontakti so 
 razdeljeni v skupine. Poleg vsakega kontakta je prikazan logotip protokola, 
-kateremu pripada. Logotip je èrno-bel, èe ima kontakt status ``odsoten'',  bodisi barven 
-v vseh drugih primerih. Uporabnik lahko v meniju izbere naslednje ukaze:
+kateremu pripada. Logotip je bodisi èrno-bel (èe ima kontakt status ``odsoten''),  bodisi barven 
+(v vseh drugih primerih). Uporabnik lahko v meniju izbere naslednje ukaze:
 \begin{itemize}
-\item Chat -- s klikom na ta gumb se priène nov pogovor (ali nadaljuje obstojeè) s trenutno 
-izbranim kontaktom. Èe je trenutlo izbrana labela z imenom skupine se ne zgodi niè.
-\item New contact -- klik na ta gumb odpre pogovorno okno za dodajanje kontakta.
-\item Delete contact  - klik na ta gumb izbri¹e trnutno izbran kontakt.
-\item Edit -- odpre okno za spreminjanje skupine in psevdonima za trenutno izbran kontakt.
-\item Accounts -- odpre meni s seznamom raèunov.
-\item About -- prika¾e podatke o avtrojih in programu.
-\item Exit -- povzorèi izhod iz programa. Med uga¹anjem programa se prika¾e pozdravno okno.
+ \item \textbf{Chat} -- s klikom na ta gumb se priène nov pogovor (ali nadaljuje obstojeè) s trenutno 
+       izbranim kontaktom. Èe je trenutlo izbrana labela z imenom skupine se ne zgodi niè.
+ \item \textbf{New contact} -- klik na ta gumb odpre pogovorno okno za dodajanje kontakta.
+ \item \textbf{Delete contact}  - klik na ta gumb izbri¹e trnutno izbran kontakt.
+ \item \textbf{Edit} -- odpre okno za spreminjanje skupine in psevdonima za trenutno izbran kontakt.
+ \item \textbf{Accounts} -- odpre meni s seznamom raèunov.
+ \item \textbf{About} -- prika¾e podatke o avtrojih in programu.
+ \item \textbf{Exit} -- povzorèi izhod iz programa. Med uga¹anjem programa se prika¾e pozdravno okno.
 \end{itemize}
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=.95\textwidth]{contacts.png}
+  \caption{Slika a) prikazuje primer seznama kontaktov. Slika b)
+ prikazuje meni v seznamu kontaktov. Iz obeh slik je lepo razvidno, kako
+ prisotnost ali odsotnost vpliva na logotip ob kontaktu.}
+ \label{fig:contacts}
+\end{figure}
+
 
 \subsection{Okno za dodajanje kontakta}
 Okno ima naslednja polja:
 \begin{itemize}
-\item Protokol -- v tem pop-up meniju izberemo protokol, kateremu ¾elimo dodati kontakt.
-\item uporabni¹ko ime -- sem vpi¹emo uporabni¹ko ime kontakta (oblike: uporabnik@domena)
-\item psevdonim -- psevdonim, pod katerim se bo kontakt prikazal v seznamu. Èe je polje 
-prazno se bo prikazalo kar uporabni¹ko ime
-\item skupina -- v tem pop-up meniju izberemo bodisi edo izmed obstojeèih skupin, bodisi 
-uporabniku ne dodelimo nobene skupne (``No group''), bodisi ustvarimo novo (``Other'')
-\item nova skupina -- èe smo v meniju za izbiranje skupine izbrali ``Other'', tukaj vpi¹emo 
-ime nove skupine. Èe je polje prazno, se uporabniku ne dodeli nobena skupina.
+ \item \textbf{Protokol} -- v tem \textit{pop-up} meniju izberemo protokol, kateremu ¾elimo dodati kontakt.
+ \item \textbf{Uporabni¹ko ime} -- sem vpi¹emo uporabni¹ko ime kontakta
+       (oblike: {\tt uporabnik@domena}).
+ \item \textbf{Psevdonim} -- psevdonim, pod katerim se bo kontakt prikazal v seznamu. Èe je polje 
+       prazno se bo prikazalo kar uporabni¹ko ime.
+ \item \textbf{Skupina} -- v tem pop-up meniju izberemo bodisi edo izmed obstojeèih skupin, bodisi 
+       uporabniku ne dodelimo nobene skupne (``No group''), bodisi ustvarimo novo (``Other'').
+ \item \textbf{Nova skupina} -- èe smo v meniju za izbiranje skupine izbrali ``Other'', tukaj vpi¹emo 
+       ime nove skupine. Èe je polje prazno, se uporabniku ne dodeli nobena skupina.
 \end{itemize}
 
 S klikom na OK, se kontakt doda na seznam kontaktov. Poleg tega ustreznemu protokolu sporoèimo, 
@@ -148,24 +187,61 @@ vrnemo v okno s seznamom kontaktov.
 Èe nas kak drug uporabnik doda na svoj seznam kontaktov, protokol o tem obvestu uporabni¹ki 
 vmesknik in kontakt je avtomatièno dodan.
 
+\begin{figure}[ht]\centering
+  \includegraphics[width=\textwidth]{addContact.png}
+  \caption{Slike ponazarjajo dodajanje kontakta. Slika a) prikazuje
+ kontakt, kateremu nismo dodelili nobene skupine, slika b) primer, 
+ ko smo ustvarili novo skupino, in slika c) dodajanje uporabnika v
+ obstojeèo skupino.}
+ \label{fig:add_cont}
+\end{figure}
+
+
 \subsection{Okno za spreminjanje kontaktov}
 Okno ima naslednja polja:
-\begin{itemize}
-\item Psevdonim
-\item skupina
-\item nova skupina
-\end{itemize}
+\begin{center}
+\begin{minipage}[c]{.45\textwidth}
+ \begin{itemize}
+  \item Psevdonim;
+  \item skupina;
+  \item nova skupina.
+ \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{.45\textwidth}
+ \centering
+ \includegraphics[width=.95\textwidth]{editCont.png}
+\end{minipage}
+\end{center}
 
 Okno je zelo podobno tistemu za dodajanje kontaktov. Ob pritisku na OK se spremembe shranijo. 
 O spremembah se obvesti ustrezen protokol. Pritisk na Back povzroèi brisanje vseh polj. V 
 obeh primerih se vrnemo v seznam kontaktov.
 
+
 \subsection{Okno za pogovor}
-Okno vsebuje polje za vnos sporoèila. Ob pritisku na Send se sporoèilo po¹lje. Ko prispe 
-novo sporoèilo od osebe, s katero se pogovarjamo, se avtomatièno prika¾e ustrezno okno, 
-kamor smo pred tem dodalo prispelo sporoèilo.
+
+\begin{center}
+\begin{minipage}[c]{.45\textwidth}
+ Okno vsebuje polje za vnos sporoèila. Ob pritisku na Send se sporoèilo po¹lje. Ko prispe 
+ novo sporoèilo od osebe, s katero se pogovarjamo, se avtomatièno prika¾e ustrezno okno, 
+ kamor se je pred tem dodalo prispeto sporoèilo.
+\end{minipage}
+\hfill
+\begin{minipage}[c]{.45\textwidth}
+ \centering
+ \includegraphics[width=.95\textwidth]{chat.png}
+\end{minipage}
+\end{center}
+
 
 \subsection{Pozdravno okno}
 Okno prika¾e Jimmy-jev logotip, kateremu se ob zagonu avtomatièno, glede na dimenzije 
 zaslona, prilagodi velikost. Poleg logotipa se prika¾e tudi sporoèilo, ki podrobneje 
 opisuje trenutno dogajanje vprogramu.
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=.95\textwidth]{splash.png}
+ \caption{Primera pozdravnih oken z dvema razliènima pozdravnima sporoèiloma.}
+ \label{fig:splash}
+\end{figure}

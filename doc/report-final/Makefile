@@ -1,12 +1,8 @@
 FILE=report
 
-$(FILE).pdf: $(FILE).tex $(FILE).aux $(FILE).toc $(FILE).dvi
+$(FILE).pdf: $(FILE).tex $(FILE).aux $(FILE).toc uvod.tex razredi.tex ui.tex jabber.tex msn.tex icq.tex zakljucek.tex viri.tex
 	pdflatex $(FILE).tex
 	pdflatex $(FILE).tex
-
-$(FILE).dvi: $(FILE).tex
-	latex $(FILE).tex
-	latex $(FILE).tex
 
 $(FILE).aux: $(FILE).tex
 	pdflatex $(FILE).tex
