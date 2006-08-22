@@ -1,0 +1,74 @@
+\section{MSNP}
+MSN Messenger je program za neposredno sporoèanja, sicer produkt podjetja Microsoft. 
+Na trgu je vse od leta 1999, od takrat je do¾ivel veliko izbolj¹av in pohitritev. Program 
+za komunikacijo uporablja tekstovni protokol, ki se imenuje MSN Messenger protokol (z angle¹ko 
+kratico MSNP). Program sodi med ¹tiri najpriljubljenej¹e programe za neposredno sporoèanje, 
+najbr¾ lahko reèemo, da je med slovenskimi uporabniki kar najpogostej¹i. Razlog, da smo v 
+Jimmy-iju implementirali MSN protokol je  pogostosti uporabe med slovenskimi uporabniki. 
+
+Program MSN Messenger, ki deluje v okolju Windows je t.i. klient, oziroma program, ki teèe 
+na uporabnikovem raèunalniku, za delovanje pa potrebuje oddaljeni stre¾nik s katerim ves 
+èas delovanja komunicira. Program lokalno ne hrani nobenih podatkov o seznamu kontaktov 
+in skupin, temveè informacije dobiva preko povezave s centralnim stre¾nikom. Pri komunikaciji 
+med stre¾nikom in MSN Messengerjem se uporablja MSN protokol (MSNP). Program  MSN Messenger 
+je bil izhodi¹èe za implementacijo MSN protokola na Jimmy-ju. Sorodnosti med programoma 
+so oèitne, mo¾no je opaziti tudi podobnosti z drugimi protokoli in programi za neposredno 
+sporoèanje. 
+
+Program na osebnem raèunalniku se imenuje MSN Messenger ``klient''. Njegova naloga je, da 
+se preko interneta pove¾e na MSN Messenger stre¾nik. Gledano ¹ir¹e, vsaka menjava informacije 
+med razliènimi klient programi, poteka preko centralnega stre¾nika, mimo te povezave sporoèanje 
+med uporabniki ni mo¾no. Med delovanjem bo torej na¹ program ``govoril'' oz. po¹iljal 
+informacije do centralnega stre¾nika, ki bo nato poskrbel, da paketi pridejo do pravega 
+naslovnika. Kakorkoli ¾e, obstajajo tudi doloèeni ukazi protokola za katere velja, da 
+jih centralni stre¾nik ne obdela, temveè samo posreduje do naslovnika -- ukazi se nato 
+procesirajo pri naslovniku (o tak¹nih ukazih veè kasneje). 
+
+\begin{quotation}
+Microsoft recommends MSN Messenger for most Windows users, except on Windows XP, where 
+Windows Messenger is bundled with the operating system. Other people and companies have 
+written "third party" MSN Messenger clients. You can see some of them listed on the 
+resources page. MSN Messenger is generally considered the de-facto standard client, 
+and most clients take their lead from its behaviour, so it's referred to as 
+``the official client'' on this site.
+\end{quotation}
+
+Microsoft priporoèa program MSN Messenger vsem uporabnikom operacijskega sistema MS 
+Windows kot nekak¹en de facto standard za neposredno sporoèanje (na Windows XP je program 
+vkljuèen v osnovnem namestitvenem paketu), kar bi lahko oznaèili za manj¹o la¾. S tem si 
+podjetje seveda zagotovi zvestobo uporabnikov in nadaljno uporabo njihovih storitev vkljuèno 
+z MSN protokolom. Politika tega podjetja je, kot ¾e najbr¾ ves èas obstoja, predvsem 
+pridobitni¹ka. Ta miselnost  zajema tako denarno plat raèunalni¹tva, kot tudi vpliva na 
+¾ivljenjski slog uporabnikov, ki jih je  Microsoft ``podjarmil'' s svojimi produkti. 
+Seveda za vsako izreèeno mislijo obstaja ozadje in tudi tu verjetno ne gre iskati izjem.
+
+Zgolj pljuvati in blatiti ime Microsoft na raèun njihove kapitalistiène usmerjenosti 
+in monopolizma bi bilo slaboumno in zato tega v tem besedilu ne bom poèel. 
+S stali¹èa raèunalni¹kega in¾enirja pa lahko izrazim doloèene kritike do politike podjetja. 
+Kot sem ¾e napisal, se za vsako izjavo skriva ozadje. MSN Messenger ni nakljuèno edini 
+uradni program za sporoèanje preko MSN protokola. Izbran je bil, ker deluje samo na 
+o.s. MS Windows. kot t.i. ``MS Windows service'' ali drugaèe, je ena izmed funkcionalnosti 
+o.s. MS Windows. S to potezo si je Microsoft monopolistièno pridr¾al uporabnike in pravico 
+do uporabe svojega protokola. Vsak drug program, ki uporablja MSN protokol (angle¹ki 
+izraz je ``third party client'') je avtomatièno neza¾elen in Microsoft se z vsako novo 
+verzijo protokola vztrajno trudi, da bi tak¹ne programe odgnal. V proces preverjanja 
+prisotnosti, so tako na primer v verzijo 11 vgradili kompleksen algoritem, ki je izredno 
+zahteven za implementacijo in naj bi slu¾il ravno temu namenu. V krvi raèunalni¹kih 
+in¾enirjev je, da tak¹ne poteze grajamo. Potreba po standardizaciji tako na internetu kot 
+na podroèju programske opreme je danes zaradi porasta razliènih tehnologij, ki temeljijo 
+na razliènih jedrih, nujnej¹a kot kdajkoli prej in za¾eleno je, da so standardi odprte 
+narave (bodisi odprtokodni ali pa potrjeni od organizacij za standardizacijo kot je npr. ISO), 
+ravno zaradi prenosljivosti in dostopnosti. Nasploh je zadnja leta v raèunalni¹tvi èutiti 
+tendenco po veè platformnih re¹itvah in resno konkurenco odprto-kodnih re¹itve. Microsoftove 
+odloèitve vejijo v nasprotno smer. Tu naj omenim, da je bila dokumentacija za MSN protokol, 
+ki je dostopna ¹ir¹i javnosti, spisano s pomoèjo t.i. ``reverse engineering-a''. To dejstvo 
+dokazuje moje trditve, da ¾eli Microsoft odvrniti ostale razvijalce programske opreme od 
+uporabe MSN protokola. 
+
+Na globalnem trgu obstaja med operacijskimi sistemi velik boj za uporabnike. Razlog zakaj 
+je Microsoft najuspe¹nej¹i predvsem pri domaèih uporabnikih je pretanjeno  
+
+
+
+V Jimmy-ju smo tako implementirali verzijo MSN protokola 9 in 10, kar nam omogoèa, da na 
+v enem programu zdru¾imo veè t.i. klientov. Jimmy

@@ -1,0 +1,130 @@
+\section{ICQ}
+\subsection{Protokol --  ``OSCAR''}
+OSCAR (Open System for ComunicAtion in Realtime) je binarni protokol za instantno sporocanje, 
+ki je leta 2001 nadomestil takratni ICQ-jev TOC protokol. Neglede na njegovo ime, je protokol 
+zaprt in specifikacijo si lasti AOL. Do ``odprtih'' in nenatanènih specifikacij protokola 
+so se nekateri prebili z obratnim in¾iniringom. OSCAR se trenutno uporablja za ICQ in AIM 
+komunikacijska sistema. Sistema uporabljata skupni nabor enot protokola, a vsak od njiju 
+ima tudi entitete, ki niso skupne skupne obema.
+
+Komunikacija med stre¾niki in klienti poteka v paketni obliki. OSCAR vsebuje tri nivoje 
+paketov in sicer FLAP, SNAC in TLV. Vèasih se v FLAP ali SNAC paketu nahajajo tudi goli 
+podatki, ki niso v paketni obliki.
+
+\begin{enumerate}
+\item FLAP: osnovni nivo, preko katerega se prena¹ajo vsi podatki. Vsebuje informacijo 
+  o kanalu (tipu podatkov, v njemu), dol¾ini podatkov, zaporedno ¹tevilko paketa ter podatke.
+  \begin{enumerate}
+  \item Kanal 1 -- 'Hello': je namenjen osnovni avtentifikaciji.
+  \item Kanal 2 -- 'SNAC': samo preko tega kanala se prena¹ajo SNAC "paketi".
+  \item Kanal 3 -- 'Error': ko se prejme nepravilen paket oziroma pride do napake 
+    na FLAP nivoju, se klientu/stre¾niku po¹lje informacija o napaki preko tega kanala.
+  \item Kanal 4 -- 'Disconnect': ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
+  \item Kanal 5 -- 'Keepalive': da stre¾niku vedeti, da je klient ¹evedno ¾iv.
+  \end{enumerate}
+\item SNAC: storitveni nivo, ki natanèneje definira vsebino paketa. V glavi je zabele¾ena 
+dru¾ina stortve, ukaz, zastavice ter referenca zahtevka. Poznanih je pribli¾no 23 dru¾in 
+storitev od katerih ICQ uporablja pribli¾no polovico.
+\item TLV: ime tega nivoja je kratica za, Type Lenght Value, kar nam pri¹epne, da so v 
+teh paketih dejanski podatki. V glavi paketa je zapisano ime podatka ter njegova dol¾ina.
+\end{enumerate}
+
+Storitev, ki so mo¾ne v ICQ sistemu je veliko. Od obièajnega pogovarjanja in sledenja 
+kontaktom do reklam itd.
+
+\subsection{Implementacija}
+Implementacija protokola je deljena na dve stopnji. Na stopnjo prijave in stopnjo avtomata. 
+Stopnja prijave je trenutno v statièni obliki, kar ni najbolj priroèno ob izjemah, a 
+problem pomanjkanja dokumentacije je tukaj oèiten. Za bolj¹o implementacijo prijavne sekvence 
+bi bilo potrebno poznavanje delovanja stre¾ni¹kih sistemov na AOL-u. Avtomatski del poganja 
+neskonèna zanka, ki dr¾i tekoèo nit pri ¾ivljenju. V zanki se vsak cikel preverja izravnalnik 
+toka, èe vsebuje nove pakete.
+
+Paketi v sistem pridejo v obliki tabele bajtov ter se pretvorijo v objekte na katerih so 
+definirane doloèene operacije. Po pretvarjanju (rezanju glav paketov) se paket tolmaèi. 
+Tolmaè pakete spu¹èa skozi switch stavek, ko se ujame se iz njega izvleèejo podatki in 
+glede na njih izvede neko akcijo.
+
+Po¹iljanje paketov izgleda podobno, le da v veèini primerov njihovo po¹iljanje povzroèi 
+klic metode iz jimmyjevega jedra. Paket se pripravi z generiranjem novega osnovnega paketa, 
+èe bo paket vseboval SNAC podatke, bo potrebno nastaviti tudi parametre SNAC glave. Ker je 
+vsebina paketa lahko zelo razlièna, je potrebno tudi to nastaviti po doloèenem postopku. 
+Podatke, ki so ``prosto plavajoèi'' se nastavi kot vsebino v obliki tabele bajtov. Èe ¾elimo 
+pripeti tudi TLV paket, moramo ustvariti nov TLV objekt in mu nastaviti vse kolièine ter ga 
+dodati v listo TLV paketov v na¹em osnovnem paketu. Ko so vsi podatki v njem, se poklièe 
+metodo, ki vrne paket v tabeli bajtov in jo po¹lje v tok.
+
+Implementacija protokola je za na¹ primer omejena samo na ICQ sistem. Razporejena je èez veè 
+javinih razredov: Protocol, ICQProtokol, ICQPackage, ICQTlv, ServerHandler, ICQConnector, 
+ICQContact, Utils ter ostale razrede za interakcijo z jedrom. ICQProtokol je raz¹iritev 
+abstraktnega razreda Protokol, ki je gradnik implementacij vseh protokolov v Jimmyju vsebuje 
+poleg osnovega nabora atributov ter metod ¹e doloèene za ICQ specifiène kot so metode za 
+tolmaèenje, metode za spreminjanje stanj v instanci ter metode za branje vrednosti iz jedra. 
+ICQPackage je splo¹na specifièna podatkovna struktura, ki ima definirane operacije zase. 
+Vsebuje doloèene kolekcije ter metode za vraèanje vsebine in nastavljanje vsebine. ICQTlv je 
+namenjena generiranju TLV paketov. Definirana je sama zase, da lahko nje naredimo veè instanc. 
+Vsebuje operacije ter strukture nad katerimi izvajamo te operacije. ICQConnector je raz¹iritev 
+ServerHandler razreda, ki omogoèa enostavnej¹e branje paketov. ServerHanler, namreè, vraèa 
+vse kar se je spravilo v bralni izravnalnik, kar pa se lahko odra¾a z veèjim ¹tevilom FLAP 
+paketov. S klicem metode za vraèanje paketa v ICQConnectorju tako to informacijo razre¾emo 
+na pakete in shranimo v kolekciji ter ob vsakem ciklu zankepreverimo ¹tevilo paketov v njej 
+ali preberemo novo iz izravnalnika. ICQContact je samo raz¹iritev splo¹nega razreda Contact. 
+Ima dodatna polja za hranjenje informacij os ID-ju skupine in samega kontkata v SSI 
+(Server Side Information) listi.
+
+Ker so v OSCAR-ju vsi podatki v binarni obliki potrebujemo pripomoèke za pretvorbe med 
+razliènimi tipi. V paketu Utils tako najdemo statiène metode, za pretvarjanje iz tabel 
+bajtov v short, int ali long primitive ter obratno.
+
+\subsection{Problemi}
+Na poti do uspe¹nega delovanja sem se sreèal z velikim ¹tevilom problemov, ki so mi od¾rli 
+marsikateri dan ¾ivljenja. Problemi so sicer nastali zaradi pomanjkljive in nepopolne 
+dokumentacije protokola, a so v veliki meri nastale tudi zaradi slabega naèrtovanja. 
+
+Najhuj¹i problem je bil z razumevanjem prijavne sekvence, ker v nobeni dokumentaciji ni 
+pisalo kako toèno prijava izgleda. V doloèenih dokumentacijah je bila prijava celo pretirano 
+napihnjena in zakomplicirana. Pri tem problemu so me re¹ile ¾e narejene implementacije. Z 
+orodjem za bele¾enje mre¾nih paketov (ethereal) sem bele¾il komunikacijo s stre¾nikom in na 
+tak naèin spraskal nekako pravilna zaporedja. Ko sem pa ¾elel doloèeno funkcionalnost 
+izklopiti zaradi omejitve na GSM aparatih sem do¾ivel tudi spremembo zaporedja, kar je 
+vplivalo tudi na motivacijo. 
+
+Problem je nastal tudi pri razumevanju vsebine paketa s kontaktno listo in skupinami, ker 
+sem zaradi drugaènega prijavnega zaporedja v njem dobil ¹e doloèene neznane podatke, ki so 
+mi podrli logiko.
+
+Del, ki ¹e ni popolnoma implementiran je dodajanje in odstranjevanje kontaktov, kajti v 
+nobeni dokumentaciji ne pi¹e kako se to poène in je potrebno vse bele¾iti in iskati izjeme 
+ter ugotavljati delovanje.
+
+Sreèal sem se tudi s problemom pretvarjanja sprejetega teksta iz Unicode tabele bajtov v 
+Unicode tekst. Tega problema ¹e nisem odpravil, bo pa nujno to realizirati, kajti nesmiselno 
+je sprejemanje dvojne kolièine podatkov, èe jih potem ne moremo uporabit.
+
+\subsection{Lastno mnenje}
+Med implementacijo sem se velikokrat spra¹eval, zakaj je ta protokol tak kot je. Ugotovitve 
+pa so bile, da je bil zastavljen pre¹iroko. Èe pogledamo doloèene lastnosti bomo opazili 
+nesmisle za trenutno obliko. Kot primer vzemimo polje v SNAC glavi, ki nam povestoritvene 
+dru¾ine. To polje je veliko 2 bajta, vseh dru¾in pa je zgolj 23. Taka zasnova nas pripelje 
+do velikih redundanc v paketih. 
+
+Veliko sem se spra¹eval tudi zakaj je mo¾no imeti podatke tudi zunaj TLV paketov. TLV 
+paket ima svoj namen in ne vidim razloga zakaj ga ne uporabit. Èe vzamemo kot primer paket 
+s kontaktno listo, vsebuje vsak vnos veè stvari. Prvi podatek, ki je dolg dva bajta, vsebuje 
+dol¾ino niza, ki mu sledi, sledi mu niz, ¹tiri bajti za razvr¹èanje po skupinah ter dva bajta 
+za dol¾ino ostalih podatkov, ki pa so v obliki verige TLV paketov. Takih vnosov pa je mo¾nih 
+pribli¾no 700 v tem paketu. Spra¹ujem se, zakaj, èe protokol omogoèa hierarhièno strukturo,
+tega niso izkoristili.
+
+Trenutna implementacija OSCARja v Jimmyju ni lepo realizirana, kajti lepa realizacija zahteva 
+dobro specifikacijo protokola, katere za tale protokol ni. Odloèil sem se, da bom uporabljeno 
+dokumentacijo strnil v popolnej¹o obliko ter doloèene podatke popravil in dopolnil razlage 
+sekvenc. V Jimmyja bo potrebno vlo¾iti ¹e marsikatero uro dela, za popravke, izbolj¹ave 
+ter vgradnjo dodatne funkcionalnosti.
+
+Kar se protokola tièe, je bil v osnovi dobro zami¹ljen, a pritisk trga je z njim odigral grdo 
+igro z vrivanjem nepremi¹ljenih funkcionalnosti. Povozili so ga tudi rivali, ki uporabljajo 
+novej¹e principe kot je prenos informacije v obliki XML.
+
+Protokol zaradi pre¹iroke zasnove tako povzroèa velike redundance poslanih paketov. Veliko 
+¹tevilo neuporabljenih atributov in nesmiselnih podatkov se na tak naèin prena¹a preko mre¾e.

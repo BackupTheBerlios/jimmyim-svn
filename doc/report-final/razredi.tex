@@ -1,0 +1,62 @@
+\chapter{Osnovni razredi}
+JimmyIM je razbit na veè paketov:
+
+\begin{itemize}
+\item \textbf {jimmy}: Temeljni razredi, Raèuni, Kontakti
+\item \textbf {jimmy.net}: Razredi namenjeni povezovanju na IM stre¾nike.
+\item \textbf {jimmy.util}: Splo¹ni algoritmi potrebni za komunikacijo z IM stre¾niki (npr. MD5)
+\item \textbf {jimmy.ui}: Uporabni¹ki vmesnik
+\item \textbf {jimmy.jabber}: Jabber protokol
+\item \textbf {jimmy.msn}: MSN protokol
+\item \textbf {jimmy.icq}: ICQ protokol
+\end{itemize}
+
+\section{Raèuni}
+\textbf{jimmy.Account}
+Razred je namenjen hranjenju lastnosti raèuna. Podprti raèuni:
+\begin{itemize}
+\item Jabber
+\item MSN
+\item ICQ
+\end{itemize}
+
+Vsak raèun vsebuje naslednje lastnosti:
+\begin{itemize}
+\item Uporabni¹ko ime (userName\_)
+\item Geslo (password\_)
+\item Ciljni stre¾nik (po ¾elji) (server\_)
+\item Ciljna vrata (po ¾elji) (port\_)
+\item Samodejna prijava (autoLogin\_)
+\end{itemize}
+
+\section{Protokoli}
+\textbf{jimmy.Protocol}
+Vsak raèun potrebuje za delovanje uporabo razreda Protocol. Abstraktni razred Protocol je v splo¹nem namenjen prijavi, po¹iljanju in sprejemanju sporoèil in stanj uporabnikov, odjavi, enkripciji ipd.
+
+Glavne metode:
+\begin{itemize}
+\item constructor(Jimmy)
+\item boolean login(Account)
+\item void sendMsg(String)
+\item void logout()
+\end{itemize}
+
+Implementacije abstraktnega razreda Protocol:
+\begin{itemize}
+\item JabberProtocol
+\item MSNProtocol
+\item ICQProtocol
+\end{itemize}
+
+Veè o posameznih znaèilnostih protokolov v poglavju Protokoli.
+
+\section{Kontakti}
+\textbf{jimmy.Contact}
+Razred je namenjen hranjenju lastnosti kontakta. Kontakt je vsak uporabnik nekega protokola s katerim lahko komuniciramo. Kontakt vsebuje naslednje lastnosti:
+\begin{itemize}
+\item Uporabni¹ko ime za dotièen protokol (userID\_)
+\item Prikazano ime (screenName\_)
+\item Stanje - na voljo, zaposlen, stran od raèunalnika, nepovezan (status\_)
+\item Ime skupine (groupName\_)
+\item Referenca na protokol h katermu pripada (protocol\_)
+\end{itemize}
