@@ -1,26 +1,26 @@
 \section{ICQ}
-\subsection{Protokol --  ``OSCAR''}
-OSCAR (Open System for ComunicAtion in Realtime) je binarni protokol za instantno sporocanje, 
+\subsection{Protokol (``OSCAR'') in implementacija}
+OSCAR (Open System for CommunicAtion in Realtime) je binarni protokol za instantno sporocanje, 
 ki je leta 2001 nadomestil takratni ICQ-jev TOC protokol. Neglede na njegovo ime, je protokol 
 zaprt in specifikacijo si lasti AOL. Do ``odprtih'' in nenatanènih specifikacij protokola 
 so se nekateri prebili z obratnim in¾iniringom. OSCAR se trenutno uporablja za ICQ in AIM 
 komunikacijska sistema. Sistema uporabljata skupni nabor enot protokola, a vsak od njiju 
-ima tudi entitete, ki niso skupne skupne obema.
+ima tudi entitete, ki niso skupne obema.
 
 Komunikacija med stre¾niki in klienti poteka v paketni obliki. OSCAR vsebuje tri nivoje 
-paketov in sicer FLAP, SNAC in TLV. Vèasih se v FLAP ali SNAC paketu nahajajo tudi goli 
+paketov in sicer FLAP, SNAC in TLV. Pogosto se v FLAP ali SNAC paketu nahajajo tudi goli 
 podatki, ki niso v paketni obliki.
 
 \begin{enumerate}
 \item FLAP: osnovni nivo, preko katerega se prena¹ajo vsi podatki. Vsebuje informacijo 
   o kanalu (tipu podatkov, v njemu), dol¾ini podatkov, zaporedno ¹tevilko paketa ter podatke.
   \begin{enumerate}
-  \item Kanal 1 -- 'Hello': je namenjen osnovni avtentifikaciji.
-  \item Kanal 2 -- 'SNAC': samo preko tega kanala se prena¹ajo SNAC "paketi".
-  \item Kanal 3 -- 'Error': ko se prejme nepravilen paket oziroma pride do napake 
+  \item Kanal 1 -- ``Hello'': namenjen je osnovni avtentifikaciji.
+  \item Kanal 2 -- ``SNAC'': samo preko tega kanala se prena¹ajo SNAC "paketi".
+  \item Kanal 3 -- ``Error'': ko se prejme nepravilen paket oziroma pride do napake 
     na FLAP nivoju, se klientu/stre¾niku po¹lje informacija o napaki preko tega kanala.
-  \item Kanal 4 -- 'Disconnect': ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
-  \item Kanal 5 -- 'Keepalive': da stre¾niku vedeti, da je klient ¹evedno ¾iv.
+  \item Kanal 4 -- ``Disconnect'': ko prejmemo paket s tem kanalom, moramo prekiniti povezavo.
+  \item Kanal 5 -- ``Keepalive'': da stre¾niku vedeti, da je klient ¹evedno ¾iv.
   \end{enumerate}
 \item SNAC: storitveni nivo, ki natanèneje definira vsebino paketa. V glavi je zabele¾ena 
 dru¾ina stortve, ukaz, zastavice ter referenca zahtevka. Poznanih je pribli¾no 23 dru¾in 
@@ -29,21 +29,47 @@ storitev od katerih ICQ uporablja pribli¾no polovico.
 teh paketih dejanski podatki. V glavi paketa je zapisano ime podatka ter njegova dol¾ina.
 \end{enumerate}
 
+\begin{figure}[h]
+\centering
+ \includegraphics[width=.7\textwidth]{icq_oblike_paketov.jpg}
+ \caption{Sestava paketov}
+ \label{fig:pic}
+\end{figure}
+
 Storitev, ki so mo¾ne v ICQ sistemu je veliko. Od obièajnega pogovarjanja in sledenja 
 kontaktom do reklam itd.
 
-\subsection{Implementacija}
-Implementacija protokola je deljena na dve stopnji. Na stopnjo prijave in stopnjo avtomata. 
-Stopnja prijave je trenutno v statièni obliki, kar ni najbolj priroèno ob izjemah, a 
-problem pomanjkanja dokumentacije je tukaj oèiten. Za bolj¹o implementacijo prijavne sekvence 
-bi bilo potrebno poznavanje delovanja stre¾ni¹kih sistemov na AOL-u. Avtomatski del poganja 
-neskonèna zanka, ki dr¾i tekoèo nit pri ¾ivljenju. V zanki se vsak cikel preverja izravnalnik 
-toka, èe vsebuje nove pakete.
+Prijava, za vse AOL-ove storitve poteka preko avtentifikacijskega stre¾nika, ki klientu dodeli
+``pi¹kotek'' z osnovnimi informacijami. S pomoèjo tegale pi¹kotka se je mo¾no prijaviti na vse 
+AOL-ove storitve (ICQ, AIM, reklamne storitve, ...). Pi¹kotek prejmemo po èetrtem kanalukar pomeni, 
+da je avtentifikacija klienta/uporabnika konèana. Poleg pi¹kotka je v istem paketu tudi naslov 
+BOS (Basic OSCAR Service), na katerega se pove¾emo v naslednjem koraku. BOS stre¾niku najprej 
+po¹ljemo prej dobljeni pi¹kotek, nakar se zaène izmenjava osnovnih informacij, kot so varnostne 
+omejitve po¹iljanja doloèenih skupin paketov, podprte storitve, SSI (Server Side Information) in 
+lista kontaktov Ko se vsi podatki izmenjajo po¹lje klient str¾niku  ``OK'' paket, ki stre¾niku in
+vsem kontaktom sporoèi on-line status. Jimmy po tem koraku po¾ene lastno nit in po¹lje ¹e doloèene
+pakete za notifikacijo spremembe statusa kontaktov. Ponavadi se v tem trenutku po¹lje tudi zahtevek 
+po ``off-line'' sporoèilih, ki so se v èasu odsotnosti shranila na stre¾niku, a ¾al ta funkcija
+ni vklopljena v Jimmyju zaradi varèevanja prenosov.Opisan postopek prijave, trenutno ni v popolnoma 
+dinamièen in potrebuje ¹e nekaj popravkov. Problemi se pojavijo, ko stre¾nik onemogoèi povezavo, 
+uporabimo napaèno ime in geslo ali pride do kake napake (popravljeno bo v konèni ralzlièici). 
+
+\begin{figure}[h]
+\centering
+ \includegraphics[width=.7\textwidth]{icq_paket.jpg}
+ \caption{Primer paketa (Lista kontaktov)}
+ \label{fig:pic}
+\end{figure}
+
+Nadaljni del implementacije poteka v zanki, ki se konèa ob odjavi. Vsak zankin cikel se preberejo 
+nove vrednosti iz bralnega izravnalnika toka podatkov povezave. Sprejete podatke se razre¾e na pakete,
+ki jih tolmaèimo in s pomoèjo njihovih ukazov izvedemo akcijo (po¹ljemo sporoèilo jedru, nastavimo 
+nov status kontakta, ...). 
 
 Paketi v sistem pridejo v obliki tabele bajtov ter se pretvorijo v objekte na katerih so 
 definirane doloèene operacije. Po pretvarjanju (rezanju glav paketov) se paket tolmaèi. 
 Tolmaè pakete spu¹èa skozi switch stavek, ko se ujame se iz njega izvleèejo podatki in 
-glede na njih izvede neko akcijo.
+glede na njih izvede pripadajoèo akcijo.
 
 Po¹iljanje paketov izgleda podobno, le da v veèini primerov njihovo po¹iljanje povzroèi 
 klic metode iz jimmyjevega jedra. Paket se pripravi z generiranjem novega osnovnega paketa, 
@@ -73,13 +99,13 @@ Ima dodatna polja za hranjenje informacij os ID-ju skupine in samega kontkata v 
 (Server Side Information) listi.
 
 Ker so v OSCAR-ju vsi podatki v binarni obliki potrebujemo pripomoèke za pretvorbe med 
-razliènimi tipi. V paketu Utils tako najdemo statiène metode, za pretvarjanje iz tabel 
+razliènimi tipi. V razredu Utils tako najdemo statiène metode, za pretvarjanje iz tabel 
 bajtov v short, int ali long primitive ter obratno.
 
 \subsection{Problemi}
-Na poti do uspe¹nega delovanja sem se sreèal z velikim ¹tevilom problemov, ki so mi od¾rli 
-marsikateri dan ¾ivljenja. Problemi so sicer nastali zaradi pomanjkljive in nepopolne 
-dokumentacije protokola, a so v veliki meri nastale tudi zaradi slabega naèrtovanja. 
+Na poti do uspe¹nega delovanja sem se sreèal z velikim ¹tevilom problemov, ki so bili èasovno
+zelo po¾re¹ni. Problemi so sicer nastali zaradi pomanjkljive in nepopolne 
+dokumentacije protokola, a so v veliki meri nastale tudi zaradi slabega naèrtovanja le tega. 
 
 Najhuj¹i problem je bil z razumevanjem prijavne sekvence, ker v nobeni dokumentaciji ni 
 pisalo kako toèno prijava izgleda. V doloèenih dokumentacijah je bila prijava celo pretirano 
@@ -99,12 +125,12 @@ ter ugotavljati delovanje.
 
 Sreèal sem se tudi s problemom pretvarjanja sprejetega teksta iz Unicode tabele bajtov v 
 Unicode tekst. Tega problema ¹e nisem odpravil, bo pa nujno to realizirati, kajti nesmiselno 
-je sprejemanje dvojne kolièine podatkov, èe jih potem ne moremo uporabit.
+je sprejemanje dvojne kolièine podatkov, èe jih potem ne moremo uporabiti.
 
 \subsection{Lastno mnenje}
 Med implementacijo sem se velikokrat spra¹eval, zakaj je ta protokol tak kot je. Ugotovitve 
 pa so bile, da je bil zastavljen pre¹iroko. Èe pogledamo doloèene lastnosti bomo opazili 
-nesmisle za trenutno obliko. Kot primer vzemimo polje v SNAC glavi, ki nam povestoritvene 
+nesmisle za trenutno obliko. Kot primer vzemimo polje v SNAC glavi, ki nam pove storitvene 
 dru¾ine. To polje je veliko 2 bajta, vseh dru¾in pa je zgolj 23. Taka zasnova nas pripelje 
 do velikih redundanc v paketih. 
 
