@@ -1,74 +1,134 @@
-\section{MSNP}
-MSN Messenger je program za neposredno sporoèanja, sicer produkt podjetja Microsoft. 
-Na trgu je vse od leta 1999, od takrat je do¾ivel veliko izbolj¹av in pohitritev. Program 
-za komunikacijo uporablja tekstovni protokol, ki se imenuje MSN Messenger protokol (z angle¹ko 
-kratico MSNP). Program sodi med ¹tiri najpriljubljenej¹e programe za neposredno sporoèanje, 
-najbr¾ lahko reèemo, da je med slovenskimi uporabniki kar najpogostej¹i. Razlog, da smo v 
-Jimmy-iju implementirali MSN protokol je  pogostosti uporabe med slovenskimi uporabniki. 
+\section {MSNP}
+\subsection {Splosno}
 
-Program MSN Messenger, ki deluje v okolju Windows je t.i. klient, oziroma program, ki teèe 
-na uporabnikovem raèunalniku, za delovanje pa potrebuje oddaljeni stre¾nik s katerim ves 
-èas delovanja komunicira. Program lokalno ne hrani nobenih podatkov o seznamu kontaktov 
-in skupin, temveè informacije dobiva preko povezave s centralnim stre¾nikom. Pri komunikaciji 
-med stre¾nikom in MSN Messengerjem se uporablja MSN protokol (MSNP). Program  MSN Messenger 
-je bil izhodi¹èe za implementacijo MSN protokola na Jimmy-ju. Sorodnosti med programoma 
-so oèitne, mo¾no je opaziti tudi podobnosti z drugimi protokoli in programi za neposredno 
-sporoèanje. 
+MSN Messenger je program za neposredno sporoèanje, sicer produkt podjetja Microsoft. 
+Na trgu je vse od leta 1999, od takrat je do¾ivel veliko izbolj¹av in pohitritev. 
+Program sodi med ¹tiri najpriljubljenej¹e programe za neposredno sporoèanje, najbr¾ lahko reèemo, 
+da je med slovenskimi uporabniki kar najpogostej¹i. Razlog, da smo v Jimmy-iju implementirali 
+MSN protokol je pogostost uporabe med slovenskimi uporabniki. Program  MSN Messenger je bil 
+izhodi¹èe za implementacijo MSN protokola na Jimmy-ju. Sorodnosti med funkcionalnostjo obeh 
+programov so oèitne, mo¾no je opaziti tudi podobnosti z drugimi protokoli in programi za 
+neposredno sporoèanje. 
 
-Program na osebnem raèunalniku se imenuje MSN Messenger ``klient''. Njegova naloga je, da 
-se preko interneta pove¾e na MSN Messenger stre¾nik. Gledano ¹ir¹e, vsaka menjava informacije 
-med razliènimi klient programi, poteka preko centralnega stre¾nika, mimo te povezave sporoèanje 
-med uporabniki ni mo¾no. Med delovanjem bo torej na¹ program ``govoril'' oz. po¹iljal 
-informacije do centralnega stre¾nika, ki bo nato poskrbel, da paketi pridejo do pravega 
-naslovnika. Kakorkoli ¾e, obstajajo tudi doloèeni ukazi protokola za katere velja, da 
-jih centralni stre¾nik ne obdela, temveè samo posreduje do naslovnika -- ukazi se nato 
-procesirajo pri naslovniku (o tak¹nih ukazih veè kasneje). 
+Program za komunikacijo uporablja tekstovni protokol, ki se imenuje MSN Messenger protokol 
+(z angle¹ko kratico MSNP). Protokol je tekstovni in ni enkriptiran. 
+Osnovni namen protokola je neposredno sporoèanje. Uporabniki med seboj 
+delijo in si posredujejo podatke o prisotnosti, datoteke in sporoèila.  
+Obstaja tudi http razlièica, vendar te nismo implementirali zaradi omejenih 
+resursov na mobilnih telefonih. Protokol je centraliziran - naloge opravlja centralni stre¾nik. 
+Vsaka menjava informacije med razliènimi odjemalci, poteka preko centralnega stre¾nika, 
+mimo te povezave sporoèanje med uporabniki ni mo¾no. Med delovanjem bo torej na¹ program 
+``govoril'' oz. po¹iljal informacije do centralnega stre¾nika, ki bo nato poskrbel, 
+da paketi pridejo do pravega naslovnika. Kakorkoli ¾e, obstajajo tudi doloèeni ukazi 
+protokola za katere velja, da jih centralni stre¾nik ne obdela, temveè samo posreduje 
+do naslovnika - ukazi se nato procesirajo pri naslovniku (o tak¹nih ukazih veè kasneje).  
 
-\begin{quotation}
-Microsoft recommends MSN Messenger for most Windows users, except on Windows XP, where 
-Windows Messenger is bundled with the operating system. Other people and companies have 
-written "third party" MSN Messenger clients. You can see some of them listed on the 
-resources page. MSN Messenger is generally considered the de-facto standard client, 
-and most clients take their lead from its behaviour, so it's referred to as 
-``the official client'' on this site.
-\end{quotation}
+Microsoft je bil precej skop glede informacij o protokolu. Dokumentacijo so napisali 
+samostojni razvijalci  s pomoèjo t.i. ``reverse engineeringa''. Zaradi pomankljive 
+dokumentacije je programiranje odjemalcev MSN protokola postalo te¾avno in zdi se, da 
+so nekatere spremembe nastale zato, da bi odvrnili samostojne razvijalce od razvijanja 
+tak¹nih odjemalcev. To sovpada s politiko podjetja Microsoft, ki ¾eli od uporabnikov, da 
+v èimveèjem ¹tevilu uporabljajo njihove produkte(v tem primeru program MSN Messenger) in 
+seveda operacijski sistem MS Windows. Toda kot bodoèi raèunalni¹ki in¾enirji moramo tak¹ne
+ poteze grajati. Potreba po standardizaciji tako na internetu kot na podroèju programske opreme 
+ je danes zaradi porasta razliènih tehnologij, ki temeljijo na razliènih jedrih, nujnej¹a kot 
+ kdajkoli prej in za¾eleno je, da so proizvodi odprte narave (bodisi odprtokodni ali pa potrjeni 
+ od organizacij za standardizacijo kot je npr. ISO), ravno zaradi prenosljivosti in dostopnosti. 
+ Nasploh je zadnja leta v raèunalni¹tvu èutiti tendenco po veè platformnih re¹itvah in resno 
+ konkurenco odprto-kodnih re¹itve prav zaradi la¾je dostopnosti in prenosljivosti. Tu naj 
+ ponovno omenim, da je bila dokumentacija za MSN protokol, ki je dostopna ¹ir¹i javnosti, 
+ spisana s pomoèjo t.i. ``reverse engineering-a''. To dejstvo dokazuje moje trditve, da ¾eli 
+ Microsoft odvrniti ostale razvijalce programske opreme od uporabe MSN protokola. 
+ 
+ 
+\subsection{Znaèilnosti}
+\begin{itemize}
+\item ozaprt protokol, pomankljiva specifikacija
+\item specifièna sintaksa
+\item ni enkripcije
+\item hbrez raziritve sintakse
+\item konferenèna povezava
+\item prenos datotek
+\end{itemize}
 
-Microsoft priporoèa program MSN Messenger vsem uporabnikom operacijskega sistema MS 
-Windows kot nekak¹en de facto standard za neposredno sporoèanje (na Windows XP je program 
-vkljuèen v osnovnem namestitvenem paketu), kar bi lahko oznaèili za manj¹o la¾. S tem si 
-podjetje seveda zagotovi zvestobo uporabnikov in nadaljno uporabo njihovih storitev vkljuèno 
-z MSN protokolom. Politika tega podjetja je, kot ¾e najbr¾ ves èas obstoja, predvsem 
-pridobitni¹ka. Ta miselnost  zajema tako denarno plat raèunalni¹tva, kot tudi vpliva na 
-¾ivljenjski slog uporabnikov, ki jih je  Microsoft ``podjarmil'' s svojimi produkti. 
-Seveda za vsako izreèeno mislijo obstaja ozadje in tudi tu verjetno ne gre iskati izjem.
+\subsection{Implementacija}
 
-Zgolj pljuvati in blatiti ime Microsoft na raèun njihove kapitalistiène usmerjenosti 
-in monopolizma bi bilo slaboumno in zato tega v tem besedilu ne bom poèel. 
-S stali¹èa raèunalni¹kega in¾enirja pa lahko izrazim doloèene kritike do politike podjetja. 
-Kot sem ¾e napisal, se za vsako izjavo skriva ozadje. MSN Messenger ni nakljuèno edini 
-uradni program za sporoèanje preko MSN protokola. Izbran je bil, ker deluje samo na 
-o.s. MS Windows. kot t.i. ``MS Windows service'' ali drugaèe, je ena izmed funkcionalnosti 
-o.s. MS Windows. S to potezo si je Microsoft monopolistièno pridr¾al uporabnike in pravico 
-do uporabe svojega protokola. Vsak drug program, ki uporablja MSN protokol (angle¹ki 
-izraz je ``third party client'') je avtomatièno neza¾elen in Microsoft se z vsako novo 
-verzijo protokola vztrajno trudi, da bi tak¹ne programe odgnal. V proces preverjanja 
-prisotnosti, so tako na primer v verzijo 11 vgradili kompleksen algoritem, ki je izredno 
-zahteven za implementacijo in naj bi slu¾il ravno temu namenu. V krvi raèunalni¹kih 
-in¾enirjev je, da tak¹ne poteze grajamo. Potreba po standardizaciji tako na internetu kot 
-na podroèju programske opreme je danes zaradi porasta razliènih tehnologij, ki temeljijo 
-na razliènih jedrih, nujnej¹a kot kdajkoli prej in za¾eleno je, da so standardi odprte 
-narave (bodisi odprtokodni ali pa potrjeni od organizacij za standardizacijo kot je npr. ISO), 
-ravno zaradi prenosljivosti in dostopnosti. Nasploh je zadnja leta v raèunalni¹tvi èutiti 
-tendenco po veè platformnih re¹itvah in resno konkurenco odprto-kodnih re¹itve. Microsoftove 
-odloèitve vejijo v nasprotno smer. Tu naj omenim, da je bila dokumentacija za MSN protokol, 
-ki je dostopna ¹ir¹i javnosti, spisano s pomoèjo t.i. ``reverse engineering-a''. To dejstvo 
-dokazuje moje trditve, da ¾eli Microsoft odvrniti ostale razvijalce programske opreme od 
-uporabe MSN protokola. 
+\textbf{jimmy.msn.MSNProtocol}
 
-Na globalnem trgu obstaja med operacijskimi sistemi velik boj za uporabnike. Razlog zakaj 
-je Microsoft najuspe¹nej¹i predvsem pri domaèih uporabnikih je pretanjeno  
+Osnova za implementacijo je razred MSNProtocol.java, ki podeduje abstraktni razred Protocol.java. Za pravilno delovanje so potrebni ¹e ostali razredi:
+\begin{itemize}
+  \item \textbf{MSNTransaction:} skrbi za pravilno obliko otevilèenje sporoèil
+  \item \textbf{PassportNexus:} avtentifikacija in pridobivanje vstopnega zaporedja
+\end{itemize}
 
+Najveè te¾av povzroèa nepredvidljiva oblika ukazov, ki imajo lahko spremenljivo tevilo parametrov in pomankljiva oziroma zastarana dokumentacija. Z vsako verzijo protokola se sintaksa malenkostno spremeni, kar ote¾uje sledenje razvijalcev. 
+	Daleè najte¾ja zadeva je algoritem za t.i. ``challenge'' ali izziv. Centralni stre¾nik namreè takoj po prijavi polje ukaz CHL(npr. ``CHL 0 26045552712758918823''), na katerega je treba pravilno odgovoriti v roku ene minute, sicer stre¾nik odjemalca odjavi iz sistema. Prvotni naèrt implementacije je bila enajsta verzija protokola, toda izkazalo se je, da ima ta verzija veliko te¾avneji challenge algoritem kot predhodne verzije, zato smo naknadno izbrali deveto oziroma deseto verzijo protokola. Challenge algoritem za omenjeni verziji sedaj obsega MD5 predstavitev 16 mestnega parametra v stre¾nikovem ukazu. Èetudi se sli¹i enostavno, je implementacija v okolju j2me dokaj zapletena zaradi omejenih funkcionalnosti.
 
+\subsection{Od prijave do sporoèanja}
 
-V Jimmy-ju smo tako implementirali verzijo MSN protokola 9 in 10, kar nam omogoèa, da na 
-v enem programu zdru¾imo veè t.i. klientov. Jimmy
+	Seja MSN protokola poteka vsebuje najprej povezavo z t.i. ``Notification serverjem'', ki posreduje podatke o prisotnosti. Notification server dovoljuje uporabniku, da se pove¾e na Switchboard stre¾nik, ki  opravlja zahteve neposrednega sporoèanja.
+
+Centralni stre¾nik je dosegljiv na naslovu messenger.hotmail.com, port 1863. Med klientom in ste¾nikom se najprej izmenja informacija o verziji protokola in verziji klienta (ukazi VER, CVR) in povezava se nato zakljuèi. Prijava v MSN omre¾je poteka na drugem preko t.i. Notification server(kraje NS) na drugaènem IP naslovu - obièajno baym-cs118.msgr.hotmail.com, kjer se najprej ponovi izmenjava ukazov s centralnega stre¾nika. NS kasneje opravlja vse ostale ukaze, zato je daleè najveè komunikacije opravljene prav na tej relaciji. Potrebno je omeniti, da je med procesom prijave, potrebno vzpostaviti varno povezavo(HTTPS) do t.i. Passport Nexus(PN) stre¾nika in tja posredovati up. ime  in geslo. PN nato vrne napako ali pa dolg niz znakov ob uspehu. Ta niz znakov predstavlja dovoljenje, ki ga nato  uporabimo pri NS stre¾niku za konèni proces prijave. NS takoj zatem polje podatke o prisotnosti kontaktov z ukazoma LSG in LST.
+	Sporoèanje oz. pogovor med dvema uporabnikoma poteka tako, da pobudnik od NS zahteva pogovor z ukazom XFR. NS nato ustvari kanal za sporoèanje na nekem IP naslovu in ta naslov sporoèi. Uporabnik nato vzpostavi povezavo na ta kanal in povabi prijatelje s katerimi ¾eli klepetati z ukazom CAL(najbr¾ to pomeni call - klicanje). Klicani nato odgovori z ukazom JOI, kar pomeni join ali prikljuèil sem se pogovoru. Na kanalu se nato prenaajo sporoèila z ukazi MSG. Mo¾no je seveda na kanal povabiti tudi veè prijateljev z ukazi CAL in tako ustvariti konferenèno zvezo.
+
+\subsection{Format ukazov}
+
+Sintaksa je na pogled preprosta, toda kasneje se izka¾e, da obstaja mnogo razliènih variacij istega ukaza (npr. razlièno tevilo parametrov), kar moèno ote¾uje implementacijo. Sintaksa je sledeèa:
+
+\begin{quote}
+UKZ stTr (par1 par2 par3 ...)$\backslash r \backslash n$
+\end{quote}
+
+\begin{itemize}
+  \item UKZ - vrsta ukaza
+  \item stTr - transakcijska tevilka, ki se poveèa za 1 po vsakem prenosu
+  \item (par1 par2 par3 ...) - parametri in podatki, loèeni s presledki
+  \item na koncu sta vedno znaka carriage return in newline
+\end{itemize}
+
+\subsection{Nabor najpogostejih ukazov:}
+
+\begin{itemize}
+\item zaèetna predstavljanje:
+  \begin{itemize}
+  \item VER: verzija protokola (npr. ``VER 1 MSNP11 MSNP10 CVR0$\backslash r \backslash n$'')
+  \item CVR: podatki o klientu(verzija, naziv), operacijskem sistemu in raèunalniki arhitekturi uporabnika
+  \end{itemize}
+
+\item zaèetna avtentifikacija:
+  \begin{itemize}
+  \item USR: podatki uporabnika(uporabniko ime, geslo)
+  \end{itemize}
+
+\item podatki o prisotnosti:
+  \begin{itemize}
+  \item LSG: podatki o skupinah. Vsaka skupina predstavlja eno LSG sporoèilo. Npr.: LSG Ime skupine 124153dc-a695-4f6c-93e8-8e07c9775251$\backslash r \backslash n$
+  \item LST: podatki o kontaktih. Podobno kot pri skupinah, vsak kontakt je predstavljen v enem sklopu LST, znotraj je tudi skupina kateri pripada.
+  \end{itemize}
+  
+
+\item sporoèanje:
+  \begin{itemize}
+  \item MSG: oznaèuje prenos sporoèila. Vsebuje informacije o pisavi, MIME tipu in vsebini.
+  \end{itemize}
+
+\end{itemize} 
+Primer takega sporoèila z MSG ukazom:
+\begin{quote}
+MSG 4 N 133$\backslash r \backslash n$
+MIME-Version: 1.0$\backslash r \backslash n$
+Content-Type: text/plain; charset=UTF-8$\backslash r \backslash n$
+X-MMS-IM-Format: FN=Arial; EF=I; CO=0; CS=0; PF=22$\backslash r \backslash n$ $\backslash r \backslash n$
+
+Pozdravljeni! Kako ste?
+\end{quote}
+
+\subsection{Podprte znaèilnosti}
+\begin{itemize}
+\item podpora veèih MSN raèunov hkrati
+\item prikaz stanj kontaktov (online, offline, busy, away)
+\item zaèetek pogovora s poljubnim kontaktom
+\item dodajanje kontaktov, èe je pobudnik JIMMY uporabnik
+\item dodajanje kontaktov, èe je pobudnik kontakt
+\item brisanje kontaktov
+\end{itemize}
