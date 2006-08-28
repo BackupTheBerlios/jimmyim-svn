@@ -32,7 +32,7 @@ v èim veèjem ¹tevilu uporabljajo njihove produkte (v tem primeru program MSN Mes
 seveda operacijski sistem MS Windows. Toda kot bodoèi raèunalni¹ki in¾enirji moramo tak¹ne
 poteze grajati. Potreba po standardizaciji tako na internetu kot na podroèju programske opreme
 je danes zaradi porasta razliènih tehnologij, ki temeljijo na razliènih jedrih, nujnej¹a kot
-kdajkoli prej in za¾eljeno je, da so proizvodi odprte narave (bodisi odprtokodni ali pa potrjeni
+kdajkoli prej in za¾eleno je, da so proizvodi odprte narave (bodisi odprtokodni ali pa potrjeni
 od organizacij za standardizacijo, kot je npr. ISO), ravno zaradi prenosljivosti in dostopnosti.
 Nasploh je zadnja leta v raèunalni¹tvu èutiti tendenco po veè platformnih re¹itvah in resno
 konkurenco odprtokodnih re¹itev prav zaradi la¾je dostopnosti in prenosljivosti. Tu naj
@@ -54,21 +54,21 @@ Microsoft odvrniti ostale razvijalce programske opreme od uporabe MSN protokola.
 
 \textbf{jimmy.msn.MSNProtocol}
 
-Osnova za implementacijo je razred MSNProtocol, ki podeduje abstraktni razred Protocol.java. Za pravilno delovanje so potrebni ¹e ostali razredi:
+Osnova za implementacijo je razred {\it MSNProtocol}, ki podeduje abstraktni razred {\it Protocol.java}. Za pravilno delovanje so potrebni ¹e ostali razredi:
 \begin{itemize}
   \item \textbf{MSNTransaction:} skrbi za pravilno obliko in o¹tevilèenje sporoèil
   \item \textbf{PassportNexus:} avtentifikacija in pridobivanje vstopnega zaporedja
 \end{itemize}
 
 Najveè te¾av povzroèa nepredvidljiva oblika ukazov, ki imajo lahko spremenljivo ¹tevilo parametrov in pomankljiva oziroma zastarana dokumentacija. Z vsako verzijo protokola se sintaksa malenkostno spremeni, kar ote¾uje sledenje razvijalcev.
-	Daleè najte¾ja zadeva je algoritem za t.i. ``challenge'' ali izziv. Centralni stre¾nik namreè takoj po prijavi polje ukaz CHL(npr. ``CHL 0 26045552712758918823''), na katerega je treba pravilno odgovoriti v roku ene minute, sicer stre¾nik odjemalca odjavi iz sistema. Prvotni naèrt implementacije je bila enajsta verzija protokola, toda izkazalo se je, da ima ta verzija veliko te¾avneji challenge algoritem kot predhodne verzije, zato smo naknadno izbrali deveto oziroma deseto verzijo protokola. Challenge algoritem za omenjeni verziji sedaj obsega MD5 predstavitev 16 mestnega parametra v stre¾nikovem ukazu. Èetudi se sli¹i enostavno, je implementacija v okolju j2me dokaj zapletena zaradi omejenih funkcionalnosti.
+	Daleè najte¾ja zadeva je algoritem za t.i. ``challenge'' ali izziv. Centralni stre¾nik namreè takoj po prijavi po¹lje ukaz CHL(npr. ``CHL 0 26045552712758918823''), na katerega je treba pravilno odgovoriti v roku ene minute, sicer stre¾nik odjemalca odjavi iz sistema. Prvotni naèrt implementacije je bila enajsta verzija protokola, toda izkazalo se je, da ima ta verzija veliko te¾avnej¹i challenge algoritem kot predhodne verzije, zato smo naknadno izbrali deveto oziroma deseto verzijo protokola. Challenge algoritem za omenjeni verziji sedaj obsega MD5 predstavitev 16 mestnega parametra v stre¾nikovem ukazu. Èetudi se sli¹i enostavno, je implementacija v okolju j2me dokaj zapletena zaradi omejenih funkcionalnosti.
 
 \subsection{Od prijave do sporoèanja}
 
-	Seja MSN protokola poteka vsebuje najprej povezavo s t.i. ``Notification serverjem'', ki posreduje podatke o prisotnosti. Notification server dovoljuje uporabniku, da se pove¾e na Switchboard stre¾nik, ki  opravlja zahteve neposrednega sporoèanja.
+	Seja MSN protokola vsebuje najprej povezavo s t.i.``Notification serverjem'', ki posreduje podatke o prisotnosti. Notification server dovoljuje uporabniku, da se pove¾e na Switchboard stre¾nik, ki  opravlja zahteve neposrednega sporoèanja.
 
-Centralni stre¾nik je dosegljiv na naslovu messenger.hotmail.com, port 1863. Med odjemalcem in stre¾nikom se najprej izmenja informacija o verziji protokola in verziji klienta (ukazi VER, CVR) in povezava se nato zakljuèi. Prijava v MSN omre¾je poteka na drugem preko t.i. Notification server(kraje NS) na drugaènem IP naslovu - obièajno baym-cs118.msgr.hotmail.com, kjer se najprej ponovi izmenjava ukazov s centralnega stre¾nika. NS kasneje opravlja vse ostale ukaze, zato je daleè najveè komunikacije opravljene prav na tej relaciji. Potrebno je omeniti, da je med procesom prijave, potrebno vzpostaviti varno povezavo(HTTPS) do t.i. Passport Nexus(PN) stre¾nika in tja posredovati up. ime  in geslo. PN nato vrne napako ali pa dolg niz znakov ob uspehu. Ta niz znakov predstavlja dovoljenje, ki ga nato  uporabimo pri NS stre¾niku za konèni proces prijave. NS takoj zatem polje podatke o prisotnosti kontaktov z ukazoma LSG in LST.
-	Sporoèanje oz. pogovor med dvema uporabnikoma poteka tako, da pobudnik od NS zahteva pogovor z ukazom XFR. NS nato ustvari kanal za sporoèanje na nekem IP naslovu in ta naslov sporoèi. Uporabnik nato vzpostavi povezavo na ta kanal in povabi prijatelje s katerimi ¾eli klepetati z ukazom CAL(najbr¾ to pomeni call - klicanje). Klicani nato odgovori z ukazom JOI, kar pomeni join ali prikljuèil sem se pogovoru. Na kanalu se nato prenaajo sporoèila z ukazi MSG. Mo¾no je seveda na kanal povabiti tudi veè prijateljev z ukazi CAL in tako ustvariti konferenèno zvezo.
+Centralni stre¾nik je dosegljiv na naslovu messenger.hotmail.com, port 1863. Med odjemalcem in stre¾nikom se najprej izmenja informacija o verziji protokola in verziji klienta (ukazi VER, CVR) in povezava se nato zakljuèi. Prijava v MSN omre¾je poteka drugje, na t.i. Notification server(kraj¹e NS) IP naslovu baym-cs118.msgr.hotmail.com, kjer se najprej ponovi izmenjava ukazov s centralnega stre¾nika. NS kasneje opravlja vse ostale ukaze, zato je daleè najveè komunikacije opravljene prav na tej relaciji. Potrebno je omeniti, da je med procesom prijave potrebno vzpostaviti varno povezavo(HTTPS) do t.i. Passport Nexus(PN) stre¾nika in tja posredovati up. ime  in geslo. PN nato vrne napako ali pa dolg niz znakov ob uspehu. Ta niz znakov predstavlja dovoljenje, ki ga nato  uporabimo pri NS stre¾niku za konèni proces prijave. NS takoj zatem polje podatke o prisotnosti kontaktov z ukazoma LSG in LST.
+	Sporoèanje oz. pogovor med dvema uporabnikoma poteka tako, da pobudnik od NS zahteva pogovor z ukazom XFR. NS nato ustvari kanal za sporoèanje na nekem IP naslovu in ta naslov sporoèi. Uporabnik nato vzpostavi povezavo na ta kanal in povabi prijatelje s katerimi ¾eli klepetati z ukazom CAL(najbr¾ to pomeni call - klicanje). Klicani nato odgovori z ukazom JOI, kar pomeni join ali prikljuèil sem se pogovoru. Na kanalu se nato prena¹ajo sporoèila z ukazi MSG. Mo¾no je seveda na kanal povabiti tudi veè prijateljev z ukazi CAL in tako ustvariti konferenèno zvezo.
 
 \subsection{Format ukazov}
 
@@ -80,7 +80,7 @@ UKZ stTr (par1 par2 par3 ...)$\backslash r \backslash n$
 
 \begin{itemize}
   \item UKZ - vrsta ukaza
-  \item stTr - transakcijska tevilka, ki se poveèa za 1 po vsakem prenosu
+  \item stTr - transakcijska ¹tevilka, ki se poveèa za 1 po vsakem prenosu
   \item (par1 par2 par3 ...) - parametri in podatki, loèeni s presledki
   \item na koncu sta vedno znaka carriage return in newline
 \end{itemize}
@@ -88,15 +88,15 @@ UKZ stTr (par1 par2 par3 ...)$\backslash r \backslash n$
 \subsection{Nabor najpogostej¹ih ukazov:}
 
 \begin{itemize}
-\item zaèetna predstavljanje:
+\item zaèetno predstavljanje:
   \begin{itemize}
   \item VER: verzija protokola (npr. ``VER 1 MSNP11 MSNP10 CVR0$\backslash r \backslash n$'')
-  \item CVR: podatki o odjemalcucd(verzija, naziv), operacijskem sistemu in raèunalniki arhitekturi uporabnika
+  \item CVR: podatki o odjemalcu(verzija, naziv), operacijskem sistemu in raèunalni¹ki arhitekturi uporabnika
   \end{itemize}
 
 \item zaèetna avtentifikacija:
   \begin{itemize}
-  \item USR: podatki uporabnika(uporabniko ime, geslo)
+  \item USR: podatki uporabnika(uporabni¹ko ime, geslo)
   \end{itemize}
 
 \item podatki o prisotnosti:
