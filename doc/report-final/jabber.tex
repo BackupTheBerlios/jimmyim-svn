@@ -1,60 +1,73 @@
 \chapter{Opis protokolov}
 \section{Jabber--XMPP}
 \subsection{Splo¹no}
-Jabber (http://www.jabber.org) je najbolj raz¹irjen odprt protokol za neposredno 
-sporoèanje. Temelji na XML sintaksi. Osnovni, jedrni del je dokaj enostaven z obilico 
-prostora za raz¹iritve. Trenutno ¾e obstaja veliko odjemalcev (MirandaIM za Windows, 
-Kopete za KDE, Gaim napisan v gtk+, deluje pod veliko OS, Bombus za J2ME in mnogi drugi), 
-kot tudi stre¾nikov (najbolj znan je v Javi napisan Wildfire). Ravno v tem èasu tudi 
-Google razvija svoj Google Talk, ki uporablja XMPP kot temeljno sintakso za neposredno 
-sporoèanje, za prenos zvoka pa odprt algoritem Speex (http://www.speex.org), vgnezden v XMPP 
-sintakso. Naj omenim, da tudi danes najbolj popularen program za pogovor preko interneta, 
-Skype (http://www.skype.org), uporablja Speex algoritem za kompresijo zvoka. Problem je le 
-v zaprtosti protokola, saj je Skype lastni¹ki komercialni program. Upajmo, da bo Googleova 
+Jabber (http://www.jabber.org) je najbolj raz¹irjen odprt protokol za takoj¹nje
+sporoèanje. Temelji na XML sintaksi. Osnovni, jedrni del protokola je dokaj enostaven, ima
+pa obilico prostora za raz¹iritve. Za Jabber obstaja veliko odjemalcev (MirandaIM za Windows,
+Kopete za KDE, Gaim napisan v gtk+, deluje pod veliko OS, Bombus za J2ME in mnogi drugi)
+kot tudi stre¾nikov (najbolj znan je v Javi napisan Wildfire). Ravno v tem èasu tudi
+Google razvija svoj Google Talk, ki uporablja XMPP kot temelj za takoj¹nje
+sporoèanje, za prenos zvoka pa odprt algoritem Speex (http://www.speex.org), vgnezden v XMPP
+sintakso. Naj omenim, da tudi danes najbolj popularen program za pogovor preko interneta,
+Skype (http://www.skype.org), uporablja Speex algoritem za kompresijo zvoka. Problem je le
+v zaprtosti protokola, saj je Skype lastni¹ki komercialni program. Upajmo, da bo Googleova
 tradicionalna naklonjenost odprtokodni skupnosti tudi tokrat obrodila sadove.
 
-Prav odprtost in enostavnost dajeta Jabberju prednost pred ostalimi protokoli. Jabber 
-ni centraliziran, ampak obstaja celotna mre¾a med seboj povezanih razliènih stre¾nikov 
-(npr. jabber.org, gristle.org, predoslje.org). Vsak uporabnik ima svoje unikatno ime v 
-obliki ime@stre¾nik.
+Prav odprtost in enostavnost dajeta Jabberju prednost pred ostalimi protokoli. Jabber
+ni centraliziran, ampak je prevzel podobno filozofijo kot internet -- obstaja ¹iroka mre¾a
+med seboj povezanih razliènih stre¾nikov (npr. jabber.org, gristle.org, predoslje.org). S
+tem se obremenitev posameznega stre¾nik ¾e v principu znatno zmanj¹a. Vsak uporabnik ima svoje
+unikatno ime, t.i. JabberID ali jid, v obliki {\tt ime@stre¾nik}.
 
-Jabber prav tako podpira razlièno enkripcijo pri prenosu sporoèil. Poleg standardne SASL 
-in TLS povezave je na voljo tudi vi¹jenivojska moèna SHA1 (temeljeèa na kljuèih oz. 
-certifikatih) enkripcija podatkovenga dela XML kitice. Enkriptirani podatki se prena¹ajo med 
-odjemalcem in stre¾nikom, kot tudi med stre¾niki.
+Jabber prav tako podpira razlièno enkripcijo pri prenosu sporoèil. Poleg standardne SASL
+in TLS povezave je na voljo tudi vi¹jenivojska moèna SHA1 (temeljeèa na kljuèih oz.
+certifikatih) enkripcija podatkovenga dela XML kitice. Enkriptirani podatki se prena¹ajo med
+odjemalcem in stre¾nikom kot tudi med stre¾niki (za razliko od npr. MSNP, kjer se sporoèila
+na stre¾niku dekriptirajo, prefiltrirajo in ponovno zakodirajo -- s tem se ne da zagotoviti
+pristnosti sporoèila in zasebnosti pogovora).
 
-Prav tako zanimiva lastnost Jabber stre¾nikov je t.i. prehod (gateway) med Jabberjem in 
-ostalimi protokoli, torej da pretvorbo sporoèil in stanj uporabnikov v druge protokole 
-izvaja Jabber stre¾nik samodejno (npr. za Wildfire obstaja kopica raz¹iritev za razliène 
+Prav tako je zanimiva in vedno bolj raz¹irjena uporaba Jabber stre¾nikov v vlogi t.i.
+prehoda (gateway) med Jabberjem in
+drugimi protokoli, torej da pretvorbo sporoèil in stanj uporabnikov v druge protokole
+izvaja Jabber stre¾nik samodejno (npr. za Wildfire obstaja kopica raz¹iritev za razliène
 protokole). Odjemalec mora poznati le Jabber sintakso.
+
+Jabber stre¾niki privzeto poslu¹ajo na vratih 5222.
 
 \subsection{Znaèilnosti}
 \begin{itemize}
 \item odprt protokol, jasna specifikacija
 \item XML sintaksa
 \item moèna enkripcija celotno pot od odjemalca do odjemalca
+\item vse lastnosti kontaktov (poleg JabberID tudi prikazno ime, skupina) so shranjene izkljuèno na stre¾niku
 \item hranjenje sporoèil na stre¾niku, èe uporabnik trenutno ni dosegljiv
 \item mo¾nost raz¹iritev obstojeèe sintakse na druga podroèja (npr. VoIP)
 \item konferenèna povezava
 \item prenos datotek
+\item XMPP-1.0 NE podpira prenosa in prikaza slièic uporabnikov
+\item XMPP-1.0 NIMA mehanizmov za prenos emblemov v sliki in drugih multimedijskih vsebin preko kanala za pogovor
 \end{itemize}
 
 \subsection{Implementacija}
 
 \textbf{jimmy.jabber.JabberProtocol}
 
-Osnovni razred, ki predstavlja protokol Jabber, je JabberProtocol. Po inicializaciji objekta 
-poklièe razvijalec metodo login(), ki aktivira nit (ki ves èas preverja stanje prejetih 
-Jabber sporoèil na prihajajoèih vratih), metoda pa vrne true ob uspe¹ni prijavi ali false ob napaki. JabberProtocol 
-se privzeto prijavi na stre¾nik, ki je podan ob uporabni¹kem imenu. Izjemoma se lahko uporabnik pove¾e tudi na poljuben stre¾nik,
-èe ga poda ob ustvarjanju raèuna. Za po¹iljanje sporoèil se uporablja standardna metoda sendMsg(), za odjavo pa logout().
+Osnovni razred, ki predstavlja protokol Jabber, je {\it JabberProtocol}. Po inicializaciji objekta
+poklièe razvijalec metodo {\tt login()}, ki aktivira nit (ki ves èas preverja stanje prejetih
+Jabber sporoèil na prihajajoèih vratih). Metoda vrne {\tt true} ob uspe¹ni prijavi ali {\tt false} ob napaki. JabberProtocol
+se privzeto prijavi na stre¾nik, ki je izlu¹èen iz uporabni¹kega imena (jid). Izjemoma se lahko uporabnik pove¾e tudi na poljuben stre¾nik,
+èe ga poda ob ustvarjanju raèuna.
 
-JabberProtocol ne uporablja splo¹nega DOM ali SAX razèlenjevalnika (eng. parser), 
-ampak smo zaradi hitrosti in optimizacije kode napisali specifièni razèlenjevalnik, 
-razred JabberParseXML, namenjen prav branju sporoèil, stanja kontaktov, spreminjanju 
+Razvijalec za zaèetek pogovora uporabi standardno metodo {\tt startChatSession()}, za po¹iljanje sporoèil pa metodo {\tt sendMsg()}.
+
+Za odjavo razvijalec uporabi metodo {\tt logout()}.
+
+{\it JabberProtocol} ne uporablja splo¹nega DOM ali SAX razèlenjevalnika (eng. parser),
+ampak smo zaradi hitrosti in optimizacije kode napisali specifièni razèlenjevalnik,
+razred {\it JabberParseXML}, namenjen izrecno branju sporoèil, stanja kontaktov, spreminjanju
 lastnosti itd. za XMPP protokol.
 
-JabberProtocol ne podpira ¹e nobene enkripcije linije, kot tudi ne enkripcije XML kitic. 
+{\it JabberProtocol} ne podpira ¹e nobene enkripcije linije kot tudi ne enkripcije XML kitic.
 Vsi podatki se prena¹ajo v èistem tekstovnem naèinu v UTF-8 kodnem naboru.
 
 \subsection{Podprte znaèilnosti}
@@ -68,3 +81,55 @@ Vsi podatki se prena¹ajo v èistem tekstovnem naèinu v UTF-8 kodnem naboru.
 \item dodajanje kontaktov, èe je pobudnik kontakt
 \item brisanje kontaktov
 \end{itemize}
+
+\subsection{Jabber XML in Delovanje XMPP}
+
+Jabber oz. bolje reèeno XMPP protokol razlièica 1.0 za komunikacijo uporablja sintakso XML. Osnovna entiteta za prenos po mre¾i je t.i. XML kitica.
+
+XMPP uporablja naslednje XML kitice:
+\begin{itemize}
+\item {\tt <stream>} Robna oznaka, ki oznaèuje zaèetek seje med odjemalcem in stre¾nikom.
+\item {\tt <presence><show/></presence>} Sporoèanje stanja uporabnika. {\tt show} podkitica je prisotna po ¾elji in vsebuje poljubno sporoèilo uporabnika o njegovi odsotnosti (npr. Sem zunaj na èaju, pridem ob 13h).
+\item {\tt <message to='foo'></message>} Sporoèilo za uporabnika {\em foo}. Vsebina kitice je sporoèilo zapisano v XHTML obliki -- torej je mo¾no tudi oblikovanje besedila, kot so npr. razlièni slogi, barve, poravnave in izbira pisave.
+\item {\tt <iq><query/></iq>} Razliène operacije nad stre¾nikom, kontakti ali odjemalcem, npr. registracija novega raèuna, spreminjanje gesla, spreminjanje prikaznega imena kontakta, brisanje ali dodajanje kontaktov, poizvedva po razlièici protokola, ki jo odjemalec ali stre¾nik podpirata ipd. Operacijam je namenjena {\tt query} podkitica in deluje po principu HTTP. Torej nekdo po¹lje {\tt query} z doloèeno poizvedbo in kljuèem (zapisanem v lastnosti {\tt roster}) in dobi odgovor na dotièno poizvedbo prav tako v {\tt iq} kitici.
+\item Mo¾nost za raz¹iritve - Zgoraj omenjena sintaksa je definirana za XMPP-1.0. npr. Google Talk uporablja t.i. Jingle protokol za prenos zvoka. Poleg {\tt <message>}, {\tt <presence>} in {\tt <iq>} podkitic je prisotna tudi Jingle -- izgleda nekako takole:
+{\begin{verbatim}
+<jingle>
+  <content name='this-is-the-audio-content'>
+    ...
+  </content>
+</jingle>
+\end{verbatim}}
+\item {\tt </stream>} Oznaka za konec seje.
+\end{itemize}
+
+
+Primer seje pogovora (C -- odjemalec, S -- stre¾nik):
+\begin{verbatim}
+   C: <?xml version='1.0'?>
+      <stream:stream
+          to='example.com'
+          xmlns='jabber:client'
+          xmlns:stream='http://etherx.jabber.org/streams'
+          version='1.0'>
+   S: <?xml version='1.0'?>
+      <stream:stream
+          from='example.com'
+          id='someid'
+          xmlns='jabber:client'
+          xmlns:stream='http://etherx.jabber.org/streams'
+          version='1.0'>
+   ...  encryption, authentication, and resource binding ...
+   C:   <message from='juliet@example.com'
+                 to='romeo@example.net'
+                 xml:lang='en'>
+   C:     <body>Art thou not Romeo, and a Montague?</body>
+   C:   </message>
+   S:   <message from='romeo@example.net'
+                 to='juliet@example.com'
+                 xml:lang='en'>
+   S:     <body>Neither, fair saint, if either thee dislike.</body>
+   S:   </message>
+   C: </stream:stream>
+   S: </stream:stream>
+\end{verbatim}

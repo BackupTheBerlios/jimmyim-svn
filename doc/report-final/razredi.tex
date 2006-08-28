@@ -13,6 +13,7 @@ JimmyIM je razbit na veè paketov:
 
 \section{Raèuni}
 \textbf{jimmy.Account}
+
 Razred je namenjen hranjenju lastnosti raèuna. Podprti raèuni:
 \begin{itemize}
 \item Jabber
@@ -31,7 +32,8 @@ Vsak raèun vsebuje naslednje lastnosti:
 
 \section{Protokoli}
 \textbf{jimmy.Protocol}
-Vsak raèun potrebuje za delovanje uporabo razreda Protocol. Abstraktni razred Protocol je v splo¹nem namenjen prijavi, po¹iljanju in sprejemanju sporoèil in stanj uporabnikov, odjavi, enkripciji ipd.
+
+Vsak raèun potrebuje za delovanje uporabo razreda {\it Protocol}. Abstraktni razred {\it Protocol} je v splo¹nem namenjen prijavi, po¹iljanju in sprejemanju sporoèil in stanj uporabnikov, odjavi, enkripciji ipd.
 
 Glavne metode:
 \begin{itemize}
@@ -48,11 +50,14 @@ Implementacije abstraktnega razreda Protocol:
 \item ICQProtocol
 \end{itemize}
 
-Veè o posameznih znaèilnostih protokolov v poglavju Protokoli.
+Razvijalec klièe metode razreda {\it Protocol} za komunikacijo v smeri JimmyIM-Stre¾nik. {\it Protocol} samodejno poklièe metode {\tt receiveMsg()}, {\tt changeContactStatus()} in druge, ki so del uporabni¹kega vmesnika, ki potekajo v smeri Stre¾nik-JimmyIM.
+
+Veè o posameznih znaèilnostih protokolov v poglavju Opis protokolov.
 
 \section{Kontakti}
 \textbf{jimmy.Contact}
-Razred je namenjen hranjenju lastnosti kontakta. Kontakt je vsak uporabnik nekega protokola s katerim lahko komuniciramo. Kontakt vsebuje naslednje lastnosti:
+
+Razred je namenjen hranjenju lastnosti kontakta. Kontakt je vsak uporabnik nekega protokola s katerim lahko komuniciramo. Razred {\it Contact} vsebuje naslednje lastnosti:
 \begin{itemize}
 \item Uporabni¹ko ime za dotièen protokol (userID\_)
 \item Prikazano ime (screenName\_)
