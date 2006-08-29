@@ -21,6 +21,7 @@
  */
 package jimmy.msn;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import jimmy.net.ServerHandler;
@@ -28,6 +29,7 @@ import jimmy.util.MD5;
 import jimmy.Protocol;
 import jimmy.Account;
 import jimmy.Contact;
+import jimmy.msn.MSNContact;
 import jimmy.ChatSession;
 import jimmy.ProtocolInteraction;
 
@@ -45,14 +47,14 @@ public class MSNProtocol extends Protocol
     
     private PassportNexus pn;
     private MSNTransaction tr;
-    private Contact pendingUser = null;
-    private Contact movingUser = null;
+    private Contact pendingUser = null; //this user is waiting for a chatsession
+    private MSNContact movingUser = null;
     private ServerHandler sh;
     private boolean busy = false;
     private ServerHandler NexusHandler;
     private Hashtable userHashes; 
     private Hashtable userLists;
-    private Vector contacts_;
+    private Hashtable contacts_;
     private Hashtable groupHashes;
 
 	public Hashtable getChatIds_() {
@@ -263,7 +265,7 @@ public class MSNProtocol extends Protocol
 
 	    this.stop = true;
             System.out.println("[DEBUG] Logout successful.");
-	    this.thread_.interrupt();
+	    //this.thread_.interrupt();
     }
     /**
      * Parses a reply from the server according to first three letters.
@@ -289,11 +291,7 @@ public class MSNProtocol extends Protocol
         if(reply.indexOf("XFR")!=-1)
         {
             startSession(reply);
-        } 
-	if(reply.indexOf("OUT")!=-1)
-        {
-            this.logout();
-        } 
+        }  
         if(reply.indexOf("FLN")!=-1)
         {
             userGoesOffline(reply);
@@ -304,7 +302,8 @@ public class MSNProtocol extends Protocol
         }    
         if(reply.indexOf("ILN")!=-1)
         {
-            parsePresence(reply);   
+            parsePresence(reply); 
+            //this.printContacts();
         }         
         if(reply.indexOf("NLN")!=-1)
         {
@@ -338,9 +337,10 @@ public class MSNProtocol extends Protocol
             {   
                 // we have reached the last MSG piece in the string
                 msg = data.substring(t);
-                System.out.println("Last msg:" + msg);
+                System.out.println("************Last msg:\n" + msg);
+                System.out.println("***************");
                 t = -1;
-                if(msg.indexOf("TypingUser:")==-1)
+                if(msg.indexOf("TypingUser:")==-1 && msg.indexOf("Content-Type: text")!=-1)
                 {
 		    ChatSession activeCS = (ChatSession)this.chatSessions_.elementAt(SHid);
 
@@ -356,14 +356,15 @@ public class MSNProtocol extends Protocol
 			    break;
 			}
 		    }
-		    int marker = msg.indexOf("X-MMS-IM-Format:");
+		    int marker = msg.indexOf("\r\n\r\n");
 		    if(marker==-1)
 		    {
 			t = end;
 			continue;
 		    }
 		    //System.out.println("[DEBUG] Message:"+ marker + msg.substring(msg.indexOf("\n",marker+4)+3));
-		    String message = msg.substring(msg.indexOf("\n",marker+4)+3);
+		    //String message = msg.substring(msg.indexOf("\n",marker+4)+3);
+                    String message = msg.substring(marker+4);
 		    this.jimmy_.msgRecieved(activeCS, c, message);	    
                  }                 
             }
@@ -401,14 +402,26 @@ public class MSNProtocol extends Protocol
     }
     private void parseADC(String data)
     {
-        //ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso
-        //data = "ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso";
-        if(data.substring(6,8).compareTo("RL")==0)
+        //ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso\r\n
+        
+        String line = data.substring(data.indexOf("ADC"), data.indexOf('\n')+1);
+        System.out.println("Line:" + line);
+        
+        if(line.substring(6,8).compareTo("RL")==0)
         {
-            String userID = data.substring(11,data.indexOf("F=")-1);
-            //System.out.println(userID);
+            String userID = line.substring(11,data.indexOf("F=")-1);
+            System.out.println(userID);
             Contact c = new Contact(userID, this);
+            System.out.println(line.substring(line.indexOf("F=")+2, line.length()-2));
+            c.setScreenName(line.substring(line.indexOf("F=")+2, line.length()-2));
+            
+            if(this.contacts_==null)
+            {
+                this.contacts_ = new Hashtable();
+            }
+            
             this.addContact(c);
+            jimmy_.addContact(c);
         }
     }
     private void userBYE(String data, int SHid)
@@ -432,84 +445,92 @@ public class MSNProtocol extends Protocol
     }
     private void groupAdded(String data)
     {
+        //ADG 15 New%20Group b145b37f-7e09-47e7-880e-9daa5346eaab
         
     }
     private void parseContacts(String data)
     {  
         //LST N=matevz.jekovec@guest.arnes.si F=Matevž C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
-
-         Vector newContacts = new Vector(); 
+        //System.out.println("One contact line:" + data);
          if(this.contacts_ == null)
          {
-                this.contacts_ = new Vector();
+                this.contacts_ = new Hashtable();
          }
-         int t = data.indexOf("LST");
          int ind;
-         Contact person;
+         MSNContact person;
          String username;         
-        while(t!=-1)
-        {   
-            //String cLine = contact.toString();
-            int ind3 = data.indexOf("\n", t);
-            if(ind3==-1)
-            {
-                t = data.indexOf("LST", t+1);
-                continue;
-            }
-            String cLine = data.substring(t, ind3);
-            System.out.println("[DEBUG] Parsed contact line:"+cLine);
+         
+         
+          int t = data.indexOf("LST");        
+          int ind3 = data.indexOf("LST", t+1);
+          String cLine;
+          if(ind3!=-1)
+          {
+                cLine = data.substring(t, ind3);
+                this.parseContacts(data.substring(ind3));
+          }
+          else
+          {
+                cLine = data;
+          }
+
+          //System.out.println("[DEBUG] Parsed contact line:"+cLine);
 
             ind = cLine.indexOf("N=");   
             int ind2 = cLine.indexOf(" ", ind+1);
             if(ind==-1 || ind2==-1)
             {
-                t = data.indexOf("LST", t+1);
-                continue;
+                return;
             }            
             username = cLine.substring(ind+2, ind2);
-            //System.out.println("Username:" + username);
-            person = new Contact(username, (Protocol)this);
+            System.out.println("Username:" + username);
+            person = new MSNContact(username, (Protocol)this);
 	     
             
             ///////////
 	    ind = cLine.indexOf("C=");
             if(ind==-1)
             {
-                t = data.indexOf("LST", t+1);
-                continue;
+                return;
             }
             username = cLine.substring(ind2+3,ind-1);
-            //System.out.println("Screen name:"+username);
+            System.out.println("Screen name:"+username);
             person.setScreenName(username);
             
             ind2 = cLine.indexOf(" ", ind);
 
 	    String contactHash = cLine.substring(ind+2, ind2);   
-            //System.out.println("UserHash:" + contactHash);
+            System.out.println("UserHash:" + contactHash);
+            person.setUserHash(contactHash);
             
             ind = cLine.indexOf(" ", ind2+1);
             String lists;
             if(ind ==-1)
             {
-                //user doesn't belong to a group
-                lists = cLine.substring(ind2+1, cLine.length()-1);
+                //user does not belong to a group
+                lists = cLine.substring(ind2+1, cLine.length()-2);
             }
             else
             {   
                 lists = cLine.substring(ind2+1, ind);
-                username = cLine.substring(ind+1, cLine.length()-1);
-                //System.out.println("User group hash:"+username);
-                person.setGroupName((String)this.groupID.get(new Integer(username.hashCode())));   
+                username = cLine.substring(ind+1, cLine.length()-2);
+                System.out.println("User group hash:"+username);
+                person.setGroupHash(username);
+                person.setGroupName((String)this.groupID.get(username));   
             }
             
-            //System.out.println("Lists:"+lists);
-            int list = Integer.parseInt(lists);
+            System.out.println("Lists:"+lists);
+            short list = Short.parseShort(lists);
+            person.setLists(list);
+            
             switch (list)
             {
                 case 1:
                 case 2:
                 case 3:
+                case 9:
                 case 11:
+                case 17:
                     if(this.userHashes==null)
                     {
                         this.userHashes = new Hashtable();
@@ -521,31 +542,33 @@ public class MSNProtocol extends Protocol
                     this.userHashes.put(new Integer(person.hashCode()), contactHash);
                     this.userLists.put(new Integer(person.hashCode()), lists);            
 
-                    //System.out.println("Adding contact:" + person.userID() + person.groupName()+person.screenName());
-                    this.contacts_.addElement(person);
-                    newContacts.addElement(person);   
+                    this.contacts_.put(person.userID(), person); 
                   break;
                 default:
                     break;
             }
-            t = data.indexOf("LST", t+1);
-        }
-        jimmy_.addContacts(newContacts);
+        System.out.println("Adding contact:" + person.userID() + person.groupName()+person.screenName());
+        jimmy_.addContact(person);
     }
     private void userGoesOffline(String data)
     {
         //FLN matevz.jekovec@guest.arnes.si
         String uID = data.substring(4, data.length()-2);
         //System.out.println("[DEBUG] User to go ofline:"+uID);
-        Contact c = null;
-        for(int i=0; i<this.contacts_.size();i++)
+        MSNContact c = null;
+        c = (MSNContact)this.contacts_.get(uID);
+        if(c==null)
+        {
+            return;
+        }
+        /*for(int i=0; i<this.contacts_.size();i++)
         {
             c = (Contact)this.contacts_.elementAt(i);
             if(uID.compareTo(c.userID())==0)
             {
                  break;
             }
-        }
+        }*/
         c.setStatus(Contact.ST_OFFLINE);
         this.jimmy_.changeContactStatus(c);
     }
@@ -557,12 +580,10 @@ public class MSNProtocol extends Protocol
 	}
 	String presence = data.substring(4, 7);
 	String uID = data.substring(8, data.indexOf(" ", 10));
-	//System.out.println("[DEBUG] Data:")+data+"Presence:"+presence+", Uid:"+uID);
-	Contact con = null;
-	for(int i=0; i<this.contacts_.size(); i++)
-	{
-	 con = (Contact)this.contacts_.elementAt(i);
-	 if(con.userID().compareTo(uID)==0)
+	System.out.println("[DEBUG] Data:"+data+"Presence:"+presence+", Uid:"+uID);
+	MSNContact con = (MSNContact)this.contacts_.get(uID);
+
+	 if(con!=null)
 	 {
 	    if(presence.compareTo("BSY")==0)
 	    {
@@ -581,7 +602,6 @@ public class MSNProtocol extends Protocol
 		con.setStatus(Contact.ST_ONLINE);
 	    }
 	    this.jimmy_.changeContactStatus(con);
-	 }  
 	}	
     }
     private void startSession(String line)
@@ -632,8 +652,8 @@ public class MSNProtocol extends Protocol
             }
 	    //System.out.println("First:"+groupID.toString().substring(0, groupID.length()-1)+", \nsecond:"+group.toString());
 	    //this.groupID.put(group.toString(), new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()));
-	    this.groupID.put(new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()), group.toString());
-            this.groupHashes.put(new Integer(group.toString().hashCode()), groupID.toString().substring(0, groupID.length()-1));
+	    this.groupID.put(groupID.toString().substring(0, groupID.length()-1), group.toString());
+            this.groupHashes.put(group.toString(), groupID.toString().substring(0, groupID.length()-1));
 	    count++;
             t = data.indexOf("LSG", t+3);
         }
@@ -650,39 +670,37 @@ public class MSNProtocol extends Protocol
          StringBuffer groupID;
          String presence;
          String uID;
-         Contact con;
+         MSNContact con;
          while(t!=-1)
          {   
              presence = data.substring(t+6, t+9);
-             //System.out.println("[DEBUG] type:" + presence);
+             System.out.println("[DEBUG] type:" + presence);
              uID = data.substring(t+10, data.indexOf(' ', t+11));
-             //System.out.println("[DEBUG] user:" + uID);
-             for(int i=0; i<this.contacts_.size(); i++)
+             System.out.println("[DEBUG] user:" + uID);
+             con = (MSNContact)this.contacts_.get(uID);
+             if(con!=null)
              {
-                 con = (Contact)this.contacts_.elementAt(i);
-                 if(con.userID().compareTo(uID)==0)
-                 {
-                    if(presence.compareTo("BSY")==0)
-                    {
-                        con.setStatus(Contact.ST_BUSY);  
-                    }
-                    else if((presence.compareTo("IDL")==0) || (presence.compareTo("NLN")==0))
-                    {
-                        con.setStatus(Contact.ST_ONLINE);
-                    }   
-                    else if(presence.compareTo("AWY")==0)
-                    {
-                        con.setStatus(Contact.ST_AWAY);
-                    }  
-		    else
-		    {
-			con.setStatus(Contact.ST_ONLINE);
-		    } 
-                    this.jimmy_.changeContactStatus(con);
-                 }  
-             }
-            t = data.indexOf("ILN", t+3);
-        }   
+                if(presence.compareTo("BSY")==0)
+                {
+                    con.setStatus(Contact.ST_BUSY);  
+                }
+                else if((presence.compareTo("IDL")==0) || (presence.compareTo("NLN")==0))
+                {
+                    con.setStatus(Contact.ST_ONLINE);
+                }   
+                else if(presence.compareTo("AWY")==0)
+                {
+                    con.setStatus(Contact.ST_AWAY);
+                }  
+                else
+                {
+                    con.setStatus(Contact.ST_ONLINE);
+                } 
+                System.out.println("Changing presence:");
+                this.jimmy_.changeContactStatus((Contact)con);
+             }  
+             t = data.indexOf("ILN", t+3); 
+         }
     }
     
     private void parseChallenge(String data)
@@ -747,27 +765,29 @@ public class MSNProtocol extends Protocol
             this.ChatIds_ = new Hashtable();
         }   
         this.SessionHandlers_.addElement(sbHandler);
-        Contact c = null;
+        
         int t = data.indexOf(" ", data.indexOf("CKI")+5);
         String uID = data.substring(t+1, data.indexOf(" ", t+1));
-        System.out.println("[DEBUG] Calling user:" + uID+this.contacts_.size());
-        for(int i=0; i<this.contacts_.size();i++)
+        System.out.println("[DEBUG] Calling user:" + uID + this.contacts_.size());
+        
+        MSNContact c = (MSNContact)this.contacts_.get(uID);
+        System.out.println("aaaaa");
+        
+        if(c!=null)
         {
-            c = (Contact)this.contacts_.elementAt(i);
-	    System.out.println(c.userID()+c.screenName());
-            if(c.userID().equals(uID))
-	    {
-		System.out.println("BREAK!!!");
-                break;
-            }
+            System.out.println("test1");
+            ChatSession cs = new ChatSession(this, c);
+            System.out.println("test2");
+            this.ChatIds_.put(new Integer(cs.hashCode()), new Integer(2));
+            System.out.println("test3");
+            this.chatSessions_.addElement(cs);
+            System.out.println("END of SBhandle");            
         }
-	System.out.print("test1");
-        ChatSession cs = new ChatSession(this, c);
-	System.out.print("test2");
-        this.ChatIds_.put(new Integer(cs.hashCode()), new Integer(2));
-	System.out.print("test3");
-        this.chatSessions_.addElement(cs);
-	System.out.print("END of SBhandle");
+        else
+        {
+            System.out.println("Invalid user!");
+            return;
+        }
     }    
     
     private String getField( String strKey, String strField )  
@@ -815,11 +835,12 @@ public class MSNProtocol extends Protocol
         }
         else
         {
-           Contact c;
-            for(int i = 0; i<this.contacts_.size();i++)
+           MSNContact c;
+            for(Enumeration e = this.contacts_.elements();e.hasMoreElements();)
             {
-               c =(Contact) this.contacts_.elementAt(i);
-                System.out.println("Contact " + i +":"+c.userID()+", screen:" + c.screenName() + ", group:" + c.groupName() + ", status:" + c.status());
+               c =(MSNContact) e.nextElement();
+                System.out.println("Contact:"+c.userID()+", screen:" + c.screenName() + ", group:" + c.groupName() + ", status:" + c.status());
+                System.out.println("\tGroup hash:"+c.getGroupHash()+", lists:" + c.getLists()+", userHash:"+c.getUserHash());
             }
         }  
        System.out.println("*********************************************************");
@@ -925,7 +946,7 @@ public class MSNProtocol extends Protocol
      * returns a Vector of contacts(class Contact).
      * @return Vector of contacts(class Contact).
      */
-    public Vector getContacts() { return this.contacts_; }
+    public Vector getContacts() { return null; }
     
     /**
      * This method is called when Thread starts. It is a infinite loop that checks all
@@ -952,18 +973,17 @@ public class MSNProtocol extends Protocol
             for(int i=0; i<this.SessionHandlers_.size();i++)
             {
                 ServerHandler shTemp = (ServerHandler)this.SessionHandlers_.elementAt(i);
+                reply = null;
                 reply = shTemp.getReply();
-                System.out.println("[DEBUG]"+reply);
+                //System.out.println("[DEBUG] Server handler"+reply);
                 if(reply!=null && this.status_==CONNECTED)
                 {
                     if(reply.indexOf("BYE")!=-1)
                     {
-			System.out.println(reply);
                         userBYE(reply, i);
                     }                    
                     if(reply.indexOf("MSG")!=-1)
                     {
-			System.out.println(reply);
                         parseMessage(reply, i);
                     }
                 }
@@ -985,17 +1005,17 @@ public class MSNProtocol extends Protocol
     public boolean removeContact(Contact c)
     {
         System.out.println("Remove contact");
-	Contact con=null;
-	for(int i=0; i<this.contacts_.size(); i++)
-	{
-	     con = (Contact)this.contacts_.elementAt(i);
-	     if(con.userID().compareTo(c.userID())==0)
-	     {
-		 String list = (String)this.userLists.get(new Integer(con.hashCode()));
-		 System.out.println("LisT:" + list);
-		 int l = Integer.parseInt(list);
+	MSNContact con=(MSNContact)this.contacts_.get(c.userID());
 
-		 switch (l)
+	     if(con!=null)
+	     {
+		 short list = con.getLists();
+		 System.out.println("LisT:" + list);
+                 this.tr.newTransaction();
+                 this.tr.setType("REM");			 
+                 this.tr.addArgument("FL "+this.userHashes.get(new Integer(con.hashCode())));
+                 this.sh.sendRequest(this.tr.toString());
+		 /*switch (list)
 		 {
 		     case 11:
 			 this.tr.newTransaction();
@@ -1004,18 +1024,18 @@ public class MSNProtocol extends Protocol
 			 this.sh.sendRequest(this.tr.toString());
 			 System.out.println("gggggg"+this.tr.toString());
 		     case 1:
+                     case 3:
 			 this.tr.newTransaction();
 			 this.tr.setType("REM");			 
 			 this.tr.addArgument("FL "+this.userHashes.get(new Integer(con.hashCode())));
 			 this.sh.sendRequest(this.tr.toString());
 			 System.out.println("jjjjjjj"+this.tr.toString());
 			 break; 
-		 }
+		 }*/
 				 
-		 this.contacts_.removeElementAt(i);
+		 this.contacts_.remove(c.userID());
 		 return true;
 	     }
-	}
 	return false;
     }
     /**
@@ -1026,22 +1046,38 @@ public class MSNProtocol extends Protocol
     public void addContact(Contact c)
     {
 	//ADC 16 FL N=passport@hotmail.com F=Display%20Name\r\n
+        //ADC 16 AL N=passport@hotmail.com F=Display%20Name\r\n
+        String name = c.screenName();
+        name = name.replace(' ', '_');
+        System.out.println(name);
+        c.setScreenName(name);
+        
+        MSNContact ms = new MSNContact(c.userID(), this);
+        ms.setScreenName(c.screenName());
+        System.out.println("1");
+        
 	if(this.contacts_==null)
 	{
-	    this.contacts_=new Vector();
+	    this.contacts_=new Hashtable();
 	}
-	    this.contacts_.addElement(c);
+        System.out.println("2");        
+	    this.contacts_.put(ms.userID(), ms);
+            
+                    System.out.println("3");
 	    this.tr.newTransaction();
 	    this.tr.setType("ADC");
 	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
 	    System.out.println(this.tr.toString());
 	    this.sh.sendRequest(this.tr.toString());   
-
+                    System.out.println("4");
 	    this.tr.newTransaction();
 	    this.tr.setType("ADC");
-	    this.tr.addArgument("AL N="+c.userID() + " " + "F="+c.screenName());
+	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
 	    System.out.println(this.tr.toString());
-	    this.sh.sendRequest(this.tr.toString());  
+	    this.sh.sendRequest(this.tr.toString());      
+            
+            System.out.println("Konec metode add contact");
+ 
             //this.updateContactProperties(c);
 	    /*if(c.groupName()!=null)
 	    {
@@ -1055,6 +1091,85 @@ public class MSNProtocol extends Protocol
     }
     public void updateContactProperties(Contact c) 
     {
+        MSNContact con = (MSNContact)c;
+        if(c.groupName()==null)
+        {
+            return;
+        }
+        String groupName = "";
+        if(con.getGroupHash()!=null)
+        {
+            groupName = (String)this.groupID.get(con.getGroupHash());    
+        }
+
+        if(groupName.compareTo(c.groupName())!=0)
+        {
+            String gHash=null;
+            boolean groupExists = false;
+            System.out.println("Changing group!");
+            for(Enumeration e = this.groupID.keys();e.hasMoreElements();)
+            {
+                gHash = (String)e.nextElement();
+                System.out.println(gHash);
+                groupName = (String)this.groupID.get(gHash);
+                if(groupName.compareTo(c.groupName())==0)
+                {
+                    System.out.println("Found match!!!");
+                    groupExists = true;
+                    break;
+                }
+            }
+            if(groupExists)
+            {
+                
+                System.out.println("Group exists!!!");
+                //move a contact to an existing group and delete him from the old one(if any)
+                
+                //ADC 47 FL C=ec90b44e-eac3-495e-b09f-19579793dbdb 5cb95ee2-b678-47e3-8eb1-ccfaa7963d73
+                //REM 48 FL ec90b44e-eac3-495e-b09f-19579793dbdb 3c9b3456-a8fa-4164-beb5-68bea34365bd
+                
+                //add the contact to an existing group
+                this.tr.newTransaction();
+                this.tr.setType("ADC");
+                this.tr.addArgument("FL");
+                this.tr.addArgument("C="+con.getUserHash());
+                this.tr.addArgument(gHash);
+                this.sh.sendRequest(this.tr.toString());
+                System.out.println(this.tr.toString());
+                
+                this.parseReply(this.sh.getReply());
+                
+                //delete the contact from the old group
+                if(con.getGroupHash()!=null)
+                {
+                    System.out.println("Removing from the old group!!!");
+                    this.tr.newTransaction();
+                    this.tr.setType("REM");
+                    this.tr.addArgument("FL");
+                    this.tr.addArgument(con.getUserHash());
+                    this.tr.addArgument(con.getGroupHash());
+                    this.sh.sendRequest(this.tr.toString());
+                    System.out.println(this.tr.toString()); 
+                }
+                
+                //set hash of the new group locally
+                con.setGroupHash(gHash);
+            }
+            else
+            {
+                System.out.println("This is a new group!!!");
+                this.movingUser = (MSNContact)c;
+                //addGroup(c.groupName());                
+            }
+        }
+        else
+        {
+            System.out.println("No group change!!!");
+            //only screen name of the contact has changed
+            //this can not be implemented in MSN protocol
+        }
+        
+        
         //ADC 89 FL C=e527fe06-4208-40cf-a8c9-d6ba636f4021 d788c190-591d-44f8-a304-ff365a41f3ce
         /*Contact con=null;
         String oldGroupID=null;
@@ -1139,4 +1254,13 @@ public class MSNProtocol extends Protocol
 	//this.sh.sendRequest(this.tr.toString());
         System.out.println(this.tr.toString());*/
     }
+    public void addGroup(String groupName)
+    {
+        System.out.println("Add group method! Name of the new group:" + groupName);
+        //ADG 15 New%20Group
+        this.tr.newTransaction();
+        this.tr.setType("ADG");
+        this.tr.addArgument(groupName.replace(' ', '_'));
+        this.sh.sendRequest(this.tr.toString());
+    }    
 }
