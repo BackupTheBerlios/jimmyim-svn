@@ -1135,9 +1135,7 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument("C="+con.getUserHash());
                 this.tr.addArgument(gHash);
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());
-                
-                this.parseReply(this.sh.getReply());
+                System.out.println(this.tr.toString());     
                 
                 //delete the contact from the old group
                 if(con.getGroupHash()!=null)
