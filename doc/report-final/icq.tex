@@ -125,28 +125,30 @@ ter ugotavljati delovanje.
 
 Sreèal sem se tudi s problemom pretvarjanja sprejetega teksta iz Unicode tabele bajtov v 
 Unicode tekst. Tega problema ¹e nisem odpravil, bo pa nujno to realizirati, kajti nesmiselno 
-je sprejemanje dvojne kolièine podatkov, èe jih potem ne moremo uporabiti.
+je sprejemanje dvojne kolièine podatkov, èe potem ni mo\v zno izkoristiti prednosti, ki jih ta
+oblika zapisa ponuja.
 
 \subsection{Lastno mnenje}
-Med implementacijo sem se velikokrat spra¹eval, zakaj je ta protokol tak kot je. Ugotovitve 
-pa so bile, da je bil zastavljen pre¹iroko. Èe pogledamo doloèene lastnosti bomo opazili 
-nesmisle za trenutno obliko. Kot primer vzemimo polje v SNAC glavi, ki nam pove storitvene 
-dru¾ine. To polje je veliko 2 bajta, vseh dru¾in pa je zgolj 23. Taka zasnova nas pripelje 
-do velikih redundanc v paketih. 
+Med implementacijo sem se velikokrat spra¹eval, zakaj se je ``OSCAR'' razvil v tako obliko. 
+S primerjavo osnovne ideje paketne oblike s kon\v cno obliko sem ugotovil, da je protokol take
+oblike zaradi posku\v sanja ohranitve njegove zaprte specifikacije. S kompliciranjem vsebine
+paketov poskusa AOL omejiti \v sirjenje neuradnih odjemalcev. Ta pristop mo\v cno ote\v zuje
+dekodiranje in razumevanje vsebine paketov ter pove\v cuje redundanco. 
 
-Veliko sem se spra¹eval tudi zakaj je mo¾no imeti podatke tudi zunaj TLV paketov. TLV 
-paket ima svoj namen in ne vidim razloga zakaj ga ne uporabit. Èe vzamemo kot primer paket 
-s kontaktno listo, vsebuje vsak vnos veè stvari. Prvi podatek, ki je dolg dva bajta, vsebuje 
-dol¾ino niza, ki mu sledi, sledi mu niz, ¹tiri bajti za razvr¹èanje po skupinah ter dva bajta 
-za dol¾ino ostalih podatkov, ki pa so v obliki verige TLV paketov. Takih vnosov pa je mo¾nih 
-pribli¾no 700 v tem paketu. Spra¹ujem se, zakaj, èe protokol omogoèa hierarhièno strukturo,
-tega niso izkoristili.
+Sam protokol je bil v za\v cetku dobro zami\v sljen, a \v sevedno pre\v siroko, glede na njegovo
+trenutno uporabo. Veliko podatkov, ki se po\v siljajo/sprejemajo vsebuje popolnoma odve\v cne
+vrednosti v glavah paketov. SNAC glave vsebujejo prostor za definicijo ve\v c tiso\v c razli\v cnih
+dru\v zin storitev, uporablja pa se jih zgolj 23 (podobno velja tudi za ukaze storitev).
 
-Trenutna implementacija OSCARja v Jimmyju ni lepo realizirana, kajti lepa realizacija zahteva 
-dobro specifikacijo protokola, katere za tale protokol ni. Odloèil sem se, da bom uporabljeno 
-dokumentacijo strnil v popolnej¹o obliko ter doloèene podatke popravil in dopolnil razlage 
-sekvenc. V Jimmyja bo potrebno vlo¾iti ¹e marsikatero uro dela, za popravke, izbolj¹ave 
-ter vgradnjo dodatne funkcionalnosti.
+Zmogljivost TLV nivoja je v ``OSCAR''-ju popolnoma neizkori\v s\v cena, kajti v ve\v cini primerov 
+se uporablja kar plavajo\v ce podatke, kar pa TLV paketi omogo\v cajo sami po sebi z manj\v so
+redundanco. TLV glava definira tip podatka, ki pa je tako kot ostale re\v ci v ve\v cini primerov
+zanemarjena in neizkori\v scena.
+
+Jimmy se bo v prihodnosti razvijal in izbolj\v seval iz generacije v generacijo. Implementacije
+komunikacijskih protokolov se bodo spreminjale v bolj dinami\v cne ter hitrej\v se oblike. S 
+popravki uporabljene dokumentacije bom dosegel bolj\v so preglednost in razumljivost implementiranih 
+funkcionalnosti. 
 
 Kar se protokola tièe, je bil v osnovi dobro zami¹ljen, a pritisk trga je z njim odigral grdo 
 igro z vrivanjem nepremi¹ljenih funkcionalnosti. Povozili so ga tudi rivali, ki uporabljajo 
