@@ -8,10 +8,12 @@ Kopete za KDE, Gaim napisan v gtk+, deluje pod veliko OS, Bombus za J2ME in mnog
 kot tudi stre¾nikov (najbolj znan je v Javi napisan Wildfire). Ravno v tem èasu tudi
 Google razvija svoj Google Talk, ki uporablja XMPP kot temelj za takoj¹nje
 sporoèanje, za prenos zvoka pa odprt algoritem Speex (http://www.speex.org), vgnezden v XMPP
-sintakso. Naj omenim, da tudi danes najbolj popularen program za pogovor preko interneta,
+sintakso (Jingle). Naj omenim, da tudi danes najbolj popularen program za pogovor preko interneta,
 Skype (http://www.skype.org), uporablja Speex algoritem za kompresijo zvoka. Problem je le
 v zaprtosti protokola, saj je Skype lastni¹ki komercialni program. Upajmo, da bo Googleova
-tradicionalna naklonjenost odprtokodni skupnosti tudi tokrat obrodila sadove.
+tradicionalna naklonjenost odprtokodni skupnosti tudi tokrat obrodila sadove. Trenutno je ¾e mo¾en
+zvoèni pogovor z Jabber odjemalci in Google Talk (testirano s Kopete in Google Talk pod Microsoft
+Windows).
 
 Prav odprtost in enostavnost dajeta Jabberju prednost pred ostalimi protokoli. Jabber
 ni centraliziran, ampak je prevzel podobno filozofijo kot internet -- obstaja ¹iroka mre¾a
@@ -44,9 +46,14 @@ Jabber stre¾niki privzeto poslu¹ajo na vratih 5222.
 \item mo¾nost raz¹iritev obstojeèe sintakse na druga podroèja (npr. VoIP)
 \item konferenèna povezava
 \item prenos datotek
-\item XMPP-1.0 NE podpira prenosa in prikaza slièic uporabnikov
-\item XMPP-1.0 NIMA mehanizmov za prenos emblemov v sliki in drugih multimedijskih vsebin preko kanala za pogovor
+\item Dokument JEP-0166 (Jingle) opisuje mo¾nost direktnega (p2p, ne stre¾nik-odjemalec) prenosa zvoka preko Jabber protokola. Google Talk in drugi se podrejajo temu standardu.
+\item Po¹iljanje in prikaz slièic (avatarjev) uporabnikov. JEP-0153 natanèno opisuje prenos avatarjev in odjemalci GAIM, Kopete in Psi to ¾e s pridom uporabljajo.
+\item Prenos emblemov v sliki in drugih multimedijskih vsebin preko kanala za pogovor. JEP-0071 opisuje XHTML sintakso za pogovor, ki omogoèa tudi vstavljanje slik (povezav do slik). Èe zamenjamo protokol v naslovu slike iz http:// na xmpp://jid@streznik/slika, lahko preberemo tudi lokalno sliko oz. multimedijsko vsebino uporabnika.
 \end{itemize}
+
+Jabber protokol je nedvomno izredno zanimiv. Zgrajen je okoli XMPP-1.0 standarda (prijava, prikaz stanja, obdelava kontaktov in pogovor), ki je v celoti uradno potrjen s strani Jabber koncila. Vse dodatne mo¾nosti (prenos datotek, zvoka, avatarjev, multimedijskih vsebin itd.) so definirane v posebnih dokumentih (t.i. JEP dokumentih), ki so javno dostopni na njihovem portalu (http://www.jabber.org). Dokumenti so s strani koncila lahko sprejeti, zavr¾eni ali ¹e v obdelavi. Dokumenti nato lahko dobijo status razvojnega (eng. experimental), osnutka (eng. draft), konène verzije (eng. final) ali pa zgodovinske (eng. history) oz. zastarane (eng. obsolete). Naloga razvijalcev je potem, da se dr¾ijo teh standardov pri implementaciji Jabberja v svojih aplikacijah.
+
+Nedvomno je Jabber protokol prihodnosti, saj ¾e sedaj podpira lepo paleto mo¾nosti, za naprej pa ima vrata na vse strani odprta na ¹iroko.
 
 \subsection{Implementacija}
 
@@ -58,9 +65,9 @@ Jabber sporoèil na prihajajoèih vratih). Metoda vrne {\tt true} ob uspe¹ni prija
 se privzeto prijavi na stre¾nik, ki je izlu¹èen iz uporabni¹kega imena (jid). Izjemoma se lahko uporabnik pove¾e tudi na poljuben stre¾nik,
 èe ga poda ob ustvarjanju raèuna.
 
-Razvijalec za zaèetek pogovora uporabi standardno metodo {\tt startChatSession()}, za po¹iljanje sporoèil pa metodo {\tt sendMsg()}.
+Razvijalec za zaèetek pogovora z nekim kontaktom uporabi standardno metodo {\tt startChatSession()}, za po¹iljanje sporoèil pa metodo {\tt sendMsg()}.
 
-Za odjavo razvijalec uporabi metodo {\tt logout()}.
+Za odjavo razvijalec uporabi metodo {\tt logout()}, ki samodejno ustavi tudi nit.
 
 {\it JabberProtocol} ne uporablja splo¹nega DOM ali SAX razèlenjevalnika (eng. parser),
 ampak smo zaradi hitrosti in optimizacije kode napisali specifièni razèlenjevalnik,
@@ -90,7 +97,7 @@ XMPP uporablja naslednje XML kitice:
 \begin{itemize}
 \item {\tt <stream>} Robna oznaka, ki oznaèuje zaèetek seje med odjemalcem in stre¾nikom.
 \item {\tt <presence><show/></presence>} Sporoèanje stanja uporabnika. {\tt show} podkitica je prisotna po ¾elji in vsebuje poljubno sporoèilo uporabnika o njegovi odsotnosti (npr. Sem zunaj na èaju, pridem ob 13h).
-\item {\tt <message to='foo'></message>} Sporoèilo za uporabnika {\em foo}. Vsebina kitice je sporoèilo zapisano v XHTML obliki -- torej je mo¾no tudi oblikovanje besedila, kot so npr. razlièni slogi, barve, poravnave in izbira pisave.
+\item {\tt <message to='foo'></message>} Sporoèilo za uporabnika {\em foo}. Vsebina kitice je sporoèilo zapisano v XHTML obliki -- torej je mo¾no tudi oblikovanje besedila, kot so npr. razlièni slogi, barve, poravnave in izbira pisave in vstavljanje razliènih multimedijskih vsebin.
 \item {\tt <iq><query/></iq>} Razliène operacije nad stre¾nikom, kontakti ali odjemalcem, npr. registracija novega raèuna, spreminjanje gesla, spreminjanje prikaznega imena kontakta, brisanje ali dodajanje kontaktov, poizvedva po razlièici protokola, ki jo odjemalec ali stre¾nik podpirata ipd. Operacijam je namenjena {\tt query} podkitica in deluje po principu HTTP. Torej nekdo po¹lje {\tt query} z doloèeno poizvedbo in kljuèem (zapisanem v lastnosti {\tt roster}) in dobi odgovor na dotièno poizvedbo prav tako v {\tt iq} kitici.
 \item Mo¾nost za raz¹iritve - Zgoraj omenjena sintaksa je definirana za XMPP-1.0. npr. Google Talk uporablja t.i. Jingle protokol za prenos zvoka. Poleg {\tt <message>}, {\tt <presence>} in {\tt <iq>} podkitic je prisotna tudi Jingle -- izgleda nekako takole:
 {\begin{verbatim}
