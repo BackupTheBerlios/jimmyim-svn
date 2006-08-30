@@ -962,6 +962,12 @@ public class ICQProtocol extends Protocol {
 						st_point++;
 					}
 					System.out.println("You were added by: "+new String(sv));
+					
+					if(this.findContact(new String(sv)) != null){
+						//Temporary fix
+						this.addContact(new Contact(new String(sv),this));
+					}
+					
 					break;
 				}
 				break;
@@ -1251,6 +1257,15 @@ public class ICQProtocol extends Protocol {
     			ssi.setSnac(19,8,0,++this.s_seq);
     			ssi.setFlap(++this.f_seq);
     			
+    			it_size = this.s_seq;
+    			
+    			ICQPackage addEnd = new ICQPackage();
+    			addEnd.setChannel((byte)0x02);
+    			addEnd.setSnac(19,18,0,++this.s_seq);
+    			addEnd.setFlap(++this.f_seq);
+    			
+    			this.awaiting_auth.put(new Integer(it_size),addEnd);
+    			
     			this.conn.sendPackage(ssi.getNetPackage());
     			
     			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
@@ -1350,7 +1365,17 @@ public class ICQProtocol extends Protocol {
     			buddy.setFlap(++this.f_seq);
     			it_len = this.s_seq;
     			grp.setSnac(19,9,0,++this.s_seq);
+    			
     			this.awaiting_auth.put(new Integer(it_len),grp);
+    			
+    			it_len = this.s_seq;
+    			
+    			ICQPackage addEnd = new ICQPackage();
+    			addEnd.setChannel((byte)0x02);
+    			addEnd.setSnac(19,18,0,++this.s_seq);
+    			addEnd.setFlap(++this.f_seq);
+    			
+    			this.awaiting_auth.put(new Integer(it_len),addEnd);
     			
     			this.conn.sendPackage(buddy.getNetPackage());
     			
