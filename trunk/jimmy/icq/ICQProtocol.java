@@ -1161,7 +1161,8 @@ public class ICQProtocol extends Protocol {
     		c.setProtocol(this);
     		ICQContact ic = new ICQContact(c);
     		short gid = 0;
-		
+		int tmp_s = 0;
+		ByteOperator bo = new ByteOperator();
     		if((gid = this.groupID(ic.groupName())) == -1){
     			
     			//temporarly fix TODO: fix :)
@@ -1176,101 +1177,48 @@ public class ICQProtocol extends Protocol {
     			ic.setIcqID(this.max_id[gid]);
     			this.contacts_.addElement(ic);
     			
-    			//TODO: send add budy with new group
-    			//creating the byte array to send
-
-    			int it_size = 10 + ic.groupName().length() + 6+10 + ic.userID().length() + 4 + ic.screenName().length();; 
-    			byte[] new_cont = new byte[it_size];
     			//set group name len
-    			byte[] g = Utils.shortToBytes((short)ic.groupName().length(),true);
-    			new_cont[0] = g[0];
-    			new_cont[1] = g[1];
-    			int s_point = 2;
+    			bo.append(Utils.shortToBytes((short)ic.groupName().length(),true));
+    			
     			//set group name
     			byte[] name = ic.groupName().getBytes();
-    			for(int i = 0; i < name.length; i++){
-    				new_cont[s_point] = name[i];
-    				s_point++;
-    			}
+    			bo.append(name);
     			//set GID
-    			g = Utils.shortToBytes(gid,true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
+    			bo.append(Utils.shortToBytes(gid,true));
     			//set bID
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 0;
-    			s_point += 2;
     			//set type (0x0001 = group)
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 1;
-    			s_point += 2;
+    			bo.append((byte)0,(byte)0,(byte)0,(byte)1);
     			//set group members tlv len -> first time created so 6 bytes
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 6;
-    			s_point += 2;
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = (byte)0xc8;
-    			new_cont[s_point+2] = 0;
-    			new_cont[s_point+3] = 2;
-    			new_cont[s_point+4] = 0;
-    			new_cont[s_point+5] = 1;
-    			s_point += 6;
-    			
+    			bo.append((byte)0,(byte)6,(byte)0,(byte)0xc8,(byte)0,(byte)2,(byte)0,(byte)1);
+    				
     			//set id len
-    			g = Utils.shortToBytes((short)ic.userID().length(),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			g = ic.userID().getBytes();
-    			for(int i = 0; i < g.length; i++){
-    				new_cont[s_point] = g[i];
-    				s_point++;
-    			}
-    			g = Utils.shortToBytes(gid,true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			new_cont[s_point+2] = 0;
-    			new_cont[s_point+3] = 1;
-    			new_cont[s_point+4] = 0;
-    			new_cont[s_point+5] = 0;
-    			s_point += 6;
-    			g = Utils.shortToBytes((short)(4+ic.screenName().length()),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			new_cont[s_point+2] = (byte)0x01;
-    			new_cont[s_point+3] = (byte)0x31;
-    			s_point += 4;
-    			g = Utils.shortToBytes((short)ic.screenName().length(),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			g = ic.screenName().getBytes();
-    			for(int i = 0; i < g.length; i++){
-    				new_cont[s_point] = g[i];
-    				s_point++;
-    			}
+    			bo.append(Utils.shortToBytes((short)ic.userID().length(),true));
+    			bo.append(ic.userID().getBytes());
+    			bo.append(Utils.shortToBytes(gid,true));
+    			bo.append((byte)0,(byte)1,(byte)0,(byte)0);
+    			bo.append(Utils.shortToBytes((short)(4+ic.screenName().length()),true));
+    			bo.append((byte)1,(byte)0x31);
+    			bo.append(Utils.shortToBytes((short)ic.screenName().length(),true));
+    			bo.append(ic.screenName().getBytes());
     			
     			ICQPackage ssi = new ICQPackage();
     			ssi.setChannel((byte)0x02);
-    			ssi.setContent(new_cont);
+    			ssi.setContent(bo.getBytes());
     			ssi.setSnac(19,8,0,++this.s_seq);
     			ssi.setFlap(++this.f_seq);
     			
-    			it_size = this.s_seq;
+    			tmp_s = this.s_seq;
     			
     			ICQPackage addEnd = new ICQPackage();
     			addEnd.setChannel((byte)0x02);
     			addEnd.setSnac(19,18,0,++this.s_seq);
     			addEnd.setFlap(++this.f_seq);
     			
-    			this.awaiting_auth.put(new Integer(it_size),addEnd);
+    			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
     			
     			this.conn.sendPackage(ssi.getNetPackage());
     			
     			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
-    			
-//    			this.jimmy_.addContact(ic);
     			
     		}else{
     			//TODO: send add buddy and modify buddy using the awaiting auth hashtable
@@ -1280,106 +1228,52 @@ public class ICQProtocol extends Protocol {
     			ic.setIcqID(++this.max_id[gid]);
     			this.contacts_.addElement(ic);
     			
-    			int it_len = 10+ic.userID().length()+4+ic.screenName().length();
-    			byte[] new_cont = new byte[it_len];
-    			byte[] g = Utils.shortToBytes((short)ic.userID().length(),true);
-    			new_cont[0] = g[0];
-    			new_cont[1] = g[1];
-    			int s_point = 2;
-    			g = ic.userID().getBytes();
-    			for(int i = 0; i < g.length; i++){
-    				new_cont[s_point] = g[i];
-    				s_point++;
-    			}
-    			g = Utils.shortToBytes(gid,true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			g = Utils.shortToBytes(this.max_id[gid],true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 0;
-    			s_point += 2;
-    			g = Utils.shortToBytes((short)(4+ic.screenName().length()),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			new_cont[s_point+2] = (byte)0x01;
-    			new_cont[s_point+3] = (byte)0x31;
-    			s_point += 4;
-    			g = Utils.shortToBytes((short)ic.screenName().length(),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			g = ic.screenName().getBytes();
-    			for(int i = 0; i < g.length; i++){
-    				new_cont[s_point] = g[i];
-    				s_point++;
-    			}
+    			bo.append(Utils.shortToBytes((short)ic.userID().length(),true));
+    			bo.append(ic.userID().getBytes());
+    			bo.append(Utils.shortToBytes(gid,true));
+    			bo.append(Utils.shortToBytes(this.max_id[gid],true));
+    			bo.append((byte)0,(byte)0);
+    			bo.append(Utils.shortToBytes((short)(4+ic.screenName().length()),true));
+    			bo.append((byte)0x01,(byte)0x31);
+    			bo.append(Utils.shortToBytes((short)ic.screenName().length(),true));
+    			bo.append(ic.screenName().getBytes());
     			ICQPackage buddy = new ICQPackage();
     			buddy.setChannel((byte)0x02);
-    			buddy.setContent(new_cont);
+    			buddy.setContent(bo.getBytes());
     			
-    			it_len = 10+ic.groupName().length()+4+((int)this.max_id[gid]*2);
-    			new_cont = new byte[it_len];
-    			g = Utils.shortToBytes((short)ic.groupName().length(),true);
-    			new_cont[0] = g[0];
-    			new_cont[1] = g[1];
-    			s_point = 2;
-    			g = ic.groupName().getBytes();
-    			for(int i = 0; i < g.length; i++){
-    				new_cont[s_point] = g[i];
-    				s_point++;
-    			}
-    			g = Utils.shortToBytes(gid,true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 0;
-    			s_point += 2;
-    			new_cont[s_point] = 0;
-    			new_cont[s_point+1] = 1;
-    			s_point += 2;
-    			g = Utils.shortToBytes((short)(4+this.max_id[gid]*2),true);
-    			new_cont[s_point] = g[0];
-    			new_cont[s_point+1] = g[1];
-    			s_point += 2;
-    			new_cont[s_point] = (byte)0x00;
-    			new_cont[s_point+1] = (byte)0xc8;
-    			s_point += 2;
-    			g = Utils.shortToBytes((short)(this.max_id[gid]*2),true);
+    			bo.clear();
+    			
+    			bo.append(Utils.shortToBytes((short)ic.groupName().length(),true));
+    			bo.append(ic.groupName().getBytes());
+    			bo.append(Utils.shortToBytes(gid,true));
+    			bo.append((byte)0,(byte)0,(byte)0,(byte)1);
+    			bo.append(Utils.shortToBytes((short)(4+this.max_id[gid]*2),true));
+    			bo.append((byte)0x00,(byte)0xc8);
     			for(short i = 1; i <= this.max_id[gid]; i++){
-    				g = Utils.shortToBytes(i,true);
-    				new_cont[s_point] = g[0];
-    				new_cont[s_point+1] = g[1];
-    				s_point++;
+    				bo.append(Utils.shortToBytes(i,true));
     			}
     			
     			ICQPackage grp = new ICQPackage();
     			grp.setChannel((byte)0x02);
-    			grp.setContent(new_cont);
+    			grp.setContent(bo.getBytes());
     			
     			buddy.setSnac(19,8,0,++this.s_seq);
     			buddy.setFlap(++this.f_seq);
-    			it_len = this.s_seq;
+    			tmp_s = this.s_seq;
     			grp.setSnac(19,9,0,++this.s_seq);
     			
-    			this.awaiting_auth.put(new Integer(it_len),grp);
+    			this.awaiting_auth.put(new Integer(tmp_s),grp);
     			
-    			it_len = this.s_seq;
+    			tmp_s = this.s_seq;
     			
     			ICQPackage addEnd = new ICQPackage();
     			addEnd.setChannel((byte)0x02);
     			addEnd.setSnac(19,18,0,++this.s_seq);
     			addEnd.setFlap(++this.f_seq);
     			
-    			this.awaiting_auth.put(new Integer(it_len),addEnd);
+    			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
     			
     			this.conn.sendPackage(buddy.getNetPackage());
-    			
-    			//this.jimmy_.addContact(ic);
     		}
     		
     }
