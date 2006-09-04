@@ -235,9 +235,6 @@ public class ICQProtocol extends Protocol {
 		
 		l = new ICQPackage();
 		byte[] ha = new byte[4];
-		ha[0] = 0x00;
-		ha[1] = 0x00;
-		ha[2] = 0x00;
 		ha[3] = 0x01;
 		l.setContent(ha);
 		t = new ICQTlv();
@@ -457,46 +454,25 @@ public class ICQProtocol extends Protocol {
 		ICQTlv off = new ICQTlv();
 		off.setHeader((short)6,(short)0);
 		ICQTlv m = new ICQTlv();
-		byte[] stuff = new byte[msg.length()+13];
-		stuff[0] = (byte)5;
-		stuff[1] = (byte)1;
-		stuff[2] = (byte)0;
-		stuff[3] = (byte)1;
-		stuff[4] = (byte)1;
-		stuff[5] = (byte)1;
-		stuff[6] = (byte)1;
-		byte[] b = Utils.shortToBytes((short)(msg.length()+4),true);
-		stuff[7] = b[0];
-		stuff[8] = b[1];
-		stuff[9] = (byte)0;
-		stuff[10] = (byte)0;
-		stuff[11] = (byte)0xff;
-		stuff[12] = (byte)0xff;
-		b = msg.getBytes();
-		for(int j = 0; j < msg.length(); j++){
-			stuff[j+13] = b[j];
-		}
-		m.setContent(stuff);
+		ByteOperator bo = new ByteOperator();
+		bo.append((byte)5,(byte)1,(byte)0,(byte)1,(byte)1,(byte)1,(byte)1);
+		bo.append(Utils.shortToBytes((short)(msg.length()+4),true));
+		bo.append((byte)0,(byte)0,(byte)0xff,(byte)0xff);
+		bo.append(msg.getBytes());
+		m.setContent(bo.getBytes());
 		m.setHeader((short)2,(short)m.getCLen());
 		
 		ICQTlv tri = new ICQTlv();
 		tri.setHeader((short)3,(short)0);
-		
+		bo.clear();
 		for(int i = 0; i < cl.size(); i++){
 			ICQContact c = (ICQContact)cl.elementAt(i);
 			byte[] uin = c.userID().getBytes();
-			byte[] pak = new byte[11 + uin.length];
-			for(int j = 0; j < time.length; j++){
-				pak[j] = time[j];
-			}
-			pak[time.length] = MSG_TYPE[0];
-			pak[time.length+1] = MSG_TYPE[1];
-			pak[time.length+2] = (byte)uin.length;
-			for(int j=time.length+3; j < pak.length; j++){
-				pak[j] = uin[j-(time.length+3)];
-			}
+			bo.append(time);
+			bo.append(MSG_TYPE[0],MSG_TYPE[1],(byte)uin.length);
+			bo.append(uin);
 			ip.setChannel((byte)2);
-			ip.setContent(pak);
+			ip.setContent(bo.getBytes());
 			ip.setSnac(4,6,0,++this.s_seq);
 			ip.addTlv(m);
 			ip.addTlv(tri);
@@ -505,12 +481,14 @@ public class ICQProtocol extends Protocol {
 			
 			this.conn.sendPackage(ip.getNetPackage());
 //			System.out.println(Utils.byteArrayToHexString(ip.getNetPackage()));
+			bo.clear();
 		}
 		off = null;
 		m = null;
 		tri = null;
 		time = null;
 		ip = null;
+		bo=null;
 	}
 
 	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
@@ -639,16 +617,16 @@ public class ICQProtocol extends Protocol {
 						uin[i] = data[i+1];
 					}
 					byte[] l = new byte[2];
-					short ntlvs = this.bytesToShort(data[uin_l+3],data[uin_l+4]);
+					short ntlvs = ByteOperator.bytesToShort(data[uin_l+3],data[uin_l+4]);
 					int start_point = uin_l+5;
 					Vector tlvs = new Vector();
 					ICQTlv status = null;
 					for(short i = 0; i < ntlvs; i++){
 						l = new byte[2];
 						ICQTlv t = new ICQTlv();
-						short tid = this.bytesToShort(data[start_point],data[start_point+1]);
+						short tid = ByteOperator.bytesToShort(data[start_point],data[start_point+1]);
 						start_point +=2;
-						short len = this.bytesToShort(data[start_point],data[start_point+1]);
+						short len = ByteOperator.bytesToShort(data[start_point],data[start_point+1]);
 						start_point +=2;
 						t.setHeader(tid,len);
 						l = new byte[len];
@@ -753,9 +731,9 @@ public class ICQProtocol extends Protocol {
 						
 						for(int i = 0; start_point < p.length; i++){
 							
-							short tlvid = this.bytesToShort(p[start_point],p[start_point+1]);
+							short tlvid = ByteOperator.bytesToShort(p[start_point],p[start_point+1]);
 							start_point += 2;
-							short tlen = this.bytesToShort(p[start_point],p[start_point+1]);
+							short tlen = ByteOperator.bytesToShort(p[start_point],p[start_point+1]);
 							start_point += 2;
 							
 							l = new byte[tlen];
@@ -773,7 +751,7 @@ public class ICQProtocol extends Protocol {
 						}
 						byte[] c = msg.getContent();
 
-						start_point = 12 + this.bytesToShort(c[2],c[3]);
+						start_point = 12 + ByteOperator.bytesToShort(c[2],c[3]);
 						int charset = start_point -2;
 						int ml = c.length - start_point;
 						byte[] d = new byte[ml];
@@ -782,7 +760,7 @@ public class ICQProtocol extends Protocol {
 							start_point++;
 						}
 						//Support for multi encoding messages
-						charset = this.bytesToShort(c[charset],c[charset+1]);
+						charset = ByteOperator.bytesToShort(c[charset],c[charset+1]);
 						String m = null;
 						String enc = null;
 						try{
@@ -819,7 +797,7 @@ public class ICQProtocol extends Protocol {
 				}
 				break;
 			case 0x000B:
-				this.REPORT_INTERVAL = this.bytesToShort(pak.getContent()[0],pak.getContent()[1]);
+				this.REPORT_INTERVAL = ByteOperator.bytesToShort(pak.getContent()[0],pak.getContent()[1]);
 				break;
 			case 0x0013:
 				//SSI reply part
@@ -833,7 +811,7 @@ public class ICQProtocol extends Protocol {
 					int start_point = 1;
 					
 					//byte[] it = new byte[2];
-					short items = this.bytesToShort(pkg[start_point],pkg[start_point+1]); 
+					short items = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]); 
 					this.SSI_ITEMS = items;
 					//it=null;
 					start_point += 2;
@@ -845,7 +823,7 @@ public class ICQProtocol extends Protocol {
 						int item_name_len = 0;
 						//it = new byte[2];
 												
-						item_name_len = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
+						item_name_len = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						start_point += 2;
 						
 						byte[] item_name = new byte[item_name_len];
@@ -856,19 +834,19 @@ public class ICQProtocol extends Protocol {
 						
 						start_point += item_name_len;
 						
-						int gid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
+						int gid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						int iid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
+						int iid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						int itid = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
+						int itid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
-						int data_len = this.bytesToShort(pkg[start_point],pkg[start_point+1]);
+						int data_len = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						
 						start_point += 2;
 						
@@ -906,7 +884,7 @@ public class ICQProtocol extends Protocol {
 								this.max_id[gid] = (short)iid;
 							ICQContact ct = new ICQContact(new String(item_name),this);
 							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
-								int l = this.bytesToShort(data[2],data[3]);
+								int l = ByteOperator.bytesToShort(data[2],data[3]);
 								byte[] nick = new byte[l];
 								for(int k = 0; k < l; k++){
 									nick[k] = data[k+4];
@@ -954,7 +932,7 @@ public class ICQProtocol extends Protocol {
 				case 0x001C:
 					//"You were added"
 					byte[] c = pak.getContent();
-					int st_point = 2+this.bytesToShort(c[0],c[1]);
+					int st_point = 2+ByteOperator.bytesToShort(c[0],c[1]);
 					byte[] sv = new byte[c[st_point]];
 					st_point++;
 					for(int i = 0; i<sv.length; i++){
@@ -1020,8 +998,6 @@ public class ICQProtocol extends Protocol {
 		
 		ICQPackage out = null;
 		ICQTlv t = null;
-		byte[] b = null;
-		byte[] h = null;
 //		Offline messages req
 		//TODO: enable in V1.1
 		/*out = new ICQPackage();
@@ -1048,30 +1024,17 @@ public class ICQProtocol extends Protocol {
 		this.conn.sendPackage(out.getNetPackage());*/
 
 		//User info permissions
+		ByteOperator bo = new ByteOperator();
 		out = new ICQPackage();
 		out.setSnac(21,2,0,++this.s_seq);
 		t = new ICQTlv();
-		b = new byte[16];
-		b[0] = (byte)0x0E;
-		b[1] = (byte)0x00;
-		h = Utils.intToBytes(Integer.parseInt(this.user),false);
-		b[2] = h[0];
-		b[3] = h[1];
-		b[4] = h[2];
-		b[5] = h[3];
+		bo.append((byte)0x0E,(byte)0x00);
+		bo.append(Utils.intToBytes(Integer.parseInt(this.user),false));
 		//request id
-		b[6] = (byte)0xd0;
-		b[7] = (byte)0x07;
-		h = Utils.shortToBytes((short)this.s_seq,false);
-		b[8] = h[0];
-		b[9] = h[1];
-		b[10] = (byte)0x24;
-		b[11] = (byte)0x04;
-		b[12] = (byte)0x01;
-		b[13] = (byte)0x00;
-		b[14] = (byte)0x01;
-		b[15] = (byte)0x00;
-		t.setContent(b);
+		bo.append((byte)0xd0,(byte)0x07);
+		bo.append(Utils.shortToBytes((short)this.s_seq,false));
+		bo.append((byte)0x24,(byte)0x04,(byte)0x01,(byte)0x00,(byte)0x01,(byte)0x00);
+		t.setContent(bo.getBytes());
 		t.setHeader((short)1,(short)10);
 		out.addTlv(t);
 		out.setFlap(++this.f_seq);
@@ -1146,14 +1109,6 @@ public class ICQProtocol extends Protocol {
     		this.groups = grp;
     		this.max_id = mid;
     		return id;
-    }
-    
-    public short bytesToShort(byte b1, byte b2){
-    		byte[] b = new byte[2];
-    		b[0] = b1;
-    		b[1] = b2;
-    		
-    		return Utils.bytesToShort(b,true);
     }
     
     public void addContact(Contact c){
