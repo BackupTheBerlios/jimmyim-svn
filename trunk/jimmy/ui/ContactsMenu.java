@@ -357,27 +357,27 @@ public class ContactsMenu extends List implements CommandListener {
 	    switch(c.protocol().getType()){
 		case Protocol.JABBER:
 		    if(c.status() == Contact.ST_OFFLINE)
-			image = Image.createImage("/jimmy/jabber-offline.png");
+			image = Image.createImage("/jimmy/media/jabber-offline.png");
 		    else
-			image = Image.createImage("/jimmy/jabber-online.png");
+			image = Image.createImage("/jimmy/media/jabber-online.png");
 		    break;
 		case Protocol.ICQ:
 		    if(c.status() == Contact.ST_OFFLINE)
-			image = Image.createImage("/jimmy/icq-offline.png");
+			image = Image.createImage("/jimmy/media/icq-offline.png");
 		    else
-			image = Image.createImage("/jimmy/icq-online.png");		
+			image = Image.createImage("/jimmy/media/icq-online.png");		
 		    break;
 		case Protocol.MSN:
 		    if(c.status() == Contact.ST_OFFLINE)
-			image = Image.createImage("/jimmy/msn-offline.png");
+			image = Image.createImage("/jimmy/media/msn-offline.png");
 		    else
-			image = Image.createImage("/jimmy/msn-online.png");		
+			image = Image.createImage("/jimmy/media/msn-online.png");		
 		    break;
 		case Protocol.YAHOO:
 		    if(c.status() == Contact.ST_OFFLINE)
-			image = Image.createImage("/jimmy/msn-offline.png");
+			image = Image.createImage("/jimmy/media/msn-offline.png");
 		    else
-			image = Image.createImage("/jimmy/msn-online.png");		
+			image = Image.createImage("/jimmy/media/msn-online.png");		
 		    break;	
 	    }   
 	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage());};

@@ -41,7 +41,7 @@ public class Splash extends Canvas {
                 double screenWidth = this.getWidth()*0.9;
                 double screenHeight = this.getHeight();
                 
-                image_ = Image.createImage("/jimmy/JimmyIM_splash_small.png");
+                image_ = Image.createImage("/jimmy/media/JimmyIM_splash_small.png");
                 mess_ = "Loading...";
                 
                 double imageWidth = image_.getWidth();

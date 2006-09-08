@@ -202,16 +202,16 @@ public class EditContact extends Form implements CommandListener{
 	try{
 	    switch(a.getProtocolType()){
 		case Protocol.JABBER:
-                    i = Image.createImage("/jimmy/jabber-online.png");
+                    i = Image.createImage("/jimmy/media/jabber-online.png");
 		    break;
 		case Protocol.MSN:
-		    i = Image.createImage("/jimmy/msn-online.png");
+		    i = Image.createImage("/jimmy/media/msn-online.png");
 		    break;
 		case Protocol.ICQ:
-		    i = Image.createImage("/jimmy/icq-online.png");
+		    i = Image.createImage("/jimmy/media/icq-online.png");
 		    break;
 		case Protocol.YAHOO:
-		    i = Image.createImage("/jimmy/yahoo-online.png");
+		    i = Image.createImage("/jimmy/media/yahoo-online.png");
 		    break;		
 	    }
 	}catch(Exception e){System.out.println("[ERROR] Problem loading account icon: "+e.getMessage());};
