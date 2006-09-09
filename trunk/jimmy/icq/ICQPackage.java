@@ -88,12 +88,7 @@ public class ICQPackage {
 
 		this.pkg = p;
 		this.ch = this.pkg[1];
-		byte[] b = new byte[2];
-		b[0] = this.pkg[4];
-		b[1] = this.pkg[5];
-		this.flap_size = Utils.bytesToUShort(b, true);
-//		System.out.print("channel");
-//		System.out.println(this.ch);
+		this.flap_size = ByteOperator.bytesToShort(this.pkg[4],this.pkg[5]);
 		if(this.ch != 0x01){
 //			System.out.println("dismanlte");
 			this.tlvs = new Vector();
@@ -115,16 +110,10 @@ public class ICQPackage {
 		if (this.ch != 0x02) {
 			for (int i = header; i < this.pkg.length; i++) {
 				ICQTlv tlv = new ICQTlv();
-				byte[] b1 = new byte[2];
-				byte[] b2 = new byte[2];
-				b1[0] = this.pkg[i];
-				b1[1] = this.pkg[i + 1];
-				b2[0] = this.pkg[i + 2];
-				b2[1] = this.pkg[i + 3];
-				tlv.setHeader(Utils.bytesToShort(b1, true), Utils.bytesToShort(b2, true));
+				tlv.setHeader(ByteOperator.bytesToShort(this.pkg[i],this.pkg[i+1]), ByteOperator.bytesToShort(this.pkg[i+2], this.pkg[i+3]));
+				byte[] bla = new byte[ByteOperator.bytesToShort(this.pkg[i+2],this.pkg[i+3])];
 				i = i + 4;
-				byte[] bla = new byte[Utils.bytesToInt(b2, true)];
-				for (int j = 0; j < Utils.bytesToInt(b2, true); j++) {
+				for (int j = 0; j < bla.length; j++) {
 					bla[j] = this.pkg[i];
 					if (j != bla.length - 1)
 						i++;
@@ -435,14 +424,7 @@ public class ICQPackage {
 	 * @return
 	 */
 	public byte[] getHeader(){
-		byte[] b = new byte[6];
-		b[0] = 0x2a;
-		b[1] = this.ch;
-		b[2] = this.pkg[2];
-		b[3] = this.pkg[3];
-		b[4] = this.pkg[4];
-		b[5] = this.pkg[5];
-		return b;
+		return ByteOperator.slice(this.pkg,5);
 	}
 	
 	/**
@@ -478,10 +460,7 @@ public class ICQPackage {
 	 * @return the snack family
 	 */
 	public int getSnackType(){
-		byte[] b = new byte[2];
-		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE];
-		b[1] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+1];
-		return Utils.bytesToInt(b,true);
+		return (int)ByteOperator.bytesToShort(this.pkg[ICQPackage.FLAP_HEADER_SIZE],this.pkg[ICQPackage.FLAP_HEADER_SIZE+1]);
 	}
 	
 	/**
@@ -490,10 +469,7 @@ public class ICQPackage {
 	 * @return snack subfamily
 	 */
 	public int getSnackSubType(){
-		byte[] b = new byte[2];
-		b[0] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+2];
-		b[1] = this.pkg[ICQPackage.FLAP_HEADER_SIZE+3];
-		return Utils.bytesToInt(b,true);
+		return (int)ByteOperator.bytesToShort(this.pkg[ICQPackage.FLAP_HEADER_SIZE+2],this.pkg[ICQPackage.FLAP_HEADER_SIZE+3]);
 	}
 	
 	/**

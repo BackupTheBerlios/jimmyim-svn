@@ -27,7 +27,8 @@ package jimmy.icq;
 
 import jimmy.net.ServerHandler;
 import java.util.Vector;
-import jimmy.util.Utils;
+
+import jimmy.util.ByteOperator;
 
 /**
  * Used to feed the ICQProtocol instance with packages arriving from the server.
@@ -75,10 +76,7 @@ public class ICQConnector extends ServerHandler {
 			}
 
 			for (int i = 0; i < b.length;) {
-				byte[] bplen = new byte[2];
-				bplen[0] = b[i + 4];
-				bplen[1] = b[i + 5];
-				int plen = Utils.bytesToInt(bplen, true) + 6;
+				int plen = 6 + ByteOperator.bytesToShort(b[i+4],b[i+5]);
 				Vector p = new Vector();
 				int ind = i;
 				for (int j = i; j < ind + plen; j++) {

@@ -48,10 +48,8 @@ import jimmy.ProtocolInteraction;
 public class ICQProtocol extends Protocol {
 	
 	private String AUTH_SERVER = "login.oscar.aol.com";
-	//private final String AUTH_SERVER = "192.168.0.4";
 	private int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
-	//private final String AIM_MD5_STRING = "AOL Instant Messenger (SM)";
 	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 	private String bos = "";
 	private int bos_port = 5190;
@@ -440,13 +438,7 @@ public class ICQProtocol extends Protocol {
 		
 		
 		//TODO: message fragmentation
-//		int pieces = 1;
-		
-		/*if(msg.length() >= 450){
-			// TODO: ICBM rates!
-		}else{
-			
-		}*/
+		// TODO: ICBM rates!
 		
 		byte[] time = Utils.longToBytes(System.currentTimeMillis(),true);
 
@@ -612,29 +604,19 @@ public class ICQProtocol extends Protocol {
 					//user status changed OL
 					byte[] data = pak.getContent();
 					byte uin_l = data[0];
-					byte[] uin = new byte[uin_l];
-					for(byte i = 0; i < uin_l; i++){
-						uin[i] = data[i+1];
-					}
-					byte[] l = new byte[2];
+					byte[] uin = ByteOperator.slice(1,data,uin_l);
 					short ntlvs = ByteOperator.bytesToShort(data[uin_l+3],data[uin_l+4]);
 					int start_point = uin_l+5;
 					Vector tlvs = new Vector();
 					ICQTlv status = null;
 					for(short i = 0; i < ntlvs; i++){
-						l = new byte[2];
 						ICQTlv t = new ICQTlv();
 						short tid = ByteOperator.bytesToShort(data[start_point],data[start_point+1]);
-						start_point +=2;
-						short len = ByteOperator.bytesToShort(data[start_point],data[start_point+1]);
-						start_point +=2;
+						short len = ByteOperator.bytesToShort(data[start_point+2],data[start_point+3]);
 						t.setHeader(tid,len);
-						l = new byte[len];
-						for(short j = 0; j < len; j++){
-							l[j] = data[start_point];
-							start_point++;
-						}
-						t.setContent(l);
+						start_point += 4;
+						t.setContent(ByteOperator.slice(start_point,data,start_point+len-1));
+						start_point += len;
 						if(tid == (short)0x0006)
 							status = t;
 						tlvs.addElement(t);
@@ -694,11 +676,7 @@ public class ICQProtocol extends Protocol {
 				case 0x000C:
 					//user status changed OFFL
 					byte[] data1 = pak.getContent();
-					byte uin_le = data1[0];
-					byte[] uin1 = new byte[uin_le];
-					for(byte i = 0; i < uin_le; i++){
-						uin1[i] = data1[i+1];
-					}
+					byte[] uin1 = ByteOperator.slice(1,data1,data1[0]);
 					for(int i = 0; i < this.contacts_.size(); i++){
 						ICQContact c = (ICQContact)this.contacts_.elementAt(i);
 						if(c.userID().equals(new String(uin1))){
@@ -717,30 +695,22 @@ public class ICQProtocol extends Protocol {
 				case 0x0007:
 					byte[] p = pak.getContent();
 					if(p[9] == (byte)0x01){
-						byte[] uin = new byte[p[10]];
-						for(byte j = 0; j < p[10]; j++){
-							uin[j] = p[j+11];
-						}
+						byte[] uin = ByteOperator.slice(11,p,10+p[10]);
 						int start_point = 11+(byte)p[10];
 						
-						start_point += 2;
 						byte[] l = null;
-						start_point += 2;
+						start_point += 4;
 						Vector tlvs = new Vector();
 						ICQTlv msg = null;
 						
 						for(int i = 0; start_point < p.length; i++){
 							
 							short tlvid = ByteOperator.bytesToShort(p[start_point],p[start_point+1]);
-							start_point += 2;
-							short tlen = ByteOperator.bytesToShort(p[start_point],p[start_point+1]);
-							start_point += 2;
+							short tlen = ByteOperator.bytesToShort(p[start_point+2],p[start_point+3]);
+							start_point += 4;
 							
-							l = new byte[tlen];
-							for(short j = 0; j < tlen; j++){
-								l[j] = p[start_point];
-								start_point++;
-							}
+							l = ByteOperator.slice(start_point,p,start_point+tlen-1);
+							start_point += tlen;
 							ICQTlv bla = new ICQTlv();
 							bla.setHeader(tlvid,tlen);
 							bla.setContent(l);
@@ -754,11 +724,8 @@ public class ICQProtocol extends Protocol {
 						start_point = 12 + ByteOperator.bytesToShort(c[2],c[3]);
 						int charset = start_point -2;
 						int ml = c.length - start_point;
-						byte[] d = new byte[ml];
-						for(int j = 0; j < ml; j++){
-							d[j] = c[start_point];
-							start_point++;
-						}
+						byte[] d = ByteOperator.slice(start_point,c,start_point+ml-1);
+						start_point += ml;
 						//Support for multi encoding messages
 						charset = ByteOperator.bytesToShort(c[charset],c[charset+1]);
 						String m = null;
@@ -821,39 +788,21 @@ public class ICQProtocol extends Protocol {
 					this.contacts_ = new Vector();
 					for(short i = 0; i < items; i++){
 						int item_name_len = 0;
-						//it = new byte[2];
-												
 						item_name_len = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
 						start_point += 2;
 						
-						byte[] item_name = new byte[item_name_len];
-						
-						for(int j = start_point; j < start_point+item_name_len; j++){
-							item_name[j-start_point] = pkg[j];
-						}
-						
+						byte[] item_name = ByteOperator.slice(start_point,pkg,start_point+item_name_len-1);
 						start_point += item_name_len;
-						
 						int gid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
-						
 						start_point += 2;
-						
 						int iid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
-						
 						start_point += 2;
-						
 						int itid = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
-						
 						start_point += 2;
-						
 						int data_len = ByteOperator.bytesToShort(pkg[start_point],pkg[start_point+1]);
-						
 						start_point += 2;
 						
-						byte[] data = new byte[data_len];
-						for(int j = start_point; j < start_point+data_len; j++){
-							data[j-start_point] = pkg[j];
-						}
+						byte[] data = ByteOperator.slice(start_point,pkg,start_point+data_len-1);
 						start_point += data_len;
 						
 						/*System.out.println("item:");
@@ -885,10 +834,7 @@ public class ICQProtocol extends Protocol {
 							ICQContact ct = new ICQContact(new String(item_name),this);
 							if(data[0] == (byte)0x01 && data[1] == (byte)0x31){
 								int l = ByteOperator.bytesToShort(data[2],data[3]);
-								byte[] nick = new byte[l];
-								for(int k = 0; k < l; k++){
-									nick[k] = data[k+4];
-								}
+								byte[] nick = ByteOperator.slice(4,data,3+l);
 //								System.out.println(new String(item_name)+" : "+new String(nick)
 //										+" in group: "+ groups[gid]);
 								ct.setScreenName(new String(nick));
@@ -904,12 +850,9 @@ public class ICQProtocol extends Protocol {
 					}
 //					it = null;
 					
-					byte[] it = new byte[4];
-					it[3] = pkg[pkg.length-1];
-					it[2] = pkg[pkg.length-2];
-					it[1] = pkg[pkg.length-3];
-					it[0] = pkg[pkg.length-4];
-					this.SSI_LAST_MODIFIED = Utils.bytesToLong(it,true);
+					ByteOperator bo = new ByteOperator();
+					bo.append(pkg[pkg.length-4],pkg[pkg.length-3],pkg[pkg.length-2],pkg[pkg.length-1]);
+					this.SSI_LAST_MODIFIED = Utils.bytesToLong(bo.getBytes(),true);
 					
 					pkg = null;
 					break;
@@ -933,12 +876,13 @@ public class ICQProtocol extends Protocol {
 					//"You were added"
 					byte[] c = pak.getContent();
 					int st_point = 2+ByteOperator.bytesToShort(c[0],c[1]);
-					byte[] sv = new byte[c[st_point]];
+					byte[] sv = ByteOperator.slice(st_point+1,c,st_point+1+c[st_point]);
+					/*new byte[c[st_point]];
 					st_point++;
 					for(int i = 0; i<sv.length; i++){
 						sv[i] = c[st_point];
 						st_point++;
-					}
+					}*/
 					System.out.println("You were added by: "+new String(sv));
 					
 					if(this.findContact(new String(sv)) != null){
@@ -1173,7 +1117,7 @@ public class ICQProtocol extends Protocol {
     			
     			this.conn.sendPackage(ssi.getNetPackage());
     			
-    			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
+    			//System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
     			
     		}else{
     			//TODO: send add buddy and modify buddy using the awaiting auth hashtable

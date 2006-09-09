@@ -130,10 +130,7 @@ public class ICQTlv {
 	 * @return int defining the TLV type
 	 */
 	public int getType(){
-		byte[] b = new byte[2];
-		b[0] = this.header[0];
-		b[1] = this.header[1];
-		return (int)Utils.bytesToShort(b,true);
+		return (int)ByteOperator.bytesToShort(this.header[0],this.header[1]);
 	}
 	
 	/**
