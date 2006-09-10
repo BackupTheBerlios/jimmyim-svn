@@ -876,7 +876,7 @@ public class ICQProtocol extends Protocol {
 					//"You were added"
 					byte[] c = pak.getContent();
 					int st_point = 2+ByteOperator.bytesToShort(c[0],c[1]);
-					byte[] sv = ByteOperator.slice(st_point+1,c,st_point+1+c[st_point]);
+					byte[] sv = ByteOperator.slice(st_point+1,c,st_point+c[st_point]);
 					/*new byte[c[st_point]];
 					st_point++;
 					for(int i = 0; i<sv.length; i++){
@@ -885,7 +885,7 @@ public class ICQProtocol extends Protocol {
 					}*/
 					System.out.println("You were added by: "+new String(sv));
 					
-					if(this.findContact(new String(sv)) != null){
+					if(this.findContact(new String(sv)) == null){
 						//Temporary fix
 						this.addContact(new Contact(new String(sv),this));
 					}
@@ -1059,6 +1059,9 @@ public class ICQProtocol extends Protocol {
 	    // TODO: Send snack 0x0013,0x0008
     		c.setProtocol(this);
     		ICQContact ic = new ICQContact(c);
+    		if(ic.screenName() == null){
+    			ic.setScreenName(ic.userID());
+    		}
     		short gid = 0;
 		int tmp_s = 0;
 		ByteOperator bo = new ByteOperator();
@@ -1114,7 +1117,7 @@ public class ICQProtocol extends Protocol {
     			addEnd.setFlap(++this.f_seq);
     			
     			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
-    			
+    			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
     			this.conn.sendPackage(ssi.getNetPackage());
     			
     			//System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
@@ -1171,7 +1174,7 @@ public class ICQProtocol extends Protocol {
     			addEnd.setFlap(++this.f_seq);
     			
     			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
-    			
+    			System.out.println(Utils.byteArrayToHexString(buddy.getNetPackage()));
     			this.conn.sendPackage(buddy.getNetPackage());
     		}
     		
