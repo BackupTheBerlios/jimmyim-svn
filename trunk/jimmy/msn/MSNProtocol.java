@@ -32,7 +32,6 @@ import jimmy.Contact;
 import jimmy.msn.MSNContact;
 import jimmy.ChatSession;
 import jimmy.ProtocolInteraction;
-
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
