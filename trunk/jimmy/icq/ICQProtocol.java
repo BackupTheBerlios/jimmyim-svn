@@ -858,12 +858,12 @@ public class ICQProtocol extends Protocol {
 					break;
 				case 0x000e:
 					//SSI ack
-					System.out.println("Srv ack:\n"+Utils.byteArrayToHexString(pak.getNetPackage()));
+					//System.out.println("Srv ack:\n"+Utils.byteArrayToHexString(pak.getNetPackage()));
 					if(this.awaiting_auth.containsKey(new Integer(pak.getSnackReqID()))){
 						ICQPackage out = (ICQPackage)this.awaiting_auth.remove(new Integer(pak.getSnackReqID()));
 						out.setFlap(++this.f_seq);
 						this.conn.sendPackage(out.getNetPackage());
-						System.out.println(out.getNetPackage());
+						//System.out.println(out.getNetPackage());
 					}
 					break;
 				case 0x0019:
@@ -1068,9 +1068,13 @@ public class ICQProtocol extends Protocol {
     		if((gid = this.groupID(ic.groupName())) == -1){
     			
     			//temporarly fix TODO: fix :)
-    			if(ic.groupName() == null)
-    				ic.setGroupName("Top-level");
-    			
+    			if(ic.groupName() == null){
+    				for(int i = 1;i<this.groups.length;i++)
+    					if(this.groups[i] != null){
+    						ic.setGroupName(this.groups[i]);
+    						break;
+    					}
+    			}
     			//Default settings
     			gid = this.getFreeGID();
     			this.groups[gid] = ic.groupName();
