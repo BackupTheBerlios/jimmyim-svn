@@ -58,7 +58,7 @@ public class EditContact extends Form implements CommandListener{
     private TextField   otherGroup_;    
     
     public EditContact() {
-        super("Add contact:");
+        super("Add contact:");//[LOCALE]
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         connections_ = new Hashtable();
@@ -75,13 +75,13 @@ public class EditContact extends Form implements CommandListener{
         addCommand((Command)commands_.get(new Integer(JimmyUI.CMD_OK)   ));
         
         //add gui elements
-        accounts_ = new ChoiceGroup("Account:",ChoiceGroup.POPUP);
-        userID_ = new TextField("Username:","",100,TextField.ANY);
-        screenName_ = new TextField("Screen name:","",100,TextField.ANY);
-        groups_ = new ChoiceGroup("Group:",ChoiceGroup.POPUP);
-        groups_.append("No group",null);	
-        groups_.append("Other",null);
-        otherGroup_ = new TextField("Other group:","",100,TextField.ANY);
+        accounts_ = new ChoiceGroup("Account:",ChoiceGroup.POPUP);//[LOCALE]
+        userID_ = new TextField("Username:","",100,TextField.ANY);//[LOCALE]
+        screenName_ = new TextField("Screen name:","",100,TextField.ANY);//[LOCALE]
+        groups_ = new ChoiceGroup("Group:",ChoiceGroup.POPUP);//[LOCALE]
+        groups_.append("No group",null);	//[LOCALE]
+        groups_.append("Other",null);//[LOCALE]
+        otherGroup_ = new TextField("Other group:","",100,TextField.ANY);//[LOCALE]
         
         accounts_.setLayout(Item.LAYOUT_NEWLINE_AFTER); append(accounts_);
         userID_.setLayout(Item.LAYOUT_NEWLINE_AFTER); append(userID_);
@@ -225,9 +225,9 @@ public class EditContact extends Form implements CommandListener{
 
 	String name = (c.screenName() == null)? "":c.screenName();
 	screenName_.setString(name);
-        this.setTitle("Edit "+name+":");
+        this.setTitle("Edit "+name+":");//[LOCALE]
 	
-	String currGroup = (c.groupName() == null) ? "No group":Contact.insertSpaces(c.groupName());
+	String currGroup = (c.groupName() == null) ? "No group":Contact.insertSpaces(c.groupName()); //[LOCALE]
 	int i=0;
 	do{
 	     groups_.setSelectedIndex(i,true);

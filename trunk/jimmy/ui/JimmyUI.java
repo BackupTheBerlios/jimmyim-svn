@@ -65,24 +65,24 @@ public class JimmyUI {
         
 
 	//Commands:
-	final private static Command cmdOk     = new Command("OK",          Command.OK,     1);
-        final private static Command cmdSend   = new Command("Send",        Command.OK,     1);
-	final private static Command cmdCancel = new Command("Cancel",      Command.BACK,   2);
-	final private static Command cmdYes    = new Command("Yes",         Command.OK,     1);
-	final private static Command cmdNo     = new Command("No",          Command.CANCEL, 2);
-	final private static Command cmdFind   = new Command("Find",        Command.OK,     1);
-	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);
-	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   3);
-	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);
-	final private static Command cmdNew    = new Command("New",         Command.ITEM,   1);
-	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);
-	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);
-        final private static Command cmdDel    = new Command("Remove",      Command.ITEM,   1);
-        final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);
-        final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);
-        final private static Command cmdNewCont= new Command("Add contact", Command.ITEM,   1);
-        final private static Command cmdDelCont= new Command("Remove contact",Command.ITEM,   1);
-	final private static Command cmdLogout = new Command("Logout",	    Command.ITEM,   1);
+	final private static Command cmdOk     = new Command("OK",          Command.OK,     1);//[LOCALE]
+        final private static Command cmdSend   = new Command("Send",        Command.OK,     1);//[LOCALE]
+	final private static Command cmdCancel = new Command("Cancel",      Command.BACK,   2);//[LOCALE]
+	final private static Command cmdYes    = new Command("Yes",         Command.OK,     1);//[LOCALE]
+	final private static Command cmdNo     = new Command("No",          Command.CANCEL, 2);//[LOCALE]
+	final private static Command cmdFind   = new Command("Find",        Command.OK,     1);//[LOCALE]
+	final private static Command cmdBack   = new Command("Back",        Command.BACK,   2);//[LOCALE]
+	final private static Command cmdExit   = new Command("Exit",        Command.EXIT,   3);//[LOCALE]
+	final private static Command cmdLogin  = new Command("Login",       Command.ITEM,   1);//[LOCALE]
+	final private static Command cmdNew    = new Command("New",         Command.ITEM,   1);//[LOCALE]
+	final private static Command cmdAbout  = new Command("About",       Command.ITEM,   1);//[LOCALE]
+	final private static Command cmdChat   = new Command("Chat",        Command.ITEM,   1);//[LOCALE]
+        final private static Command cmdDel    = new Command("Remove",      Command.ITEM,   1);//[LOCALE]
+        final private static Command cmdEdit   = new Command("Edit",        Command.ITEM,   1);//[LOCALE]
+        final private static Command cmdAccount= new Command("Accounts",    Command.ITEM,   1);//[LOCALE]
+        final private static Command cmdNewCont= new Command("Add contact", Command.ITEM,   1);//[LOCALE]
+        final private static Command cmdDelCont= new Command("Remove contact",Command.ITEM,   1);//[LOCALE]
+	final private static Command cmdLogout = new Command("Logout",	    Command.ITEM,   1);//[LOCALE]
 	
 	static private Hashtable commands_ = new Hashtable();   //commands list
 	static private Displayable lastDisplayable_;            //displayable object
@@ -130,7 +130,7 @@ public class JimmyUI {
                 "Copyright (C) 2006  JIMMY Project\n"+
                 "-------------------------------------\n"+
                 "Authors (sorted in alphabet order):\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n"+
-                "WWW: http://jimmyim.berlios.de";
+                "WWW: http://jimmyim.berlios.de"; //[LOCALE]
         
 	/**
 	 * The constructor creates an instance of JimmyUI. JimmyUI is main class
@@ -229,7 +229,7 @@ public class JimmyUI {
                         Account currAcc = (Account)scrMenu.getAccounts().elementAt(selected); 
 
                         if(currAcc.isConnected()){
-                            scrAlert.setString("Alredy connected!");
+                            scrAlert.setString("Alredy connected!"); //[LOCALE]
                             scrAlert.setType(AlertType.WARNING);
                             jimmy_.setAlert(scrAlert,scrMenu);                        
                         }
@@ -238,7 +238,7 @@ public class JimmyUI {
                             login.addElement(currAcc);
                             jimmy_.setNewConnections(login);
 
-                            ((Splash)scrSplash).setMess("Connecting "+currAcc.getUser()+"...");
+                            ((Splash)scrSplash).setMess("Connecting "+currAcc.getUser()+"...");//[LOCALE]
                             jimmy_.setDisplay(scrSplash);
                         }
                     }
@@ -254,7 +254,7 @@ public class JimmyUI {
                         if(logoutAccount.isConnected())
                             logout(logoutAccount);
                         else{
-                            scrAlert.setString("Account is not connected!");
+                            scrAlert.setString("Account is not connected!");//[LOCALE]
                             scrAlert.setType(AlertType.WARNING);
                             jimmy_.setAlert(scrAlert,scrMenu);
                         }

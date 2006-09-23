@@ -41,7 +41,7 @@ public class MainMenu extends List implements CommandListener {
      * @param a array of accounts to be displayed in main menu
      */
     public MainMenu(){
-        super("Accounts:",List.IMPLICIT);
+        super("Accounts:",List.IMPLICIT); //[LOCALE]
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         

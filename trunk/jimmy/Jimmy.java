@@ -59,15 +59,15 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		            
 		ui_ = new JimmyUI();
                 
-                ui_.setSplashMess("Loading settings...");
+                ui_.setSplashMess("Loading settings..."); //[LOCALE]
                 String[] settings = Store.readSettings();
-                ui_.setSplashMess("Loading account data...");       
+                ui_.setSplashMess("Loading account data...");     //[LOCALE]  
                 Vector accounts = Store.getAccounts();
-                ui_.setSplashMess("Optimizing store...");
+                ui_.setSplashMess("Optimizing store...");//[LOCALE]
                 Store.resetStore(settings,accounts);
                 
                 if(accounts.size() == 0){
-                    ui_.setSplashMess("Welcome to Jimmy!");
+                    ui_.setSplashMess("Welcome to Jimmy!");//[LOCALE]
                     try{
                         Thread.sleep(1000);
                     }catch(Exception e){System.out.println(e.getMessage());}
@@ -79,13 +79,13 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     for(int i=0; i<accounts.size(); i++){
                         a = (Account)accounts.elementAt(i);
                         if(!a.getAutoLogin()){
-                            ui_.setSplashMess("Connecting to "+a.getUser()+"...");
+                            ui_.setSplashMess("Connecting to "+a.getUser()+"...");//[LOCALE]
                             connectAccount(a);
                             connect = true;
 			    
 			    if(!a.isConnected()){
 				protocolList_.removeElementAt(protocolList_.size()-1);				
-				ui_.setSplashMess("Connecting to "+a.getUser()+" failed!!!");
+				ui_.setSplashMess("Connecting to "+a.getUser()+" failed!!!");//[LOCALE]
 				try{
 				    Thread.sleep(1000);
 				}catch(Exception e){System.out.println(e.getMessage());}
@@ -98,7 +98,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                         ui_.setView(JimmyUI.SCR_CONT);
                     }
                     else{
-                        ui_.setSplashMess("Welcome to Jimmy!");
+                        ui_.setSplashMess("Welcome to Jimmy!");//[LOCALE]
                         try{
                             Thread.sleep(1000);
                         }catch(Exception e){System.out.println(e.getMessage());}
@@ -130,7 +130,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					    ui_.setView(JimmyUI.SCR_CONT);
 					else{
 					    protocolList_.removeElementAt(protocolList_.size()-1);
-					    ui_.warning("Failed to connect! Check settings.",JimmyUI.SCR_MAIN);
+					    ui_.warning("Failed to connect! Check settings.",JimmyUI.SCR_MAIN);//[LOCALE]
 					}
 					    
 				} //for i < newConnections_.size()
@@ -141,7 +141,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	}//run
 
 	public void exitJimmy(){
-		ui_.setSplashMess("Destroying Jimmy...");
+		ui_.setSplashMess("Destroying Jimmy...");//[LOCALE]
 		ui_.setView(JimmyUI.SCR_SPLASH);
 		
 		for (int i=0; i<protocolList_.size(); i++){

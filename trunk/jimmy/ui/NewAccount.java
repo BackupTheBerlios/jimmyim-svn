@@ -37,15 +37,15 @@ import java.util.*;
  * @version
  */
 public class NewAccount extends Form implements CommandListener {
-    final private TextField user_     = new TextField("Username:",    "", 50, TextField.ANY     );
-    final private TextField pass_     = new TextField("Password:",    "", 30, TextField.PASSWORD);
-    final private TextField server_   = new TextField("Server:",      "", 30, TextField.ANY     );
-    final private TextField port_     = new TextField("Port:",        "", 10, TextField.DECIMAL );
+    final private TextField user_     = new TextField("Username:",    "", 50, TextField.ANY     ); //[LOCALE]
+    final private TextField pass_     = new TextField("Password:",    "", 30, TextField.PASSWORD); //[LOCALE]
+    final private TextField server_   = new TextField("Server:",      "", 30, TextField.ANY     ); //[LOCALE]
+    final private TextField port_     = new TextField("Port:",        "", 10, TextField.DECIMAL ); //[LOCALE]
     
     final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
     final private String[] auto_ = {"No","Yes"};
-    final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null);
-    final private ChoiceGroup autoLogin_ = new ChoiceGroup("AutoLogin:",Choice.EXCLUSIVE,auto_,null);
+    final private ChoiceGroup protocol_ = new ChoiceGroup("Protocol:",Choice.EXCLUSIVE,protocols_, null); //[LOCALE]
+    final private ChoiceGroup autoLogin_ = new ChoiceGroup("AutoLogin:",Choice.EXCLUSIVE,auto_,null); //[LOCALE]
     
     private Hashtable commands_;
     private JimmyUI ui_;
@@ -58,7 +58,7 @@ public class NewAccount extends Form implements CommandListener {
      * constructor
      */
     public NewAccount() {
-        super("Add account:");
+        super("Add account:"); //[LOCALE]
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
         
@@ -115,7 +115,7 @@ public class NewAccount extends Form implements CommandListener {
         protocol_.setSelectedIndex(0,true);
         autoLogin_.setSelectedIndex(0,true);
         if(edit_ == true){
-            this.setTitle("Add account:");
+            this.setTitle("Add account:"); //[LOCALE]
             edit_ = false;
             editIndex_ = -1;
             editAcc_ = null;
@@ -130,7 +130,7 @@ public class NewAccount extends Form implements CommandListener {
         this.editAcc_ = a;
         
         //user_.setString(a.getUser());
-        this.setTitle("Edit account "+a.getUser()+":");
+        this.setTitle("Edit account "+a.getUser()+":"); //[LOCALE]
         pass_.setString(a.getPassword());
         server_.setString(a.getServer());
         port_.setString(Integer.toString(a.getPort()));

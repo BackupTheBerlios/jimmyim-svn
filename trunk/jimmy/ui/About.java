@@ -41,7 +41,7 @@ public class About extends TextBox implements CommandListener{
      *  @param text text to be shown in about window
      */
     public About(String text) {
-        super("About:",text,300,TextField.UNEDITABLE);
+        super("About:",text,300,TextField.UNEDITABLE);//[LOCALE]
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
           
