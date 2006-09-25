@@ -100,7 +100,7 @@ public class MSNProtocol extends Protocol
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String ProductIDhash = "Q1P7W2E4J9R8U3S5";
     final String ProductID = "msmsgs@msnmsgr.com";
-    final String NSredirectURL = "baym-cs114.msgr.hotmail.com";
+    //final String NSredirectURL = "207.46.114.22";
     private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1;
     final int serverPort = 1863;
     final int NexusPort = 443;    
@@ -166,46 +166,53 @@ public class MSNProtocol extends Protocol
         {
                 this.tr = new MSNTransaction();            
                 this.tr.newTransaction();            
-                /*this.sh= new ServerHandler(this.NsURL, this.serverPort);           
+                this.sh= new ServerHandler(this.NsURL, this.serverPort);           
                 this.sh.connect();
-
                 
-                this.tr.setType("VER");
+                this.tr.setType(CMD_VER);
                 this.tr.addArgument("MSNP11");
                 this.tr.addArgument("MSNP10");
                 this.tr.addArgument("CVR0");
                 //String message = "VER 1 MSNP8 CVR0\r\n";
                 this.sh.sendRequest(this.tr.toString());
-                System.out.print(this.tr.toString());
-                
-                System.out.println(this.sh.getReply());   
-                System.out.println("*************************************");
+                //System.out.print(this.tr.toString());
+                this.sh.getReply();
+                /*System.out.println(this.sh.getReply());   
+                System.out.println("*************************************");*/
                 //message = "CVR 2 0x0409 win 4.10 i386 MSNMSGR 5.0.0544 MSMSGS avgustin.ocepek@yahoo.com.au\r\n";
                 this.tr.newTransaction();
-                this.tr.setType("CVR");
+                this.tr.setType(CMD_CVR);
                 this.tr.addArgument("0x040c winnt 5.1 i386 MSNMSGR 7.0.0777 msmsgs");
                 this.tr.addArgument(username);
-                
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());
-                System.out.println("*************************************");  
+                //System.out.println(this.tr.toString());  
+                this.sh.getReply();
+                //System.out.println(this.sh.getReply());
+                //System.out.println("*************************************");  
                 
                 //message="USR 3 TWN I avgustin.ocepek@yahoo.com.au\r\n";
                 this.tr.newTransaction();
-                this.tr.setType("USR");
+                this.tr.setType(CMD_USR);
                 this.tr.addArgument("TWN I");
                 this.tr.addArgument(this.username);                
                 
                 this.sh.sendRequest(this.tr.toString());
-                System.out.println(this.tr.toString());                           
-                System.out.println(this.sh.getReply());
-                System.out.println("*************************************"); 
-                this.sh.disconnect();*/
+                //System.out.println(this.tr.toString());  
+                String data = this.sh.getReply();
+                /*System.out.println(data);
+                System.out.println("*************************************"); */
+                String NSredirectURL = data.substring(data.indexOf("NS")+3, data.indexOf(" ", 10));
+                //System.out.println(NSredirectURL);
+                this.sh.disconnect();
                 
-                this.sh = new ServerHandler(this.NSredirectURL, this.serverPort);
-                this.sh.connect();               
                 
+                this.sh = new ServerHandler(NSredirectURL);
+                try {
+                    this.sh.connect();   
+                } catch (Exception e) {
+                    return false;
+                }
+ 
                 this.tr.newTransaction();
                 this.tr.setType(CMD_VER);
                 this.tr.addArgument("MSNP9");	    // support for version 9
