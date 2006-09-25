@@ -39,10 +39,11 @@ import jimmy.yahoo.YahooProtocol;
 import jimmy.util.Store;
 
 import jimmy.ui.JimmyUI;
+import jimmy.ui.Localization;
 
 public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
-	final public static String VERSION	=	"pre-alpha";	//JIMMY version
+	final public static String VERSION	=	"1.0";	//JIMMY version
 	final public static String RS = "JimmyIM";				//Record store name
 	private static Display display_;						//Display object
 	private static Vector protocolList_;					//List of active protocols
@@ -56,7 +57,9 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		jimmy_ = this;
 		newConnections_ = null;
 		protocolList_   = new Vector();
-		            
+		
+		Localization.setTranslation(System.getProperty("microedition.locale"), this);
+		
 		ui_ = new JimmyUI();
                 
                 ui_.setSplashMess("Loading settings..."); //[LOCALE]
