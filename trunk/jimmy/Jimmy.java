@@ -62,15 +62,15 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 		
 		ui_ = new JimmyUI();
                 
-                ui_.setSplashMess("Loading settings..."); //[LOCALE]
+                ui_.setSplashMess(Localization.tr("Loading settings...")); //[LOCALE]
                 String[] settings = Store.readSettings();
-                ui_.setSplashMess("Loading account data...");     //[LOCALE]  
+                ui_.setSplashMess(Localization.tr("Loading account data..."));     //[LOCALE]  
                 Vector accounts = Store.getAccounts();
-                ui_.setSplashMess("Optimizing store...");//[LOCALE]
+                ui_.setSplashMess(Localization.tr("Optimizing store..."));//[LOCALE]
                 Store.resetStore(settings,accounts);
                 
                 if(accounts.size() == 0){
-                    ui_.setSplashMess("Welcome to Jimmy!");//[LOCALE]
+                    ui_.setSplashMess(Localization.tr("Welcome to Jimmy!"));//[LOCALE]
                     try{
                         Thread.sleep(1000);
                     }catch(Exception e){System.out.println(e.getMessage());}
@@ -101,7 +101,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                         ui_.setView(JimmyUI.SCR_CONT);
                     }
                     else{
-                        ui_.setSplashMess("Welcome to Jimmy!");//[LOCALE]
+                        ui_.setSplashMess(Localization.tr("Welcome to Jimmy!"));//[LOCALE]
                         try{
                             Thread.sleep(1000);
                         }catch(Exception e){System.out.println(e.getMessage());}

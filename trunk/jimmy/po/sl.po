@@ -1,0 +1,4 @@
+#: Contact.java:36
+msgid "Back"
+msgstr "Nazaj"
+

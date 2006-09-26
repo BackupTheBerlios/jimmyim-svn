@@ -33,7 +33,7 @@ import javax.microedition.midlet.MIDlet;
 public class Localization {
 	public static String tr(String in) {
 		if (hTable != null) {
-			if (hTable.contains(getHash(in)))
+			if (hTable.containsKey(getHash(in)))
 				return (String)hTable.get(getHash(in));
 		}
 
@@ -42,7 +42,7 @@ public class Localization {
 
 	public static String tr(String in, String comment) {
 		if (hTable != null) {
-			if (hTable.contains(getHash(in, comment)))
+			if (hTable.containsKey(getHash(in, comment)))
 				return (String)hTable.get(getHash(in, comment));
 		}
 		
@@ -62,7 +62,7 @@ public class Localization {
 	private final static int IDLE = 0;
 	
 	public static void setTranslation(String trCode, MIDlet midlet) {
-		InputStream is = midlet.getClass().getResourceAsStream(trCode.substring(0,2) + ".po");	//open a file named the first two characters of the trCode and append a suffix .po
+		InputStream is = midlet.getClass().getResourceAsStream("po/" + trCode.substring(0,2) + ".po");	//open a file named the first two characters of the trCode and append a suffix .po
 		
 		try {	//try, if the file existed and was open
 			is.available();
@@ -85,11 +85,14 @@ public class Localization {
 			
 			while ((curChar=is.read()) != -1) {
 				String curStr = String.valueOf((char)curChar);
-				if (((curStat != MSGSTR) || (curStat != MSGID)) && (curStr=="#"))
+				if ((!reading) && (curStr.compareTo("#")==0)) {
 					curStat = COMMENT;
+				}
 				
-				if (curStat == COMMENT && curStr=="\n")
+				if (curStat==COMMENT && curStr.compareTo("\n")==0) {
 					curStat = IDLE;
+					buffer = "";
+				}
 
 				if (curStr=="\\") {	//escape sequence used
 					curChar = is.read();
@@ -106,10 +109,10 @@ public class Localization {
 					usedEscapeSeq = true;
 				}
 				
-				if (curStat == IDLE && buffer=="msgid") {
+				if (buffer.compareTo("msgid")==0) {
 					curStat = MSGID;
 					
-					if (curMsgStr!="") {
+					if (curMsgStr.length()!=0) {
 						if (curMsgStr.indexOf("_:") != -1) {	//expression has comment
 							int idx1 = curMsgStr.indexOf("_:");
 							int idx2 = curMsgStr.indexOf("\n", idx1+2);
@@ -122,28 +125,39 @@ public class Localization {
 					curMsgId = ""; curMsgComment = ""; curMsgStr = ""; buffer="";
 				}
 
-				if (curStat == IDLE && buffer=="msgstr")
+				if (buffer.compareTo("msgstr")==0)
 					curStat = MSGSTR;
-				
-				if ((curStat== MSGID || curStat==MSGSTR) && curStr=="\"") {	//reading msgid or msgstr value
+
+				if ((curStat==MSGID || curStat==MSGSTR) && curStr.compareTo("\"")==0) {	//reading msgid or msgstr value
 					if (reading && !usedEscapeSeq) {
 						if (curStat == MSGID)
-							curMsgId += buffer.substring(1);
+							curMsgId += buffer;
 						else if (curStat == MSGSTR)
-							curMsgStr += buffer.substring(1);
+							curMsgStr += buffer;
 						
 						reading = false;
+						buffer = ""; curStr="";
 					} else if (!reading) {
-						buffer = "";
+						buffer = ""; curStr="";
 						reading = true;
 					}
 					
 				}
-				
-				if (!reading && curStr != "\n" && curStr != " " && curStr != "\t")
-					buffer.concat(curStr);
+		
+				if (curStr.compareTo("\n")!=0 && curStr.compareTo("\t")!=0)
+					buffer = buffer.concat(curStr);
 				
 				usedEscapeSeq = false;
+			}
+			if (curMsgStr.length()!=0) {	//TODO: only copy of the 39 lines above
+				if (curMsgStr.indexOf("_:") != -1) {	//expression has comment
+					int idx1 = curMsgStr.indexOf("_:");
+					int idx2 = curMsgStr.indexOf("\n", idx1+2);
+					curMsgComment = curMsgStr.substring(idx1, idx2);
+					curMsgStr = curMsgStr.substring(idx2+1);
+				}
+				
+				hTable.put(getHash(curMsgId, curMsgComment), curMsgStr);
 			}
 		} catch (Exception e) {
 			System.out.println(e);
