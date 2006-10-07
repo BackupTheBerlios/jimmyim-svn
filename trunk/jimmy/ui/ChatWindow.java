@@ -33,11 +33,11 @@ public class ChatWindow extends Form implements CommandListener {
     
     /** Creates a new instance of ChatWindow */
     public ChatWindow(String user, ChatSession cs) {
-	super("Chat with "+user+":");//[LOCALE]
+	super(Localization.tr("Chat with ")+user+":");//[LOCALE]
         ui_ = JimmyUI.getInstance();
         commands_ = ui_.getCommands();
 	cs_ = cs;
-	tf_ = new TextField("Message:","",200,TextField.ANY);//[LOCALE]
+	tf_ = new TextField(Localization.tr("Message:"),"",200,TextField.ANY);//[LOCALE]
         
         try {
             setCommandListener(this);
@@ -59,7 +59,7 @@ public class ChatWindow extends Form implements CommandListener {
 	    ((TextField)get(size()-1)).setString("");
 	    
             cs_.sendMsg(msg);
-	    this.insert(size()-1,new StringItem("Me - "+time+":",null));//[LOCALE]
+	    this.insert(size()-1,new StringItem(Localization.tr("Me - ")+time+":",null));//[LOCALE]
 	    this.insert(size()-1,new StringItem(null,msg));
 	}
 	else

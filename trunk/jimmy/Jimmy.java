@@ -82,13 +82,13 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                     for(int i=0; i<accounts.size(); i++){
                         a = (Account)accounts.elementAt(i);
                         if(!a.getAutoLogin()){
-                            ui_.setSplashMess("Connecting to "+a.getUser()+"...");//[LOCALE]
+                            ui_.setSplashMess(Localization.tr("Connecting to ")+a.getUser()+"...");//[LOCALE]
                             connectAccount(a);
                             connect = true;
 			    
 			    if(!a.isConnected()){
 				protocolList_.removeElementAt(protocolList_.size()-1);				
-				ui_.setSplashMess("Connecting to "+a.getUser()+" failed!!!");//[LOCALE]
+				ui_.setSplashMess(Localization.tr("Connecting to ")+a.getUser()+Localization.tr(" failed!!!"));//[LOCALE]
 				try{
 				    Thread.sleep(1000);
 				}catch(Exception e){System.out.println(e.getMessage());}
@@ -133,7 +133,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					    ui_.setView(JimmyUI.SCR_CONT);
 					else{
 					    protocolList_.removeElementAt(protocolList_.size()-1);
-					    ui_.warning("Failed to connect! Check settings.",JimmyUI.SCR_MAIN);//[LOCALE]
+					    ui_.warning(Localization.tr("Failed to connect! Check settings."),JimmyUI.SCR_MAIN);//[LOCALE]
 					}
 					    
 				} //for i < newConnections_.size()
@@ -144,7 +144,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	}//run
 
 	public void exitJimmy(){
-		ui_.setSplashMess("Destroying Jimmy...");//[LOCALE]
+		ui_.setSplashMess(Localization.tr("Destroying Jimmy..."));//[LOCALE]
 		ui_.setView(JimmyUI.SCR_SPLASH);
 		
 		for (int i=0; i<protocolList_.size(); i++){

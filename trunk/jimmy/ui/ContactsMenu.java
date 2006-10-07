@@ -50,7 +50,7 @@ public class ContactsMenu extends List implements CommandListener {
     
     /** Creates a new instance of ContactsMenu */
     public ContactsMenu() {
-        super("Personal contacts:",List.IMPLICIT);//[LOCALE]
+        super(Localization.tr("Personal contacts:"),List.IMPLICIT);//[LOCALE]
         ui_ =           JimmyUI.getInstance();
         commands_ =     ui_.getCommands();
 	chatWindows_ =  ui_.getChatWindows();
