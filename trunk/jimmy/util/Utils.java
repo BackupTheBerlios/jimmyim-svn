@@ -368,11 +368,11 @@ public class Utils {
         		out.insert(j,' ');
         		j++;
         }
-        for(int j = 24; j < Math.floor(in.length*3/24)+in.length*3; j=j+24){
+        for(int j = 24; j < (int)(in.length*3/24)+in.length*3; j=j+24){
         		out.insert(j,' ');
         		j++;
         }
-        for(int j = 50; j < Math.floor(in.length*3/50)+Math.floor(in.length*3/24)+in.length*3; j=j+50){
+        for(int j = 50; j < (int)(in.length*3/50)+(int)(in.length*3/24)+in.length*3; j=j+50){
         		out.insert(j,'\n');
         		j++;
         }
@@ -385,7 +385,7 @@ public class Utils {
         int at1 = 0;
         int at2 = 16;
         StringBuffer sb = new StringBuffer();
-        for(int j = 0; j < Math.floor(out.length()/51); j++){
+        for(int j = 0; j < (int)(out.length()/51); j++){
         		sb.append(r.substring(ind1,ind2)+ "   "+txt.substring(at1,at2)+"\n");
         		ind1 = ind2+1;
         		ind2 = ind2+51;
