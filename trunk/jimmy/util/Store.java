@@ -134,12 +134,16 @@ public class Store
                     //read server port (optional)
                     int port = Integer.parseInt(record.substring(idx, (idx = record.indexOf("\n", idx))));
                     idx++;	//newline
+                    
+                    //use SSL connection (optional)
+                    boolean ssl = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
+        		    idx++;	//newline
                     boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
 		    
 		    if(server.equals("") || server.equals("null"))
 			server = null;
 
-                    return new Account(userName, password, type, server, port, autoLogin);
+                    return new Account(userName, password, type, server, port, false, autoLogin);
                 }
 	}
 	
@@ -156,6 +160,7 @@ public class Store
 		out = out.concat(acc.getPassword() + NEWLINE_);
 		out = out.concat(acc.getServer() + NEWLINE_);
 		out = out.concat(String.valueOf(acc.getPort()) + NEWLINE_);
+		out = out.concat(String.valueOf(acc.getUseSSL()) + NEWLINE_);
 		out = out.concat((acc.getAutoLogin()?"1":"0") + NEWLINE_);	//1 - True, 0 - False
 		
 		return out;

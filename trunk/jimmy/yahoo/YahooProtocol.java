@@ -75,11 +75,6 @@ public class YahooProtocol extends Protocol {
 		return false;
 	}
 
-	public boolean login(String username, String passwd) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public void logout() {
 		this.sh_.disconnect();
 		this.status_ = DISCONNECTED;

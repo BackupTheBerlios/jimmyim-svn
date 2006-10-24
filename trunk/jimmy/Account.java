@@ -33,7 +33,8 @@ public class Account {
     private String username_;	//login username
     private String password_;	//login password
     private String server_;		//login server name (optional)
-    private int port_ = 0;	//server port (optional)
+    private int port_;			//server port (optional)
+    private boolean useSSL_;	//use a secure socket layer connection
     private boolean autoLogin_;	//automatically login at startup
     private boolean connected_;
     private Protocol protocol_;
@@ -46,12 +47,13 @@ public class Account {
      * @param s Server name which to connect to
      * @param port Server port which to connect to
      */
-    public Account(String u, String p, byte protocolType, String s, int port, boolean autoLogin) {
+    public Account(String u, String p, byte protocolType, String s, int port, boolean useSSL, boolean autoLogin) {
         this.protocolType_ = protocolType;
         this.username_   = u;
         this.password_   = p;
         this.server_     = s;
         this.port_       = port;
+        this.useSSL_	 = useSSL;
         this.autoLogin_  = autoLogin;
         this.connected_   = false;
     }
@@ -64,8 +66,8 @@ public class Account {
      * @param p Login password
      * @param s Server name which to connect to
      */
-    public Account(String u, String p, byte protocolType) {
-    	this(u, p, protocolType, null, 0, false);
+    public Account(String u, String p, byte protocolType, boolean useSSL) {
+    	this(u, p, protocolType, null, 0, false, useSSL);
     }
     
     public String toString() {
@@ -76,6 +78,7 @@ public class Account {
     	out.concat("Server name (optional): " + server_);
     	out.concat("Server port (optional): " + String.valueOf(port_));
     	out.concat("AutoLogin: " + autoLogin_);
+    	out.concat(useSSL_?"This account uses SSL connection!":"This account doesn't use SSL connection.");
     	
     	return out;
     }
@@ -87,6 +90,7 @@ public class Account {
     public void setAutoLogin(boolean al) {this.autoLogin_ = al;}
     public void setConnected(boolean p) {this.connected_ = p;}
     public void setProtocol(Protocol p) {this.protocol_ = p;}
+    public void setUseSSL(boolean ssl)	{this.useSSL_ = ssl;}
    
     public String getUser()         {return this.username_;}
     public String getPassword()     {return this.password_;}   
@@ -94,6 +98,7 @@ public class Account {
     public int getPort()            {return this.port_;}   
     public byte getProtocolType()	{return this.protocolType_;}
     public boolean getAutoLogin()	{return this.autoLogin_;}
+    public boolean getUseSSL()			{return this.useSSL_;}
     public boolean isConnected()    {return this.connected_;}
     public Protocol getProtocol()   {return this.protocol_;}
 }

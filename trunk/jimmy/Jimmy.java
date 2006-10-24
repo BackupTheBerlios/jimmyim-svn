@@ -222,7 +222,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 
 		case Protocol.MSN:
                     MSNProtocol msn = new MSNProtocol(this);
-                    current.setConnected(msn.login(current.getUser(), current.getPassword()));
+                    current.setConnected(msn.login(current));
                     protocolList_.addElement(msn);
                     ui_.accountConnected(current,(Protocol)protocolList_.lastElement());
 		    current.setProtocol(msn);

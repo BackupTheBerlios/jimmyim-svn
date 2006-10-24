@@ -149,19 +149,9 @@ public class MSNProtocol extends Protocol
      */
     public boolean login(Account acc)
     {
-        return this.login(acc.getUser(), acc.getPassword());
-    }    
-    /**
-     * This function logs a user to MSN service. A valid username& password is required to perform this task.
-     * @param username Username for MSN Passport(example: john.doe@hotmail.com).
-     * @param password Password for MSN Passport(example: john.doe@hotmail.com).
-     * @return True if login succeded, or false on failure.
-     */
-    public boolean login(String username, String password)
-    {
         this.status_ = CONNECTING;
-        this.username = username;
-        this.password= password;          
+        this.username = acc.getUser();
+        this.password = acc.getPassword();          
         try
         {
                 this.tr = new MSNTransaction();            
@@ -290,7 +280,8 @@ public class MSNProtocol extends Protocol
             e.printStackTrace();
             return false;
         }
-    }
+    }    
+    
     /**
      * method disconnects the SocketConnection of this class.
      */
@@ -520,7 +511,7 @@ public class MSNProtocol extends Protocol
     private void parseContacts(String data)
     {  
         //Normal form:
-        //LST N=matevz.jekovec@guest.arnes.si F=Matevž C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
+        //LST N=matevz.jekovec@guest.arnes.si F=Matevï¿½ C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
         //Someone got a reply like this once(repeatedly):
         //LST N=p
         if(this.contacts_ == null) {

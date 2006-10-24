@@ -75,17 +75,6 @@ public abstract class Protocol implements Runnable
     public abstract boolean login(Account account);
     
     /**
-     * Initializes the connection and logs in.
-     * It uses the default server name and port for the protocol.
-     * This method is provided for the convenience.
-     * 
-     * @param username User ID for login
-     * @param passwd User password for login
-     * @return true if connected and logged in successfully, otherwise false
-     */
-    public abstract boolean login(String username, String passwd);
-    
-    /**
      * Log out and close connection. 
      */
     public abstract void logout();

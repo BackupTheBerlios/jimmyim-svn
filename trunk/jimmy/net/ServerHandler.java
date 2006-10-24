@@ -89,12 +89,14 @@ public class ServerHandler
     
     /**
      * Open the connection to the specified URL and port passed in the constructor using the SocketConnection class.
+     * 
+     * @param useSSL Connect using Secure Socket Layer connection
      */
-    public void connect()
+    public void connect(boolean useSSL)
     {
         try
         {
-            this.sc_ = (SocketConnection)Connector.open( "socket://" + url_ +
+            this.sc_ = (SocketConnection)Connector.open( (useSSL?"ssl://":"socket://") + url_ +
             		((outPort_ == 0) ? "" : (":" + String.valueOf(outPort_))) );
             this.inPort_ = this.sc_.getLocalPort();
             this.os_ = this.sc_.openDataOutputStream();
@@ -106,6 +108,13 @@ public class ServerHandler
     	   	e.printStackTrace();
     	   	this.connected_ = false;
     	   }
+    }
+    /**
+     * This method is provided for convenience.
+     * It triggers connect(false).
+     */
+    public void connect() {
+    	connect(false);
     }
     
     /**

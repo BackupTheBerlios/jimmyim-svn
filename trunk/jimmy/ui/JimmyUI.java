@@ -32,7 +32,7 @@ import jimmy.util.Store;
 import jimmy.icq.*;
 import jimmy.msn.*;
 import jimmy.jabber.*;
-
+import jimmy.ui.Localization;
 
 public class JimmyUI {
 	//Commands codes:
@@ -320,7 +320,7 @@ public class JimmyUI {
                         Store.addAccount(newAccount);
                     }
                     else{
-                        newAccount = new Account(user,pass,protocol,server,Integer.parseInt(port),auto);
+                        newAccount = new Account(user,pass,protocol,server,Integer.parseInt(port),false, auto);	//slashrsm TODO: Set useSSL by the value - false by default! -Matevz
                         saveAccount(newAccount);
                         jimmyUI_.addAccount(newAccount);
                     }

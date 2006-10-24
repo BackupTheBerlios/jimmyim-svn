@@ -87,7 +87,7 @@ public class JabberProtocol extends Protocol {
 		int port = (account.getPort()!=0) ? account.getPort() : DEFAULT_PORT;
 		
 		sh_ = new ServerHandler(server, port);
-		sh_.connect();
+		sh_.connect(account.getUseSSL());
 		if (sh_.isConnected() == false)
 			return false;
 		
@@ -113,7 +113,7 @@ public class JabberProtocol extends Protocol {
 		
 		sh_.sendRequest(oString);
 		iString = sh_.getReply();
-
+		System.out.println(iString);
 		//check authentication feedback
 		if (JabberParseXML.parseUserPass(iString)==false) {
 			status_ = WRONG_PASSWORD;
@@ -139,13 +139,6 @@ public class JabberProtocol extends Protocol {
 		return true;
 	}
 	
-	/**
-	 * This method is provided by the convenience. It's the same as the upper one.
-	 */
-	public boolean login(String userID, String password) {
-		return this.login(new Account(userID, password, JABBER));
-	}
-
 	/**
 	 * Logs out and closes the connection.
 	 */
