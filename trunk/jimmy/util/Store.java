@@ -143,7 +143,7 @@ public class Store
 		    if(server.equals("") || server.equals("null"))
 			server = null;
 
-                    return new Account(userName, password, type, server, port, false, autoLogin);
+                    return new Account(userName, password, type, server, port, ssl, autoLogin);
                 }
 	}
 	
