@@ -130,7 +130,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 					current = (Account)newConnections_.elementAt(i);  //current connections
 					System.out.println("[DEBUG] Logging in user: " + current.getUser());
 					
-                                        connectAccount(current);
+                    connectAccount(current);
 					if(current.isConnected())
 					    ui_.setView(JimmyUI.SCR_CONT);
 					else{
