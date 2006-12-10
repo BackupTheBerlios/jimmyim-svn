@@ -71,9 +71,11 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                 
                 if(accounts.size() == 0){
                     ui_.setSplashMess(Localization.tr("Welcome to Jimmy!"));//[LOCALE]
-                    try{
-                        Thread.sleep(1000);
-                    }catch(Exception e){System.out.println(e.getMessage());}
+                    try {  
+                    Thread.sleep(1000);
+                    }catch (InterruptedException e){
+                    		System.out.println(e.getMessage());
+                    }
                     ui_.setView(JimmyUI.SCR_NEWACC);
                 }
                 else{
@@ -91,7 +93,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 				ui_.setSplashMess(Localization.tr("Connecting to ")+a.getUser()+Localization.tr(" failed!!!"));//[LOCALE]
 				try{
 				    Thread.sleep(1000);
-				}catch(Exception e){System.out.println(e.getMessage());}
+				}catch(InterruptedException e){System.out.println(e.getMessage());}
 			    }
 				
                         }
@@ -104,7 +106,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
                         ui_.setSplashMess(Localization.tr("Welcome to Jimmy!"));//[LOCALE]
                         try{
                             Thread.sleep(1000);
-                        }catch(Exception e){System.out.println(e.getMessage());}
+                        }catch(InterruptedException e){System.out.println(e.getMessage());}
                         ui_.setView(JimmyUI.SCR_MAIN);
                     }
                 }
@@ -117,7 +119,7 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public void run(){
 		//infinite loop
 		while (true){
-			try { Thread.sleep(1000); } catch (Exception e) {};    //stop for one second
+			try { Thread.sleep(1000); } catch (InterruptedException e) {System.out.println(e.getMessage());}    //stop for one second
                 
 			//if there are some new connections to establish
 			if (newConnections_ != null) {
