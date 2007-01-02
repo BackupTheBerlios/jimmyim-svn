@@ -104,19 +104,6 @@ public class ICQProtocol extends Protocol {
 		if(acc != null && !acc.equals(""))
 			this.AUTH_SERVER = account.getServer();
 		
-		if(por != 0)
-			this.AUTH_SERVER_PORT = account.getPort();
-		
-		if(this.login(this.user,this.pass))
-			return true;
-		
-		return false;
-	}
-
-	public boolean login(String username, String passwd) {
-		this.user = username;
-		this.pass = passwd;
-		
 		//TODO: Change login sequence to a more dinamic shape
 		
 		//STAGE ONE LOGIN (AUTH)
@@ -222,11 +209,18 @@ public class ICQProtocol extends Protocol {
 		//Send the first auth package
 		this.conn.sendPackage(b);
 		
-		//get cookie or err
 		this.response = new ICQPackage(this.conn.getNextPackage());
-		this.tlvDecode(this.response.getTlv(1));
+		
+		//decode BOS TLV
+		this.tlvDecode(this.response.getTlv(2));
+		
+		//decode cookie TLV
+		this.tlvDecode(this.response.getTlv(3));
+		
 		this.conn.disconnect();
-//		System.out.println(this.bos);
+		
+		System.out.println(this.bos);
+		
 		//END STAGE ONE
 		
 		//STAGE TWO
@@ -244,7 +238,17 @@ public class ICQProtocol extends Protocol {
 		ha=null;
 		
 		//Now change the connection server to recieved BOS address
+		
+		try{
 		this.bos_port = Integer.parseInt(this.bos.substring(this.bos.indexOf(':')+1,this.bos.length()));
+		}catch(NumberFormatException e){
+			
+			//Add exception forwarding
+			System.out.println("[DEBUG] Server response changed or too many connection retries.");
+			return false;
+		}
+		
+		
 		this.bos = this.bos.substring(0,this.bos.indexOf(":"));
 		this.conn.setPort(this.bos_port);
 		this.conn.setURL(this.bos);
@@ -509,9 +513,10 @@ public class ICQProtocol extends Protocol {
 		case 5:
 //			System.out.println("Got Cookie");
 			this.bos = new String(t.getContent());
-			this.cookie = this.response.getTlv(2).getContent();
+//			this.cookie = this.response.getTlv(2).getContent();
 			break;
 		case 6:
+			this.cookie = t.getContent();
 			break;
 		case 7:
 			break;

@@ -29,6 +29,7 @@ import jimmy.net.ServerHandler;
 import java.util.Vector;
 
 import jimmy.util.ByteOperator;
+import jimmy.util.Utils;
 
 /**
  * Used to feed the ICQProtocol instance with packages arriving from the server.
@@ -65,6 +66,9 @@ public class ICQConnector extends ServerHandler {
 				p[i] = ((Byte) pk.elementAt(i)).byteValue();
 			}
 			this.pkgs.removeElementAt(0);
+			
+//			System.out.println("[DEBUG] IN:\n" + Utils.byteArrayToHexString(p));
+			
 			return p;
 		} else {
 			byte[] b = super.getReplyBytes();

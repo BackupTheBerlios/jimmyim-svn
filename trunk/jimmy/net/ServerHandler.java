@@ -26,6 +26,8 @@ import java.io.*;
 import java.lang.Thread;
 import javax.microedition.io.*;
 
+import jimmy.util.Utils;
+
 /**
  * This class is used to connect to a remote server using SocketConnection class.
  * This is the way how all the communication between the mobile phone and IM servers should be done.
@@ -98,6 +100,7 @@ public class ServerHandler
         {
             this.sc_ = (SocketConnection)Connector.open( (useSSL?"ssl://":"socket://") + url_ +
             		((outPort_ == 0) ? "" : (":" + String.valueOf(outPort_))) );
+//        	this.sc_ = (SocketConnection)Connector.open("socket://" + this.url_ + ":" + String.valueOf(this.outPort_));
             this.inPort_ = this.sc_.getLocalPort();
             this.os_ = this.sc_.openDataOutputStream();
             this.is_ = this.sc_.openDataInputStream();
@@ -161,6 +164,9 @@ public class ServerHandler
      * @param message Message to be sent using the OutputStream to the remote server using SocketConnection.
      */
     public void sendRequest(byte[] message){
+    	
+//    	System.out.println("[DEBUG] OUT:\n" + Utils.byteArrayToHexString(message));
+    	
     	try 
         {            
     			os_.write(message);
