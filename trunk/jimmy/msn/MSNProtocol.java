@@ -32,6 +32,7 @@ import jimmy.Contact;
 import jimmy.msn.MSNContact;
 import jimmy.ChatSession;
 import jimmy.ProtocolInteraction;
+import jimmy.util.Utils;
 /**
  * This class is used to connect with a remote server using SocketConnection class.
  * @author Zoran Mesec
@@ -96,11 +97,15 @@ public class MSNProtocol extends Protocol
     private String mySwitchboard;    
     
     // definitions of constants
+    //const of protocol MSNP10
     final String NsURL = "messenger.hotmail.com";
     final String ProductKey = "YMM8C_H7KCQ2S_KL"; 
     final String ProductIDhash = "Q1P7W2E4J9R8U3S5";
     final String ProductID = "msmsgs@msnmsgr.com";
     //final String NSredirectURL = "207.46.114.22";
+
+    final String ProductIDMSNP12 = "PROD0090YUAUV{2B"; //ilya
+
     private static final long MSNP11_MAGIC_NUM = 0x0E79A9C1;
     final int serverPort = 1863;
     final int NexusPort = 443;    
@@ -114,7 +119,6 @@ public class MSNProtocol extends Protocol
     static final String        PASSPORT_LIST_SERVER_ADDRESS = "https://nexus.passport.com/rdr/pprdr.asp";
     
     
-    
     /**
      * The constructor method.
      * @param URL URL of the server. No protocolis specified here! Example: messenger.hotmail.com.
@@ -123,6 +127,7 @@ public class MSNProtocol extends Protocol
     public MSNProtocol(ProtocolInteraction jimmy)
     {
     	super(jimmy);
+        
         this.connected_ = false;
         this.protocolType_ = MSN;
         this.busy = false;
@@ -169,10 +174,13 @@ public class MSNProtocol extends Protocol
                 this.sh.getReply();
                 /*System.out.println(this.sh.getReply());   
                 System.out.println("*************************************");*/
-                //message = "CVR 2 0x0409 win 4.10 i386 MSNMSGR 5.0.0544 MSMSGS avgustin.ocepek@yahoo.com.au\r\n";
+                //message = "CVR 2 0x0409 win 4.10 i386 MSNMSGR 5.0.0544 MSMSGS avgustin.ocepek@yahoo.com.au\r\n"; //MSNP10
+                //message = "CVR 2 0x040c winnt 5.1 i386 MSNMSGR 7.0.0777 msmsgs idanilov@ua.fm\r\n"; \\MSNP11
+                //message = "CVR 2 0x0409 winnt 5.1 i386 MSNMSGR 7.5.0324 msmsgs idanilov@ua.fm\r\n"; \\MSNP12
+                //message = "CVR 2 0x0409 winnt 5.1 i386 MSG80BETA 8.0.0566 msmsgs alice@hotmail.com\r\n"; \\MSNP13
                 this.tr.newTransaction();
                 this.tr.setType(CMD_CVR);
-                this.tr.addArgument("0x040c winnt 5.1 i386 MSNMSGR 7.0.0777 msmsgs");
+                this.tr.addArgument("0x040c winnt 5.1 i386 MSNMSGR 7.0.0777 msmsgs"); //MSNP11
                 this.tr.addArgument(username);
                 this.sh.sendRequest(this.tr.toString());
                 //System.out.println(this.tr.toString());  
@@ -231,35 +239,44 @@ public class MSNProtocol extends Protocol
                 //System.out.println(this.tr.toString());  
                 String USRreply = this.sh.getReply();
                 String challenge = USRreply.substring(12);
-                //System.out.println("aaaaa"+USRreply + "ddd");                
                 
                 //this is where the password stuff fun starts
-                
+                                
                 // We have to establish a connection MSN Passport network 
                 // for authentification with user password.
+                //Warning: connection to the NS should remain open during the communication with the PassportNexus                                
                 
-                //Warning: connection to the NS should remain open during the communication with the PassportNexus
-                                
+                /* Ilya: old Passport 1.4
                 PassportNexus pn = new PassportNexus();
                 pn.getPassportLoginServer();
                 String ticket = pn.requestAuthorizationTicket(this.username, this.password, challenge);
+                 */
+
+                //Ilya: use of latest SOAP XML based Passport 3.0
+                //its required for S40 handsets which has a bug with header length and due this unable to use Passport 1.4
+                PassportLoginNet pn = new PassportLoginNet();
+                String ticket = pn.requestAuthorizationTicket(this.username, this.password, challenge);
+                //String ticket = pn.GetIt(this.username, this.password, challenge);
+                
                 if(ticket == null)
                 { 
                     this.status_ = WRONG_PASSWORD;
                     return false;
                 }
+                
                 this.tr.newTransaction();    
                 this.tr.setType(CMD_USR);
                 this.tr.addArgument("TWN S");
                 this.tr.addArgument(ticket);
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 this.sh.getReply();    //gets the SBS or anything else that is not important            
+
                 this.tr.newTransaction();
                 this.tr.setType("SYN");
-                this.tr.addArgument("2006-08-14T06:03:32.863-07:00 2006-08-16T06:03:33.177-07:00");                  
+                this.tr.addArgument("2007-08-14T06:03:32.863-07:00 2006-08-16T06:03:33.177-07:00");                  
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());  
+                System.out.println(this.tr.toString());  
                 parseReply(this.sh.getReply());
              
                 this.tr.newTransaction();
@@ -267,8 +284,9 @@ public class MSNProtocol extends Protocol
                 this.tr.addArgument(CMD_NLN);
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
-                //System.out.println(this.tr.toString());                           
+                System.out.println(this.tr.toString());                           
                 parseReply(this.sh.getReply());
+                
                 this.status_ = CONNECTED;
 		this.stop = false;
                 this.thread_.start();
@@ -300,7 +318,7 @@ public class MSNProtocol extends Protocol
      * @param reply raw data from the server, presented as a string
      */
     public void parseReply(String reply) {  
-	//System.out.println("Reply:"+reply);
+	System.out.println("Reply:"+reply);
         if(reply == null) {
             return;
         }
@@ -339,7 +357,12 @@ public class MSNProtocol extends Protocol
         while(ind!=-1)
         {
             /*System.out.println("CMD:"+one_line.substring(0,3));*/
-            cmd = (String)this.commands.get(reply.substring(0,3));
+            if (reply.length()>=3){
+                cmd = (String)this.commands.get(reply.substring(0,3));
+            } else {
+                cmd = null;
+            }
+            
             cmd_id = (cmd!=null) ?   Integer.parseInt(cmd) : 0;
             switch (cmd_id)
             {
@@ -381,7 +404,12 @@ public class MSNProtocol extends Protocol
                     //unknown command
                     break;
             }
-            reply = reply.substring(ind+2);
+            //ensure we can use substring()
+            if ((ind+2) < reply.length()){
+                reply = reply.substring(ind+2);
+            } else {
+                reply = "";
+            }
             //System.out.println("Reply Cut:" + reply);
             ind = reply.indexOf("\r\n");
         }
@@ -463,11 +491,20 @@ public class MSNProtocol extends Protocol
     private void parseADC(String data)
     {
         //ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso\r\n
+        System.out.println("parseADC:" + data);
         
         String line = data.substring(data.indexOf("ADC"), data.indexOf('\n')+1);
         System.out.println("Line:" + line);
+
+        //line = ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso
+        String[] atoms = Utils.explode(' ', line);
+        //atoms[0] = ADC
+        //atoms[1] = cid
+        //atoms[2] = FL, AL, RL, BL
+        //atoms[2] = N=username
+        //atoms[3] = F=full name
         
-        if(line.substring(6,8).compareTo("RL")==0)
+        if(atoms[2].compareTo("RL")==0)
         {
             String userID = line.substring(11,data.indexOf("F=")-1);
             System.out.println(userID);
@@ -528,13 +565,21 @@ public class MSNProtocol extends Protocol
         }            
         username = data.substring(ind+2, ind2);
         person = new MSNContact(username, (Protocol)this);
+
+        ind = data.indexOf("F=");   
+        ind2 = data.indexOf(" ", ind+1);
+        if(ind==-1 || ind2==-1){
+            person.setScreenName(username);
+        } else {
+            String screenname = data.substring(ind+2,ind2);
+            System.out.println("Screen name:"+screenname);
+            person.setScreenName(Utils.urlDecode(screenname));
+        }
+        
         ind = data.indexOf("C=");
         if(ind==-1) {
             return;
         }
-        username = data.substring(ind2+3,ind-1);
-        //System.out.println("Screen name:"+username);
-        person.setScreenName(username);
         ind2 = data.indexOf(" ", ind);
         String contactHash = data.substring(ind+2, ind2);   
         //System.out.println("UserHash:" + contactHash);
@@ -553,25 +598,33 @@ public class MSNProtocol extends Protocol
         }
         short list = Short.parseShort(lists);
         person.setLists(list);
+        if(this.userHashes==null) {
+            this.userHashes = new Hashtable(); }
+        if(this.userLists==null) {
+            this.userLists = new Hashtable(); }	   
+        this.userHashes.put(new Integer(person.hashCode()), contactHash);
+        this.userLists.put(new Integer(person.hashCode()), lists);            
+        this.contacts_.put(person.userID(), person); 
         switch (list) {
-            case 1:
+            case 1: //user in my FL list, but i'm not in his/her FL list
+                break;
             case 2:
             case 3:
-            case 9:
-            case 11:
+            case 9: //user in my FL list only, i'm in his FL and AL. Means he can't see my presence, so add user to AL list
+                this.tr.newTransaction();
+                this.tr.setType("ADC");
+                this.tr.addArgument("AL N="+person.userID());
+                System.out.println(this.tr.toString());
+                this.sh.sendRequest(this.tr.toString());      
+                break;
+            case 11: //user in my FL and AL. Means he can see my presence
             case 17:
-                if(this.userHashes==null) {
-                    this.userHashes = new Hashtable(); }
-                if(this.userLists==null) {
-                    this.userLists = new Hashtable(); }	   
-                this.userHashes.put(new Integer(person.hashCode()), contactHash);
-                this.userLists.put(new Integer(person.hashCode()), lists);            
-                this.contacts_.put(person.userID(), person); 
               break;
             default:
                 break;
         }
-        //System.out.println("Adding contact:" + person.userID() + person.groupName()+person.screenName());
+        System.out.println("Adding contact:" + person.userID()+ " " + person.groupName()+ " " +person.screenName());
+
         jimmy_.addContact(person);
     }
     private void userGoesOffline(String data)
@@ -670,15 +723,26 @@ public class MSNProtocol extends Protocol
         //this.groupID.put(group.toString(), new Integer(groupID.toString().substring(0, groupID.length()-1).hashCode()));
         this.groupID.put(groupID.toString().substring(0, groupID.length()-1), group.toString());
         this.groupHashes.put(group.toString(), groupID.toString().substring(0, groupID.length()-1));
-    } 
+    }
+    
     private void parsePresence(String data)
     {
+         //data = ILN 11 NLN idanilov@ua.fm Ilya%20Danilov 1342177280
+         System.out.println("[DEBUG] parsePresence:data:" + data);
          //this.printContacts();
-         String presence = data.substring(6, 9);
+         String[] atoms = Utils.explode(' ', data);
+         //atoms[0] = ILN or NLN
+         //atoms[1] = cid number
+         //atoms[2] = status
+         //atoms[3] = contact name (email)
+         //atoms[4] = url decoded screen name
+         //atoms[5] = contact capabilities (see: http://www.hypothetic.org/docs/msn/notification/presence.php)
+         String presence = atoms[2];
          MSNContact con;
-         //System.out.println("[DEBUG] type:" + presence);
-         //System.out.println("[DEBUG] user:" + uID);
-         con = (MSNContact)this.contacts_.get(data.substring(10, data.indexOf(' ', 11)));
+         System.out.println("[DEBUG] type:" + presence);
+         //System.out.println("[DEBUG] user:" + con.uID);
+         con = (MSNContact)this.contacts_.get(atoms[3]);
+         System.out.println("[DEBUG] con:" + con);
          if(con!=null)
          {
             if(presence.compareTo("BSY")==0)
@@ -703,11 +767,21 @@ public class MSNProtocol extends Protocol
     
     private void parseChallenge(String data)
     {       
-            String challenge = data.substring(6,26);
+            String line = data.substring(data.indexOf("CHL"), data.indexOf('\r')); //remove \r\n
+        
+            //data = CHL 0 25270234921473318824
+            String[] atoms = Utils.explode(' ', line);
+            //atoms[0] = CHL
+            //atoms[1] = ?
+            //atoms[2] = challenge
+            String challenge = atoms[2];
+            System.out.println(challenge);
             
+        
             // first step for v11
             //StringBuffer challenge =new StringBuffer(data.substring(6,data.length()-2));
             //challenge.append(this.ProductKey);
+            //String challenge = data.substring(6,26);
             //System.out.println(challenge);
             
             MD5 md5 = new MD5();
@@ -953,7 +1027,7 @@ public class MSNProtocol extends Protocol
         {
             try 
             {
-                Thread.sleep(1000);
+                Thread.sleep(1000L);
             } catch (InterruptedException e) 
             {
 		// TODO Auto-generated catch block
@@ -1008,24 +1082,25 @@ public class MSNProtocol extends Protocol
                  this.tr.newTransaction();
                  this.tr.setType("REM");			 
                  this.tr.addArgument("FL "+this.userHashes.get(new Integer(con.hashCode())));
+                 System.out.println(this.tr.toString());
                  this.sh.sendRequest(this.tr.toString());
-		 /*switch (list)
+		 switch (list)
 		 {
-		     case 11:
+		     case 11: //user also in my AL list, so don't forget to remove him from this list also
 			 this.tr.newTransaction();
 			 this.tr.setType("REM");	
 			 this.tr.addArgument("AL "+c.userID());
+			 System.out.println(this.tr.toString());
 			 this.sh.sendRequest(this.tr.toString());
-			 System.out.println("gggggg"+this.tr.toString());
 		     case 1:
-                     case 3:
+                     case 3: //???
 			 this.tr.newTransaction();
 			 this.tr.setType("REM");			 
 			 this.tr.addArgument("FL "+this.userHashes.get(new Integer(con.hashCode())));
 			 this.sh.sendRequest(this.tr.toString());
-			 System.out.println("jjjjjjj"+this.tr.toString());
+			 System.out.println(this.tr.toString());
 			 break; 
-		 }*/
+		 }
 				 
 		 this.contacts_.remove(c.userID());
 		 return true;
@@ -1041,8 +1116,7 @@ public class MSNProtocol extends Protocol
     {
 	//ADC 16 FL N=passport@hotmail.com F=Display%20Name\r\n
         //ADC 16 AL N=passport@hotmail.com F=Display%20Name\r\n
-        String name = c.screenName();
-        name = name.replace(' ', '_');
+        String name = Utils.urlDecode(c.screenName());
         System.out.println(name);
         c.setScreenName(name);
         
@@ -1054,21 +1128,30 @@ public class MSNProtocol extends Protocol
 	{
 	    this.contacts_=new Hashtable();
 	}
-        System.out.println("2");        
+            System.out.println("2");        
 	    this.contacts_.put(ms.userID(), ms);
             
-                    System.out.println("3");
+            System.out.println("3");
 	    this.tr.newTransaction();
 	    this.tr.setType("ADC");
 	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
 	    System.out.println(this.tr.toString());
 	    this.sh.sendRequest(this.tr.toString());   
-                    System.out.println("4");
-	    this.tr.newTransaction();
+            
+            System.out.println("4");
+	    /*this.tr.newTransaction();
 	    this.tr.setType("ADC");
-	    this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
+	    this.tr.addArgument("AL N="+c.userID() + " " + "F="+c.screenName());
+	    //this.tr.addArgument("FL N="+c.userID() + " " + "F="+c.screenName());
 	    System.out.println(this.tr.toString());
 	    this.sh.sendRequest(this.tr.toString());      
+            */
+            /*//ILYA: allow user to see our status
+            this.tr.newTransaction();
+            this.tr.setType("ADD");
+            this.tr.addArgument("AL "+c.userID().toString()+" "+c.screenName());
+            System.out.println(this.tr.toString());
+            this.sh.sendRequest(this.tr.toString());*/
             
             System.out.println("Konec metode add contact");
  

@@ -3,6 +3,8 @@
  */
 package jimmy.util;
 
+import java.util.Vector;
+
 /**
  * @author Dejan Sakel?ak
  *
@@ -216,126 +218,111 @@ public class Utils {
 	
 	/**
 	 * Returns a int converted from a hexadecimal number
-     *
+	 *
 	 * @param s string representing a hexadecimal number
 	 * @return 
 	 */        
-    public int hexToInt(String s)
-    {
-        int[] n = new int[s.length()];
-        char c;
-        int sum = 0;
-        int koef = 1;
-        for(int i=n.length-1; i>=0; i--)
-        {
-            c = s.charAt(i);
-            //System.out.println(c);
-            switch ((char)c)
-            {
-                case 48:
-                    n[i] = 0;
-                    break;
-                case 49:
-                    n[i] = 1;
-                    break;
-                case 50:
-                    n[i] = 2;
-                    break;
-                case 51:
-                    n[i] = 3;
-                    break;
-                case 52:
-                    n[i] = 4;
-                    break;
-                case 53:
-                    n[i] = 5;
-                    break;
-                case 54:
-                    n[i] = 6;
-                    break;
-                case 55:
-                    n[i] = 7;
-                    break;
-                case 56:
-                    n[i] = 8;
-                    break;
-                case 57:
-                    n[i] = 9;
-                    break;                      
-                case 97:
-                    n[i] = 10;
-                    break;
-                case 98:
-                    n[i] = 11;
-                    break;
-                case 99:
-                    n[i] = 12;
-                    break;
-                case 100:
-                    n[i] = 13;
-                    break;
-                case 101:
-                    n[i] = 14;
-                    break;
-                case 102:
-                    n[i] = 15;
-                    break;
-            }
-            
-            sum = sum + n[i]*koef;
-            //System.out.println(sum);
-            koef=koef*16;
-        }
-        return sum;
-    }       
-    
-    /**
-     * It's just a hack to facilitate the short to byte array conversion
-     * 
-     * @param s a value in the unsigned short range 0 to 65535
-     * @return unsigned short
-     */
-    public static short unsignShort(int s){
-    		short b = (short)s;
-    	   	s=(int)b;
-    		s=s+32768;
-    		b=(short)(0-s);
-    		return b;
-    }
-    
-    /**
+	public int hexToInt(String s)
+	{
+		int[] n = new int[s.length()];
+		char c;
+		int sum = 0;
+		int koef = 1;
+		for(int i=n.length-1; i>=0; i--)
+		{
+			c = s.charAt(i);
+			//System.out.println(c);
+			switch ((char)c)
+			{
+			case 48:
+				n[i] = 0;
+				break;
+			case 49:
+				n[i] = 1;
+				break;
+			case 50:
+				n[i] = 2;
+				break;
+			case 51:
+				n[i] = 3;
+				break;
+			case 52:
+				n[i] = 4;
+				break;
+			case 53:
+				n[i] = 5;
+				break;
+			case 54:
+				n[i] = 6;
+				break;
+			case 55:
+				n[i] = 7;
+				break;
+			case 56:
+				n[i] = 8;
+				break;
+			case 57:
+				n[i] = 9;
+				break;                      
+			case 97:
+				n[i] = 10;
+				break;
+			case 98:
+				n[i] = 11;
+				break;
+			case 99:
+				n[i] = 12;
+				break;
+			case 100:
+				n[i] = 13;
+				break;
+			case 101:
+				n[i] = 14;
+				break;
+			case 102:
+				n[i] = 15;
+				break;
+			}
+			
+			sum = sum + n[i]*koef;
+			//System.out.println(sum);
+			koef=koef*16;
+		}
+		return sum;
+	}
 
-    * Convert a byte[] array to readable string format. This makes the "hex"
-    readable!
-
-    * @return result String buffer in String format 
-
-    * @param in byte[] buffer to convert to string format
-
-    */
-
-    public static String byteArrayToHexString(byte in[]) {
-
-        byte ch = 0x00;
-
-        int i = 0; 
-
-        if (in == null || in.length <= 0)
-
-            return null;
-
-            
-
-        String pseudo[] = {"0", "1", "2",
-    "3", "4", "5", "6", "7", "8",
-    "9", "A", "B", "C", "D", "E",
-    "F"};
-
-        StringBuffer out = new StringBuffer(in.length * 2);
-
-        byte[] chars = new byte[in.length];
-        
-        for(int j = 0; j < in.length; j++){
+	/**
+	 * It's just a hack to facilitate the short to byte array conversion
+	 * 
+	 * @param s a value in the unsigned short range 0 to 65535
+	 * @return unsigned short
+	 */
+	public static short unsignShort(int s){
+		short b = (short)s;
+		s=(int)b;
+		s=s+32768;
+		b=(short)(0-s);
+		return b;
+	}
+	
+	/**
+	 * Convert a byte[] array to readable string format. This makes the "hex" readable!
+	 * @return result String buffer in String format 
+	 * @param in byte[] buffer to convert to string format
+	 */
+	public static String byteArrayToHexString(byte in[]) {
+		byte ch = 0x00;
+		int i = 0; 
+		
+		if (in == null || in.length <= 0)
+			return null;
+		
+		String pseudo[] = {"0", "1", "2","3", "4", "5", "6", "7", "8","9", "A", "B", "C", "D", "E","F"};
+		
+		StringBuffer out = new StringBuffer(in.length * 2);
+		byte[] chars = new byte[in.length];
+		
+		for(int j = 0; j < in.length; j++){
         		//System.out.println(in[j]);
         		if(in[j] < (byte)0x21 || in[j] > (byte)0x7E){
         			chars[j] = (byte)46;
@@ -404,5 +391,197 @@ public class Utils {
 
         return rslt;
 
-    }    
+    }  
+ 
+
+//Ilya: somewhere better to use this function instead of substring(N, M)
+/**
+    * split string by separator and return String[] of elements
+
+    * @return result String[]
+
+    * @param char separator
+    * @param String str entire string to split by separator
+
+    */ 
+ public static String[] explode(char separator, String str){
+    Vector exploded = new Vector(0,1);
+    String tmpstr = null;
+    int beginIndex=0, endIndex=0;
+    while (endIndex<str.length()){
+      if (str.charAt(endIndex)==separator){
+        if (endIndex>beginIndex){
+          tmpstr = str.substring(beginIndex, endIndex);
+          exploded.addElement(tmpstr);
+          endIndex++;
+          beginIndex = endIndex;
+          tmpstr = null;
+        } else {
+          exploded.addElement(null);
+          endIndex++;
+          beginIndex = endIndex;
+        }
+      } else {
+        endIndex++;
+      }
+    }
+    if (endIndex>beginIndex){
+      tmpstr = str.substring(beginIndex, endIndex);
+      exploded.addElement(tmpstr);
+    }
+    String[] res = new String[exploded.size()];
+    exploded.copyInto(res);
+    return res;
+  }
+
+/**
+    * replace all entries of pattern[N] with value replace[N]
+    * length of pattern[] must equal to length of replace[]
+
+    * @return result String with replaced values
+
+    * @param String[] pattern - array of patterns to be replaced
+    * @param String[] replace - array of values to be inserted instead of pattern[i]
+    * @param String source entire string
+
+    */ 
+
+public static String replace(String[] pattern, String[] replace, String source){
+    String result = "";
+    if (pattern.length != replace.length) return source;
+    result = source;
+    for (int i=0; i<pattern.length; i++){
+        result = replace(pattern[i], replace[i], result);
+    }
+    return result;
+}
+
+/**
+    * replace all entries of pattern with value replace
+
+    * @return result String with replaced values
+
+    * @param String pattern - pattern to be replaced
+    * @param String replace - value to be inserted instead of pattern[i]
+    * @param String source entire string
+
+    */ 
+
+public static String replace(String pattern, String replace, String source){
+    String result = "";
+    int firstIndex = 0;
+    while (source.indexOf(pattern, firstIndex)!=-1){
+        result += source.substring(firstIndex, source.indexOf(pattern, firstIndex));
+        result += replace;
+        firstIndex = source.indexOf(pattern, firstIndex)+pattern.length();
+    }
+    if (firstIndex < source.length()){
+        result += source.substring(firstIndex);
+    }
+    return result;
+}                
+private static String[][] url_encode_map ={
+            {" ","%20"},{"!","%21"},{"\"","%22"},{"#","%23"},{"$","%24"},{"%","%25"},{"&","%26"},{"'","%27"},{"(","%28"},{")","%29"},
+            {"*","%2A"},{"+","%2B"},{",","%2C"},{"-","%2D"},{".","%2E"},{"/","%2F"},
+            {"0","%30"},{"1","%31"},{"2","%32"},{"3","%33"},{"4","%34"},{"5","%35"},{"6","%36"},{"7","%37"},{"8","%38"},{"9","%39"},
+            {":","%3A"},{";","%3B"},{"<","%3C"},{"=","%3D"},
+            {">","%3E"},{"?","%3F"},{"@","%40"},
+            {"A","%41"},{"B","%42"},{"C","%43"},{"D","%44"},{"E","%45"},{"F","%46"},{"G","%47"},{"H","%48"},{"I","%49"},{"J","%4A"},
+            {"K","%4B"},{"L","%4C"},{"M","%4D"},{"N","%4E"},{"O","%4F"},{"P","%50"},{"Q","%51"},{"R","%52"},{"S","%53"},{"T","%54"},
+            {"U","%55"},{"V","%56"},{"W","%57"},{"X","%58"},{"Y","%59"},{"Z","%5A"},
+            {"[","%5B"},{"\\","%5C"},{"]","%5D"},{"^","%5E"},{"_","%5F"},{"`","%60"},
+            {"a","%61"},{"b","%62"},{"c","%63"},{"d","%64"},{"e","%65"},{"f","%66"},{"g","%67"},{"h","%68"},{"i","%69"},{"j","%6A"},{"k","%6B"},
+            {"l","%6C"},{"m","%6D"},{"n","%6E"},{"o","%6F"},{"p","%70"},{"q","%71"},{"r","%72"},{"s","%73"},{"t","%74"},{"u","%75"},{"v","%76"},
+            {"w","%77"},{"x","%78"},{"y","%79"},{"z","%7A"},
+            {"{","%7B"},{"|","%7C"},{"}","%7D"},{"~","%7E"},
+            };
+private static String[][] url_encode_map_unsafe ={
+            {" ","%20"},{"!","%21"},{"\"","%22"},{"#","%23"},{"$","%24"},{"%","%25"},{"&","%26"},{"'","%27"},{"(","%28"},{")","%29"},
+            {"*","%2A"},{"+","%2B"},{",","%2C"},{"/","%2F"},
+            {":","%3A"},{";","%3B"},{"<","%3C"},{"=","%3D"},
+            {">","%3E"},{"?","%3F"},{"@","%40"},
+            {"[","%5B"},{"\\","%5C"},{"]","%5D"},{"^","%5E"},{"`","%60"},
+            {"{","%7B"},{"|","%7C"},{"}","%7D"},{"~","%7E"},
+            };
+
+/**
+    * Simple ASCII url encoder.
+
+    * @return result String url encoded string
+
+    * @param String s - string to be encode
+    */ 
+
+public static String urlEncode(String s){
+    String[] patterns = new String[url_encode_map_unsafe.length];
+    String[] replaces = new String[url_encode_map_unsafe.length];
+    for (int i=0; i<url_encode_map_unsafe.length; i++){
+        patterns[i] = url_encode_map_unsafe[i][0];
+        replaces[i] = url_encode_map_unsafe[i][1];
+    }
+    String res = replace(patterns, replaces, s);
+    return res;
+}
+
+/**
+    * Simple ASCII url decoder.
+
+    * @return result String url decoded string
+
+    * @param String s - string to decode
+    */ 
+
+public static String urlDecode(String s){
+    String[] patterns = new String[url_encode_map.length];
+    String[] replaces = new String[url_encode_map.length];
+    for (int i=0; i<url_encode_map.length; i++){
+        patterns[i] = url_encode_map[i][1];
+        replaces[i] = url_encode_map[i][0];
+    }
+    String res = replace(patterns, replaces, s);
+    return res;
+}
+
+/** XML-like easy parser methods*/ 
+
+private static int _fromIndex = 0; //static variable to keep tag search position
+
+public static String getStringForTag(String Tag, String strTmp) {
+    return getStringForTag(Tag,strTmp,true);
+}  
+public static String getStringForTag(String Tag, String strTmp, boolean newSearch){
+    int tag1, tag2;
+    String untaggedString = null;
+    String beginTag = "<"+Tag+">";
+    String endTag = "</"+Tag+">";
+    if (newSearch) _fromIndex = 0;
+    tag1 = strTmp.indexOf(beginTag, _fromIndex);
+    tag2 = strTmp.indexOf(endTag, _fromIndex);
+    if (strTmp != null){
+      if (tag1 !=-1 && tag2 !=-1){
+        tag1 += beginTag.length();
+        untaggedString = strTmp.substring(tag1, tag2);
+        _fromIndex = tag2 + endTag.length();
+      }
+    }
+    return untaggedString;
+}
+
+public static String getStringBetweenTags(String Tag, String ClosingTag, String strTmp){
+    int tag1, tag2;
+    String untaggedString = null;
+    String beginTag = Tag;
+    String endTag = ClosingTag;
+    tag1 = strTmp.indexOf(beginTag, 0);
+    tag2 = strTmp.indexOf(endTag, tag1);
+    if (strTmp != null){
+      if (tag1 !=-1 && tag2 !=-1){
+        tag1 += beginTag.length();
+        untaggedString = strTmp.substring(tag1, tag2);
+        _fromIndex = tag2 + endTag.length();
+      }
+    }
+    return untaggedString;
+}
+
 }
