@@ -239,12 +239,14 @@ public class ICQProtocol extends Protocol {
 		
 		//Now change the connection server to recieved BOS address
 		
-		try{
-		this.bos_port = Integer.parseInt(this.bos.substring(this.bos.indexOf(':')+1,this.bos.length()));
-		}catch(NumberFormatException e){
-			
-			//Add exception forwarding
-			System.out.println("[DEBUG] Server response changed or too many connection retries.");
+		try {
+			this.bos_port = Integer.parseInt(this.bos.substring(this.bos
+					.indexOf(':') + 1, this.bos.length()));
+		} catch (NumberFormatException e) {
+
+			// Add exception forwarding
+			System.out
+					.println("[DEBUG] Server response changed or too many connection retries.");
 			return false;
 		}
 		
@@ -500,7 +502,7 @@ public class ICQProtocol extends Protocol {
 	public boolean tlvDecode(ICQTlv t){
 		
 		switch(t.getType()){
-		case	 0:
+		case 0:
 			break;
 		case 1:
 			break;
