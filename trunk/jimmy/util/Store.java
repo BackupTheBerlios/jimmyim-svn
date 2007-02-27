@@ -27,7 +27,6 @@ package jimmy.util;
 import javax.microedition.rms.*;
 import jimmy.Account;
 import java.util.Vector;
-import jimmy.util.Utils;
 
 /**
  * Class Store handles persistent data storage in the mobile phone.
@@ -139,10 +138,10 @@ public class Store
                     boolean ssl = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
         		    idx++;	//newline
                     boolean autoLogin = ((record.substring(idx, (idx = record.indexOf("\n", idx))).compareTo("0")==0)?false:true);
-		    
-		    if(server.equals("") || server.equals("null"))
-			server = null;
-
+                    
+                    if(server.equals("") || server.equals("null"))
+                    	server = null;
+                    
                     return new Account(userName, password, type, server, port, ssl, autoLogin);
                 }
 	}
@@ -160,7 +159,7 @@ public class Store
 		out = out.concat(acc.getPassword() + NEWLINE_);
 		out = out.concat(acc.getServer() + NEWLINE_);
 		out = out.concat(String.valueOf(acc.getPort()) + NEWLINE_);
-		out = out.concat(String.valueOf(acc.getUseSSL()) + NEWLINE_);
+		out = out.concat(String.valueOf(acc.getUseSSL()?"1":"0") + NEWLINE_);
 		out = out.concat((acc.getAutoLogin()?"1":"0") + NEWLINE_);	//1 - True, 0 - False
 		
 		return out;
