@@ -97,7 +97,7 @@ public class JabberParseXML {
 		
 		if (in==null) return;
 		
-		System.out.println("genericParse:\n" + in);
+		System.out.println("genericParse:");
 		
 		while (in.length() != 0) {
 			System.out.println(in);
@@ -242,7 +242,7 @@ public class JabberParseXML {
 		
 		// type is not set, ignore the whole stanza (TODO)
 		x2 = in.indexOf("type");
-		if (x2 == -1) {
+		if (x2 == -1 || x2 == in.indexOf("type='get'")) {
 			return removeStanza(in, "presence");
 		}
 		
