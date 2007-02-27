@@ -240,6 +240,12 @@ public class JabberParseXML {
 			return removeStanza(in, "presence");
 		}
 		
+		// type is not set, ignore the whole stanza (TODO)
+		x2 = in.indexOf("type");
+		if (x2 == -1) {
+			return removeStanza(in, "presence");
+		}
+		
 		//contact is not off-line
 		String tmp = getAttributeValue(in, "<presence", "</presence>");
 		String show = getAttributeValue(tmp, "<show>", "</show>");
