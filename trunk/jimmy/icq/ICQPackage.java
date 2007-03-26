@@ -67,15 +67,14 @@ public class ICQPackage {
 	 * @param data_size The size of the data you will send
 	 * @param c
 	 */
-	public ICQPackage(int data_size,byte c) {
+	public ICQPackage(int data_size, byte c) {
 		this.ch = c;
 		if (this.pkg == null)
 			if (this.ch == 0x02)
-				this.pkg = new byte[data_size
-						+ ICQPackage.SNACK_PKG_HEADER_SIZE];
+				this.pkg = new byte[data_size + ICQPackage.SNACK_PKG_HEADER_SIZE];
 			else
 				this.pkg = new byte[data_size + ICQPackage.FLAP_HEADER_SIZE];
-//		System.out.print("datasize ");System.out.println(data_size);
+// System.out.print("datasize ");System.out.println(data_size);
 	}
 
 	/**
@@ -92,7 +91,7 @@ public class ICQPackage {
 		if(this.ch != 0x01){
 //			System.out.println("dismanlte");
 			this.tlvs = new Vector();
-			dismantle();
+			packetize();
 		}
 	}
 
@@ -101,14 +100,44 @@ public class ICQPackage {
 	 * This method changes during the implementation.
 	 *
 	 */
-	public void dismantle(){
-		int header = ICQPackage.FLAP_HEADER_SIZE;
+	public void packetize(){
+		int header_size = ICQPackage.FLAP_HEADER_SIZE;
+		
+		//we are talking about services if the channel is 0x02
 		if(this.ch == 0x02){
-			header = ICQPackage.SNACK_PKG_HEADER_SIZE;
-		}
-//		System.out.println("dismanlte");
-		if (this.ch != 0x02) {
-			for (int i = header; i < this.pkg.length; i++) {
+			header_size = ICQPackage.SNACK_PKG_HEADER_SIZE;
+			
+//			dismantle as SNAC type
+			int type = this.getSnackType();
+			int subtype = this.getSnackSubType();
+			//DISMANTLE SNAC BY SUBTYPE
+//			System.out.println("dismantling SNAC");
+			switch(type){
+			case 0x0017:
+				switch(subtype){
+				case 0x0007:
+					break;
+				}
+				break;
+			case 0x0001:
+				switch(subtype){
+				//supported services
+				case 0x0003:
+					this.s = new byte[this.flap_size - ICQPackage.SNAC_HEADER_SIZE];
+					for(int i = header_size; i < pkg.length; i++)
+						s[i-header_size] = pkg[i];
+//					System.out.println("reading services...");
+					break;
+				case 0x0018:
+					
+					break;
+				}
+				break;
+			case 0x0013:
+				break;
+			}
+		}else{
+			for (int i = header_size; i < this.pkg.length; i++) {
 				ICQTlv tlv = new ICQTlv();
 				tlv.setHeader(ByteOperator.bytesToShort(this.pkg[i],this.pkg[i+1]), ByteOperator.bytesToShort(this.pkg[i+2], this.pkg[i+3]));
 				byte[] bla = new byte[ByteOperator.bytesToShort(this.pkg[i+2],this.pkg[i+3])];
@@ -128,42 +157,12 @@ public class ICQPackage {
 			 * seq[1]; byte[] s = Utils.intToBytes(this.flap_size,true);
 			 * this.pkg[4] = s[0]; this.pkg[5] = s[1];
 			 */
-			byte[] b = new byte[header];
-			for (int i = 0; i < header; i++) {
+			byte[] b = new byte[header_size];
+			for (int i = 0; i < header_size; i++) {
 				b[i] = this.pkg[i];
 			}
 			this.pkg = b;
 			b = null;
-		}else{
-			//dismantle as SNAC type
-			int type = this.getSnackType();
-			int subtype = this.getSnackSubType();
-			//DISMANTLE SNAC BY SUBTYPE
-//			System.out.println("dismantling SNAC");
-			switch(type){
-			case 0x0017:
-				switch(subtype){
-				case 0x0007:
-					break;
-				}
-				break;
-			case 0x0001:
-				switch(subtype){
-				//supported services
-				case 0x0003:
-					this.s = new byte[this.flap_size - ICQPackage.SNAC_HEADER_SIZE];
-					for(int i = ICQPackage.SNACK_PKG_HEADER_SIZE; i < pkg.length; i++)
-						s[i-ICQPackage.SNACK_PKG_HEADER_SIZE] = pkg[i];
-//					System.out.println("reading services...");
-					break;
-				case 0x0018:
-					
-					break;
-				}
-				break;
-			case 0x0013:
-				break;
-			}
 		}
 	}
 	

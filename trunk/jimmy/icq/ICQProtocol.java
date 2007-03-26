@@ -1033,7 +1033,7 @@ public class ICQProtocol extends Protocol {
 	 */
     protected short groupID(String g){
     		for(short i = 0; i < this.groups.length; i++){
-    			if(this.groups[i]!=null){
+    			if(this.groups[i] != null){
     				if(this.groups[i].equals(g))
     					return i;
     			}
@@ -1062,134 +1062,148 @@ public class ICQProtocol extends Protocol {
     		return id;
     }
     
-    public void addContact(Contact c){
-	    // TODO: Send snack 0x0013,0x0008
-    		c.setProtocol(this);
-    		ICQContact ic = new ICQContact(c);
-    		if(ic.screenName() == null){
-    			ic.setScreenName(ic.userID());
-    		}
-    		short gid = 0;
+    public void addContact(Contact c) {
+		
+    	short gid = 0;
 		int tmp_s = 0;
+    	
+    	// TODO: Send snack 0x0013,0x0008
+		//let's set the protocol instance to which we are related
+    	c.setProtocol(this);
+		
+    	//set the default screen name (nickname) to the userID (username) if not set
+		ICQContact ic = new ICQContact(c);
+		if (ic.screenName() == null) {
+			ic.setScreenName(ic.userID());
+		}
+		
 		ByteOperator bo = new ByteOperator();
-    		if((gid = this.groupID(ic.groupName())) == -1){
-    			
-    			//temporarly fix TODO: fix :)
-    			if(ic.groupName() == null){
-    				for(int i = 1;i<this.groups.length;i++)
-    					if(this.groups[i] != null){
-    						ic.setGroupName(this.groups[i]);
-    						break;
-    					}
-    			}
-    			//Default settings
-    			gid = this.getFreeGID();
-    			this.groups[gid] = ic.groupName();
-    			this.max_id[gid] = (short)0x01;
-    			ic.setIcqGID(gid);
-    			ic.setIcqID(this.max_id[gid]);
-    			this.contacts_.addElement(ic);
-    			
-    			//set group name len
-    			bo.append(Utils.shortToBytes((short)ic.groupName().length(),true));
-    			
-    			//set group name
-    			byte[] name = ic.groupName().getBytes();
-    			bo.append(name);
-    			//set GID
-    			bo.append(Utils.shortToBytes(gid,true));
-    			//set bID
-    			//set type (0x0001 = group)
-    			bo.append((byte)0,(byte)0,(byte)0,(byte)1);
-    			//set group members tlv len -> first time created so 6 bytes
-    			bo.append((byte)0,(byte)6,(byte)0,(byte)0xc8,(byte)0,(byte)2,(byte)0,(byte)1);
-    				
-    			//set id len
-    			bo.append(Utils.shortToBytes((short)ic.userID().length(),true));
-    			bo.append(ic.userID().getBytes());
-    			bo.append(Utils.shortToBytes(gid,true));
-    			bo.append((byte)0,(byte)1,(byte)0,(byte)0);
-    			bo.append(Utils.shortToBytes((short)(4+ic.screenName().length()),true));
-    			bo.append((byte)1,(byte)0x31);
-    			bo.append(Utils.shortToBytes((short)ic.screenName().length(),true));
-    			bo.append(ic.screenName().getBytes());
-    			
-    			ICQPackage ssi = new ICQPackage();
-    			ssi.setChannel((byte)0x02);
-    			ssi.setContent(bo.getBytes());
-    			ssi.setSnac(19,8,0,++this.s_seq);
-    			ssi.setFlap(++this.f_seq);
-    			
-    			tmp_s = this.s_seq;
-    			
-    			ICQPackage addEnd = new ICQPackage();
-    			addEnd.setChannel((byte)0x02);
-    			addEnd.setSnac(19,18,0,++this.s_seq);
-    			addEnd.setFlap(++this.f_seq);
-    			
-    			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
-    			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
-    			this.conn.sendPackage(ssi.getNetPackage());
-    			
-    			//System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
-    			
-    		}else{
-    			//TODO: send add buddy and modify buddy using the awaiting auth hashtable
-    			this.groups[gid] = ic.groupName();
-    			this.max_id[gid] = (short)0x01;
-    			ic.setIcqGID(gid);
-    			ic.setIcqID(++this.max_id[gid]);
-    			this.contacts_.addElement(ic);
-    			
-    			bo.append(Utils.shortToBytes((short)ic.userID().length(),true));
-    			bo.append(ic.userID().getBytes());
-    			bo.append(Utils.shortToBytes(gid,true));
-    			bo.append(Utils.shortToBytes(this.max_id[gid],true));
-    			bo.append((byte)0,(byte)0);
-    			bo.append(Utils.shortToBytes((short)(4+ic.screenName().length()),true));
-    			bo.append((byte)0x01,(byte)0x31);
-    			bo.append(Utils.shortToBytes((short)ic.screenName().length(),true));
-    			bo.append(ic.screenName().getBytes());
-    			ICQPackage buddy = new ICQPackage();
-    			buddy.setChannel((byte)0x02);
-    			buddy.setContent(bo.getBytes());
-    			
-    			bo.clear();
-    			
-    			bo.append(Utils.shortToBytes((short)ic.groupName().length(),true));
-    			bo.append(ic.groupName().getBytes());
-    			bo.append(Utils.shortToBytes(gid,true));
-    			bo.append((byte)0,(byte)0,(byte)0,(byte)1);
-    			bo.append(Utils.shortToBytes((short)(4+this.max_id[gid]*2),true));
-    			bo.append((byte)0x00,(byte)0xc8);
-    			for(short i = 1; i <= this.max_id[gid]; i++){
-    				bo.append(Utils.shortToBytes(i,true));
-    			}
-    			
-    			ICQPackage grp = new ICQPackage();
-    			grp.setChannel((byte)0x02);
-    			grp.setContent(bo.getBytes());
-    			
-    			buddy.setSnac(19,8,0,++this.s_seq);
-    			buddy.setFlap(++this.f_seq);
-    			tmp_s = this.s_seq;
-    			grp.setSnac(19,9,0,++this.s_seq);
-    			
-    			this.awaiting_auth.put(new Integer(tmp_s),grp);
-    			
-    			tmp_s = this.s_seq;
-    			
-    			ICQPackage addEnd = new ICQPackage();
-    			addEnd.setChannel((byte)0x02);
-    			addEnd.setSnac(19,18,0,++this.s_seq);
-    			addEnd.setFlap(++this.f_seq);
-    			
-    			this.awaiting_auth.put(new Integer(tmp_s),addEnd);
-    			System.out.println(Utils.byteArrayToHexString(buddy.getNetPackage()));
-    			this.conn.sendPackage(buddy.getNetPackage());
-    		}
-    		
-    }
+		if ((gid = this.groupID(ic.groupName())) == -1) {
+
+			// temporarly fix TODO: fix :) 
+			//if no group selected find the first one that exists in the list
+			if (ic.groupName() == null) {
+				for (int i = 1; i < this.groups.length; i++)
+					if (this.groups[i] != null) {
+						ic.setGroupName(this.groups[i]);
+						break;
+					}
+			}
+			
+			// Default settings
+			//If the group doesn't exist create a new one
+			gid = this.getFreeGID();
+			this.groups[gid] = ic.groupName();
+			this.max_id[gid] = (short) 0x01;
+			ic.setIcqGID(gid);
+			ic.setIcqID(this.max_id[gid]);
+			this.contacts_.addElement(ic);
+
+			//set group name len
+			bo.append(Utils.shortToBytes((short) ic.groupName().length(),true));
+
+			//set group name
+			byte[] name = ic.groupName().getBytes();
+			bo.append(name);
+			//set GID
+			bo.append(Utils.shortToBytes(gid, true));
+			//set bID
+			//set type (0x0001 = group)
+			bo.append((byte) 0, (byte) 0, (byte) 0, (byte) 1);
+			//set group members tlv len -> first time created so 6 bytes
+			bo.append((byte) 0, (byte) 6, (byte) 0, (byte) 0xc8, (byte) 0,
+					(byte) 2, (byte) 0, (byte) 1);
+
+			//set id len
+			bo.append(Utils.shortToBytes((short) ic.userID().length(), true));
+			bo.append(ic.userID().getBytes());
+			bo.append(Utils.shortToBytes(gid, true));
+			bo.append((byte) 0, (byte) 1, (byte) 0, (byte) 0);
+			bo.append(Utils.shortToBytes(
+					(short) (4 + ic.screenName().length()), true));
+			bo.append((byte) 1, (byte) 0x31);
+			bo.append(Utils
+					.shortToBytes((short) ic.screenName().length(), true));
+			bo.append(ic.screenName().getBytes());
+
+			ICQPackage ssi = new ICQPackage();
+			ssi.setChannel((byte) 0x02);
+			ssi.setContent(bo.getBytes());
+			ssi.setSnac(19, 8, 0, ++this.s_seq);
+			ssi.setFlap(++this.f_seq);
+
+			tmp_s = this.s_seq;
+
+			ICQPackage addEnd = new ICQPackage();
+			addEnd.setChannel((byte) 0x02);
+			addEnd.setSnac(19, 18, 0, ++this.s_seq);
+			addEnd.setFlap(++this.f_seq);
+
+			this.awaiting_auth.put(new Integer(tmp_s), addEnd);
+			System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
+			this.conn.sendPackage(ssi.getNetPackage());
+
+			//System.out.println(Utils.byteArrayToHexString(ssi.getNetPackage()));
+
+		} else {
+			//TODO: send add buddy and modify buddy using the awaiting auth hashtable
+			this.groups[gid] = ic.groupName();
+			this.max_id[gid] = (short) 0x01;
+			ic.setIcqGID(gid);
+			ic.setIcqID(++this.max_id[gid]);
+			this.contacts_.addElement(ic);
+
+			bo.append(Utils.shortToBytes((short) ic.userID().length(), true));
+			bo.append(ic.userID().getBytes());
+			bo.append(Utils.shortToBytes(gid, true));
+			bo.append(Utils.shortToBytes(this.max_id[gid], true));
+			bo.append((byte) 0, (byte) 0);
+			bo.append(Utils.shortToBytes(
+					(short) (4 + ic.screenName().length()), true));
+			bo.append((byte) 0x01, (byte) 0x31);
+			bo.append(Utils
+					.shortToBytes((short) ic.screenName().length(), true));
+			bo.append(ic.screenName().getBytes());
+			ICQPackage buddy = new ICQPackage();
+			buddy.setChannel((byte) 0x02);
+			buddy.setContent(bo.getBytes());
+
+			bo.clear();
+
+			bo.append(Utils.shortToBytes((short) ic.groupName().length(), true));
+			bo.append(ic.groupName().getBytes());
+			bo.append(Utils.shortToBytes(gid, true));
+			bo.append((byte) 0, (byte) 0, (byte) 0, (byte) 1);
+			bo.append(Utils.shortToBytes((short) (4 + this.max_id[gid] * 2), true));
+			bo.append((byte) 0x00, (byte) 0xc8);
+			for (short i = 1; i <= this.max_id[gid]; i++) {
+				bo.append(Utils.shortToBytes(i, true));
+			}
+
+			ICQPackage grp = new ICQPackage();
+			grp.setChannel((byte) 0x02);
+			grp.setContent(bo.getBytes());
+
+			buddy.setSnac(19, 8, 0, ++this.s_seq);
+			buddy.setFlap(++this.f_seq);
+			tmp_s = this.s_seq;
+			grp.setSnac(19, 9, 0, ++this.s_seq);
+
+			this.awaiting_auth.put(new Integer(tmp_s), grp);
+
+			tmp_s = this.s_seq;
+
+			ICQPackage addEnd = new ICQPackage();
+			addEnd.setChannel((byte) 0x02);
+			addEnd.setSnac(19, 18, 0, ++this.s_seq);
+			addEnd.setFlap(++this.f_seq);
+
+			this.awaiting_auth.put(new Integer(tmp_s), addEnd);
+			System.out.println(Utils.byteArrayToHexString(buddy.getNetPackage()));
+			this.conn.sendPackage(buddy.getNetPackage());
+		}
+
+	}
 
 	public void updateContactProperties(Contact c) {
 		
