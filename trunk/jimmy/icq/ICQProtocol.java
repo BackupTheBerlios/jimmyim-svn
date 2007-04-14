@@ -107,91 +107,7 @@ public class ICQProtocol extends Protocol {
 		//STAGE ONE LOGIN (AUTH)
 		//FIRST PART OF STAGE ONE
 		//Generation of first login package
-		ICQPackage l = new ICQPackage();
-		l.setChannel((byte)0x01);
-		byte[] ver = {(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x01};
-		l.setContent(ver);
-		
-		ICQTlv t = new ICQTlv();
-		t.setHeader((short)0x0001,(short)(this.user.getBytes()).length);
-		t.setContent(this.user.getBytes());
-		l.addTlv(t);
-		t = new ICQTlv();
-		t.setHeader((short)0x0002,(short)(this.pass.getBytes()).length);
-		t.setContent(this.roast(this.pass.getBytes()));
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		t.setHeader((short)0x0003,(short)(this.cli_id.getBytes()).length);
-		t.setContent(this.cli_id.getBytes());
-		l.addTlv(t);
-		
-		ver = null;
-		ver = new byte[2];
-		t = new ICQTlv();
-		ver[0] = (byte)0x01;
-		ver[1] = (byte)0x0a;
-		t.setHeader((short)0x0016,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		ver = null;
-		ver = new byte[2];
-		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x05;
-		t.setHeader((short)0x0017,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		ver = null;
-		ver = new byte[2];
-		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x2d;
-		t.setHeader((short)0x0018,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		ver = null;
-		ver = new byte[2];
-		t = new ICQTlv();
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x01;
-		t.setHeader((short)0x0019,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		ver = null;
-		ver = new byte[2];
-		t = new ICQTlv();
-		ver[0] = (byte)0x0e;
-		ver[1] = (byte)0xc1;
-		t.setHeader((short)0x001A,(short)0x0002);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		ver = new byte[4];
-		ver[0] = (byte)0x00;
-		ver[1] = (byte)0x00;
-		ver[2] = (byte)0x00;
-		ver[3] = (byte)0x55;
-		t.setHeader((short)0x0014,(short)0x0004);
-		t.setContent(ver);
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		t.setHeader((short)0x000f,(short)0x0002);
-		t.setContent("en");
-		l.addTlv(t);
-		
-		t = new ICQTlv();
-		t.setHeader((short)0x000e,(short)0x0002);
-		t.setContent("us");
-		l.addTlv(t);
-		l.setFlap(++this.f_seq);
-		l.setFlapSize(l.getSize()-ICQPackage.FLAP_HEADER_SIZE);
+		ICQPackage l = ICQLib.getFirstLoginPackage(this.user, this.pass, this.roast(this.pass.getBytes()), this.cli_id, this.f_seq);
 		
 		//auth connection
 		byte[] b = l.getNetPackage();
@@ -222,7 +138,7 @@ public class ICQProtocol extends Protocol {
 		//END STAGE ONE
 		
 		//STAGE TWO
-		
+		ICQTlv t = null;
 		l = new ICQPackage();
 		byte[] ha = new byte[4];
 		ha[3] = 0x01;
