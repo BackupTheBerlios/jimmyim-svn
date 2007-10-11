@@ -1,0 +1,177 @@
+#: ./jimmy/ui/ContactsMenu.java:53
+#: ./jimmy/ui/JimmyUI.java:68
+msgid "OK"
+msgstr "OK"
+
+#: ./jimmy/ui/JimmyUI.java:69
+msgid "Send"
+msgstr "Manda"
+
+#: ./jimmy/ui/JimmyUI.java:70
+msgid "Cancel"
+msgstr "Cancella"
+
+#: ./jimmy/ui/JimmyUI.java:71
+msgid "Yes"
+msgstr "Si"
+
+#: ./jimmy/ui/JimmyUI.java:72
+msgid "No"
+msgstr "No"
+
+#: ./jimmy/ui/JimmyUI.java:73
+msgid "Find"
+msgstr "Cerca"
+
+#: ./jimmy/ui/JimmyUI.java:74
+msgid "Back"
+msgstr "Indietro"
+
+#: ./jimmy/ui/JimmyUI.java:75
+msgid "Exit"
+msgstr "Esci"
+
+#: ./jimmy/ui/JimmyUI.java:76
+msgid "Login"
+msgstr "Login"
+
+#: ./jimmy/ui/JimmyUI.java:77
+msgid "New"
+msgstr "Nuovo"
+
+#: ./jimmy/ui/JimmyUI.java:78
+msgid "About"
+msgstr "About"
+
+#: ./jimmy/ui/JimmyUI.java:79
+msgid "Chat"
+msgstr "Chatta"
+
+#: ./jimmy/ui/JimmyUI.java:80
+msgid "Remove"
+msgstr "Rimuovi"
+
+#: ./jimmy/ui/JimmyUI.java:81
+msgid "Edit"
+msgstr "Modifica"
+
+#: ./jimmy/ui/JimmyUI.java:82
+msgid "Accounts"
+msgstr "Acconti"
+
+#: ./jimmy/ui/JimmyUI.java:83
+msgid "Add contact"
+msgstr "Aggiungi amico"
+
+#: ./jimmy/ui/JimmyUI.java:84
+msgid "Remove contact"
+msgstr "Rimuovi amico"
+
+#: ./jimmy/ui/JimmyUI.java:85
+msgid "Logout"
+msgstr "Logout"
+
+#: ./jimmy/ui/JimmyUI.java:129
+msgid "JIMMY - Instant Mobile Messenger\n"
+msgstr "JIMMY - Messaggero Mobile Instantaneo\n"
+
+#: ./jimmy/ui/JimmyUI.java:130
+msgid "Copyright (C) 2006  JIMMY Project\n"
+msgstr "Copyright (C) 2006  JIMMY Proggetto\n"
+
+#: ./jimmy/ui/JimmyUI.java:132
+#: ./jimmy/ui/JimmyUI.java:232
+msgid "Alredy connected!"
+msgstr "Sei gia connesso!"
+
+#: ./jimmy/ui/JimmyUI.java:241
+msgid "Connecting "
+msgstr "Connettando "
+
+#: ./jimmy/ui/JimmyUI.java:257
+msgid "Account is not connected!"
+msgstr "Acconto non connesso!"
+
+#: ./jimmy/ui/About.java:44
+#: ./jimmy/ui/EditContact.java:61
+#: ./jimmy/ui/EditContact.java:78
+#: ./jimmy/ui/EditContact.java:79
+#: ./jimmy/ui/EditContact.java:80
+#: ./jimmy/ui/EditContact.java:81
+#: ./jimmy/ui/EditContact.java:82
+msgid "No group"
+msgstr "Senza gruppo"
+
+#: ./jimmy/ui/EditContact.java:83
+msgid "Other"
+msgstr "Altro"
+
+#: ./jimmy/ui/EditContact.java:84
+#: ./jimmy/ui/EditContact.java:228
+msgid "Edit "
+msgstr "Modifica"
+
+#: ./jimmy/ui/EditContact.java:230
+msgid "No group"
+msgstr "Senza gruppo"
+
+#: ./jimmy/ui/NewAccount.java:40
+#: ./jimmy/ui/NewAccount.java:41
+#: ./jimmy/ui/NewAccount.java:42
+#: ./jimmy/ui/NewAccount.java:43
+#: ./jimmy/ui/NewAccount.java:47
+#: ./jimmy/ui/NewAccount.java:48
+#: ./jimmy/ui/NewAccount.java:61
+#: ./jimmy/ui/NewAccount.java:118
+#: ./jimmy/ui/NewAccount.java:133
+msgid "Edit account "
+msgstr "Modifica acconto "
+
+#: ./jimmy/ui/MainMenu.java:44
+#: ./jimmy/ui/ChatWindow.java:36
+msgid "Chat with "
+msgstr "Chatta con "
+
+#: ./jimmy/ui/ChatWindow.java:40
+#: ./jimmy/ui/ChatWindow.java:62
+msgid "Me - "
+msgstr "Io - "
+
+#: ./jimmy/Jimmy.java:65
+msgid "Loading settings..."
+msgstr "Carico preferenze..."
+
+#: ./jimmy/Jimmy.java:67
+msgid "Loading account data..."
+msgstr "Carico preferenze d'acconto..."
+
+#: ./jimmy/Jimmy.java:69
+msgid "Optimizing store..."
+msgstr "Ottimizzo magazzino..."
+
+#: ./jimmy/Jimmy.java:73
+msgid "Welcome to Jimmy!"
+msgstr "Benvenuti in Jimmy!"
+
+#: ./jimmy/Jimmy.java:85
+msgid "Connecting to "
+msgstr "Connetto con "
+
+#: ./jimmy/Jimmy.java:91
+msgid "Connecting to "
+msgstr "Connessione con "
+
+msgid " failed!!!"
+msgstr " fallita!!!"
+
+#: ./jimmy/Jimmy.java:104
+msgid "Welcome to Jimmy!"
+msgstr "Benvenuti in Jimmy!"
+
+#: ./jimmy/Jimmy.java:136
+msgid "Failed to connect! Check settings."
+msgstr "Errore di connessione! Controlla le preferenze."
+
+#: ./jimmy/Jimmy.java:147
+msgid "Destroying Jimmy..."
+msgstr "Pulisco la memoria..."

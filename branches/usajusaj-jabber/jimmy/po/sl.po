@@ -1,0 +1,177 @@
+#: ./jimmy/ui/ContactsMenu.java:53
+#: ./jimmy/ui/JimmyUI.java:68
+msgid "OK"
+msgstr "V redu"
+
+#: ./jimmy/ui/JimmyUI.java:69
+msgid "Send"
+msgstr "Po?lji"
+
+#: ./jimmy/ui/JimmyUI.java:70
+msgid "Cancel"
+msgstr "Prekli?i"
+
+#: ./jimmy/ui/JimmyUI.java:71
+msgid "Yes"
+msgstr "Da"
+
+#: ./jimmy/ui/JimmyUI.java:72
+msgid "No"
+msgstr "Ne"
+
+#: ./jimmy/ui/JimmyUI.java:73
+msgid "Find"
+msgstr "Poi??i"
+
+#: ./jimmy/ui/JimmyUI.java:74
+msgid "Back"
+msgstr "Nazaj"
+
+#: ./jimmy/ui/JimmyUI.java:75
+msgid "Exit"
+msgstr "Izhod"
+
+#: ./jimmy/ui/JimmyUI.java:76
+msgid "Login"
+msgstr "Prijava"
+
+#: ./jimmy/ui/JimmyUI.java:77
+msgid "New"
+msgstr "Nov"
+
+#: ./jimmy/ui/JimmyUI.java:78
+msgid "About"
+msgstr "Opis"
+
+#: ./jimmy/ui/JimmyUI.java:79
+msgid "Chat"
+msgstr "Klepetaj"
+
+#: ./jimmy/ui/JimmyUI.java:80
+msgid "Remove"
+msgstr "Odstrani"
+
+#: ./jimmy/ui/JimmyUI.java:81
+msgid "Edit"
+msgstr "Uredi"
+
+#: ./jimmy/ui/JimmyUI.java:82
+msgid "Accounts"
+msgstr "Ra?uni"
+
+#: ./jimmy/ui/JimmyUI.java:83
+msgid "Add contact"
+msgstr "Dodaj kontakt"
+
+#: ./jimmy/ui/JimmyUI.java:84
+msgid "Remove contact"
+msgstr "Odstrani kontakt"
+
+#: ./jimmy/ui/JimmyUI.java:85
+msgid "Logout"
+msgstr "Odjavi"
+
+#: ./jimmy/ui/JimmyUI.java:129
+msgid "JIMMY - Instant Mobile Messenger\n"
+msgstr "JIMMY - Instantni Mobilni sporo?evalec\n"
+
+#: ./jimmy/ui/JimmyUI.java:130
+msgid "Copyright (C) 2006  JIMMY Project\n"
+msgstr "Copyright (C) 2006  JIMMY Projekt\n"
+
+#: ./jimmy/ui/JimmyUI.java:132
+#: ./jimmy/ui/JimmyUI.java:232
+msgid "Alredy connected!"
+msgstr "?e povezan!"
+
+#: ./jimmy/ui/JimmyUI.java:241
+msgid "Connecting "
+msgstr "Povezujem "
+
+#: ./jimmy/ui/JimmyUI.java:257
+msgid "Account is not connected!"
+msgstr "Ra?un ni povezan"
+
+#: ./jimmy/ui/About.java:44
+#: ./jimmy/ui/EditContact.java:61
+#: ./jimmy/ui/EditContact.java:78
+#: ./jimmy/ui/EditContact.java:79
+#: ./jimmy/ui/EditContact.java:80
+#: ./jimmy/ui/EditContact.java:81
+#: ./jimmy/ui/EditContact.java:82
+msgid "No group"
+msgstr "Ni skupine"
+
+#: ./jimmy/ui/EditContact.java:83
+msgid "Other"
+msgstr "Drugo"
+
+#: ./jimmy/ui/EditContact.java:84
+#: ./jimmy/ui/EditContact.java:228
+msgid "Edit "
+msgstr "Uredi"
+
+#: ./jimmy/ui/EditContact.java:230
+msgid "No group"
+msgstr "Ni skupine"
+
+#: ./jimmy/ui/NewAccount.java:40
+#: ./jimmy/ui/NewAccount.java:41
+#: ./jimmy/ui/NewAccount.java:42
+#: ./jimmy/ui/NewAccount.java:43
+#: ./jimmy/ui/NewAccount.java:47
+#: ./jimmy/ui/NewAccount.java:48
+#: ./jimmy/ui/NewAccount.java:61
+#: ./jimmy/ui/NewAccount.java:118
+#: ./jimmy/ui/NewAccount.java:133
+msgid "Edit account "
+msgstr "Uredi ra?un"
+
+#: ./jimmy/ui/MainMenu.java:44
+#: ./jimmy/ui/ChatWindow.java:36
+msgid "Chat with "
+msgstr "Klepetaj z "
+
+#: ./jimmy/ui/ChatWindow.java:40
+#: ./jimmy/ui/ChatWindow.java:62
+msgid "Me - "
+msgstr "Jaz - "
+
+#: ./jimmy/Jimmy.java:65
+msgid "Loading settings..."
+msgstr "Nalagam nastavitve..."
+
+#: ./jimmy/Jimmy.java:67
+msgid "Loading account data..."
+msgstr "Nalagam nastavitve ra?una..."
+
+#: ./jimmy/Jimmy.java:69
+msgid "Optimizing store..."
+msgstr "Optimiziram skladi??e..."
+
+#: ./jimmy/Jimmy.java:73
+msgid "Welcome to Jimmy!"
+msgstr "Dobrodo?li v Jimmyiju!"
+
+#: ./jimmy/Jimmy.java:85
+msgid "Connecting to "
+msgstr "Povezujem z "
+
+#: ./jimmy/Jimmy.java:91
+msgid "Connecting to "
+msgstr "Povezovanje z "
+
+msgid " failed!!!"
+msgstr " neusp?no!!!"
+
+#: ./jimmy/Jimmy.java:104
+msgid "Welcome to Jimmy!"
+msgstr "Dobrodo?li v Jimmyiju!"
+
+#: ./jimmy/Jimmy.java:136
+msgid "Failed to connect! Check settings."
+msgstr "Napaka pri povezovanju! Preveri nastavitve."
+
+#: ./jimmy/Jimmy.java:147
+msgid "Destroying Jimmy..."
+msgstr "Uni?ujem Jimmyja..."
