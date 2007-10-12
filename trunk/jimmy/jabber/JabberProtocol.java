@@ -36,7 +36,7 @@ import jimmy.ProtocolInteraction;
  * Non-standard comments are present before any method.
  * For the standard methods description, see jimmy/Protocol.java .
  * 
- * @author Matevž Jekovec
+ * @author Matevz Jekovec
  */
 public class JabberProtocol extends Protocol {
 	ServerHandler sh_;	//server handler reference - used for any outgoing/incoming connections
