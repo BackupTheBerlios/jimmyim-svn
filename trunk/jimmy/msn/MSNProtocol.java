@@ -200,7 +200,7 @@ public class MSNProtocol extends Protocol
                 /*System.out.println(data);
                 System.out.println("*************************************"); */
                 String NSredirectURL = data.substring(data.indexOf("NS")+3, data.indexOf(" ", 10));
-                //System.out.println(NSredirectURL);
+                //System.out.println("[DEBUG] Redirect URL:"+NSredirectURL);
                 this.sh.disconnect();
                 
                 
