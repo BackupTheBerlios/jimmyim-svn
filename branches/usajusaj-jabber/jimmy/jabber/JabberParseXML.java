@@ -1,5 +1,5 @@
 /* JIMMY - Instant Mobile Messenger
-   Copyright (C) 2006  JIMMY Project
+ Copyright (C) 2006  JIMMY Project
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,286 +22,428 @@
 
 package jimmy.jabber;
 
-import jimmy.*;
 import java.util.Vector;
 
-public class JabberParseXML {
-	public static Vector parseContacts(String in, JabberProtocol protocol) {
-		Vector contacts = new Vector();
-		
-		int x1, x2;
-		int item2;
-		String cName, cJid, cGroup;	//contact's screen name, jabber id, group name
-		
-		while (in.indexOf("<item") != -1) {	//until only query and iq
-			in = in.substring(in.indexOf("<item"));	//trim anything before the first <item occurance
+import jimmy.ChatSession;
+import jimmy.Contact;
+import jimmy.ProtocolInteraction;
+import jimmy.util.Utils;
 
-			if (in.indexOf("<item", 1) != -1)
-				item2 = in.indexOf("<item", 1);	//get the start of the next <item block, if any
-			else
-				item2 = in.length();
-			
-			//<item ... name='...'
-			x1 = in.indexOf("name='");
-			if ((x1 != -1) && (x1 < item2)) {
-				x1 += 6;	//the end of name='
-				x2 = in.indexOf("'", x1);
-				cName = in.substring(x1, x2);
-			} else
-				cName = null;
-			
-			//jid='...'
-			x1 = in.indexOf("jid='");
-			if ((x1 != -1) && (x1 < item2)) {
-				x1 += 5;	//the end of jid='
-				x2 = in.indexOf("'", x1);
-				cJid = in.substring(x1,x2);
-			} else
-				cJid = null;
-			
-			//<group>...</group>
-			x1 = in.indexOf("<group>");
-			if ((x1 != -1) && (x1 < item2)) {
-				x1 += 7;	//the end of <group>
-				x2 = in.indexOf("</group>");
-				cGroup = in.substring(x1,x2);
-			} else
-				cGroup = null;
-			
-			in = in.substring(item2);
-			contacts.addElement(new Contact(cJid, protocol, 0, cGroup, cName));
-		}
+public class JabberParseXML
+{
+  /**
+   * 
+   * @param in
+   * @return
+   * @deprecated
+   */
+  public static boolean parseUserPass(String in)
+  {
+    if (in.indexOf("error") == -1)
+      return true;
 
-		return contacts;
-	}
-	
-	public static boolean parseUserPass(String in) {
-		if (in.indexOf("error")==-1) return true;
-		
-		return false;
-	}
-	
-	/**
-	 * This method parses the given string and forward according to the XML stanza type,
-	 * the String to the correct submethod.
-	 * 
-	 * Different submethods parse the given String then and trim it every time.
-	 * Submethods are called as long as the given String isn't trimmed to length==0.
-	 * 
-	 * @param in Given String input which was received from the Jabber server
-	 * @param protocol Reference to the Jabber protocol (needed for contacts list and other details)
-	 */
-	public static void genericParse(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		int x1, x2;
-		String type;
-		
-		if (in==null) return;
-		
-		System.out.println("genericParse:");
-		
-		while (in.length() != 0) {
-			System.out.println(in);
-			x1 = in.indexOf("<") + 1;
-			x2 = in.indexOf(" ");	
+    return false;
+  }
 
-			type = in.substring(x1, x2); //get the first word in <> stanza
-			
-			if (type.compareTo("presence") == 0) {
-				in = parsePresence(in, protocol, jimmy);
-			} else if (type.compareTo("message") == 0) {
-				in = parseMessage(in, protocol, jimmy);
-			} else if (type.compareTo("iq") == 0) {
-				in = parseIq(in, protocol, jimmy);
-			} else if (type.compareTo("c") == 0) {
-				in = parseC(in, protocol, jimmy);
-			} else if (type.compareTo("x") == 0) {
-				in = parseX(in, protocol, jimmy);
-			} else
-				break;
-		}
-	}
-	
-	/**
-	 * Parse the first message stanza of the given XML data.
-	 * Call the appropriate methods for the interaction with the program and UI.
-	 * Cut off the processed stanza.
-	 * 
-	 * @param in An XML stanzas needed to be processed.
-	 * @param protocol Pointer to the Jabber Protocol used.
-	 * @param jimmy Pointer to the main Jimmy application used.
-	 * @return The initial string without the processed stanza.
-	 */
-	private static String parseMessage(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		String from = in.substring(in.indexOf("from='")+6, in.indexOf("/", in.indexOf("from='")+6));
-		ChatSession cs = null;
-		Contact c = protocol.getContact(from);
-		
-		if (c == null) {
-			c = new Contact(from, protocol);
-		} else
-			cs = protocol.getChatSession(c);
+  public static String parseVarious(String in, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    if (in == null || in.trim().equals(""))
+      return null;
+    in = in.trim();
+    in = removeXmlHeader(in);
+    String res = "";
 
-                if (cs==null)
-                    cs = protocol.startChatSession(c);
-		
-		String msg = getAttributeValue(in, "<body>", "</body>");
-		
-		jimmy.msgRecieved(cs, c, msg);
-		
-		return in.substring(in.indexOf("</message>") + 10);
-	}
-	
-	/**
-	 * Return a block surrounded by the given left and right String elements in the given String.
-	 * Returns null, if the pattern wasn't found.
-	 * 
-	 * @param in The whole String
-	 * @param left Left surrounding value
-	 * @param right Right surrounding value
-	 * @return The block between left and right surrounding String in String in. Returns null, if the pattern wasn't found.
-	 */
-	private static String getAttributeValue(String in, String left, String right) {
-		if (in==null) {
-			return null;
-		}
-		if (in.indexOf(left) == -1) {
-			return null;
-		}
-		if (in.indexOf(right, in.indexOf(left)) == -1) {
-			return null;
-		}
-		
-		return in.substring(in.indexOf(left) + left.length(), in.indexOf(right, in.indexOf(left) + left.length()));
-	}
+    while (true)
+    {
+      in = in.trim();
+      if (in.equals(""))
+        break;
 
-	private static String parsePresence(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		int x1, x2, x22;
-		String from;
+      int endIndex;
+      if (in.startsWith("<iq "))
+      {
+        System.out.println("[INFO] Inbound <IQ>");
+        endIndex = getNextElementEndIndex(in, "iq");
+        if (endIndex == -1)
+          break;
+        res += parseIq(in.substring(0, endIndex), protocol, jimmy);
+      }
+      else if (in.startsWith("<message "))
+      {
+        System.out.println("[INFO] Inbound <MESSAGE>");
+        endIndex = getNextElementEndIndex(in, "message");
+        if (endIndex == -1) break;
+        res += parseMessage(in.substring(0, endIndex), protocol, jimmy);
+      }
+      else if (in.startsWith("<presence "))
+      {
+        System.out.println("[INFO] Inbound <PRESENCE>");
+        endIndex = getNextElementEndIndex(in, "presence");
+        if (endIndex == -1)
+          break;
+        res += parsePresence(in.substring(0, endIndex), protocol, jimmy);
+      }
+      else if (in.startsWith("<success "))
+      {
+        System.out.println("[INFO] Inbound <SUCCESS>");
+        endIndex = getNextElementEndIndex(in, "success");
+        if (endIndex == -1)
+          break;
+        //        TODO not implemented yet
+      }
+      else if (in.startsWith("<stream:stream "))
+      {
+        System.out.println("[INFO] Inbound <STREAM:STREAM>");
+        endIndex = in.length();
+        return getAttributeValue(in.substring(0, endIndex), "id");
+      }
+      else
+      {
+        System.out.println("[INFO] Inbound UNKNOWN");
+        System.out.println(in);
+        if (in.charAt(in.indexOf(">") - 1) == '/')
+          endIndex = in.indexOf(">") + 1;
+        else
+        {
+          String s = in.substring(0, in.indexOf(" "));
+          endIndex = in.indexOf("</" + s.substring(1, s.length()) + ">")
+              + s.length() + 3;
+        }
+      }
 
-		x1 = in.indexOf("from='") + 6;
-		//jid string, which contact is this about ends at / or ', whichever comes first 
-		if ( ((x2 = in.indexOf("/", x1))  < (x22 = in.indexOf("'", x1))) &&
-		      (x2 != -1) ) {
-			from = in.substring(x1, x2);
-		} else {
-			from = in.substring(x1, x22);
-		}
-		
-		//find the Contact from the contacts list
-		Contact c = protocol.getContact(from);
+      in = in.substring(endIndex, in.length());
+    }
 
-		//if the Contact wasn't found, create it automatically
-		if (c==null)
-			c = new Contact(from, protocol);
-		
-		
-		x22 = in.indexOf(">",1);
+    return res;
+  }
 
-		//contact was found, proceed
-		//checking, if the contact became off-line
-		x2 = in.indexOf("type='unavailable'");
-		if ( (x2 < x22) && (x2!=-1) ) {
-			c.setStatus(Contact.ST_OFFLINE);
-			jimmy.changeContactStatus(c);
-			return removeStanza(in, "presence");
-		}
-		
-		//a contact removed you from his list, keep the contact visible, but set it offline
-		x2 = in.indexOf("type='unsubscribe'");
-		if ( (x2 < x22) && (x2!=-1) ) {
-			c.setStatus(Contact.ST_OFFLINE);
-			jimmy.changeContactStatus(c);
-			return removeStanza(in, "presence");
-		}
+  private static String parseIq(String s, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    if (s == null || s.equals(""))
+      return null;
 
-		//a contact removed you from his list, keep the contact visible, but set it offline
-		x2 = in.indexOf("type='unsubscribed'");
-		if ( (x2 < x22) && (x2!=-1) ) {
-			c.setStatus(Contact.ST_OFFLINE);
-			jimmy.changeContactStatus(c);
-			return removeStanza(in,"presence");
-		}
+    if (Utils.stringContains(s, "jabber:iq:roster"))
+    {
+      Vector items = parseContacts(s, "item");
+      for (int j = 0; j < items.size(); j++)
+      {
+        //TODO Parse group element <group> for group name
+        Contact c = new Contact(getAttributeValue((String) items.elementAt(j),
+            "jid"), protocol, Contact.ST_OFFLINE, null, getAttributeValue(
+            (String) items.elementAt(j), "name"));
+        protocol.addContact(c);
+        jimmy.addContact(c);
+      }
+    }
+    else if (Utils.stringContains(s, "jabber:iq:version"))
+    {
+      //TODO not implemented yet
+    }
+    else if (Utils.stringContains(s, "google:mail:notify"))
+    {
+      //TODO not implemented yet
+    }
+    else if (Utils.stringContains(s, "google:shared-status"))
+    {
+      //TODO not implemented yet
+    }
+    else if (Utils.stringContains(s, "urn:ietf:params:xml:ns:xmpp-bind"))
+    {
+      return getElementValue(s, "jid");
+    }
 
-		//a contact added you to his list
-		x2 = in.indexOf("type='subscribe'");
-		if ( (x2 < x22) && (x2!=-1) ) {
-			allowContact(c, protocol, jimmy);	//authorize contact to add
-			return removeStanza(in, "presence");
-		}
-		
-		//contact has added you to his list, set the contact's list
-		x2 = in.indexOf("type='subscribed'");
-		if ( (x2 < x22) && (x2!=-1) ) {
-			protocol.updateContactProperties(c);	//authorize contact to add 
-			
-			//Let them know about our status "online"
-			protocol.getServerHandler().sendRequest("<presence type='available'/>");
-			
-			return removeStanza(in, "presence");
-		}
-		
-		// type is not set, ignore the whole stanza (TODO)
-		x2 = in.indexOf("type");
-		if (x2 == -1 || x2 == in.indexOf("type='get'")) {
-			return removeStanza(in, "presence");
-		}
-		
-		//contact is not off-line
-		String tmp = getAttributeValue(in, "<presence", "</presence>");
-		String show = getAttributeValue(tmp, "<show>", "</show>");
-		if (show == null)
-			c.setStatus(Contact.ST_ONLINE);
-		else if ((show.compareTo("away")==0) || (show.compareTo("xa")==0))
-			c.setStatus(Contact.ST_AWAY);
-		else if (show.compareTo("dnd")==0)
-			c.setStatus(Contact.ST_BUSY);
-		
-		//does a contact also include a message?
-		String statusMsg = getAttributeValue(tmp, "<status>", "</status>");
-		c.setStatusMsg(statusMsg);
+    return "";
+  }
 
-		jimmy.changeContactStatus(c);
-		
-		return removeStanza(in, "presence");
-	}
-	
-	static void allowContact(Contact c, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		String oString = "<presence from='" + protocol.getAccount().getUser() + "' to='" + c.userID() + "' type='subscribed'/>";
-		protocol.getServerHandler().sendRequest(oString);
-		
-		if (protocol.getContact(c.userID())==null) {
-			jimmy.addContact(c);
-			protocol.addContact(c);
-		}
-	}
-	
-	static String parseIq(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		///TODO Currently, this method only removes the <iq> stanza
-		return removeStanza(in, "iq");
-	}
+  /**
+   * Parse the first message stanza of the given XML data.
+   * Call the appropriate methods for the interaction with the program and UI.
+   * Cut off the processed stanza.
+   * 
+   * @param in An XML stanzas needed to be processed.
+   * @param protocol Pointer to the Jabber Protocol used.
+   * @param jimmy Pointer to the main Jimmy application used.
+   * @return The initial string without the processed stanza.
+   */
+  private static String parseMessage(String in, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    String from = getAttributeValue(in, "from");
+    from = from.substring(0, from.indexOf("/"));
 
-	static String parseC(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		///TODO Currently, this method only removes the <c> stanza
-		return removeStanza(in, "c");
-	}
+    ChatSession cs = null;
+    Contact c = protocol.getContact(from);
 
-	static String parseX(String in, JabberProtocol protocol, ProtocolInteraction jimmy) {
-		///TODO Currently, this method only removes the <x> stanza
-		return removeStanza(in, "x");
-	}
-	
-	/**
-	 * Remove the stanza with the given tag.
-	 * This work for both stanzas which don't contain characters (end with />) and for stanzas which include characters (and finish with /tag). 
-	 * 
-	 * @param in Input string.
-	 * @param tag Stanza tag.
-	 * @return The shortened string for that stanza.
-	 */
-	static String removeStanza(String in, String tag) {
-		if (in.indexOf(">", 1)-1 != in.indexOf("/>"))
-			return in.substring(in.indexOf("</"+tag)+3+tag.length());
-		else
-			return in.substring(in.indexOf("/>")+2);
-	}
+    if (c == null)
+      c = new Contact(from, protocol);
+    else
+      cs = protocol.getChatSession(c);
+
+    if (cs == null)
+      cs = protocol.startChatSession(c);
+    
+    if (!Utils.stringContains(in, "<body"))
+      return "";
+      
+    jimmy.msgRecieved(cs, c, getElementValue(in, "body"));
+
+    //    return in.substring(in.indexOf("</message>") + 10);
+    return "";
+  }
+
+  private static String parsePresence(String in, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    String from = getAttributeValue(in, "from");
+    if (Utils.stringContains(from, "/"))
+      from = from.substring(0, from.indexOf("/"));
+
+    if (from.equals(protocol.getAccount().getUser()))
+      return "";
+
+    Contact c = protocol.getContact(from);
+    if (c == null)
+      c = new Contact(from, protocol, Contact.ST_OFFLINE, null, from);
+
+    String type = getAttributeValue(in, "type");
+    if (type.equals("unavailable"))
+    {
+      c.setStatus(Contact.ST_OFFLINE);
+      jimmy.changeContactStatus(c);
+    }
+    else if (type.equals("unsubscribe"))
+    {
+      //a contact removed you from his list, keep the contact visible, but set it offline
+      c.setStatus(Contact.ST_OFFLINE);
+      jimmy.changeContactStatus(c);
+    }
+    else if (type.equals("unsubscribed"))
+    {
+      //a contact removed you from his list, keep the contact visible, but set it offline
+      c.setStatus(Contact.ST_OFFLINE);
+      jimmy.changeContactStatus(c);
+    }
+    else if (type.equals("subscribe"))
+    {
+      //a contact added you to his list
+      allowContact(c, protocol, jimmy); //authorize contact to add
+    }
+    else if (type.equals("subscribed"))
+    {
+      //contact has added you to his list, set the contact's list
+      protocol.updateContactProperties(c); //authorize contact to add 
+
+      //Let them know about our status "online"
+      protocol.getServerHandler().sendRequest("<presence type=\"available\"/>");
+    }
+    else
+    {
+      //contact is not off-line
+      String show = getElementValue(in, "show");
+      if (show.equals(""))
+        c.setStatus(Contact.ST_ONLINE);
+      else if ((show.compareTo("away") == 0) || (show.compareTo("xa") == 0))
+        c.setStatus(Contact.ST_AWAY);
+      else if (show.compareTo("dnd") == 0)
+        c.setStatus(Contact.ST_BUSY);
+
+      //does a contact also include a message?
+      String statusMsg = getElementValue(in, "status");
+      c.setStatusMsg(statusMsg);
+
+      jimmy.changeContactStatus(c);
+    }
+
+    return "";
+  }
+
+  private static Vector parseContacts(String in, String name)
+  {
+    in = in.substring(in.indexOf("<" + name), in.length());
+
+    Vector v = new Vector();
+    while (true)
+    {
+      in = in.trim();
+      if (in.equals("") || !Utils.stringContains(in, name))
+        break;
+
+      int endIndex;
+
+      if (in.charAt(in.indexOf(">") - 1) == '/')
+        endIndex = in.indexOf(">") + 1;
+      else
+        endIndex = in.indexOf("</" + name + ">") + name.length() + 3;
+
+      v.addElement(in.substring(0, endIndex));
+      in = in.substring(endIndex, in.length());
+    }
+
+    return v;
+  }
+
+  private static String parseC(String in, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    ///TODO Currently, this method only removes the <c> stanza
+    return "";
+  }
+
+  private static String parseX(String in, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    ///TODO Currently, this method only removes the <x> stanza
+    return "";
+  }
+
+  private static void allowContact(Contact c, JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    String oString = "<presence from='" + protocol.getAccount().getUser()
+        + "' to='" + c.userID() + "' type='subscribed'/>";
+    protocol.getServerHandler().sendRequest(oString);
+
+    if (protocol.getContact(c.userID()) == null)
+    {
+      jimmy.addContact(c);
+      protocol.addContact(c);
+    }
+  }
+
+  private static String getElementValue(String in, String name)
+  {
+    String val = "";
+
+    if (Utils.stringContains(in, name + "/>"))
+      return "";
+
+    if (Utils.stringContains(in, name))
+      val += in.substring(in.indexOf("<" + name + ">") + name.length() + 2, in
+          .indexOf("</" + name + ">"));
+
+    return val;
+  }
+
+  private static String getAttributeValue(String in, String name)
+  {
+    String val = "";
+
+    if (Utils.stringContains(in, name))
+      val += in.substring(in.indexOf(name) + name.length() + 2, in.indexOf(
+          "\"", in.indexOf(name) + name.length() + 2));
+
+    return val;
+  }
+
+  private static String removeXmlHeader(String in)
+  {
+    if (in.startsWith("<?"))
+      return in.substring(in.indexOf("?>") + 2, in.length());
+    return in;
+  }
+
+  private static int getNextElementEndIndex(String in, String name)
+  {
+    if (in.charAt(in.indexOf(">") - 1) == '/')
+      return in.indexOf(">") + 1;
+    else if (Utils.stringContains(in, "</" + name + ">"))
+      return in.indexOf("</" + name + ">") + name.length() + 3;
+    else
+      return -1;
+  }
+  
+  protected static String getAuthXml(String token)
+  {
+    return 
+      "<auth xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\" " +
+      "mechanism=\"X-GOOGLE-TOKEN\">" + token + "</auth>";
+  }
+  
+  protected static String getOpenStreamXml(String server)
+  {
+    return 
+      "<?xml version=\"1.0\"?>" +
+      "<stream:stream xmlns:stream=\"http://etherx.jabber.org/streams\" " +
+      "xmlns=\"jabber:client\" to=\"" + server + "\" version=\"1.0\">";
+  }
+  
+  protected static String getBindToServerXml(String resourceName)
+  {
+    return 
+      "<iq type=\"set\" id=\"bind\">" + 
+      "  <bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">" +
+      "    <resource>" + resourceName + "</resource>" +
+      "  </bind>" +
+      "</iq>";
+  }
+  
+  protected static String getCreateSessionXml(String server)
+  {
+    return 
+      "<iq to=\"" + server + "\" type=\"set\" id=\"sess_1\">" +
+      "  <session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>" +
+      "</iq>";
+  }
+  
+  /**
+   * Calculates string representation of initial user status
+   * Sets important Google settings
+   * Informs Google Talk that we want to use GTalk features 
+   */
+  protected static String getGTalkOptionsXml()
+  {
+    return 
+      "<iq type=\"get\" id=\"6\">" +
+      "  <query xmlns=\"google:relay\"/>" +
+      "</iq>";
+  }
+  
+  /**
+   * Sends mail notification request to GTalk server
+   */
+  protected static String getGTalkMailNotificationReqXml(String fullJid)
+  {
+    return 
+      "<iq type=\"set\" to=\"" + fullJid + "\" id=\"15\">" +
+      "  <usersetting xmlns=\"google:setting\">" +
+      "    <autoacceptrequests value=\"false\"/>" +
+      "    <mailnotifications value=\"true\"/>" +
+      "  </usersetting>" +
+      "</iq>";
+  }
+  
+  protected static String getUserStatusXml(String fullJid)
+  {
+    return 
+      "<iq type=\"get\" id=\"23\">" +
+      "  <query xmlns=\"google:mail:notify\" " +
+      "    q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>" +
+      "</iq>" +
+      "<iq type=\"get\" to=\"" + fullJid + "\" id=\"21\">" +
+      "  <query xmlns=\"google:shared-status\"/>" +
+      "</iq>";
+  }
+  
+  protected static String getRosterXml()
+  {
+    return 
+      "<iq type=\"get\" id=\"roster\">" +
+      "  <query xmlns=\"jabber:iq:roster\"/>" +
+      "</iq>";
+  }
+  
+  protected static String getGTalkPresence()
+  {
+    return "<presence><show></show><status></status></presence>";
+  }
+  
+  protected static String getWelcomeMsgXml(String server, String stream)
+  {
+    return 
+      "<?xml version='1.0'?>" +
+      "<stream:stream to='" + server + "' xmlns='jabber:client' " +
+      "  xmlns:stream='" + stream + "'>";
+  }
 }

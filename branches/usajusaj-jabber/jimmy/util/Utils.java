@@ -584,4 +584,8 @@ public static String getStringBetweenTags(String Tag, String ClosingTag, String 
     return untaggedString;
 }
 
+  public static boolean stringContains(String s, String seq)
+  {
+    return s.indexOf(seq) >= 0;
+  }
 }

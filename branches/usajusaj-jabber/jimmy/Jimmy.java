@@ -43,7 +43,7 @@ import jimmy.ui.Localization;
 
 public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public static Jimmy jimmy_;								//Application main object
-	final public static String VERSION	=	"1.0";	//JIMMY version
+	final public static String VERSION	=	"1.0.0";	//JIMMY version
 	final public static String RS = "JimmyIM";				//Record store name
 	private static Display display_;						//Display object
 	private static Vector protocolList_;					//List of active protocols
