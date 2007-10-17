@@ -588,4 +588,32 @@ public static String getStringBetweenTags(String Tag, String ClosingTag, String 
   {
     return s.indexOf(seq) >= 0;
   }
+  
+  /**
+   * Utility to split the given String of characters to two parts, seperated by
+   * ch.
+   * 
+   * @param in
+   *          Input String
+   * @param ch
+   *          Separator character
+   * @return Array of two Strings
+   */
+  public static String[] splitString(String in, char ch)
+  {
+    String[] result = new String[2];
+    int pos = in.indexOf(ch);
+
+    if (pos != -1)
+    {
+      result[0] = in.substring(0, pos).trim();
+      result[1] = in.substring(pos + 1).trim();
+    }
+    else
+    {
+      result[0] = in.trim();
+    }
+
+    return result;
+  }
 }

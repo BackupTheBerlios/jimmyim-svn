@@ -16,17 +16,13 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **********************************************************************
  File: jimmy/JabberProtocol.java
- Version: pre-alpha  Date: 2006/05/18
- Author(s): Matevz Jekovec
+ Version: beta  Date: 2007/10/17
+ Author(s): Matevz Jekovec, Matej Usaj
  */
 
 package jimmy.jabber;
 
-import java.io.DataInputStream;
 import java.util.Vector;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpsConnection;
 
 import jimmy.Account;
 import jimmy.ChatSession;
@@ -34,39 +30,41 @@ import jimmy.Contact;
 import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 import jimmy.net.ServerHandler;
-import jimmy.util.MD5;
-import jimmy.util.Utils;
+import jimmy.util.XmlNode;
 
 /**
- * This class implements the Jabber protocol. Non-standard comments are present
- * before any method. For the standard methods description, see
- * jimmy/Protocol.java .
+ * Jabber (XMPP) protocol implementation class
  * 
- * @author Matevž Jekovec
- * @author Matej Ušaj
+ * @author Matevz Jekovec
+ * @author Matej Usaj
  */
 public class JabberProtocol extends Protocol
 {
-  /** server handler reference - used for any outgoing/incoming connections*/
-  ServerHandler sh_;
-
   /** default server name - if none set in user account */
   private final String DEFAULT_SERVER = "jabber.org";
 
   /** default server port - if none set in user account*/
   private final int DEFAULT_PORT = 5222;
 
-  /** default Jabber streams address */
-  private final String DEFAULT_STREAMS = "http://etherx.jabber.org/streams";
+  /** server handler reference - used for any outgoing/incoming connections*/
+  protected ServerHandler sh_;
 
   /** stop the thread */
   private boolean stop_;
   
-//  /** full jid (including resource name) */
-//  private String fullJid;
+  /** User account domain name */
+  protected String domain_;
+  
+  /** Is this a GTalk account */
+  protected boolean isGTalk_;
+  
+  /** Full users jid in uname@domain/resource format */
+  protected String fullJid_;
   
   /**
-   * Constructor method.
+   * Default constructor
+   * 
+   * @param jimmy {@link ProtocolInteraction} class
    */
   public JabberProtocol(ProtocolInteraction jimmy)
   {
@@ -74,413 +72,250 @@ public class JabberProtocol extends Protocol
     protocolType_ = JABBER;
     status_ = DISCONNECTED;
   }
-
+  
   /**
-   * Returns the ServerHandler used to establish the connection.
+   * Opens connection to jabber server, authenticates, fills the contact list
+   * and does all necessary server interaction
    * 
-   * @return ServerHandler used when connecting.
-   */
-  public ServerHandler getServerHandler()
-  {
-    return sh_;
-  }
-
-  /**
-   * Initializes the connection and logs in using the given account.
+   * @param account Users jabber {@link Account}
+   * @return Authentications success
    */
   public boolean login(Account account)
   {
+    /* Set the required variables */
+    status_ = CONNECTING;
     account_ = account;
     contacts_ = new Vector();
-    String userName;
-    String userServer;
-    String server;
-    int port;
+    isGTalk_ = false;
     
-    // get the first half of the JID (login name)
-    userName = splitString(account.getUser(), '@')[0];
-
-    // get the second half of the JID (server name)
-    userServer = splitString(account.getUser(), '@')[1];
-
-    // get the server name stored in the account - if none set, use the
-    // user@server ones, if none @ given, use the default one
-    if (account.getServer() != null)
-      server = account.getServer();
-    else if (userServer.length() != 0)
-      server = userServer;
-    else
-      server = DEFAULT_SERVER;
-
-    // get the server port stored in the account - use default server port if
-    // none set
-    port = (account.getPort() != 0) ? account.getPort() : DEFAULT_PORT;
-
-    sh_ = new ServerHandler(server, port);
+    domain_ = account.getUser().indexOf("@") >= 0 ?
+        account.getUser().substring(
+            account.getUser().indexOf("@") + 1, account.getUser().length()) : 
+        account.getServer() != null ? 
+            account.getServer() :
+            DEFAULT_SERVER;
+            
+    account.setServer(
+        account.getServer() != null ? 
+            account.getServer() :
+            domain_);
+    
+    account.setPort(account.getPort() == 0 ? DEFAULT_PORT : account.getPort());
+    
+    /* Create and open connection */
+    sh_ = new ServerHandler(account.getServer(), account.getPort());
     sh_.connect(account.getUseSSL());
-    if (!sh_.isConnected())
-      return false;
+    if (!sh_.isConnected()) return false;
+    sh_.sendRequest(JabberParseXML.getOpenStreamXml(domain_));
 
-    sh_.sendRequest(JabberParseXML.getWelcomeMsgXml(userServer, DEFAULT_STREAMS));
-    if (isAuthError(sh_.getReply())) return false;
-
-    boolean loggedIn;
-    
-    // GTalk auth:
-    if (account.getServer().toLowerCase().endsWith("google.com"))
-      loggedIn = doGtalk(userName, userServer, server, "JimmyIM", account);
-    else
-      loggedIn = doJabber(userName, userServer, server, "JimmyIM", account);
-    
-    if (loggedIn)
+    /* Authenticate with the server */
+    while (status_ == CONNECTING)
     {
-      status_ = CONNECTED;
-      thread_.start();
+      XmlNode x = XmlNode.parse(sh_.getReply());
+      if (x != null)
+        for (int i = 0; i < x.childs.size(); i++)
+        {
+          JabberParseXML.parse(
+              (XmlNode)x.childs.elementAt(i), 
+              this, 
+              jimmy_);
+        }
     }
     
-    return loggedIn;
-  }
-  
-  /**
-   * Login to GTalk server
-   * 
-   * @return login success
-   */
-  private boolean doGtalk(
-      String userName, 
-      String userServer,
-      String server,
-      String resource,
-      Account account)
-  {
-    System.out.println("[INFO-GTALK] Get google authorization token");
-    String token = getGoogleToken(userName, account.getPassword());
-
-    System.out.println("[INFO-GTALK] Authenticate");
-    sendIgnoreResult(JabberParseXML.getAuthXml(token));
-
-    System.out.println("[INFO-GTALK] Open stream");
-    sendIgnoreResult(JabberParseXML.getOpenStreamXml(userServer));
-
-    System.out.println("[INFO-GTALK] Bind resource");
-    account_.setUser(sendIgnoreResult(JabberParseXML.getBindToServerXml(resource)));
-
-    System.out.println("[INFO-GTALK] Create session");
-    sendIgnoreResult(JabberParseXML.getCreateSessionXml(server));
-
-    System.out.println("[INFO-GTALK] Enable GTalk features");
-    sendIgnoreResult(JabberParseXML.getGTalkOptionsXml());
-
-    System.out.println("[INFO-GTALK] Send mail notification request");
-    sendIgnoreResult(JabberParseXML.getGTalkMailNotificationReqXml(account_.getUser()));
+    /* Check if authentication failed */
+    if (status_ == DISCONNECTED ||
+        status_ == NO_CONNECTION ||
+        status_ == WRONG_PASSWORD)
+      return false;
     
-    System.out.println("[INFO-GTALK] Get contacts");
-    sh_.sendRequest(JabberParseXML.getUserStatusXml(account_.getUser()));
-
-    System.out.println("[INFO-GTALK] Get roster");
+    /* Start the listener thread */
+    thread_.start();
+    
+    /* Enable special GTalk features */
+    if (isGTalk_)
+    {
+      sh_.sendRequest(JabberParseXML.getGTalkOptionsXml());
+      sh_.sendRequest(JabberParseXML.getGTalkMailNotificationReqXml(fullJid_));
+      sh_.sendRequest(JabberParseXML.getGTalkPresence());
+    }
+    
+    /* Request roster and user status */
+    sh_.sendRequest(JabberParseXML.getUserStatusXml(fullJid_));
     sh_.sendRequest(JabberParseXML.getRosterXml());
     
-    JabberParseXML.parseVarious(sh_.getReply(), this, jimmy_);
-
-    System.out.println("[INFO-GTALK] Send presence");
-    sendIgnoreResult(JabberParseXML.getGTalkPresence());
-    
-    System.out.println("[INFO-GTALK] Full ID: " + account_.getUser());
+    sh_.sendRequest("<presence from=\"" + fullJid_ + "\"/>");
     
     return true;
   }
   
   /**
-   * Login to other jabber server
-   * 
-   * @return login success
-   */
-  private boolean doJabber(
-      String userName, 
-      String userServer,
-      String server,
-      String resource,
-      Account account)
-  {
-    // Authentication
-    String query = "<iq type='set'>" + "<query xmlns='jabber:iq:auth'>"
-        + "<username>" + userName + "</username>" + "<password>"
-        + account.getPassword() + "</password>" + "<resource>globe</resource>"
-        + "</query>" + "</iq>";
-
-    sh_.sendRequest(query);
-    String reply = sh_.getReply();
-    System.out.println(reply);
-    // check authentication feedback
-    if (JabberParseXML.parseUserPass(reply) == false)
-    {
-      status_ = WRONG_PASSWORD;
-      System.out.println("JabberProtocol: WRONG PASSWORD!");
-      return false;
-    }
-
-    // Get contacts list
-    query = "<iq type='get'><query xmlns='jabber:iq:roster'/></iq>";
-    sh_.sendRequest(query);
-    reply = sh_.getReply();
-    // parse the contacts feedback
-//    contacts_ = JabberParseXML.parseContacts(reply, this);
-//    jimmy_.addContacts(contacts_);
-
-    // Set status "online"
-    query = "<presence type='available'/>";
-    sh_.sendRequest(query);
-
-    return true;
-  }
-  
-  /**
-   * Logs out and closes the connection.
+   * Sends "offline" status and stops the listener thread
    */
   public void logout()
   {
-    String oString;
-    oString = "<presence type='offline'/>";
-    sh_.sendRequest(oString);
-    stop_ = true; // stops the thread
+    sh_.sendRequest("<presence type='unavailable'/>");
+    stop_ = true;
   }
-
-  public ChatSession startChatSession(Contact contact)
-  {
-    ChatSession cs = new ChatSession(this);
-    chatSessionList_.addElement(cs);
-
-    cs.addContact(contact);
-
-    return cs;
-  }
-
-  public void sendMsg(String msg, ChatSession session)
-  {
-    System.out.println(msg);
-    for (int i = 0; i < session.countContacts(); i++)
-    {
-      String oString = "<message to=\""
-          + ((Contact) session.getContactsList().elementAt(i)).userID()
-          + "\" from=\"" + account_.getUser() + "\" type=\"chat\">"
-          +"<nos:x value=\"disabled\" xmlns:nos=\"google:nosave\"/>"+"<body>"+msg+"</body></message>";
-      System.out.println("OUT:\n" + oString);
-      sh_.sendRequest(oString);
-    }
-  }
-
-  public void sendMsg(String msg, Vector contactsList, ChatSession session)
-  {
-    System.out.println(msg);
-    for (int i = 0; i < session.countContacts(); i++)
-    {
-      if (!contactsList.contains(session.getContactsList().elementAt(i)))
-        continue;
-
-      String oString = "<message from='" + account_.getUser() + "' to='"
-          + ((Contact) session.getContactsList().elementAt(i)).userID()
-          + "' type='chat'><body>" + msg + "</body></message>\n";
-
-      System.out.println("OUT:\n" + oString);
-      sh_.sendRequest(oString);
-    }
-  }
-
+  
   /**
-   * Utility to split the given String of characters to two parts, seperated by
-   * ch.
+   * Adds new contact to jabber account
    * 
-   * @param in
-   *          Input String
-   * @param ch
-   *          Separator character
-   * @return Array of two Strings
+   * @param c New {@link Contact} to subscribe to
    */
-  private static String[] splitString(String in, char ch)
-  {
-    String[] result = new String[2];
-    int pos = in.indexOf(ch);
-
-    if (pos != -1)
-    {
-      result[0] = in.substring(0, pos).trim();
-      result[1] = in.substring(pos + 1).trim();
-    }
-    else
-    {
-      result[0] = in.trim();
-    }
-
-    return result;
-  }
-
-  public void run()
-  {
-    String in;
-    stop_ = false;
-
-    while (!stop_)
-    {
-      try
-      {
-        Thread.sleep(1000);
-      }
-      catch (InterruptedException e)
-      {
-        e.printStackTrace();
-      }
-      if (status_ != CONNECTED)
-        continue;
-
-      in = sh_.getReply();
-      if (in != null)
-        JabberParseXML.parseVarious(in, this, jimmy_);
-    }
-
-    sh_.disconnect();
-    status_ = DISCONNECTED;
-  }
-
-  public void parseNewContacts(Contact[] c)
-  {
-    contacts_.copyInto(c);
-  }
-
   public void addContact(Contact c)
   {
-    String oString = "<presence from=\"" + account_.getUser() + "\" to=\""
-        + c.userID() + "\" type=\"subscribe\"/>\n";
-    sh_.sendRequest(oString);
+    sh_.sendRequest(
+        "<presence from=\"" + account_.getUser() + "\" to=\"" + 
+          c.userID() + "\" type=\"subscribe\"/>");
     contacts_.addElement(c);
   }
-
+  
+  /**
+   * Removes a contact from jabber account
+   * 
+   * @param c {@link Contact} to unsubscribe from
+   * @return Removal success
+   */
   public boolean removeContact(Contact c)
   {
     if (getContact(c.userID()) == null)
       return false;
 
-    String oString = "<iq from='" + getAccount().getUser()
-        + "' type='set' id='roster_4'>\n"
-        + "<query xmlns='jabber:iq:roster'>\n" + "<item jid='" + c.userID()
-        + "' subscription='remove'/>\n" + "</query>\n" + "</iq>\n";
-
-    sh_.sendRequest(oString);
+    sh_.sendRequest(
+        "<iq from='" + fullJid_ + "' type='set' id='roster_4'>" + 
+        "  <query xmlns='jabber:iq:roster'>" +
+        "    <item jid='" + c.userID() + "' subscription='remove'/>" + 
+        "  </query>" + 
+        "</iq>");
     contacts_.removeElement(c);
 
     return true;
   }
-
+  
+  /**
+   * Updates contacts data
+   * 
+   * @param c {@link Contact} to update
+   */
   public void updateContactProperties(Contact c)
   {
-    String oString = "<iq type='set' from='"
-        + account_.getUser()
-        + "'>\n"
-        + "<query xmlns='jabber:iq:roster'>\n"
-        + "<item "
-        + "jid='"
-        + c.userID()
-        + "' "
-        + "subscription='both'"
-        + ((c.screenName() != null) ? (" name='" + c.screenName() + "'") : "")
-        + ">\n"
-        + ((c.groupName() != null) ? ("<group>" + c.groupName() + "</group>\n")
-            : "") + "</item>\n" + "</query>\n" + "</iq>\n";
-
-    sh_.sendRequest(oString);
+    sh_.sendRequest(
+        "<iq type='set' from='" + fullJid_ + "'>" + 
+        "  <query xmlns='jabber:iq:roster'>" +
+        "    <item jid='" + c.userID() + "' subscription='both'" + 
+             ((c.screenName() != null) ? (" name='" + c.screenName() + "'") : "") + ">" + 
+             ((c.groupName() != null) ? ("<group>" + c.groupName() + "</group>") : "") + 
+        "    </item>" + 
+        "  </query>" + 
+        "</iq>");
   }
   
-  private String sendIgnoreResult(String query)
+  /**
+   * Sends a message to all contacts in a {@link ChatSession}
+   * 
+   * @param msg Message to send
+   * @param session {@link ChatSession} to send message to
+   */
+  public void sendMsg(String msg, ChatSession session)
   {
-    sh_.sendRequest(query);
-    return JabberParseXML.parseVarious(sh_.getReply(), this, jimmy_);
+    for (int i = 0; i < session.countContacts(); i++)
+      sendMsg(msg, ((Contact) session.getContactsList().elementAt(i)).userID());
   }
   
-  private boolean isAuthError(String reply)
-  {
-    if (Utils.stringContains(reply.toLowerCase(), "stream:error"))
-      return true;
-    return false;
-  }
-
-  /* FROM MGTALK ************************************ */
-
   /**
-   * From mGTalk
+   * Sends a message to specific contacts in a {@link ChatSession}
    * 
-   * Generates X-GOOGLE-TOKEN response by communication with
-   * http://www.google.com
-   * 
-   * @param userName
-   * @param passwd
-   * @return
+   * @param msg Message to send
+   * @param contactsList {@link Vector} containing contacts to send message to
+   * @param session {@link ChatSession} to send message to
    */
-  private String getGoogleToken(String userName, String passwd)
+  public void sendMsg(String msg, Vector contactsList, ChatSession session)
   {
-    String first = "Email=" + userName + "&Passwd=" + passwd
-        + "&PersistentCookie=false&source=googletalk";
-    try
+    for (int i = 0; i < session.countContacts(); i++)
     {
-      HttpsConnection c = (HttpsConnection) Connector
-          .open("https://www.google.com:443/accounts/ClientAuth?" + first);
-      System.out.println("[INFO] Connecting to www.google.com");
-      DataInputStream dis = c.openDataInputStream();
-      String str = readLine(dis);
-      String SID = "";
-      String LSID = "";
-      if (str.startsWith("SID="))
-      {
-        SID = str.substring(4, str.length());
-        str = readLine(dis);
-        LSID = str.substring(5, str.length());
-        first = "SID=" + SID + "&LSID=" + LSID + "&service=mail&Session=true";
-        dis.close();
-        c.close();
-        c = (HttpsConnection) Connector
-            .open("https://www.google.com:443/accounts/IssueAuthToken?" + first);
-        System.out.println("[INFO] Next www.google.com connection");
-        dis = c.openDataInputStream();
-        str = readLine(dis);
-        String token = MD5.toBase64(new String("\0" + userName + "\0" + str)
-            .getBytes());
-        dis.close();
-        c.close();
-        return token;
-      }
-
-      throw new Exception("Invalid response");
+      if (!contactsList.contains(session.getContactsList().elementAt(i)))
+        continue;
+      
+      sendMsg(msg, ((Contact) session.getContactsList().elementAt(i)).userID());
     }
-    catch (Exception ex)
-    {
-      ex.printStackTrace();
-      System.out.println("EX: " + ex.toString());
-    }
-    return "";
   }
-
+  
   /**
-   * Service routine
+   * Sends a message to a user
    * 
-   * @param dis
-   * @return
+   * @param msg Message to send
+   * @param recJid Receivers jid
    */
-  private String readLine(DataInputStream dis)
+  private void sendMsg(String msg, String recJid)
   {
-    String s = "";
-    byte ch = 0;
-    try
+    sh_.sendRequest(
+        "<message " +
+        " to=\"" + recJid + "\"" +
+        " from=\"" + fullJid_ + "\" " +
+        " type=\"chat\">" +
+        (isGTalk_ ? "  <nos:x value=\"disabled\" xmlns:nos=\"google:nosave\"/>" : "") +
+        "  <body>" + msg + "</body>" +
+        "</message>");
+  }
+  
+  /**
+   * Creates a new {@link ChatSession} with a {@link Contact}
+   * 
+   * @param user {@link Contact} to start the session with
+   * @return New {@link ChatSession}
+   */
+  public ChatSession startChatSession(Contact user)
+  {
+    ChatSession cs = new ChatSession(this);
+    chatSessionList_.addElement(cs);
+
+    cs.addContact(user);
+
+    return cs;
+  }
+  
+  /**
+   * Runs the listener {@link Thread}. It periodicaly checks the
+   * connections inbound buffer for new messages 
+   */
+  public void run()
+  {
+    stop_ = false;
+    
+    /* Loop while manualy stopped */
+    while (!stop_)
     {
-      while ((ch = dis.readByte()) != -1)
-      {
-        if (ch == '\n')
-          return s;
-        s += (char) ch;
+      /* Timeout */
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
+      
+      /* Fetch and parse reply */
+      XmlNode x = XmlNode.parse(sh_.getReply());
+      if (x != null)
+        for (int i = 0; i < x.childs.size(); i++)
+        {
+          JabberParseXML.parse(
+              (XmlNode)x.childs.elementAt(i), 
+              this, 
+              jimmy_);
+        }
     }
 
-    return s;
+    sh_.disconnect();
+    status_ = DISCONNECTED;
+  }
+  
+  /**
+   * Sets authentications success
+   * 
+   * @param s Authentications success
+   */
+  protected void setAuthStatus(boolean s)
+  {
+    if (s) status_ = CONNECTED;
+    else status_ = DISCONNECTED;
   }
 }
