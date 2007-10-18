@@ -1,7 +1,7 @@
 /*
  * ChatWindow.java
  *
- * Created on Četrtek, 27 julij 2006, 2:45
+ * Created on Cetrtek, 27 julij 2006, 2:45
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.

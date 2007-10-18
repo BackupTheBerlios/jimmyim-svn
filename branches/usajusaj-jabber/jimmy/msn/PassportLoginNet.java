@@ -40,7 +40,6 @@ public class PassportLoginNet
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        System.out.println("PassportLoginNet():"+TWNServer);
     }
     
     String proceedAuthorization(String twnserver, String twnpage, String body){
@@ -102,7 +101,7 @@ public class PassportLoginNet
 		    data = tmpData;
 	     }
              resp = new String(data, "UTF-8");             
-             System.out.println(resp);
+             //System.out.println("[DEBUG] "+resp);[
           } catch(IOException e ){
               e.printStackTrace();
               return null;
@@ -135,6 +134,15 @@ public class PassportLoginNet
             ( strChallenge != null ) )  {
             
             strChallenge = strChallenge.substring(0, strChallenge.length()-2);
+            
+            //System.out.println("[DEBUG] "+strChallenge);
+            
+            int tpfIndex=strChallenge.indexOf("tpf", 0);
+            if(tpfIndex!=-1) {
+                strChallenge=strChallenge.substring(0,tpfIndex-1);
+            }
+            //System.out.println("[DEBUG] "+strChallenge);
+            
             strChallenge = Utils.urlDecode(strChallenge);
             strChallenge = Utils.replace(",", "&",strChallenge);
             strChallenge = Utils.replace("&", "&amp;",strChallenge);

@@ -200,7 +200,7 @@ public class MSNProtocol extends Protocol
                 /*System.out.println(data);
                 System.out.println("*************************************"); */
                 String NSredirectURL = data.substring(data.indexOf("NS")+3, data.indexOf(" ", 10));
-                //System.out.println(NSredirectURL);
+                //System.out.println("[DEBUG] Redirect URL:"+NSredirectURL);
                 this.sh.disconnect();
                 
                 
@@ -548,7 +548,7 @@ public class MSNProtocol extends Protocol
     private void parseContacts(String data)
     {  
         //Normal form:
-        //LST N=matevz.jekovec@guest.arnes.si F=Matev� C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
+        //LST N=matevz.jekovec@guest.arnes.si F=Matevz C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
         //Someone got a reply like this once(repeatedly):
         //LST N=p
         if(this.contacts_ == null) {

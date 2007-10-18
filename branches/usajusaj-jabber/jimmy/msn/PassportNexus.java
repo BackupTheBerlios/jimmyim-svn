@@ -1,7 +1,7 @@
 /*
  * PassportNexus.java
  *
- * Created on Èetrtek, 2006, april 20, 15:51
+ * Created on Cetrtek, 2006, april 20, 15:51
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
