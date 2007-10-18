@@ -3,6 +3,11 @@ package jimmy.util;
 import java.util.Hashtable;
 import java.util.Vector;
 
+/**
+ * Very light-weight xml parser
+ * 
+ * @author Matej Usaj
+ */
 public class XmlNode
 {
   public static final String ROOT = "ROOT";
@@ -21,11 +26,32 @@ public class XmlNode
     parseChilds(removeCurrTag(block));
   }
   
+  /**
+   * Parses string representation of an xml and constructs
+   * {@link XmlNode} tree structure representing parsed xml.<br><br>
+   * Root node never has value or attributes fields initialized,
+   * and declared. It's only a wrapper for actual xml structure, found
+   * in childs field. It's name is the same as ROOT constant field<br><br>
+   * 
+   * Example of use:<br><br>
+   * <code>
+   *   XmlNode xNode = XmlNode.parse(input);<br><br>
+   *   // Search for a tag (first occurance):<br>
+   *   XmlNode firstNodeByName = xNode.getFirstNode("name");<br><br>
+   *   // Get all nodes by name:<br>
+   *   Vector allNodes = xNode.getNodes("name");<br>
+   *   XmlNode node1 = (XmlNode) allNodes.elementAt(0);<br>
+   *   XmlNode node1 = ... // Keep allNodes.size() in mind (do iteration)<br>
+   * </code>
+   * 
+   * @param in Input flat xml
+   * @return root node
+   */
   public static XmlNode parse(String in)
   {
     if (in == null || in.equals(""))
       return null;
-    System.out.println(in);
+    System.out.println("[REC]:" + in);
     
     in = removeXmlHeader(in).trim();
     
@@ -100,6 +126,13 @@ public class XmlNode
         end).trim();
   }
   
+  /**
+   * Search for all nodes with a specified name
+   * 
+   * @param name Name of the requested nodes
+   * @return Collection ({@link Vector}) of nodes. Vectors size will be 0 if 
+   *    no nodes were found.
+   */
   public Vector getNodesByName(String name)
   {
     Vector v = new Vector();
@@ -114,12 +147,25 @@ public class XmlNode
     return v;
   }
   
+  /**
+   * Get first occurance of a node with a specified name.<br>
+   * This method goes in-depth first, not level-by-level
+   * 
+   * @param name Name of the requested node
+   * @return {@link XmlNode} node or null if the node was not found.
+   */
   public XmlNode getFirstNode(String name)
   {
     Vector v = getNodesByName(name);
     return v.size() == 0 ? null : (XmlNode)v.elementAt(0);
   }
   
+  /**
+   * Check if the xml contains a node with a specified name
+   * 
+   * @param name Name of the requested node
+   * @return true if the node was found, false otherwise.
+   */
   public boolean contains(String name)
   {
     return getNodesByName(name).size() != 0;

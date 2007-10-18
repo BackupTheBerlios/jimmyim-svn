@@ -3,7 +3,11 @@
  */
 package jimmy.util;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
+
+import com.sun.cldc.util.j2me.CalendarImpl;
 
 /**
  * @author Dejan Sakel?ak
@@ -615,5 +619,22 @@ public static String getStringBetweenTags(String Tag, String ClosingTag, String 
     }
 
     return result;
+  }
+  
+  /**
+   * Get string representation of current timestamp
+   * in "hh:mm:ss" format
+   *  
+   * @return Formatted date
+   */
+  public static String getCurrentTimestamp()
+  {
+    CalendarImpl cal = new CalendarImpl();
+    cal.setTime(new Date());
+    return 
+      cal.get(Calendar.HOUR_OF_DAY) + ":" +
+      cal.get(Calendar.MINUTE) + ":" +
+      cal.get(Calendar.SECOND);
+
   }
 }

@@ -55,7 +55,16 @@ public class JabberParseXML
       JabberProtocol protocol,
       ProtocolInteraction jimmy)
   {
-    if (x.name.equals("stream:features"))
+    if (x.name.equals("stream:stream") && 
+        x.getFirstNode("stream:error") != null)
+    {
+      XmlNode err = (XmlNode)x.getFirstNode("stream:error").childs.elementAt(0);
+      System.out.println(
+          "[INFO-JABBER] Stream error!: " +
+          err.name + "," + err.value);
+      protocol.setAuthStatus(false);
+    }
+    else if (x.name.equals("stream:features"))
     {
       parseStreamFeatures(x, protocol, jimmy);
     }
@@ -97,14 +106,18 @@ public class JabberParseXML
     }
   }
   
+  /**
+   * Parse the <<lit>iq</lit>> node and launch apropriate action
+   * 
+   * @param x {@link XmlNode} to parse
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
+   */
   private static void parseIq(
       XmlNode x, 
       JabberProtocol p, 
       ProtocolInteraction j)
   {
-    String from = (String)x.attribs.get("from");
-    String to = (String)x.attribs.get("to");
-    String type = (String)x.attribs.get("type");
     String id = (String)x.attribs.get("id");
     
     if (id != null && id.equals("sess"))
@@ -113,7 +126,8 @@ public class JabberParseXML
       return;
     }
     
-    XmlNode xNode = (XmlNode)x.childs.elementAt(0);
+    XmlNode xNode = 
+      x.childs.size() == 0 ? null : (XmlNode)x.childs.elementAt(0);
     if (xNode == null) return;
     
     if (xNode.name.equals("error"))
@@ -131,22 +145,20 @@ public class JabberParseXML
         for (int i = 0; i < v.size(); i++)
         {
           xNode = (XmlNode)v.elementAt(i);
-          Contact c = new Contact(
-              ((String)xNode.attribs.get("jid")).toLowerCase(), 
-              p, 
-              Contact.ST_OFFLINE, 
-              null, 
-              (String)xNode.attribs.get("name"));
-          if (xNode.contains("group"))
-            c.setGroupName(xNode.getFirstNode("group").value);
           
-          p.addContact(c);
-          j.addContact(c);
+          if (xNode.attribs.get("subscription").equals("both") ||
+              xNode.attribs.get("subscription").equals("to"))
+          {
+            updateContact(
+                ((String)xNode.attribs.get("jid")).toLowerCase(), 
+                (String)xNode.attribs.get("name"), 
+                xNode.getFirstNode("group") == null ? null : xNode.getFirstNode("group").value,
+                Byte.MAX_VALUE,
+                null,
+                p,
+                j);
+          }
         }
-      }
-      else if (xNode.attribs.get("xmlns").equals("jabber:iq:register"))
-      {
-        
       }
     }
     else if (xNode.name.equals("bind"))
@@ -160,81 +172,71 @@ public class JabberParseXML
     }
   }
   
+  /**
+   * Parse the <<lit>presence</lit>> node and launch apropriate action
+   * 
+   * @param x {@link XmlNode} to parse
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
+   */
   private static void parsePresence(
       XmlNode x, 
       JabberProtocol p, 
       ProtocolInteraction j)
   {
-    String from = (String)x.attribs.get("from");
-    if (Utils.stringContains(from, "/"))
-      from = from.substring(0, from.indexOf("/"));
+    String fromFull = (String)x.attribs.get("from");
+    String from = "";
+    if (Utils.stringContains(fromFull, "/"))
+      fromFull = fromFull.substring(0, fromFull.indexOf("/"));
 
-    if (from.equals(p.getAccount().getUser()))
+    if (fromFull.equals(p.getAccount().getUser()))
       return;
-
-    Contact c = p.getContact(from.toLowerCase());
-    if (c == null)
-    {
-      c = new Contact(from, p, Contact.ST_OFFLINE, null, from);
-      p.addContact(c);
-      j.addContact(c);
-    }
-
+    
     String type = (String)x.attribs.get("type");
-    if (type == null)
-    {
-      //contact is not off-line
-      XmlNode xNode = x.getFirstNode("show");
-      String show = "";
-      if (xNode != null)
-        show = xNode.value;
-        
-      if (show.equals(""))
-        c.setStatus(Contact.ST_ONLINE);
-      else if ((show.compareTo("away") == 0) || (show.compareTo("xa") == 0))
-        c.setStatus(Contact.ST_AWAY);
-      else if (show.compareTo("dnd") == 0)
-        c.setStatus(Contact.ST_BUSY);
-
-      //does a contact also include a message?
-      xNode = x.getFirstNode("status");
-      if (xNode != null)
-        c.setStatusMsg(xNode.value);
-
-      j.changeContactStatus(c);
-    }
-    else if (type.equals("unavailable"))
-    {
-      c.setStatus(Contact.ST_OFFLINE);
-      j.changeContactStatus(c);
-    }
-    else if (type.equals("unsubscribe"))
-    {
-      //a contact removed you from his list, keep the contact visible, but set it offline
-      c.setStatus(Contact.ST_OFFLINE);
-      j.changeContactStatus(c);
-    }
-    else if (type.equals("unsubscribed"))
-    {
-      //a contact removed you from his list, keep the contact visible, but set it offline
-      c.setStatus(Contact.ST_OFFLINE);
-      j.changeContactStatus(c);
-    }
-    else if (type.equals("subscribe"))
-    {
-      //a contact added you to his list
-      allowContact(c, p, j); //authorize contact to add
-    }
-    else if (type.equals("subscribed"))
-    {
-      //contact has added you to his list, set the contact's list
-      p.updateContactProperties(c); //authorize contact to add 
-
-      //Let them know about our status "online"
-      p.sh_.sendRequest("<presence type=\"available\"/>");
-    }
+    /* AUTOMATICALLY ACCEPTS INVITATION!!!!! */
+    if (type != null && type.equals("subscribe"))
+      p.sh_.sendRequest(
+          "<presence to=\"" + fromFull + "\" type=\"subscribed\"/>" +
+          "<presence from=\"" + p.fullJid_ + "\" to=\"" + fromFull + "\" type=\"subscribe\"/>");
+    
+    byte status = Byte.MAX_VALUE;
+    type = 
+        type != null ? 
+          type : 
+          (x.getFirstNode("show") != null ? 
+              ((XmlNode)x.getFirstNode("show")).value :
+              "");
+    
+    if(type.equals(""))
+      status = Contact.ST_ONLINE;
+    else if(type.equals("unavailable"))
+      status = Contact.ST_OFFLINE;
+    else if(type.equals("online"))
+      status = Contact.ST_ONLINE;
+    else if(type.equals("away"))
+      status = Contact.ST_AWAY;
+    else if(type.equals("xa"))
+      status = Contact.ST_AWAY;
+    else if(type.equals("dnd"))
+      status = Contact.ST_BUSY;
+    
+    updateContact(
+        from.equals("") ? fromFull : from, 
+        null, 
+        null, 
+        status, 
+        x.getFirstNode("status") == null ? null : ((XmlNode)x.getFirstNode("status")).value,
+        p, 
+        j);
   }
   
+  /**
+   * Parse the <<lit>message</lit>> node and launch apropriate action
+   * 
+   * @param x {@link XmlNode} to parse
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
+   */
   private static void parseMessage(
       XmlNode x,
       JabberProtocol p,
@@ -265,6 +267,13 @@ public class JabberParseXML
     j.msgRecieved(cs, c, xNode.value);
   }
   
+  /**
+   * Parse the <<lit>stream:features</lit>> node and launch apropriate action
+   * 
+   * @param x {@link XmlNode} to parse
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
+   */
   private static void parseStreamFeatures(
       XmlNode x,
       JabberProtocol p,
@@ -345,6 +354,13 @@ public class JabberParseXML
     }
   }
   
+  /**
+   * Parse the <<lit>challenge</lit>> node and launch apropriate action
+   * 
+   * @param x {@link XmlNode} to parse
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
+   */
   private static void parseChallenge(
       XmlNode x,
       JabberProtocol protocol,
@@ -514,28 +530,52 @@ public class JabberParseXML
   }
   
   /**
-   * Subscribe a contact
+   * Updates contacts information. If this contact does not exist, it makes
+   * a new instance of {@link Contact}
    * 
-   * @param c {@link Contact} to subscribe
-   * @param protocol {@link JabberProtocol} instance
-   * @param jimmy {@link ProtocolInteraction} instance
+   * @param jid Contacts jid
+   * @param name Contacts screen name
+   * @param group Contacts group name
+   * @param status Contacts status
+   * @param statusText Contacts personal message
+   * @param p {@link JabberProtocol} instance
+   * @param j {@link ProtocolInteraction} instance
    */
-  private static void allowContact(Contact c, JabberProtocol protocol,
-      ProtocolInteraction jimmy)
+  private static void updateContact(
+      String jid, 
+      String name, 
+      String group,
+      byte status,
+      String statusText,
+      JabberProtocol p,
+      ProtocolInteraction j)
   {
-    protocol.sh_.sendRequest(
-        "<presence " +
-        " from='" + protocol.fullJid_ + "'" +
-        " to='" + c.userID() + "'" +
-        " type='subscribed'/>");
-
-    if (protocol.getContact(c.userID()) == null)
+    Contact c = p.getContact(jid);
+    if (c == null)
     {
-      jimmy.addContact(c);
-      protocol.addContact(c);
+      c = new Contact(
+          jid, 
+          p, 
+          status == Byte.MAX_VALUE ? Contact.ST_OFFLINE : status, 
+          group, 
+          name);
+      c.setStatusMsg(statusText);
+      
+      p.addContact(c);
+      j.addContact(c);
+    }
+    else
+    {
+      if (name != null)
+        c.setScreenName(name);
+      if (group != null) 
+        c.setGroupName(group);
+      c.setStatus(status == Byte.MAX_VALUE ? c.status() : status);
+      c.setStatusMsg(statusText);
+      j.changeContactStatus(c);
     }
   }
-
+  
   /**
    * Calculates string representation of initial user status
    * Sets important Google settings
@@ -574,7 +614,7 @@ public class JabberParseXML
   /**
    * Get user status request
    */
-  protected static String getUserStatusXml(String fullJid)
+  protected static String getGTalkUserStatusXml(String fullJid)
   {
     return 
       "<iq type=\"get\" id=\"23\">" +

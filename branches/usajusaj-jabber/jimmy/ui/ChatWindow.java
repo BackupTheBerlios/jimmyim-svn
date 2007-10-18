@@ -8,18 +8,18 @@
  */
 
 package jimmy.ui;
-import jimmy.ChatSession;
-import jimmy.Contact;
+import java.util.Hashtable;
 
-import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.TextField;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextField;
 
-import java.util.Hashtable;
-import java.util.Calendar;
+import jimmy.ChatSession;
+import jimmy.Contact;
+import jimmy.util.Utils;
 
 /**
  *
@@ -54,7 +54,8 @@ public class ChatWindow extends Form implements CommandListener {
     
     public void commandAction(Command c, Displayable d){
 	if(c == (Command)commands_.get(new Integer(JimmyUI.CMD_SEND) )){
-	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
+//	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
+    String time = Utils.getCurrentTimestamp();
 	    String msg = ((TextField)get(size()-1)).getString();
 	    ((TextField)get(size()-1)).setString("");
 	    
@@ -73,7 +74,8 @@ public class ChatWindow extends Form implements CommandListener {
 	    else
 		name = c.userID();
 	    
-	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
+//	    String time = new String(Calendar.HOUR_OF_DAY+":"+Calendar.MINUTE+":"+Calendar.SECOND);
+      String time = Utils.getCurrentTimestamp();
 	    this.insert(size()-1,new StringItem(name+" - "+time+":",null));
 	    this.insert(size()-1,new StringItem(null,msg));	    
     }
