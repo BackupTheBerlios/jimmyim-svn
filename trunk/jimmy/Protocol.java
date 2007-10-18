@@ -23,7 +23,6 @@
 package jimmy;
 
 import java.util.Vector;
-import jimmy.*;
 
 /**
  * Astract class to be extended with implementations of various protocols.
@@ -190,4 +189,15 @@ public abstract class Protocol implements Runnable
      *  @param c contact to be removed
      */
     public abstract boolean removeContact(Contact c);
+    
+    /**
+     * Get String representation of contacts list
+     */
+    protected String contactsToString()
+    {
+      String s = "Contacts:\n";
+      for (int i = 0; i < contacts_.size(); i++)
+        s += ((String)contacts_.elementAt(i)).trim().equals("") ? "" : "\t" + contacts_.elementAt(i);
+      return s + "\n";
+    }
 }
