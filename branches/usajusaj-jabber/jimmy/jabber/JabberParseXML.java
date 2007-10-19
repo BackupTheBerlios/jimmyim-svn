@@ -44,6 +44,46 @@ import jimmy.util.XmlNode;
 public class JabberParseXML
 {
   /**
+   * Parse inbound xml for authentication 
+   * 
+   * @param x Received xml
+   * @param protocol {@link JabberProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instance
+   */
+  protected static void parseAuth(
+      XmlNode x, 
+      JabberProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    if (x.contains("stream:stream") && 
+        !x.contains("stream:features"))
+    {
+      protocol.isSasl_ = false;
+      protocol.fullJid_ = protocol.getAccount().getUser() + "/JimmyIM";
+      protocol.sh_.sendRequest(
+          "<iq type='set'>" +
+          "  <query xmlns='jabber:iq:auth'>" +
+          "    <username>" + 
+          protocol.getAccount().getUser().substring(0, protocol.getAccount().getUser().indexOf("@")) + 
+          "</username>" +
+          "    <password>" + protocol.getAccount().getPassword() + "</password>" +
+          "    <resource>" + "JimmyIM" + "</resource>" +
+          "  </query>" +
+          "</iq>");
+    }
+    else
+    {
+      for (int i = 0; i < x.childs.size(); i++)
+      {
+        parse(
+            (XmlNode)x.childs.elementAt(i), 
+            protocol, 
+            jimmy);
+      }
+    }
+  }  
+  
+  /**
    * Parse inbound xml and execute apropriate action
    * 
    * @param x Received xml
@@ -120,7 +160,9 @@ public class JabberParseXML
   {
     String id = (String)x.attribs.get("id");
     
-    if (id != null && id.equals("sess"))
+    if (id != null && (id.equals("sess") || 
+        (x.attribs.get("type").equals("result") && 
+            Utils.stringContains(id, "auth"))))
     {
       p.setAuthStatus(true);
       return;
@@ -130,14 +172,16 @@ public class JabberParseXML
       x.childs.size() == 0 ? null : (XmlNode)x.childs.elementAt(0);
     if (xNode == null) return;
     
-    if (xNode.name.equals("error"))
+    if (x.contains("error"))
     {
+      xNode = x.getFirstNode("error");
       System.out.println(
           "[INFO-JABBER] <IQ> error received: " +
           "Code=" + xNode.attribs.get("code") + " " +
           "Value=" + xNode.value);
     }
-    else if (xNode.name.equals("query"))
+    
+    if (xNode.name.equals("query"))
     {
       if (xNode.attribs.get("xmlns").equals("jabber:iq:roster"))
       {
