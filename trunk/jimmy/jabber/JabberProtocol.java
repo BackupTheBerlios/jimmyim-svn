@@ -59,6 +59,9 @@ public class JabberProtocol extends Protocol
   /** Is this a GTalk account */
   protected boolean isGTalk_;
   
+  /** Is Sasl */
+  protected boolean isSasl_ = true;
+  
   /** Full users jid in uname@domain/resource format */
   protected String fullJid_;
   
@@ -108,19 +111,13 @@ public class JabberProtocol extends Protocol
     sh_.connect(account.getUseSSL());
     if (!sh_.isConnected()) return false;
     sh_.sendRequest(JabberParseXML.getOpenStreamXml(domain_));
-
+    
     /* Authenticate with the server */
     while (status_ == CONNECTING)
     {
       XmlNode x = XmlNode.parse(sh_.getReply());
       if (x != null)
-        for (int i = 0; i < x.childs.size(); i++)
-        {
-          JabberParseXML.parse(
-              (XmlNode)x.childs.elementAt(i), 
-              this, 
-              jimmy_);
-        }
+        JabberParseXML.parseAuth(x, this, jimmy_);
     }
     
     /* Check if authentication failed */
