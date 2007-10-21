@@ -5,11 +5,11 @@ msgstr "V redu"
 
 #: ./jimmy/ui/JimmyUI.java:69
 msgid "Send"
-msgstr "Po?lji"
+msgstr "Pošlji"
 
 #: ./jimmy/ui/JimmyUI.java:70
 msgid "Cancel"
-msgstr "Prekli?i"
+msgstr "Prekliči"
 
 #: ./jimmy/ui/JimmyUI.java:71
 msgid "Yes"
@@ -21,7 +21,7 @@ msgstr "Ne"
 
 #: ./jimmy/ui/JimmyUI.java:73
 msgid "Find"
-msgstr "Poi??i"
+msgstr "Poišči"
 
 #: ./jimmy/ui/JimmyUI.java:74
 msgid "Back"
@@ -57,7 +57,7 @@ msgstr "Uredi"
 
 #: ./jimmy/ui/JimmyUI.java:82
 msgid "Accounts"
-msgstr "Ra?uni"
+msgstr "Računi"
 
 #: ./jimmy/ui/JimmyUI.java:83
 msgid "Add contact"
@@ -82,7 +82,7 @@ msgstr "Copyright (C) 2006  JIMMY Projekt\n"
 #: ./jimmy/ui/JimmyUI.java:132
 #: ./jimmy/ui/JimmyUI.java:232
 msgid "Alredy connected!"
-msgstr "?e povezan!"
+msgstr "Že povezan!"
 
 #: ./jimmy/ui/JimmyUI.java:241
 msgid "Connecting "
@@ -90,7 +90,7 @@ msgstr "Povezujem "
 
 #: ./jimmy/ui/JimmyUI.java:257
 msgid "Account is not connected!"
-msgstr "Ra?un ni povezan"
+msgstr "Račun ni povezan"
 
 #: ./jimmy/ui/About.java:44
 #: ./jimmy/ui/EditContact.java:61
@@ -125,7 +125,7 @@ msgstr "Ni skupine"
 #: ./jimmy/ui/NewAccount.java:118
 #: ./jimmy/ui/NewAccount.java:133
 msgid "Edit account "
-msgstr "Uredi ra?un"
+msgstr "Uredi račun"
 
 #: ./jimmy/ui/MainMenu.java:44
 #: ./jimmy/ui/ChatWindow.java:36
@@ -143,15 +143,15 @@ msgstr "Nalagam nastavitve..."
 
 #: ./jimmy/Jimmy.java:67
 msgid "Loading account data..."
-msgstr "Nalagam nastavitve ra?una..."
+msgstr "Nalagam nastavitve računa..."
 
 #: ./jimmy/Jimmy.java:69
 msgid "Optimizing store..."
-msgstr "Optimiziram skladi??e..."
+msgstr "Optimiziram skladišče..."
 
 #: ./jimmy/Jimmy.java:73
 msgid "Welcome to Jimmy!"
-msgstr "Dobrodo?li v Jimmyiju!"
+msgstr "Dobrodošli v Jimmyiju!"
 
 #: ./jimmy/Jimmy.java:85
 msgid "Connecting to "
@@ -162,11 +162,11 @@ msgid "Connecting to "
 msgstr "Povezovanje z "
 
 msgid " failed!!!"
-msgstr " neusp?no!!!"
+msgstr " neuspešno!!!"
 
 #: ./jimmy/Jimmy.java:104
 msgid "Welcome to Jimmy!"
-msgstr "Dobrodo?li v Jimmyiju!"
+msgstr "Dobrodošli v Jimmyiju!"
 
 #: ./jimmy/Jimmy.java:136
 msgid "Failed to connect! Check settings."
@@ -174,4 +174,4 @@ msgstr "Napaka pri povezovanju! Preveri nastavitve."
 
 #: ./jimmy/Jimmy.java:147
 msgid "Destroying Jimmy..."
-msgstr "Uni?ujem Jimmyja..."
+msgstr "Uničujem Jimmyja..."
