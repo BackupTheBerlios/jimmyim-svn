@@ -129,7 +129,7 @@ public class JimmyUI {
 		Localization.tr("JIMMY - Instant Mobile Messenger\n")+
 		Localization.tr("Copyright (C) 2006  JIMMY Project\n")+
                 "-------------------------------------\n"+
-                Localization.tr("Authors (sorted in alphabet order):\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc\n\n")+
+                Localization.tr("Authors (sorted in alphabet order):\n\tMatevz Jekovec,\n\tZoran Mesec,\n\tDejan Sakelsak,\n\tJAnez Urevc,\n\tMatej Ušaj\n\n")+
                 "WWW: http://jimmyim.berlios.de"; //[LOCALE]
         
 	/**
