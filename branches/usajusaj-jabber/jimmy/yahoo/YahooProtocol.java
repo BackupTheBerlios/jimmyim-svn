@@ -1,5 +1,5 @@
 /* JIMMY - Instant Mobile Messenger
-   Copyright (C) 2006  JIMMY Project
+ Copyright (C) 2006  JIMMY Project
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -31,85 +31,127 @@ import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 import jimmy.net.ServerHandler;
 
-public class YahooProtocol extends Protocol {
-	ServerHandler sh_;	//server handler reference - used for any outgoing/incoming connections
-	private final String DEFAULT_SERVER_ = "scs.msg.yahoo.com";	//default server name - if none set in user account
-	private final int DEFAULT_PORT_ = 5050;	//default server port - if none set in user account
+public class YahooProtocol extends Protocol
+{
+  private final static String MAGIC = "YMSG";
+  
+  private final String DEFAULT_SERVER_ = "scs.msg.yahoo.com";
+  private final int DEFAULT_PORT_ = 5050;
+  private final static int[] SEPARATOR = { 0xc0, 0x80 };
 
-	final static String NL_ = "" + (char)0xc0 + (char)0x80;	//key-value separator string
+  protected ServerHandler sh_;
+  protected Account account_;
+  
+  /* FOR HEADER */
+  private int service_;
+  private long ystatus_;
+  private long sessionId_;
 
-	public YahooProtocol(ProtocolInteraction jimmy) {
-		super(jimmy);
-		protocolType_ = YAHOO;
-		status_ = DISCONNECTED;
-	}
-	
-	public boolean login(Account account) {
-		String oString;
-		String iString=null;
-		
-		sh_ = new ServerHandler(DEFAULT_SERVER_, DEFAULT_PORT_);
-		sh_.setTimeout(10000);
-		sh_.connect();
-		if (sh_.isConnected() == false)
-			return false;
-		
-		//authentication 
-		oString = "YMSG" + (char)0x00 + (char)0x09 + (char)0x00 + (char)0x00;	//using Yahoo protocol version 9
-		oString = oString + (char)0x00 + (char)(account.getUser().length()+5);	//data length (yahoo username) + 2 separators(= 4 bytes) + key(=1 byte) written in big endian format
-		oString = oString + (char)0x00 + (char)0x57;	//YAHOO_SERVICE_AUTH
-		oString = oString + (char)0x00 + (char)0x00 + (char)0x00 + "0";	//status AVAILABLE
-		oString = oString + (char)0x00 + (char)0x00 + (char)0x00 + (char)0x00;	//session ID - 0 for the first AUTH request
-		oString = oString + "1" + NL_ + account.getUser() + NL_;	//1 : userID
-		
-		System.out.println("OUT:");
-		for (int i=0; i<oString.length(); i++)
-			System.out.println((int)oString.charAt(i));
-		sh_.sendRequest(oString);
+  public YahooProtocol(ProtocolInteraction jimmy)
+  {
+    super(jimmy);
+    protocolType_ = YAHOO;
+    status_ = DISCONNECTED;
+  }
 
-		iString = sh_.getReply();
-		System.out.println("IN:");
-		for (int i=0; i<iString.length(); i++)
-			System.out.println((int)iString.charAt(i));
-		
-		return false;
-	}
+  public boolean login(Account account)
+  {
+    status_ = CONNECTING;
+    account_ = account;
+    contacts_ = new Vector();
 
-	public void logout() {
-		this.sh_.disconnect();
-		this.status_ = DISCONNECTED;
-	}
+    account_.setUser(account_.getUser().toLowerCase());
+    account_.setServer(
+        account_.getServer() != null ? 
+            account_.getServer() :
+            DEFAULT_SERVER_);
+    account_.setPort(
+        account_.getPort() != 0 ? 
+            account_.getPort() : 
+            DEFAULT_PORT_);
 
-	public ChatSession startChatSession(Contact user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    sh_ = new ServerHandler(account_.getServer(), account_.getPort());
+    sh_.connect(account.getUseSSL());
+    if (!sh_.isConnected()) return false;
+    
+    service_ = YahooConstants.SERVICE_AUTH;
+    ystatus_ = YahooConstants.STATUS_AVAILABLE;
+    sessionId_ = 0L;
+    
+    byte[] body = addToBody(new byte[0], "0");
+    body = addToBody(body, account_.getUser());
+    body = addToBody(body, "1");
+    body = addToBody(body, account_.getUser());
+    
+    return false;
+  }
 
-	public void addContact(Contact c) {
-		// TODO Auto-generated method stub
+  public void logout()
+  {
+  }
 
-	}
+  public void addContact(Contact c)
+  {
+  }
 
-	public void sendMsg(String msg, ChatSession session) {
-		// TODO Auto-generated method stub
+  public boolean removeContact(Contact c)
+  {
+    return false;
+  }
 
-	}
+  public void sendMsg(String msg, ChatSession session)
+  {
+  }
 
-	public void sendMsg(String msg, Vector contactsList, ChatSession session) {
-		// TODO Auto-generated method stub
+  public void sendMsg(String msg, Vector contactsList, ChatSession session)
+  {
+  }
 
-	}
+  public ChatSession startChatSession(Contact user)
+  {
+    return null;
+  }
 
-	public void run() {
-		// TODO Auto-generated method stub
+  public void updateContactProperties(Contact c)
+  {
+  }
 
-	}
-        
-	public boolean removeContact(Contact c){
-		return false;
-	}
-	
-	public void updateContactProperties(Contact c) {
-		
-	}
+  public void run()
+  {
+  }
+  
+  private byte[] addToBody(byte[] oldBody, String data)
+  {
+    byte[] body = new byte[oldBody.length + data.length() + 2];
+    for (int i = 0; i < oldBody.length; i++)
+      body[i] = oldBody[i];
+    for (int i = oldBody.length; i < body.length; i++)
+      body[i] = (byte)data.charAt(i - oldBody.length);
+    
+    body[body.length - 2] = (byte)SEPARATOR[0];
+    body[body.length - 1] = (byte)SEPARATOR[1];
+    
+    return body;
+  }
+  
+  private void send(byte[] body)
+  {
+    
+  }
+  
+  private byte[] attachHeader(byte[] body)
+  {
+    byte[] message = new byte[body.length + 20];
+    
+    for (int i = 0; i < MAGIC.length(); i++)
+      message[i] = (byte)MAGIC.charAt(i); 
+    body[4] = (byte)SEPARATOR[0];
+    body[5] = (byte)SEPARATOR[1];
+    body[6] = (byte)0x0a;
+    for (int i = 7; i < 10; i++)
+      message[i] = (byte)0x00; 
+    
+    
+    return message;
+  }
 }
