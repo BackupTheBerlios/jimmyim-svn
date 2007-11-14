@@ -22,11 +22,14 @@
 
 package jimmy.net;
 
-import java.io.*;
-import java.lang.Thread;
-import javax.microedition.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 
-import jimmy.util.Utils;
+import javax.microedition.io.Connector;
+import javax.microedition.io.SocketConnection;
 
 /**
  * This class is used to connect to a remote server using SocketConnection class.
@@ -185,43 +188,8 @@ public class ServerHandler
      * @return Message from the remote server as a String in UTF-8 encoding, null if timeout has occured.
      */
     public String getReply()
-    {          
-        try 
-        {
-            byte[] buffer = null;
-            
-            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
-            if (bs!=0) {
-                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
-                this.is_.read(buffer);	//read the whole buffer in the array
-            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
-                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
-                    Thread.sleep(this.SLEEPTIME_);
-                    if ((bs = this.is_.available()) != 0) {
-                        buffer = new byte[bs];
-                        this.is_.read(buffer);
-                        break;
-                    }
-                }
-        	}
-            
-            if (buffer != null)
-            	return new String(buffer, "UTF-8"); //buffer was get, return the String
-            else
-            	return null;	//buffer was not get - timeout occured, return null
-        }catch (InterruptedIOException ex){
-//        		ex.printStackTrace();
-
-            return null;	
-        }catch (IOException ex){
-            ex.printStackTrace();
-
-            return null;
-        }catch (InterruptedException ex){
-            ex.printStackTrace();
-
-            return null;
-        }
+    {
+      return getReply(null);
     }
     
     /**
@@ -232,43 +200,19 @@ public class ServerHandler
      * @return Message from the remote server as a String in UTF-8 encoding, null if timeout has occured.
      */
     public String getReply(String enc)
-    {          
-        try 
-        {
-            byte[] buffer = null;
-            
-            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
-            if (bs!=0) {
-                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
-                this.is_.read(buffer);	//read the whole buffer in the array
-            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
-                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
-                    Thread.sleep(this.SLEEPTIME_);
-                    if ((bs = this.is_.available()) != 0) {
-                        buffer = new byte[bs];
-                        this.is_.read(buffer);
-                        break;
-                    }
-                }
-        	}
-            
-            if (buffer != null)
-            	return new String(buffer, enc); //buffer was get, return the String
-            else
-            	return null;	//buffer was not get - timeout occured, return null
-        }catch (InterruptedIOException ex){
-//        		ex.printStackTrace();
-
-            return null;	
-        }catch (IOException ex){
-            ex.printStackTrace();
-
-            return null;
-        }catch (InterruptedException ex){
-            ex.printStackTrace();
-
-            return null;
+    {
+      byte[] buffer = getReplyBytes();
+      if (buffer != null)
+      {
+        if (enc == null) enc = "UTF-8";
+        try {
+          return new String(buffer, enc);
+        } catch (UnsupportedEncodingException e) {
+          e.printStackTrace();
+          return null;
         }
+      }
+      return null;
     }    
     /**
      * Read a message from the remote server reading the waiting buffer. If waiting buffer is empty, wait until it gets filled or if timeout occurs.
@@ -299,8 +243,7 @@ public class ServerHandler
             
             if (buffer != null)
             	return buffer; //buffer was get, return the String
-            else
-            	return null;	//buffer was not get - timeout occured, return null
+          	return null;	//buffer was not get - timeout occured, return null
         }catch (InterruptedIOException ex){
 //        		ex.printStackTrace();
 

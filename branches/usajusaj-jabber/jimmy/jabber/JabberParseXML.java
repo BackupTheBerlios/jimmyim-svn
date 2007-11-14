@@ -50,7 +50,7 @@ public class JabberParseXML
    * @param protocol {@link JabberProtocol} instance
    * @param jimmy {@link ProtocolInteraction} instance
    */
-  protected static void parseAuth(
+  protected static final void parseAuth(
       XmlNode x, 
       JabberProtocol protocol,
       ProtocolInteraction jimmy)
@@ -120,7 +120,7 @@ public class JabberParseXML
     /* Reply to DIGEST-MD5 challenges */
     else if (x.name.equals("challenge"))
     {
-      parseChallenge(x, protocol, jimmy);
+      parseChallenge(x, protocol);
     }
     else if (x.name.equals("failure"))
     {
@@ -248,7 +248,7 @@ public class JabberParseXML
         type != null ? 
           type : 
           (x.getFirstNode("show") != null ? 
-              ((XmlNode)x.getFirstNode("show")).value :
+              x.getFirstNode("show").value :
               "");
     
     if(type.equals(""))
@@ -269,7 +269,7 @@ public class JabberParseXML
         null, 
         null, 
         status, 
-        x.getFirstNode("status") == null ? null : ((XmlNode)x.getFirstNode("status")).value,
+        x.getFirstNode("status") == null ? null : x.getFirstNode("status").value,
         p, 
         j);
   }
@@ -407,8 +407,7 @@ public class JabberParseXML
    */
   private static void parseChallenge(
       XmlNode x,
-      JabberProtocol protocol,
-      ProtocolInteraction jimmy)
+      JabberProtocol protocol)
   {
     System.out.println("[INFO-JABBER] Received challenge");
     String challenge = JabberMD5.decodeBase64(x.value);
@@ -625,32 +624,32 @@ public class JabberParseXML
    * Sets important Google settings
    * Informs Google Talk that we want to use GTalk features 
    */
-  protected static String getGTalkOptionsXml()
+  protected static final String getGTalkOptionsXml()
   {
-    return 
-      "<iq type=\"get\" id=\"6\">" +
-      "  <query xmlns=\"google:relay\"/>" +
-      "</iq>";
+    return new StringBuffer()
+      .append("<iq type=\"get\" id=\"6\">")
+      .append(  "<query xmlns=\"google:relay\"/>")
+      .append("</iq>").toString();
   }
   
   /**
    * Sends mail notification request to GTalk server
    */
-  protected static String getGTalkMailNotificationReqXml(String fullJid)
+  protected static final String getGTalkMailNotificationReqXml(String fullJid)
   {
-    return 
-      "<iq type=\"set\" to=\"" + fullJid + "\" id=\"15\">" +
-      "  <usersetting xmlns=\"google:setting\">" +
-      "    <autoacceptrequests value=\"false\"/>" +
-      "    <mailnotifications value=\"true\"/>" +
-      "  </usersetting>" +
-      "</iq>";
+    return new StringBuffer()
+      .append("<iq type=\"set\" to=\"").append(fullJid).append("\" id=\"15\">")
+      .append(  "<usersetting xmlns=\"google:setting\">")
+      .append(    "<autoacceptrequests value=\"false\"/>")
+      .append(    "<mailnotifications value=\"true\"/>")
+      .append(  "</usersetting>")
+      .append("</iq>").toString();
   }
   
   /**
    * Get presence request for GTalk
    */
-  protected static String getGTalkPresence()
+  protected static final String getGTalkPresence()
   {
     return "<presence><show></show><status></status></presence>";
   }
@@ -658,37 +657,37 @@ public class JabberParseXML
   /**
    * Get user status request
    */
-  protected static String getGTalkUserStatusXml(String fullJid)
+  protected static final String getGTalkUserStatusXml(String fullJid)
   {
-    return 
-      "<iq type=\"get\" id=\"23\">" +
-      "  <query xmlns=\"google:mail:notify\" " +
-      "    q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>" +
-      "</iq>" +
-      "<iq type=\"get\" to=\"" + fullJid + "\" id=\"21\">" +
-      "  <query xmlns=\"google:shared-status\"/>" +
-      "</iq>";
+    return new StringBuffer()
+      .append("<iq type=\"get\" id=\"23\">")
+      .append(  "<query xmlns=\"google:mail:notify\" ")
+      .append(    "q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>")
+      .append("</iq>")
+      .append("<iq type=\"get\" to=\"").append(fullJid).append("\" id=\"21\">")
+      .append(  "<query xmlns=\"google:shared-status\"/>")
+      .append("</iq>").toString();
   }
   
   /**
    * Get roster request
    */
-  protected static String getRosterXml()
+  protected static final String getRosterXml()
   {
-    return 
-      "<iq type=\"get\" id=\"roster\">" +
-      "  <query xmlns=\"jabber:iq:roster\"/>" +
-      "</iq>";
+    return new StringBuffer()
+      .append("<iq type=\"get\" id=\"roster\">")
+      .append(  "<query xmlns=\"jabber:iq:roster\"/>")
+      .append("</iq>").toString();
   }
   
   /**
    * Get open stream request
    */
-  protected static String getOpenStreamXml(String server)
+  protected static final String getOpenStreamXml(String server)
   {
-    return 
-      "<?xml version=\"1.0\"?>" +
-      "<stream:stream to=\"" + server + "\" xmlns=\"jabber:client\" " +
-      "  xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">";
+    return new StringBuffer()
+      .append("<?xml version=\"1.0\"?>")
+      .append("<stream:stream to=\"").append(server).append("\" xmlns=\"jabber:client\" ")
+      .append(  "xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">").toString();
   }
 }

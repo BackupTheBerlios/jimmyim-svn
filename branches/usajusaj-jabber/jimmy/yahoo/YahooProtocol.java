@@ -15,9 +15,9 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **********************************************************************
- File: jimmy/YahooProtocol.java
- Version: pre-alpha  Date: 2006/07/27
- Author(s): Matevz Jekovec
+ File: jimmy/yahoo/YahooProtocol.java
+ Version: pre-alpha  Date: 2007/07/27
+ Author(s): Matej Usaj
  */
 
 package jimmy.yahoo;
@@ -31,22 +31,32 @@ import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 import jimmy.net.ServerHandler;
 
+/**
+ * Yahoo protocol implementation class
+ * 
+ * @author Matej Usaj
+ */
 public class YahooProtocol extends Protocol
 {
-  private final static String MAGIC = "YMSG";
-  
+  /** default server name - if none set in user account */
   private final String DEFAULT_SERVER_ = "scs.msg.yahoo.com";
-  private final int DEFAULT_PORT_ = 5050;
-  private final static int[] SEPARATOR = { 0xc0, 0x80 };
-
-  protected ServerHandler sh_;
-  protected Account account_;
   
-  /* FOR HEADER */
-  private int service_;
-  private long ystatus_;
-  private long sessionId_;
+  /** default server port - if none set in user account*/
+  private final int DEFAULT_PORT_ = 5050;
+  
+  private final int AUTH_TIMEOUT = 30000;
 
+  /** server handler reference - used for any outgoing/incoming connections*/
+  protected ServerHandler sh_;
+  
+  /** stop the thread */
+  private boolean stop_;
+
+  /**
+   * Default constructor
+   * 
+   * @param jimmy {@link ProtocolInteraction} class
+   */
   public YahooProtocol(ProtocolInteraction jimmy)
   {
     super(jimmy);
@@ -54,8 +64,16 @@ public class YahooProtocol extends Protocol
     status_ = DISCONNECTED;
   }
 
+  /**
+   * Opens connection to yahoo server, authenticates, fills the contact list
+   * and does all necessary server interaction
+   * 
+   * @param account Users yahoo {@link Account}
+   * @return Authentications success
+   */
   public boolean login(Account account)
   {
+    /* Set the required variables */
     status_ = CONNECTING;
     account_ = account;
     contacts_ = new Vector();
@@ -70,20 +88,48 @@ public class YahooProtocol extends Protocol
             account_.getPort() : 
             DEFAULT_PORT_);
 
+    /* Create and open connection */
     sh_ = new ServerHandler(account_.getServer(), account_.getPort());
     sh_.connect(account.getUseSSL());
     if (!sh_.isConnected()) return false;
+    sh_.sendRequest(
+      YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_AUTH)
+        .setStatus(YahooConstants.STATUS_AVAILABLE)
+        .setSessionId(0L)
+        .append("0", account_.getUser())
+        .append("1", account_.getUser()).packPacket());
     
-    service_ = YahooConstants.SERVICE_AUTH;
-    ystatus_ = YahooConstants.STATUS_AVAILABLE;
-    sessionId_ = 0L;
+    /* Start the listener thread */
+    thread_.start();
+
+    /* Authenticate with the server */
+    int t = 0;
+    while (status_ == CONNECTING)
+    {
+      /* Timeout */
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      if ((t += 10) > AUTH_TIMEOUT)
+      {
+        status_ = NO_CONNECTION;
+        break;
+      }
+    }
     
-    byte[] body = addToBody(new byte[0], "0");
-    body = addToBody(body, account_.getUser());
-    body = addToBody(body, "1");
-    body = addToBody(body, account_.getUser());
+    /* Check if authentication failed */
+    if (status_ == DISCONNECTED ||
+        status_ == NO_CONNECTION ||
+        status_ == WRONG_PASSWORD)
+    {
+      stop_ = true;
+      return false;
+    }
     
-    return false;
+    return true;
   }
 
   public void logout()
@@ -116,42 +162,32 @@ public class YahooProtocol extends Protocol
   {
   }
 
+  /**
+   * Runs the listener {@link Thread}. It periodicaly checks the
+   * connections inbound buffer for new messages 
+   */
   public void run()
   {
-  }
-  
-  private byte[] addToBody(byte[] oldBody, String data)
-  {
-    byte[] body = new byte[oldBody.length + data.length() + 2];
-    for (int i = 0; i < oldBody.length; i++)
-      body[i] = oldBody[i];
-    for (int i = oldBody.length; i < body.length; i++)
-      body[i] = (byte)data.charAt(i - oldBody.length);
+    stop_ = false;
     
-    body[body.length - 2] = (byte)SEPARATOR[0];
-    body[body.length - 1] = (byte)SEPARATOR[1];
-    
-    return body;
-  }
-  
-  private void send(byte[] body)
-  {
-    
-  }
-  
-  private byte[] attachHeader(byte[] body)
-  {
-    byte[] message = new byte[body.length + 20];
-    
-    for (int i = 0; i < MAGIC.length(); i++)
-      message[i] = (byte)MAGIC.charAt(i); 
-    body[4] = (byte)SEPARATOR[0];
-    body[5] = (byte)SEPARATOR[1];
-    body[6] = (byte)0x0a;
-    for (int i = 7; i < 10; i++)
-      message[i] = (byte)0x00; 
-    
-    
-    return message;
+    /* Loop while manualy stopped */
+    while (!stop_)
+    {
+      /* Timeout */
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      
+      /* Fetch and process reply */
+      YahooWorker.processPacket(
+          YahooPacket.parsePacket(sh_.getReplyBytes()), 
+          this, 
+          jimmy_);
+    }
+
+    sh_.disconnect();
+    status_ = DISCONNECTED;
   }
 }
