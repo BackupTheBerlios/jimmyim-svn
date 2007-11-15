@@ -62,8 +62,8 @@ public class YahooWorker extends YahooConstants
       case SERVICE_CONFLOGON : System.out.println("[INFO-YAHOO] CONFLOGON"); break;
       case SERVICE_CONFMSG : System.out.println("[INFO-YAHOO] CONFMSG"); break;
       case SERVICE_CONTACTIGNORE: System.out.println("[INFO-YAHOO] CONTACTIGNORE"); break;
-      case SERVICE_CONTACTNEW : System.out.println("[INFO-YAHOO] CONTACTNEW"); break;
-      case SERVICE_FRIENDADD : System.out.println("[INFO-YAHOO] FRIENDADD"); break;
+      case SERVICE_CONTACTNEW : System.out.println("[INFO-YAHOO] CONTACTNEW"); doNewContactRequest(packet, protocol, jimmy); break;
+      case SERVICE_FRIENDADD : System.out.println("[INFO-YAHOO] FRIENDADD"); doFriendAdd(packet, protocol, jimmy); break;
       case SERVICE_FRIENDREMOVE : System.out.println("[INFO-YAHOO] FRIENDREMOVE"); break;
       case SERVICE_IDACT : System.out.println("[INFO-YAHOO] IDACT"); break;
       case SERVICE_IDDEACT : System.out.println("[INFO-YAHOO] IDDEACT"); break;
@@ -171,6 +171,8 @@ public class YahooWorker extends YahooConstants
       YahooProtocol protocol,
       ProtocolInteraction jimmy)
   {
+    System.out.println(packet.ystatus_);
+    
     if (packet.hasKey("14"))
     {
       Vector tos = packet.getValues("5");
@@ -218,7 +220,7 @@ public class YahooWorker extends YahooConstants
     jimmy.msgRecieved(cs, c, message);
   }
   
-  private static void processContact(
+  protected static void processContact(
       String id,
       Protocol protocol,
       byte status,
@@ -233,9 +235,9 @@ public class YahooWorker extends YahooConstants
           id, 
           protocol,
           status == (byte)-1 ? Contact.ST_ONLINE : status,
-          group,
+          group == null ? "JimmyIM" : group,
           screenName);
-      protocol.addContact(c);
+      protocol.getContacts().addElement(c);
       jimmy.addContact(c);
     }
     
@@ -246,6 +248,20 @@ public class YahooWorker extends YahooConstants
   }
   
   private static void doLogon(
+      YahooPacket packet,
+      YahooProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    parseContact(packet, protocol, jimmy);
+    
+    protocol.setAuthStatus(true);
+    protocol.sh_.sendRequest(YahooPacket.createPacket()
+        .setService(SERVICE_ISBACK)
+        .setStatus(STATUS_AVAILABLE)
+        .append("10", Long.toString(STATUS_AVAILABLE)).packPacket());
+  }
+  
+  private static void parseContact(
       YahooPacket packet,
       YahooProtocol protocol,
       ProtocolInteraction jimmy)
@@ -264,12 +280,58 @@ public class YahooWorker extends YahooConstants
           processContact(id, protocol, Contact.ST_ONLINE, null, null, jimmy);
       }
     }
-    
-    protocol.setAuthStatus(true);
-    byte[] p = YahooPacket.createPacket()
-      .setService(SERVICE_ISBACK)
-      .setStatus(STATUS_AVAILABLE)
-      .append("10", Long.toString(STATUS_AVAILABLE)).packPacket();
-    protocol.sh_.sendRequest(p);
+  }
+  
+  private static void doNewContactRequest(
+      YahooPacket packet,
+      YahooProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    if (packet.message.size() != 0)
+    {
+      if (packet.hasKey("7"))
+        parseContact(packet, protocol, jimmy);
+      else if (packet.ystatus_ == 0x07)
+      {
+        /* Rejected */
+        String from = packet.getValue("3");
+        protocol.sh_.sendRequest(YahooPacket.createPacket()
+            .setService(SERVICE_FRIENDREMOVE)
+            .setStatus(STATUS_AVAILABLE)
+            .append("1", protocol.getAccount().getUser())
+            .append("7", from)
+            .append("65", "JimmyIM")/* group */
+            .packPacket());
+        protocol.removeContact(protocol.getContact(from));
+      }
+      else
+      {
+        /* Requested */
+        String from = packet.getValue("3");
+        if (from == null) return;
+        protocol.sh_.sendRequest(YahooPacket.createPacket()
+            .setService(SERVICE_FRIENDADD)
+            .setStatus(STATUS_AVAILABLE)
+            .append("1", protocol.getAccount().getUser())
+            .append("7", from)
+            .append("65", "JimmyIM")/* group */
+            .packPacket());
+        processContact(from, protocol, Contact.ST_ONLINE, "JimmyIM", null, jimmy);
+      }
+    }
+  }
+  
+  private static void doFriendAdd(
+      YahooPacket packet,
+      YahooProtocol protocol,
+      ProtocolInteraction jimmy)
+  {
+    processContact(
+        packet.getValue("7"), 
+        protocol, 
+        Long.parseLong(packet.getValue("66")) == STATUS_OFFLINE ? Contact.ST_OFFLINE : Contact.ST_ONLINE, 
+        packet.getValue("65"), 
+        null,
+        jimmy);
   }
 }

@@ -158,7 +158,31 @@ public class YahooProtocol extends Protocol
   {
     if (getContact(c.userID()) != null)
       return;
+    
+    if (c.groupName() == null || c.groupName().length() == 0)
+      c.setGroupName("JimmyIM");
+    
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_FRIENDADD)
+        .setStatus(YahooConstants.STATUS_AVAILABLE)
+        .append("1", account_.getUser())
+        .append("7", c.userID())
+        .append("65", c.groupName())/* group */
+        .packPacket());
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_CONTACTIGNORE)
+        .setStatus(YahooConstants.STATUS_OFFLINE)
+        .append("1", account_.getUser())
+        .append("7", c.userID())
+        .append("13", "2")
+        .packPacket());
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_ISBACK)
+        .setStatus(YahooConstants.STATUS_AVAILABLE)
+        .append("10", Long.toString(YahooConstants.STATUS_AVAILABLE)).packPacket());
 
+    
+//    jimmy_.addContact(c);
     contacts_.addElement(c);
   }
 
@@ -173,9 +197,41 @@ public class YahooProtocol extends Protocol
     if (getContact(c.userID()) == null)
       return false;
     
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_FRIENDREMOVE)
+        .setStatus(YahooConstants.STATUS_OFFLINE)
+        .append("1", account_.getUser())
+        .append("7", c.userID())
+        .append("65", c.groupName() == null ? "JimmyIM" : c.groupName())
+        .packPacket());
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_CONTACTREJECT)
+        .setStatus(YahooConstants.STATUS_OFFLINE)
+        .append("1", account_.getUser())
+        .append("7", c.userID())
+        .append("14", "")
+        .packPacket());
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_CONTACTIGNORE)
+        .setStatus(YahooConstants.STATUS_OFFLINE)
+        .append("1", account_.getUser())
+        .append("7", c.userID())
+        .append("13", "1")
+        .packPacket());
+    
     contacts_.removeElement(c);
 
     return true;
+  }
+
+  /**
+   * Updates contacts data
+   * 
+   * @param c {@link Contact} to update
+   */
+  public void updateContactProperties(Contact c)
+  {
+    jimmy_.changeContactStatus(c);
   }
 
   /**
@@ -240,15 +296,6 @@ public class YahooProtocol extends Protocol
     cs.addContact(user);
 
     return cs;
-  }
-
-  /**
-   * Updates contacts data
-   * 
-   * @param c {@link Contact} to update
-   */
-  public void updateContactProperties(Contact c)
-  {
   }
 
   /**

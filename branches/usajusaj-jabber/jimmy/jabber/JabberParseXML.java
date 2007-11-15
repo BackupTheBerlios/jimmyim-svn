@@ -355,11 +355,13 @@ public class JabberParseXML
       {
         System.out.println("[INFO-JABBER] Using X-GOOGLE-TOKEN");
         p.isGTalk_ = true;
+        int endI = p.getAccount().getUser().indexOf("@");
+        if (endI == -1) endI = p.getAccount().getUser().length();
         auth += "mechanism=\"X-GOOGLE-TOKEN\">";
         auth += getGoogleToken(
             p.getAccount().getUser().substring(
                 0, 
-                p.getAccount().getUser().indexOf("@")),
+                endI),
             p.getAccount().getPassword());
         auth += "</auth>";
       }
@@ -420,10 +422,12 @@ public class JabberParseXML
       String nonce = challenge.substring(nonceIndex, challenge.indexOf('\"', nonceIndex));
       String cnonce = "123456789abcd";
       
+      int endI = protocol.getAccount().getUser().indexOf("@");
+      if (endI == -1) endI = protocol.getAccount().getUser().length();
       String t = responseMd5Digest(
           protocol.getAccount().getUser().substring(
               0, 
-              protocol.getAccount().getUser().indexOf("@")),
+              endI),
           protocol.getAccount().getPassword(), 
           protocol.getAccount().getServer(), 
           "xmpp/" + protocol.getAccount().getServer(), 
