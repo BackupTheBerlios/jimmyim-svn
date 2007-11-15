@@ -42,8 +42,8 @@ public class NewAccount extends Form implements CommandListener {
     final private TextField server_   = new TextField(Localization.tr("Server:"),      "", 30, TextField.ANY     ); //[LOCALE]
     final private TextField port_     = new TextField(Localization.tr("Port:"),        "", 10, TextField.DECIMAL ); //[LOCALE]
     
-    //final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
-    final private String[] protocols_ = {"Jabber","ICQ","MSN"};
+    final private String[] protocols_ = {"Jabber","ICQ","MSN","Yahoo"};
+//    final private String[] protocols_ = {"Jabber","ICQ","MSN"};
     final private String[] auto_ = {"No","Yes"};
     final private ChoiceGroup protocol_ = new ChoiceGroup(Localization.tr("Protocol:"),Choice.EXCLUSIVE,protocols_, null); //[LOCALE]
     final private ChoiceGroup autoLogin_ = new ChoiceGroup(Localization.tr("AutoLogin:"),Choice.EXCLUSIVE,auto_,null); //[LOCALE]

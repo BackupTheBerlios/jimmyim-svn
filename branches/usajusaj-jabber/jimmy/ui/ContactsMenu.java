@@ -375,9 +375,9 @@ public class ContactsMenu extends List implements CommandListener {
 		    break;
 		case Protocol.YAHOO:
 		    if(c.status() == Contact.ST_OFFLINE)
-			image = Image.createImage("/jimmy/media/msn-offline.png");
+			image = Image.createImage("/jimmy/media/yahoo-offline.png");
 		    else
-			image = Image.createImage("/jimmy/media/msn-online.png");		
+			image = Image.createImage("/jimmy/media/yahoo-online.png");		
 		    break;	
 	    }   
 	}catch(Exception e){System.out.println("[ERROR] Failed loading contact icon:"+e.getMessage());};

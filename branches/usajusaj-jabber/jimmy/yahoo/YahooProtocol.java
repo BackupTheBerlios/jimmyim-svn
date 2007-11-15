@@ -44,7 +44,11 @@ public class YahooProtocol extends Protocol
   /** default server port - if none set in user account*/
   private final int DEFAULT_PORT_ = 5050;
   
+  /** Max time for authentication to complete its process (in ms) */
   private final int AUTH_TIMEOUT = 30000;
+  
+  /** Ping packet interval (in ms) */
+  private final int PING_TIMEOUT = 60000;
 
   /** server handler reference - used for any outgoing/incoming connections*/
   protected ServerHandler sh_;
@@ -132,32 +136,117 @@ public class YahooProtocol extends Protocol
     return true;
   }
 
+  /**
+   * Sends "offline" status and stops the listener thread
+   */
   public void logout()
   {
+    System.out.println("[INFO-YAHOO] LOGOUT");
+    sh_.sendRequest(YahooPacket.createPacket()
+        .setService(YahooConstants.SERVICE_LOGOFF)
+        .setStatus(YahooConstants.STATUS_OFFLINE)
+        .append("0", account_.getUser()).packPacket());
+    stop_ = true;
   }
 
+  /**
+   * Adds new contact to Yahoo account
+   * 
+   * @param c New {@link Contact} to subscribe to
+   */
   public void addContact(Contact c)
   {
+    if (getContact(c.userID()) != null)
+      return;
+
+    contacts_.addElement(c);
   }
 
+  /**
+   * Removes a contact from Yahoo account
+   * 
+   * @param c {@link Contact} to unsubscribe from
+   * @return Removal success
+   */
   public boolean removeContact(Contact c)
   {
-    return false;
+    if (getContact(c.userID()) == null)
+      return false;
+    
+    contacts_.removeElement(c);
+
+    return true;
   }
 
+  /**
+   * Sends a message to all contacts in a {@link ChatSession}
+   * 
+   * @param msg Message to send
+   * @param session {@link ChatSession} to send message to
+   */
   public void sendMsg(String msg, ChatSession session)
   {
+    for (int i = 0; i < session.countContacts(); i++)
+      sendMsg(msg, ((Contact) session.getContactsList().elementAt(i)).userID());
   }
 
+  /**
+   * Sends a message to specific contacts in a {@link ChatSession}
+   * 
+   * @param msg Message to send
+   * @param contactsList {@link Vector} containing contacts to send message to
+   * @param session {@link ChatSession} to send message to
+   */
   public void sendMsg(String msg, Vector contactsList, ChatSession session)
   {
+    for (int i = 0; i < session.countContacts(); i++)
+    {
+      if (!contactsList.contains(session.getContactsList().elementAt(i)))
+        continue;
+      
+      sendMsg(msg, ((Contact) session.getContactsList().elementAt(i)).userID());
+    }
   }
 
+  /**
+   * Sends a message to a user
+   * 
+   * @param msg Message to send
+   * @param to Receivers jid
+   */
+  private void sendMsg(String msg, String to)
+  {
+    sh_.sendRequest(YahooPacket.createPacket()
+      .setService(YahooConstants.SERVICE_MESSAGE)
+      .setStatus(YahooConstants.STATUS_OFFLINE)
+      .append("0", account_.getUser())
+      .append("1", account_.getUser())
+      .append("5", to)
+      .append("14", msg)
+      .append("64", "0").packPacket());
+  }
+
+  /**
+   * Creates a new {@link ChatSession} with a {@link Contact}
+   * 
+   * @param user {@link Contact} to start the session with
+   * @return New {@link ChatSession}
+   */
   public ChatSession startChatSession(Contact user)
   {
-    return null;
+    ChatSession cs = new ChatSession(this);
+    chatSessionList_.addElement(cs);
+
+    cs.addContact(user);
+
+    return cs;
   }
 
+  /**
+   * Updates contacts data
+   * 
+   * @param c {@link Contact} to update
+   */
   public void updateContactProperties(Contact c)
   {
   }
@@ -170,6 +259,7 @@ public class YahooProtocol extends Protocol
   {
     stop_ = false;
     
+    int pingCount = 0;
     /* Loop while manualy stopped */
     while (!stop_)
     {
@@ -180,14 +270,46 @@ public class YahooProtocol extends Protocol
         e.printStackTrace();
       }
       
-      /* Fetch and process reply */
-      YahooWorker.processPacket(
-          YahooPacket.parsePacket(sh_.getReplyBytes()), 
-          this, 
-          jimmy_);
+      byte[] reply = sh_.getReplyBytes();
+      if (reply == null)
+      {
+        System.out.println("[INFO-YAHOO] NULL PACKET");
+        continue;
+      }
+      
+      Vector v = YahooPacket.splitPacket(reply);
+      for (int i = 0; i < v.size(); i++)
+      {
+        YahooPacket packet = YahooPacket.parsePacket((byte[])v.elementAt(i));
+        
+        /* Fetch and process reply */
+        YahooWorker.processPacket(
+            packet, 
+            this, 
+            jimmy_);
+      }
+
+      if ((pingCount += 1000) >= PING_TIMEOUT)
+      {
+        sh_.sendRequest(YahooPacket.createPacket()
+            .setService(YahooConstants.SERVICE_PING)
+            .setStatus(YahooConstants.STATUS_AVAILABLE).packPacket());
+        pingCount = 0;
+      }
     }
 
     sh_.disconnect();
     status_ = DISCONNECTED;
+  }
+  
+  /**
+   * Sets authentications success
+   * 
+   * @param s Authentications success
+   */
+  protected void setAuthStatus(boolean s)
+  {
+    if (s) status_ = CONNECTED;
+    else status_ = DISCONNECTED;
   }
 }

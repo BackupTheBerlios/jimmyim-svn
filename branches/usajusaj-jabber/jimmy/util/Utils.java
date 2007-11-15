@@ -631,13 +631,24 @@ public class Utils {
    */
   public static String getCurrentTimestamp()
   {
+    return formatDate(new Date());
+  }
+  
+  public static String formatDate(Date d)
+  {
     CalendarImpl cal = new CalendarImpl();
-    cal.setTime(new Date());
-    return 
-      cal.get(Calendar.HOUR_OF_DAY) + ":" +
-      cal.get(Calendar.MINUTE) + ":" +
-      cal.get(Calendar.SECOND);
-
+    cal.setTime(d);
+    return new StringBuffer()
+      .append(cal.get(Calendar.HOUR_OF_DAY)).append(":")
+      .append(padInt(cal.get(Calendar.MINUTE))).append(":")
+      .append(padInt(cal.get(Calendar.SECOND))).toString();
+  }
+  
+  private static String padInt(int i)
+  {
+    if (i < 10)
+      return "0" + i;
+    return String.valueOf(i);
   }
   
   public static byte[] subArray(byte[] b, int off, int len)
