@@ -89,7 +89,6 @@ public class YahooWorker extends YahooConstants
     try
     {
       String[] s = YahooChallengeResponse.getStrings(
-          protocol.getAccount().getUser(), 
           protocol.getAccount().getPassword(), 
           challenge);
       byte[] msg = YahooPacket.createPacket()

@@ -11,93 +11,52 @@ import jimmy.util.Utils;
 
 public class YahooChallengeResponse
 { // -----These lookup tables are used in decoding the challenge string
-  private final static String ALPHANUM_LOOKUP = "qzec2tb3um1olpar8whx4dfgijknsvy5"; // 32
-                                                                                    // chars
+  private final static String ALPHANUM_LOOKUP = "qzec2tb3um1olpar8whx4dfgijknsvy5"; // 32 chars
   private final static String OPERATORS_LOOKUP = "+|&%/*^-"; // 8 chars
   // -----These lookup tables are used in encoding the response strings
-  private final static String ENCODE1_LOOKUP = "FBZDWAGHrJTLMNOPpRSKUVEXYChImkwQ"; // 32
-                                                                                    // chars
+  private final static String ENCODE1_LOOKUP = "FBZDWAGHrJTLMNOPpRSKUVEXYChImkwQ"; // 32 chars
   private final static String ENCODE2_LOOKUP = "F0E1D2C3B4A59687abcdefghijklmnop"; // Ditto
   private final static String ENCODE3_LOOKUP = ",;";
-  
-  private final static boolean DB = false; // Debug
-  private final static boolean DB2 = false; // Debug deep
+  private final static String Y64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789._";
   
   // -----Buffer for binary data, and resource filename
   private static byte[] data;
   private final static String BIN_FILE = "/jimmy/media/yahoo_challenge.bin";
   
+  // -----Defines for constants in table below
+  public final static int IDENT = 1;
+  public final static int XOR = 2;
+  public final static int MULADD = 3;
+  public final static int LOOKUP = 4;
+  public final static int BITFLD = 5;
+  // -----Const names for three entries in inner array of table below
+  public final static int OP = 0;
+  public final static int ARG1 = 1;
+  public final static int ARG2 = 2;
+  
+  protected static MessageDigest md5Obj;
+  
   public static final char[] TABLE_OFFSETS =
     {0, 256, 512, 544, 800, 832, 1088, 1120, 1376, 1408, // Tables 0 - 9 (1408)
-    1664, 1696, 1952, 1984, 2240, 2272, 2528, 2784, 3040, 3296, // Tables 10 -
-                                                                // 19 (1888)
-    3552, 3584, 3840, 3872, 4128, 4384, 4416, 4448, 4704, 4736, // Tables 20 -
-                                                                // 29 (1440)
-    4992, 5024, 5280, 5536, 5792, 6048, 6304, 6560, 6816, 7072, // Tables 30 -
-                                                                // 39 (2336)
-    7104, 7136, 7168, 7200, 7456, 7488, 7744, 8000, 8032, 8064, // Tables 40 -
-                                                                // 49 (992)
-    8096, 8128, 8160, 8416, 8672, 8704, 8736, 8992, 9248, 9504, // Tables 50 -
-                                                                // 59 (1440)
-    9760, 9792, 10048, 10304, 10560, 10592, 10624, 10656, 10912, 11168, // Tables
-                                                                        // 60 -
-                                                                        // 69
-                                                                        // (1664)
-    11424, 11680, 11712, 11968, 12224, 12480, 12736, 12992, 13024, 13056, // Tables
-                                                                          // 70 -
-                                                                          // 79
-                                                                          // (1888)
-    13088, 13344, 13376, 13632, 13664, 13696, 13952, 13984, 14016, 14048, // Tables
-                                                                          // 80 -
-                                                                          // 89
-                                                                          // (992)
-    14080, 14336, 14368, 14400, 14656, 14688, 14720, 14976, 15232, 15488, // Tables
-                                                                          // 90 -
-                                                                          // 99
-                                                                          // (1440)
-    15520, 15776, 15808, 15840, 15872, 16128, 16384, 16416, 16448, 16704, // Tables
-                                                                          // 100
-                                                                          // -
-                                                                          // 109
-                                                                          // (1216)
-    16960, 17216, 17248, 17504, 17760, 17792, 18048, 18080, 18336, 18592, // Tables
-                                                                          // 110
-                                                                          // -
-                                                                          // 119
-                                                                          // (1888)
-    18624, 18880, 18912, 19168, 19424, 19680, 19712, 19744, 20000, 20032, // Tables
-                                                                          // 120
-                                                                          // -
-                                                                          // 129
-                                                                          // (1440)
-    20288, 20320, 20352, 20608, 20864, 20896, 21152, 21408, 21440, 21472, // Tables
-                                                                          // 130
-                                                                          // -
-                                                                          // 139
-                                                                          // (1440)
-    21504, 21536, 21792, 22048, 22080, 22112, 22368, 22624, 22656, 22912, // Tables
-                                                                          // 140
-                                                                          // -
-                                                                          // 149
-                                                                          // (1440)
-    22944, 23200, 23456, 23488, 23520, 23776, 24032, 24288, 24320, 24576, // Tables
-                                                                          // 150
-                                                                          // -
-                                                                          // 159
-                                                                          // (1664)
-    24832, 25088, 25344, 25600, 25632, 25664, 25920, 26176, 26432, 26688, // Tables
-                                                                          // 160
-                                                                          // -
-                                                                          // 169
-                                                                          // (2112)
-    26944, 27200, 27232, 27264, 27296, 27328, 27360, 27392, 27648, 27904, // Tables
-                                                                          // 170
-                                                                          // -
-                                                                          // 179
-                                                                          // (1216)
-    28160, 28416, 28672, 28928, 28960, 28992, 29248, 29504, // Tables 180 - 187
-                                                            // (1632)
-    29536 // Length of file
+    1664, 1696, 1952, 1984, 2240, 2272, 2528, 2784, 3040, 3296, 
+    3552, 3584, 3840, 3872, 4128, 4384, 4416, 4448, 4704, 4736, 
+    4992, 5024, 5280, 5536, 5792, 6048, 6304, 6560, 6816, 7072, 
+    7104, 7136, 7168, 7200, 7456, 7488, 7744, 8000, 8032, 8064, 
+    8096, 8128, 8160, 8416, 8672, 8704, 8736, 8992, 9248, 9504, 
+    9760, 9792, 10048, 10304, 10560, 10592, 10624, 10656, 10912, 11168,
+    11424, 11680, 11712, 11968, 12224, 12480, 12736, 12992, 13024, 13056,
+    13088, 13344, 13376, 13632, 13664, 13696, 13952, 13984, 14016, 14048,
+    14080, 14336, 14368, 14400, 14656, 14688, 14720, 14976, 15232, 15488,
+    15520, 15776, 15808, 15840, 15872, 16128, 16384, 16416, 16448, 16704,
+    16960, 17216, 17248, 17504, 17760, 17792, 18048, 18080, 18336, 18592,
+    18624, 18880, 18912, 19168, 19424, 19680, 19712, 19744, 20000, 20032,
+    20288, 20320, 20352, 20608, 20864, 20896, 21152, 21408, 21440, 21472,
+    21504, 21536, 21792, 22048, 22080, 22112, 22368, 22624, 22656, 22912,
+    22944, 23200, 23456, 23488, 23520, 23776, 24032, 24288, 24320, 24576,
+    24832, 25088, 25344, 25600, 25632, 25664, 25920, 26176, 26432, 26688,
+    26944, 27200, 27232, 27264, 27296, 27328, 27360, 27392, 27648, 27904,
+    28160, 28416, 28672, 28928, 28960, 28992, 29248, 29504,
+    29536
     };
   
   // -----------------------------------------------------------------
@@ -107,13 +66,8 @@ public class YahooChallengeResponse
   {
     try
     { // -----Open stream to resource located next to this class
-    // Class v10 = Class.forName("ymsg.network.ChallengeResponseV10");
-    // DataInputStream dis = new
-    // DataInputStream(v10.getResourceAsStream(BIN_FILE));
       Class challenge = Class.forName("jimmy.yahoo.YahooChallengeResponse");
       DataInputStream dis = new DataInputStream(challenge.getResourceAsStream(BIN_FILE));
-      // DataInputStream dis = new DataInputStream(new
-      // FileInputStream(BIN_FILE));
       data = new byte[dis.available()];
       // -----Extra entry at end of offset table has entire file size
       if (data.length < TABLE_OFFSETS[TABLE_OFFSETS.length - 1])
@@ -130,383 +84,6 @@ public class YahooChallengeResponse
   }
   
   // -----------------------------------------------------------------
-  // Given a username, password and challenge string, this code returns
-  // the two valid response strings needed to login to Yahoo
-  // -----------------------------------------------------------------
-  static String[] getStrings(String username, String password, String challenge) throws NoSuchAlgorithmException
-  {
-    int operand = 0, i;
-    
-    // -----Count the number of operator characters, as this determines the
-    // -----size of our magic bytes array
-    int cnt = 0;
-    for (i = 0; i < challenge.length(); i++)
-      if (isOperator(challenge.charAt(i)))
-        cnt++;
-    
-    int[] magic = new int[cnt];
-    
-    // -----PART ONE : Store operands, and OR them with operators.
-    // -----(Note: ignore brackets, they are just there to confuse - making
-    // -----the challenge string look like an expression of some sort!)
-    cnt = 0;
-    for (i = 0; i < challenge.length(); i++)
-    {
-      char c = challenge.charAt(i);
-      if (Utils.isLetter(c) || Character.isDigit(c))
-      {
-        operand = ALPHANUM_LOOKUP.indexOf(c) << 3; // 0-31, shifted to high 5
-                                                    // bits
-      }
-      else if (isOperator(c))
-      {
-        int a = OPERATORS_LOOKUP.indexOf(c); // 0-7
-        magic[cnt] = (operand | a) & 0xff; // Mask with operand
-        cnt++;
-      }
-    }
-    if (DB)
-      dump("P1", magic);
-    
-    // -----PART TWO : Monkey around with the data
-    for (i = magic.length - 2; i >= 0; i--)
-    {
-      int a = magic[i], b = magic[i + 1];
-      a = ((a * 0xcd) ^ b) & 0xff;
-      magic[i + 1] = a;
-    }
-    if (DB)
-      dump("P2", magic);
-    
-    // -----PART THREE : Create 20 byte buffer, copy first 4 bytes into arrays
-    byte[] comparison = _part3Munge(magic); // 20 bytes
-    long seed = 0; // First 4 bytes reversed
-    byte[] binLookup = new byte[7]; // First 4 plus 3 empty
-    for (i = 0; i < 4; i++)
-    {
-      seed = seed << 8;
-      seed += comparison[3 - i] & 0xff;
-      binLookup[i] = (byte)(comparison[i] & 0xff);
-    }
-    if (DB)
-      dump("P3.1", comparison);
-    
-    // -----PART THREE AND A BIT : Binary table lookup params
-    int table = 0, depth = 0;
-    synchronized (md5Obj)
-    {
-      for (i = 0; i < 0xffff; i++)
-      {
-        for (int j = 0; j < 5; j++)
-        {
-          binLookup[4] = (byte)(i & 0xff);
-          binLookup[5] = (byte)((i >> 8) & 0xff);
-          binLookup[6] = (byte)j;
-          byte[] result = md5Singleton(binLookup);
-          if (_part3Compare(result, comparison) == true)
-          {
-            depth = i;
-            table = j;
-            i = 0xffff;
-            j = 5; // Exit loops
-          }
-        }
-      }
-    }
-    if (DB)
-      System.out.println("P3.2: " + depth + " " + table + ": ");
-    
-    // -----PART THREE AND A BIT MORE : Do binary table lookup
-    byte[] magicValue = new byte[4];
-    if (DB)
-      System.out.println("P3.3.a: " + seed);
-    seed = _part3Lookup(table, depth, seed); // Check PART THREE for
-    if (DB)
-      System.out.println("P3.3.b: " + seed);
-    seed = _part3Lookup(table, depth, seed); // seed generation
-    if (DB)
-      System.out.println("P3.3.c: " + seed);
-    for (i = 0; i < magicValue.length; i++)
-    {
-      magicValue[i] = (byte)(seed & 0xff);
-      seed = seed >> 8;
-    }
-    
-    // -----PART FOUR : This bit is copied from the start of V9
-    String regular = yahoo64(md5(password));
-    String crypted = yahoo64(md5(md5Crypt(password, "$1$_2S43d5f")));
-    if (DB)
-      System.out.println("P4.1 " + regular + " " + crypted);
-    // -----And now for some more hashing, this time with SHA-1
-    boolean hackSha1 = (table >= 3); // June 2004
-    String[] s = new String[2];
-    s[0] = _part4Encode(_part4Hash(regular, magicValue, hackSha1));
-    s[1] = _part4Encode(_part4Hash(crypted, magicValue, hackSha1));
-    if (DB)
-      System.out.println("FINAL " + s[0] + " " + s[1]);
-    
-    return s;
-  }
-  
-  // -----------------------------------------------------------------
-  private static byte[] _part3Munge(int[] magic)
-  {
-    int res, i = 1;
-    byte[] comparison = new byte[20];
-    // -----Add two bytes at a time to fill up array
-    try
-    {
-      for (int c = 0; c < comparison.length; c += 2)
-      {
-        int a, b;
-        a = magic[i++];
-        if (a <= 0x7f) // Bit 8 set?
-        {
-          res = a;
-        }
-        else
-        // Bit 8 unset?
-        { // -----Munge data: offset and offset+1
-          if (a >= 0xe0) // >=224? (%11100000)
-          {
-            b = magic[i++]; // Next byte from 'magic'
-            a = (a & 0x0f) << 6; // Bits 10-7 from low 4 bits of 'a'
-            b = b & 0x3f; // Bits 6-1 from low 6 bits of 'b'
-            res = (a + b) << 6; // Combine/shift: aaaabbbbbb000000
-          }
-          else
-          {
-            res = (a & 0x1f) << 6; // Shift: 0000aaaaaa000000
-          }
-          // -----Munge data: result and next 'magic' byte
-          res += (magic[i++] & 0x3f);
-        }
-        // -----Bits 16-1 are places into next two array slots
-        comparison[c] = (byte)((res & 0xff00) >> 8); // 16-9 bits to [a+0]
-        comparison[c + 1] = (byte)(res & 0xff); // 8-1 bits to [a+1];
-      }
-    }
-    catch (ArrayIndexOutOfBoundsException e)
-    {
-      e.printStackTrace();
-    }
-    return comparison;
-  }
-  
-  private static int _part3Lookup(int table, int depth, long seed)
-  {
-    int offset = 0; // Offset into data table
-    long a, b, c; // Temp variables
-    
-    long idx = seed; // Choose table entry (unsigned int)
-    int iseed = (int)seed; // 32 bit *signed*
-    for (int i = 0; i < depth; i++)
-    { // -----Table 0 (full of IDENT no-ops) deleted to save space
-      if (table == 0)
-        return iseed;
-      // -----Get op from table (idx is an 'unsigned int', so adjust if
-      // necessary!)
-      if (idx < 0)
-        idx += 0x100000000L; // More sign bit to bit #32
-      int[] opArr = OPS[table][(int)(idx % 96)];
-      if (DB2)
-        System.out.println("LOOK1:" + table + " " + depth + " " + iseed + ":" + idx + " " + opArr[OP]);
-      switch (opArr[OP])
-      { // case IDENT : // Removed: see the 'if'
-        // return iseed; // condition at top of loop
-        case XOR:
-          // Bitwise XOR
-          iseed ^= opArr[ARG1];
-          break;
-        case MULADD:
-          // Multiply and add
-          iseed = iseed * opArr[ARG1] + opArr[ARG2];
-          break;
-        case LOOKUP:
-          // Arg 1 determines which table in the binary data
-          offset = TABLE_OFFSETS[opArr[ARG1]];
-          // -----Replace each of the four seed bytes with the byte
-          // -----at that offset in the 256 byte table of arg1
-          b = _data(offset, (iseed & 0xff)) | _data(offset, (iseed >> 8) & 0xff) << 8 | _data(offset, (iseed >> 16) & 0xff) << 16 | _data(offset, (iseed >> 24) & 0xff) << 24;
-          iseed = (int)b;
-          break;
-        case BITFLD:
-          // Arg 1 determines which table in the binary data
-          offset = TABLE_OFFSETS[opArr[ARG1]];
-          c = 0;
-          // -----All 32 bytes in table
-          for (int j = 0; j < 32; j++)
-          { // -----Move j'th bit to position data[j];
-            a = ((iseed >> j) & 1) << _data(offset, j);
-            // -----Mask out data[j]'th bit
-            b = ~(1 << _data(offset, j)) & c;
-            // -----Combine
-            c = a | b;
-          }
-          iseed = (int)c;
-          break;
-      }
-      // -----Last run of the loop? Don't do final part!
-      if (depth - i <= 1)
-        return iseed;
-      if (DB2)
-        System.out.println("LOOK2:" + iseed + ":" + idx);
-      // -----Bit more mesing about with the seed and table index before
-      // -----we loop again. Mess about with each byte in copy of seed
-      // -----to get new idx, then scale up the seed.
-      a = 0;
-      c = iseed;
-      for (int j = 0; j < 4; j++)
-      {
-        a = (a ^ c & 0xff) * 0x9e3779b1;
-        c = c >> 8;
-      }
-      idx = (int)((((a ^ (a >> 8)) >> 16) ^ a) ^ (a >> 8)) & 0xff;
-      iseed = iseed * 0x00010dcd;
-      if (DB2)
-        System.out.println("LOOK3:" + iseed + ":" + idx);
-    }
-    // -----Should return inside loop before we reach this point
-    return iseed;
-  }
-  
-  private final static int _data(int offset, int idx) // Final for speed
-  {
-    return data[offset + idx] & 0xff;
-  }
-  
-  private final static boolean _part3Compare(byte[] a, byte[] b) // Final for
-                                                                  // speed
-  {
-    for (int i = 0; i < 16; i++)
-      if (a[i] != b[i + 4])
-        return false;
-    return true;
-  }
-  
-  // Each 16 bit value (2 bytes) is encoded into three chars, 5 bits per
-  // char, with the least sig bit either ',' or ';' - a equals is inserted
-  // in the middle to make it look like an assignment.
-  private static String _part4Encode(byte[] buffer)
-  {
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < buffer.length; i += 2)
-    { // -----16 bit value from bytes i and i+1
-      int a = ((buffer[i] & 0xff) << 8) + (buffer[i + 1] & 0xff);
-      // -----Bits 16 to 12 from first table, followed by a '='
-      sb.append(ENCODE1_LOOKUP.charAt((a >> 11) & 0x1f));
-      sb.append('=');
-      // -----Bits 11 to 7, then 6 to 2, from second table
-      sb.append(ENCODE2_LOOKUP.charAt((a >> 6) & 0x1f));
-      sb.append(ENCODE2_LOOKUP.charAt((a >> 1) & 0x1f));
-      // -----Bit 1 is taken from third table
-      sb.append(ENCODE3_LOOKUP.charAt(a & 0x01));
-    }
-    return sb.toString();
-  }
-  
-  private static byte[] _part4Hash(String target, byte[] magicValue, boolean hackSha1) throws NoSuchAlgorithmException
-  { // -----Convert string to 64 byte arrays with padding
-    byte[] xor1 = _part4Xor(target, 0x36);
-    byte[] xor2 = _part4Xor(target, 0x5c);
-    if (DB)
-    {
-      dump("P4.2", xor1);
-      dump("P4.2", xor2);
-      dump("P4.2", magicValue);
-    }
-    // -----Hash with SHA-1, first hash feeds into second
-    
-    YahooSHA1 sha1 = new YahooSHA1();
-    sha1.update(xor1);
-    if (hackSha1)
-      sha1.setBitCount(0x1ff); // 24th June 2004 'mod'
-    sha1.update(magicValue);
-    byte[] digest1 = sha1.digest();
-    sha1.reset();
-    sha1.update(xor2);
-    sha1.update(digest1);
-    byte[] digest2 = sha1.digest();
-    if (DB)
-    {
-      dump("P4.3", digest1);
-      dump("P4.3", digest2);
-    }
-    return digest2;
-  }
-  
-  private static byte[] _part4Xor(String s, int op)
-  {
-    byte[] arr = new byte[64];
-    // -----XOR against op
-    for (int i = 0; i < s.length(); i++)
-      arr[i] = (byte)(s.charAt(i) ^ op);
-    // -----Pad remainder of 64 bytes with op
-    for (int i = s.length(); i < arr.length; i++)
-      arr[i] = (byte)op;
-    return arr;
-  }
-  
-  // -----------------------------------------------------------------
-  // Is c one of the eight operators chars?
-  // -----------------------------------------------------------------
-  private static boolean isOperator(char c)
-  {
-    return (OPERATORS_LOOKUP.indexOf(c) >= 0);
-  }
-  
-  // -----------------------------------------------------------------
-  // DEBUG code
-  // -----------------------------------------------------------------
-  static void dump(String title, int[] data)
-  {
-    int idx = 0;
-    System.out.println(title);
-    while (idx < data.length)
-    {
-      String s = Integer.toHexString(data[idx]);
-      if (s.length() < 2)
-        s = "0" + s;
-      System.out.print(s + " ");
-      idx++;
-      if ((idx % 20) == 0)
-        System.out.print("\n");
-    }
-    if ((idx % 20) != 0)
-      System.out.print("\n");
-  }
-  
-  static void dump(String title, byte[] data)
-  {
-    int idx = 0;
-    System.out.println(title);
-    while (idx < data.length)
-    {
-      String s = Integer.toHexString(data[idx] & 0xff);
-      if (s.length() < 2)
-        s = "0" + s;
-      System.out.print(s + " ");
-      idx++;
-      if ((idx % 20) == 0)
-        System.out.print("\n");
-    }
-    if ((idx % 20) != 0)
-      System.out.print("\n");
-  }
-  
-  /*
-   * public static void main(String[] args) { try { System.out.println(args[0]+"
-   * "+args[1]+" "+args[2]); String[] s =
-   * ChallengeResponseV10.getStrings(args[0],args[1],args[2]);
-   * System.out.println("["+s[0]+"]\n ["+s[1]+"]"); }catch(Exception e) {
-   * e.printStackTrace(); } }
-   */
-
-  private final static String Y64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789._";
-  
-  protected static MessageDigest md5Obj;
-  
-  // -----------------------------------------------------------------
   // Create a singleton md5 object for all our hashing needs (well, most!)
   // -----------------------------------------------------------------
   static
@@ -520,111 +97,6 @@ public class YahooChallengeResponse
       e.printStackTrace();
     }
   }
-  
-  // -----------------------------------------------------------------
-  // Yahoo uses its own custom variation on Base64 encoding (although a
-  // little birdy tells me this routine actually comes from the Apple Mac?)
-  //
-  // For those not familiar with Base64 etc, all this does is treat an
-  // array of bytes as a bit stream, sectioning the stream up into six
-  // bit slices, which can be represented by the 64 characters in the
-  // 'table' Y64 above. In this fashion raw binary data can be expressed
-  // as valid 7 bit printable ASCII - although the size of the data will
-  // expand by 25% - three bytes (24 bits) taking up four ASCII characters.
-  // Now obviously the bit stream will terminate mid way throught an ASCII
-  // character if the input array size isn't evenly divisible by 3. To
-  // flag this, either one or two dashes are appended to the output. A
-  // single dash if we're two over, and two dashes if we're only one over.
-  // (No dashes are appended if the input size evenly divides by 3.)
-  // -----------------------------------------------------------------
-  static String yahoo64(byte[] buffer)
-  {
-    int limit = buffer.length - (buffer.length % 3);
-    String out = "";
-    int[] buff = new int[buffer.length];
-    
-    for (int i = 0; i < buffer.length; i++)
-      buff[i] = buffer[i] & 0xff;
-    
-    for (int i = 0; i < limit; i += 3)
-    { // -----Top 6 bits of first byte
-      out = out + Y64.charAt(buff[i] >> 2);
-      // -----Bottom 2 bits of first byte append to top 4 bits of second
-      out = out + Y64.charAt(((buff[i] << 4) & 0x30) | (buff[i + 1] >> 4));
-      // -----Bottom 4 bits of second byte appended to top 2 bits of third
-      out = out + Y64.charAt(((buff[i + 1] << 2) & 0x3c) | (buff[i + 2] >> 6));
-      // -----Bottom six bits of third byte
-      out = out + Y64.charAt(buff[i + 2] & 0x3f);
-    }
-    
-    // -----Do we still have a remaining 1 or 2 bytes left?
-    int i = limit;
-    switch (buff.length - i)
-    {
-      case 1:
-        // -----Top 6 bits of first byte
-        out = out + Y64.charAt(buff[i] >> 2);
-        // -----Bottom 2 bits of first byte
-        out = out + Y64.charAt(((buff[i] << 4) & 0x30));
-        out = out + "--";
-        break;
-      case 2:
-        // -----Top 6 bits of first byte
-        out = out + Y64.charAt(buff[i] >> 2);
-        // -----Bottom 2 bits of first byte append to top 4 bits of second
-        out = out + Y64.charAt(((buff[i] << 4) & 0x30) | (buff[i + 1] >> 4));
-        // -----Bottom 4 bits of second byte
-        out = out + Y64.charAt(((buff[i + 1] << 2) & 0x3c));
-        out = out + "-";
-        break;
-    }
-    
-    return out;
-  }
-  
-  // -----------------------------------------------------------------
-  // Return the MD5 or a string and byte array (note: md5Singleton()
-  // is easier on the object heap, but is NOT thread safe. It's ideal
-  // for doing lots of hashing inside a tight loop - but remember to
-  // mutex lock 'md5Obj' before using it!)
-  // -----------------------------------------------------------------
-  static byte[] md5(String s) throws NoSuchAlgorithmException
-  {
-    return md5(s.getBytes());
-  }
-  
-  static byte[] md5(byte[] buff) throws NoSuchAlgorithmException
-  {
-    MessageDigest md = MessageDigest.getInstance("MD5");
-    md.update(buff, 0, buff.length);
-    return Utils.digest(md);
-  }
-  
-  static byte[] md5Singleton(byte[] buff) throws NoSuchAlgorithmException
-  {
-    md5Obj.reset();
-    md5Obj.update(buff, 0, buff.length);
-    return Utils.digest(md5Obj);
-  }
-  
-  // -----------------------------------------------------------------
-  // Return the MD5Crypt of a string and salt
-  // -----------------------------------------------------------------
-  static byte[] md5Crypt(String k, String s)
-  {
-    return YahooUnixMD5Crypt.crypt(k, s).getBytes();
-  }
-  
-  // -----Defines for constants in table below
-  public final static int IDENT = 1;
-  public final static int XOR = 2;
-  public final static int MULADD = 3;
-  public final static int LOOKUP = 4;
-  public final static int BITFLD = 5;
-  // -----Const names for three entries in inner array of table below
-  public final static int OP = 0;
-  public final static int ARG1 = 1;
-  public final static int ARG2 = 2;
   
   // -----Five tables, each with 96 entries, each entry of three ints
   // -----[5][96][3] ... However, because Java supports non-rectangular
@@ -1027,4 +499,389 @@ public class YahooChallengeResponse
         {BITFLD, 187, 0 } } };
   // Btw: total saving by removing table 1 and unused args from
   // tables 2-5... 12,707 bytes down to 9,778.
+  
+  // -----------------------------------------------------------------
+  // Given a username, password and challenge string, this code returns
+  // the two valid response strings needed to login to Yahoo
+  // -----------------------------------------------------------------
+  static String[] getStrings(String password, String challenge) throws NoSuchAlgorithmException
+  {
+    int operand = 0, i;
+    
+    // -----Count the number of operator characters, as this determines the
+    // -----size of our magic bytes array
+    int cnt = 0;
+    for (i = 0; i < challenge.length(); i++)
+      if (isOperator(challenge.charAt(i)))
+        cnt++;
+    
+    int[] magic = new int[cnt];
+    
+    // -----PART ONE : Store operands, and OR them with operators.
+    // -----(Note: ignore brackets, they are just there to confuse - making
+    // -----the challenge string look like an expression of some sort!)
+    cnt = 0;
+    for (i = 0; i < challenge.length(); i++)
+    {
+      char c = challenge.charAt(i);
+      if (Utils.isLetter(c) || Character.isDigit(c))
+      {
+        operand = ALPHANUM_LOOKUP.indexOf(c) << 3; // 0-31, shifted to high 5
+                                                    // bits
+      }
+      else if (isOperator(c))
+      {
+        int a = OPERATORS_LOOKUP.indexOf(c); // 0-7
+        magic[cnt] = (operand | a) & 0xff; // Mask with operand
+        cnt++;
+      }
+    }
+    
+    // -----PART TWO : Monkey around with the data
+    for (i = magic.length - 2; i >= 0; i--)
+    {
+      int a = magic[i], b = magic[i + 1];
+      a = ((a * 0xcd) ^ b) & 0xff;
+      magic[i + 1] = a;
+    }
+    
+    // -----PART THREE : Create 20 byte buffer, copy first 4 bytes into arrays
+    byte[] comparison = _part3Munge(magic); // 20 bytes
+    long seed = 0; // First 4 bytes reversed
+    byte[] binLookup = new byte[7]; // First 4 plus 3 empty
+    for (i = 0; i < 4; i++)
+    {
+      seed = seed << 8;
+      seed += comparison[3 - i] & 0xff;
+      binLookup[i] = (byte)(comparison[i] & 0xff);
+    }
+    
+    // -----PART THREE AND A BIT : Binary table lookup params
+    int table = 0, depth = 0;
+    synchronized (md5Obj)
+    {
+      for (i = 0; i < 0xffff; i++)
+      {
+        for (int j = 0; j < 5; j++)
+        {
+          binLookup[4] = (byte)(i & 0xff);
+          binLookup[5] = (byte)((i >> 8) & 0xff);
+          binLookup[6] = (byte)j;
+          byte[] result = md5Singleton(binLookup);
+          if (_part3Compare(result, comparison) == true)
+          {
+            depth = i;
+            table = j;
+            i = 0xffff;
+            j = 5; // Exit loops
+          }
+        }
+      }
+    }
+    
+    // -----PART THREE AND A BIT MORE : Do binary table lookup
+    byte[] magicValue = new byte[4];
+    seed = _part3Lookup(table, depth, seed); // Check PART THREE for
+    seed = _part3Lookup(table, depth, seed); // seed generation
+    for (i = 0; i < magicValue.length; i++)
+    {
+      magicValue[i] = (byte)(seed & 0xff);
+      seed = seed >> 8;
+    }
+    
+    // -----PART FOUR : This bit is copied from the start of V9
+    String regular = yahoo64(md5(password));
+    String crypted = yahoo64(md5(md5Crypt(password, "$1$_2S43d5f")));
+    // -----And now for some more hashing, this time with SHA-1
+    boolean hackSha1 = (table >= 3); // June 2004
+    String[] s = new String[2];
+    s[0] = _part4Encode(_part4Hash(regular, magicValue, hackSha1));
+    s[1] = _part4Encode(_part4Hash(crypted, magicValue, hackSha1));
+    
+    return s;
+  }
+  
+  // -----------------------------------------------------------------
+  private static byte[] _part3Munge(int[] magic)
+  {
+    int res, i = 1;
+    byte[] comparison = new byte[20];
+    // -----Add two bytes at a time to fill up array
+    try
+    {
+      for (int c = 0; c < comparison.length; c += 2)
+      {
+        int a, b;
+        a = magic[i++];
+        if (a <= 0x7f) // Bit 8 set?
+        {
+          res = a;
+        }
+        else
+        // Bit 8 unset?
+        { // -----Munge data: offset and offset+1
+          if (a >= 0xe0) // >=224? (%11100000)
+          {
+            b = magic[i++]; // Next byte from 'magic'
+            a = (a & 0x0f) << 6; // Bits 10-7 from low 4 bits of 'a'
+            b = b & 0x3f; // Bits 6-1 from low 6 bits of 'b'
+            res = (a + b) << 6; // Combine/shift: aaaabbbbbb000000
+          }
+          else
+          {
+            res = (a & 0x1f) << 6; // Shift: 0000aaaaaa000000
+          }
+          // -----Munge data: result and next 'magic' byte
+          res += (magic[i++] & 0x3f);
+        }
+        // -----Bits 16-1 are places into next two array slots
+        comparison[c] = (byte)((res & 0xff00) >> 8); // 16-9 bits to [a+0]
+        comparison[c + 1] = (byte)(res & 0xff); // 8-1 bits to [a+1];
+      }
+    }
+    catch (ArrayIndexOutOfBoundsException e)
+    {
+      e.printStackTrace();
+    }
+    return comparison;
+  }
+  
+  private static int _part3Lookup(int table, int depth, long seed)
+  {
+    int offset = 0; // Offset into data table
+    long a, b, c; // Temp variables
+    
+    long idx = seed; // Choose table entry (unsigned int)
+    int iseed = (int)seed; // 32 bit *signed*
+    for (int i = 0; i < depth; i++)
+    { // -----Table 0 (full of IDENT no-ops) deleted to save space
+      if (table == 0)
+        return iseed;
+      // -----Get op from table (idx is an 'unsigned int', so adjust if
+      // necessary!)
+      if (idx < 0)
+        idx += 0x100000000L; // More sign bit to bit #32
+      int[] opArr = OPS[table][(int)(idx % 96)];
+      switch (opArr[OP])
+      { // case IDENT : // Removed: see the 'if'
+        // return iseed; // condition at top of loop
+        case XOR:
+          // Bitwise XOR
+          iseed ^= opArr[ARG1];
+          break;
+        case MULADD:
+          // Multiply and add
+          iseed = iseed * opArr[ARG1] + opArr[ARG2];
+          break;
+        case LOOKUP:
+          // Arg 1 determines which table in the binary data
+          offset = TABLE_OFFSETS[opArr[ARG1]];
+          // -----Replace each of the four seed bytes with the byte
+          // -----at that offset in the 256 byte table of arg1
+          b = _data(offset, (iseed & 0xff)) | _data(offset, (iseed >> 8) & 0xff) << 8 | _data(offset, (iseed >> 16) & 0xff) << 16 | _data(offset, (iseed >> 24) & 0xff) << 24;
+          iseed = (int)b;
+          break;
+        case BITFLD:
+          // Arg 1 determines which table in the binary data
+          offset = TABLE_OFFSETS[opArr[ARG1]];
+          c = 0;
+          // -----All 32 bytes in table
+          for (int j = 0; j < 32; j++)
+          { // -----Move j'th bit to position data[j];
+            a = ((iseed >> j) & 1) << _data(offset, j);
+            // -----Mask out data[j]'th bit
+            b = ~(1 << _data(offset, j)) & c;
+            // -----Combine
+            c = a | b;
+          }
+          iseed = (int)c;
+          break;
+      }
+      // -----Last run of the loop? Don't do final part!
+      if (depth - i <= 1)
+        return iseed;
+      // -----Bit more mesing about with the seed and table index before
+      // -----we loop again. Mess about with each byte in copy of seed
+      // -----to get new idx, then scale up the seed.
+      a = 0;
+      c = iseed;
+      for (int j = 0; j < 4; j++)
+      {
+        a = (a ^ c & 0xff) * 0x9e3779b1;
+        c = c >> 8;
+      }
+      idx = (int)((((a ^ (a >> 8)) >> 16) ^ a) ^ (a >> 8)) & 0xff;
+      iseed = iseed * 0x00010dcd;
+    }
+    // -----Should return inside loop before we reach this point
+    return iseed;
+  }
+  
+  private final static int _data(int offset, int idx) // Final for speed
+  {
+    return data[offset + idx] & 0xff;
+  }
+  
+  private final static boolean _part3Compare(byte[] a, byte[] b) // Final for
+                                                                  // speed
+  {
+    for (int i = 0; i < 16; i++)
+      if (a[i] != b[i + 4])
+        return false;
+    return true;
+  }
+  
+  // Each 16 bit value (2 bytes) is encoded into three chars, 5 bits per
+  // char, with the least sig bit either ',' or ';' - a equals is inserted
+  // in the middle to make it look like an assignment.
+  private static String _part4Encode(byte[] buffer)
+  {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < buffer.length; i += 2)
+    { // -----16 bit value from bytes i and i+1
+      int a = ((buffer[i] & 0xff) << 8) + (buffer[i + 1] & 0xff);
+      // -----Bits 16 to 12 from first table, followed by a '='
+      sb.append(ENCODE1_LOOKUP.charAt((a >> 11) & 0x1f));
+      sb.append('=');
+      // -----Bits 11 to 7, then 6 to 2, from second table
+      sb.append(ENCODE2_LOOKUP.charAt((a >> 6) & 0x1f));
+      sb.append(ENCODE2_LOOKUP.charAt((a >> 1) & 0x1f));
+      // -----Bit 1 is taken from third table
+      sb.append(ENCODE3_LOOKUP.charAt(a & 0x01));
+    }
+    return sb.toString();
+  }
+  
+  private static byte[] _part4Hash(String target, byte[] magicValue, boolean hackSha1) throws NoSuchAlgorithmException
+  { // -----Convert string to 64 byte arrays with padding
+    byte[] xor1 = _part4Xor(target, 0x36);
+    byte[] xor2 = _part4Xor(target, 0x5c);
+    // -----Hash with SHA-1, first hash feeds into second
+    
+    YahooSHA1 sha1 = new YahooSHA1();
+    sha1.update(xor1);
+    if (hackSha1)
+      sha1.setBitCount(0x1ff); // 24th June 2004 'mod'
+    sha1.update(magicValue);
+    byte[] digest1 = sha1.digest();
+    sha1.reset();
+    sha1.update(xor2);
+    sha1.update(digest1);
+    byte[] digest2 = sha1.digest();
+    return digest2;
+  }
+  
+  private static byte[] _part4Xor(String s, int op)
+  {
+    byte[] arr = new byte[64];
+    // -----XOR against op
+    for (int i = 0; i < s.length(); i++)
+      arr[i] = (byte)(s.charAt(i) ^ op);
+    // -----Pad remainder of 64 bytes with op
+    for (int i = s.length(); i < arr.length; i++)
+      arr[i] = (byte)op;
+    return arr;
+  }
+  
+  // -----------------------------------------------------------------
+  // Is c one of the eight operators chars?
+  // -----------------------------------------------------------------
+  private static boolean isOperator(char c)
+  {
+    return (OPERATORS_LOOKUP.indexOf(c) >= 0);
+  }
+  
+  // -----------------------------------------------------------------
+  // Yahoo uses its own custom variation on Base64 encoding (although a
+  // little birdy tells me this routine actually comes from the Apple Mac?)
+  //
+  // For those not familiar with Base64 etc, all this does is treat an
+  // array of bytes as a bit stream, sectioning the stream up into six
+  // bit slices, which can be represented by the 64 characters in the
+  // 'table' Y64 above. In this fashion raw binary data can be expressed
+  // as valid 7 bit printable ASCII - although the size of the data will
+  // expand by 25% - three bytes (24 bits) taking up four ASCII characters.
+  // Now obviously the bit stream will terminate mid way throught an ASCII
+  // character if the input array size isn't evenly divisible by 3. To
+  // flag this, either one or two dashes are appended to the output. A
+  // single dash if we're two over, and two dashes if we're only one over.
+  // (No dashes are appended if the input size evenly divides by 3.)
+  // -----------------------------------------------------------------
+  static String yahoo64(byte[] buffer)
+  {
+    int limit = buffer.length - (buffer.length % 3);
+    String out = "";
+    int[] buff = new int[buffer.length];
+    
+    for (int i = 0; i < buffer.length; i++)
+      buff[i] = buffer[i] & 0xff;
+    
+    for (int i = 0; i < limit; i += 3)
+    { // -----Top 6 bits of first byte
+      out = out + Y64.charAt(buff[i] >> 2);
+      // -----Bottom 2 bits of first byte append to top 4 bits of second
+      out = out + Y64.charAt(((buff[i] << 4) & 0x30) | (buff[i + 1] >> 4));
+      // -----Bottom 4 bits of second byte appended to top 2 bits of third
+      out = out + Y64.charAt(((buff[i + 1] << 2) & 0x3c) | (buff[i + 2] >> 6));
+      // -----Bottom six bits of third byte
+      out = out + Y64.charAt(buff[i + 2] & 0x3f);
+    }
+    
+    // -----Do we still have a remaining 1 or 2 bytes left?
+    int i = limit;
+    switch (buff.length - i)
+    {
+      case 1:
+        // -----Top 6 bits of first byte
+        out = out + Y64.charAt(buff[i] >> 2);
+        // -----Bottom 2 bits of first byte
+        out = out + Y64.charAt(((buff[i] << 4) & 0x30));
+        out = out + "--";
+        break;
+      case 2:
+        // -----Top 6 bits of first byte
+        out = out + Y64.charAt(buff[i] >> 2);
+        // -----Bottom 2 bits of first byte append to top 4 bits of second
+        out = out + Y64.charAt(((buff[i] << 4) & 0x30) | (buff[i + 1] >> 4));
+        // -----Bottom 4 bits of second byte
+        out = out + Y64.charAt(((buff[i + 1] << 2) & 0x3c));
+        out = out + "-";
+        break;
+    }
+    
+    return out;
+  }
+  
+  // -----------------------------------------------------------------
+  // Return the MD5 or a string and byte array (note: md5Singleton()
+  // is easier on the object heap, but is NOT thread safe. It's ideal
+  // for doing lots of hashing inside a tight loop - but remember to
+  // mutex lock 'md5Obj' before using it!)
+  // -----------------------------------------------------------------
+  static byte[] md5(String s) throws NoSuchAlgorithmException
+  {
+    return md5(s.getBytes());
+  }
+  
+  static byte[] md5(byte[] buff) throws NoSuchAlgorithmException
+  {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    md.update(buff, 0, buff.length);
+    return Utils.digest(md);
+  }
+  
+  static byte[] md5Singleton(byte[] buff) throws NoSuchAlgorithmException
+  {
+    md5Obj.reset();
+    md5Obj.update(buff, 0, buff.length);
+    return Utils.digest(md5Obj);
+  }
+  
+  // -----------------------------------------------------------------
+  // Return the MD5Crypt of a string and salt
+  // -----------------------------------------------------------------
+  static byte[] md5Crypt(String k, String s)
+  {
+    return YahooUnixMD5Crypt.crypt(k, s).getBytes();
+  }
 }

@@ -60,16 +60,16 @@ public class JabberParseXML
     {
       protocol.isSasl_ = false;
       protocol.fullJid_ = protocol.getAccount().getUser() + "/JimmyIM";
-      protocol.sh_.sendRequest(
-          "<iq type='set'>" +
-          "  <query xmlns='jabber:iq:auth'>" +
-          "    <username>" + 
-          protocol.getAccount().getUser().substring(0, protocol.getAccount().getUser().indexOf("@")) + 
-          "</username>" +
-          "    <password>" + protocol.getAccount().getPassword() + "</password>" +
-          "    <resource>" + "JimmyIM" + "</resource>" +
-          "  </query>" +
-          "</iq>");
+      protocol.sh_.sendRequest(new StringBuffer()
+        .append("<iq type='set'>")
+        .append(  "<query xmlns='jabber:iq:auth'>")
+        .append(    "<username>") 
+        .append(protocol.getAccount().getUser().substring(0, protocol.getAccount().getUser().indexOf("@"))) 
+        .append(    "</username>")
+        .append(    "<password>").append(protocol.getAccount().getPassword()).append("</password>")
+        .append(    "<resource>").append("JimmyIM").append("</resource>")
+        .append(  "</query>")
+        .append("</iq>").toString());
     }
     else
     {
@@ -209,10 +209,10 @@ public class JabberParseXML
     {
       System.out.println("[INFO-JABBER] Send open session request");
       p.fullJid_ = xNode.getFirstNode("jid").value;
-      p.sh_.sendRequest(
-          "<iq type=\"set\" id=\"sess\">" + 
-          "  <session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>" +
-          "</iq>");
+      p.sh_.sendRequest(new StringBuffer()
+        .append("<iq type=\"set\" id=\"sess\">") 
+        .append(  "<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>")
+        .append("</iq>").toString());
     }
   }
   
@@ -239,9 +239,9 @@ public class JabberParseXML
     String type = (String)x.attribs.get("type");
     /* AUTOMATICALLY ACCEPTS INVITATION!!!!! */
     if (type != null && type.equals("subscribe"))
-      p.sh_.sendRequest(
-          "<presence to=\"" + fromFull + "\" type=\"subscribed\"/>" +
-          "<presence from=\"" + p.fullJid_ + "\" to=\"" + fromFull + "\" type=\"subscribe\"/>");
+      p.sh_.sendRequest(new StringBuffer()
+        .append("<presence to=\"").append(fromFull).append("\" type=\"subscribed\"/>")
+        .append("<presence from=\"").append(p.fullJid_).append("\" to=\"").append(fromFull).append("\" type=\"subscribe\"/>").toString());
     
     byte status = Byte.MAX_VALUE;
     type = 
@@ -389,12 +389,12 @@ public class JabberParseXML
     if (x2 != null)
     {
       System.out.println("[INFO-JABBER] Send bind request");
-      p.sh_.sendRequest(
-          "<iq type=\"set\" id=\"bind\">" + 
-          "  <bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">" +
-          "    <resource>" + "JimmyIM" + "</resource>" +
-          "  </bind>" +
-          "</iq>");
+      p.sh_.sendRequest(new StringBuffer()
+        .append("<iq type=\"set\" id=\"bind\">") 
+        .append(  "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">")
+        .append(    "<resource>").append("JimmyIM").append("</resource>")
+        .append(  "</bind>")
+        .append("</iq>").toString());
     }
   }
   
@@ -486,11 +486,14 @@ public class JabberParseXML
     hResp.updateASCII(hA2.getDigestHex());
     hResp.finish();
 
-    String out = "username=\"" + user + "\",realm=\"" + realm + "\","
-        + "nonce=\"" + nonce + "\",nc=00000001,cnonce=\"" + cnonce + "\","
-        + "qop=auth,digest-uri=\"" + digestUri + "\"," + "response=\""
-        + hResp.getDigestHex() + "\",charset=utf-8";
-    String resp = MD5.toBase64(out.getBytes());
+    String resp = MD5.toBase64(new StringBuffer()
+      .append("username=\"").append(user)
+      .append("\",realm=\"").append(realm)
+      .append("\",nonce=\"").append(nonce)
+      .append("\",nc=00000001,cnonce=\"").append(cnonce)
+      .append("\",qop=auth,digest-uri=\"").append(digestUri)
+      .append("\",response=\"").append(hResp.getDigestHex())
+      .append("\",charset=utf-8").toString().getBytes());
 
     return resp;
   }
@@ -506,8 +509,10 @@ public class JabberParseXML
    */
   private static String getGoogleToken(String userName, String passwd)
   {
-    String first = "Email=" + userName + "&Passwd=" + passwd
-        + "&PersistentCookie=false&source=googletalk";
+    String first = new StringBuffer()
+      .append("Email=").append(userName)
+      .append("&Passwd=").append(passwd)
+      .append("&PersistentCookie=false&source=googletalk").toString();
     try
     {
       HttpsConnection c = (HttpsConnection) Connector
@@ -522,7 +527,10 @@ public class JabberParseXML
         SID = str.substring(4, str.length());
         str = readLine(dis);
         LSID = str.substring(5, str.length());
-        first = "SID=" + SID + "&LSID=" + LSID + "&service=mail&Session=true";
+        first = new StringBuffer()
+          .append("SID=").append(SID)
+          .append("&LSID=").append(LSID)
+          .append("&service=mail&Session=true").toString();
         dis.close();
         c.close();
         c = (HttpsConnection) Connector
@@ -530,8 +538,9 @@ public class JabberParseXML
         System.out.println("[INFO-JABBER] Next www.google.com connection");
         dis = c.openDataInputStream();
         str = readLine(dis);
-        String token = MD5.toBase64(new String("\0" + userName + "\0" + str)
-            .getBytes());
+        String token = MD5.toBase64(new StringBuffer()
+          .append("\0").append(userName)
+          .append("\0").append(str).toString().getBytes());
         dis.close();
         c.close();
         return token;

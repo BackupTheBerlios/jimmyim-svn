@@ -128,12 +128,4 @@ public class YahooUnixMD5Crypt
       return null;
     }
   }
-  
-  /*
-   * public static void main(String[] astr) throws Exception {
-   * System.out.println( "password = " + astr[0] + " and salt = " + astr[1] );
-   * String strCrypt = UnixMD5Crypt.crypt(astr[0], astr[1]); System.out.println(
-   * strCrypt ); }
-   */
-
 }

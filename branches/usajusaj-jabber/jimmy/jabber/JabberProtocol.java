@@ -41,6 +41,8 @@ import jimmy.util.XmlNode;
  */
 public class JabberProtocol extends Protocol
 {
+  protected final String RESOURCE = "JimmyIM";
+  
   /** default server name - if none set in user account */
   private final String DEFAULT_SERVER = "jabber.org";
 
@@ -141,7 +143,8 @@ public class JabberProtocol extends Protocol
     /* Request roster */
     sh_.sendRequest(JabberParseXML.getRosterXml());
     
-    sh_.sendRequest("<presence from=\"" + fullJid_ + "\" jimmy=\"login\"/>");
+    sh_.sendRequest(new StringBuffer()
+      .append("<presence from=\"").append(fullJid_).append("\" jimmy=\"login\"/>").toString());
     
     return true;
   }
@@ -152,12 +155,12 @@ public class JabberProtocol extends Protocol
   public void logout()
   {
     for (int i = 0; i < contacts_.size(); i++)
-      sh_.sendRequest(
-          "<presence" +
-          " from=\"" + fullJid_ + "\"" +
-          " to=\"" + ((Contact)contacts_.elementAt(i)).userID() + "\"" +
-          " type='unavailable'" +
-          " jimmy=\"logout\"/>");
+      sh_.sendRequest(new StringBuffer()
+        .append("<presence")
+        .append(" from=\"").append(fullJid_).append("\"")
+        .append(" to=\"").append(((Contact)contacts_.elementAt(i)).userID()).append("\"")
+        .append(" type='unavailable'")
+        .append(" jimmy=\"logout\"/>").toString());
 
     stop_ = true;
   }
@@ -172,12 +175,12 @@ public class JabberProtocol extends Protocol
     if (getContact(c.userID()) != null)
       return;
 
-    sh_.sendRequest(
-        "<presence" +
-        " from=\"" + fullJid_ + "\"" +
-        " to=\"" + c.userID() + "\"" +
-        " type=\"subscribe\"" +
-        " jimmy=\"addContact\"/>");
+    sh_.sendRequest(new StringBuffer()
+      .append("<presence")
+      .append(" from=\"").append(fullJid_).append("\"")
+      .append(" to=\"").append(c.userID()).append("\"")
+      .append(" type=\"subscribe\"")
+      .append(" jimmy=\"addContact\"/>").toString());
     contacts_.addElement(c);
   }
   
@@ -192,22 +195,22 @@ public class JabberProtocol extends Protocol
     if (getContact(c.userID()) == null)
       return false;
     
-    sh_.sendRequest(
-        "<presence" +
-        " from=\"" + fullJid_ + "\"" +
-        " to=\"" + c.userID() + "\"" +
-        " type='unavailable'" +
-        " jimmy=\"removeContact\"/>" +
-        "<presence" +
-        " from=\"" + fullJid_ + "\"" +
-        " to=\"" + c.userID() + "\"" +
-        " type=\"unsubscribe\"" +
-        " jimmy=\"removeContact\"/>" +
-        "<iq from='" + fullJid_ + "' type='set' id='roster_4'>" + 
-        "  <query xmlns='jabber:iq:roster'>" +
-        "    <item jid='" + c.userID() + "' subscription='remove'/>" + 
-        "  </query>" + 
-        "</iq>");
+    sh_.sendRequest(new StringBuffer()
+      .append("<presence")
+      .append(" from=\"").append(fullJid_).append("\"")
+      .append(" to=\"").append(c.userID()).append("\"")
+      .append(" type='unavailable'")
+      .append(" jimmy=\"removeContact\"/>")
+      .append("<presence")
+      .append(" from=\"").append(fullJid_).append("\"")
+      .append(" to=\"").append(c.userID()).append("\"")
+      .append(" type=\"unsubscribe\"")
+      .append(" jimmy=\"removeContact\"/>")
+      .append("<iq from='").append(fullJid_).append("' type='set' id='roster_4'>") 
+      .append(  "<query xmlns='jabber:iq:roster'>")
+      .append(    "<item jid='").append(c.userID()).append("' subscription='remove'/>") 
+      .append(  "</query>") 
+      .append("</iq>").toString());
     
     contacts_.removeElement(c);
 
@@ -221,15 +224,15 @@ public class JabberProtocol extends Protocol
    */
   public void updateContactProperties(Contact c)
   {
-    sh_.sendRequest(
-        "<iq type='set' from='" + fullJid_ + "'>" + 
-        "  <query xmlns='jabber:iq:roster'>" +
-        "    <item jid='" + c.userID() + "' subscription='both'" + 
-             ((c.screenName() != null) ? (" name='" + Utils.urlDecode(c.screenName()) + "'") : "") + ">" + 
-             ((c.groupName() != null) ? ("<group>" + Utils.urlDecode(c.groupName()) + "</group>") : "") + 
-        "    </item>" + 
-        "  </query>" + 
-        "</iq>");
+    sh_.sendRequest(new StringBuffer()
+      .append("<iq type='set' from='").append(fullJid_).append("'>") 
+      .append(  "<query xmlns='jabber:iq:roster'>")
+      .append(    "<item jid='").append(c.userID()).append("' subscription='both'") 
+      .append(((c.screenName() != null) ? (" name='" + Utils.urlDecode(c.screenName()) + "'") : "")).append(">") 
+      .append(((c.groupName() != null) ? ("<group>" + Utils.urlDecode(c.groupName()) + "</group>") : "")) 
+      .append(    "</item>") 
+      .append(  "</query>") 
+      .append("</iq>").toString());
   }
   
   /**
@@ -270,14 +273,14 @@ public class JabberProtocol extends Protocol
    */
   private void sendMsg(String msg, String recJid)
   {
-    sh_.sendRequest(
-        "<message " +
-        " to=\"" + recJid + "\"" +
-        " from=\"" + fullJid_ + "\" " +
-        " type=\"chat\">" +
-        (isGTalk_ ? "  <nos:x value=\"disabled\" xmlns:nos=\"google:nosave\"/>" : "") +
-        "  <body>" + msg + "</body>" +
-        "</message>");
+    sh_.sendRequest(new StringBuffer()
+      .append("<message ")
+      .append(" to=\"").append(recJid).append("\"")
+      .append(" from=\"").append(fullJid_).append("\"")
+      .append(" type=\"chat\">")
+      .append((isGTalk_ ? "<nos:x value=\"disabled\" xmlns:nos=\"google:nosave\"/>" : ""))
+      .append("<body>").append(msg).append("</body>")
+      .append("</message>").toString());
   }
   
   /**
