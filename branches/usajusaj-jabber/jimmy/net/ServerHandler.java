@@ -222,6 +222,32 @@ public class ServerHandler
      */
     public byte[] getReplyBytes()
     {          
+            /* #IF(NOKIA)
+         * Nokia patch:
+         * This patch is for Nokia only and it should not be used for other 
+         * devices.
+         */
+        
+        /* try 
+        {
+            StringBuffer result=new StringBuffer();
+            int inputChar;
+            int bs;
+            while ( (inputChar = this.is_.read()) != -1) { //this blocks
+
+                bs = this.is_.available(); //get the amount of characters waiting in the buffer     
+                result.append((char) inputChar);
+                if(bs==0) break;
+            }
+            return result.toString();            
+        } catch (InterruptedIOException ex){
+//        		ex.printStackTrace();
+            return null;	
+        } catch (IOException ex){
+            ex.printStackTrace();
+            return null;
+        }*/
+    
         try 
         {
             byte[] buffer = null;
