@@ -50,26 +50,28 @@ public class JabberParseXML
    * @param protocol {@link JabberProtocol} instance
    * @param jimmy {@link ProtocolInteraction} instance
    */
-  protected static void parseAuth(
+  protected static final void parseAuth(
       XmlNode x, 
       JabberProtocol protocol,
       ProtocolInteraction jimmy)
   {
+    System.out.println("[JABBER IN XML]:\n" + x.toString());
+
     if (x.contains("stream:stream") && 
         !x.contains("stream:features"))
     {
       protocol.isSasl_ = false;
       protocol.fullJid_ = protocol.getAccount().getUser() + "/JimmyIM";
-      protocol.sh_.sendRequest(
-          "<iq type='set'>" +
-          "  <query xmlns='jabber:iq:auth'>" +
-          "    <username>" + 
-          protocol.getAccount().getUser().substring(0, protocol.getAccount().getUser().indexOf("@")) + 
-          "</username>" +
-          "    <password>" + protocol.getAccount().getPassword() + "</password>" +
-          "    <resource>" + "JimmyIM" + "</resource>" +
-          "  </query>" +
-          "</iq>");
+      protocol.sendRequest(new StringBuffer()
+        .append("<iq type='set'>")
+        .append(  "<query xmlns='jabber:iq:auth'>")
+        .append(    "<username>") 
+        .append(protocol.getAccount().getUser().substring(0, protocol.getAccount().getUser().indexOf("@"))) 
+        .append(    "</username>")
+        .append(    "<password>").append(protocol.getAccount().getPassword()).append("</password>")
+        .append(    "<resource>").append("JimmyIM").append("</resource>")
+        .append(  "</query>")
+        .append("</iq>").toString());
     }
     else
     {
@@ -110,7 +112,7 @@ public class JabberParseXML
     }
     else if (x.name.equals("compressed"))
     {
-      //TODO Implement zlib connection
+      //TODO Activate zlib connection
 //      stream.setZlibCompression();
 //      try {
 //        stream.initiateStream(account.getServer(), true, SR.MS_XMLLANG);
@@ -120,7 +122,7 @@ public class JabberParseXML
     /* Reply to DIGEST-MD5 challenges */
     else if (x.name.equals("challenge"))
     {
-      parseChallenge(x, protocol, jimmy);
+      parseChallenge(x, protocol);
     }
     else if (x.name.equals("failure"))
     {
@@ -130,7 +132,7 @@ public class JabberParseXML
     else if (x.name.equals("success"))
     {
       System.out.println("[INFO-JABBER] Auth success");
-      protocol.sh_.sendRequest(getOpenStreamXml(protocol.domain_));
+      protocol.sendRequest(getOpenStreamXml(protocol.domain_));
     }
     else if (x.name.equals("iq"))
     {
@@ -178,7 +180,9 @@ public class JabberParseXML
       System.out.println(
           "[INFO-JABBER] <IQ> error received: " +
           "Code=" + xNode.attribs.get("code") + " " +
-          "Value=" + xNode.value);
+          "Value=" + xNode.getFirstNode("text").value);
+      if (x.contains("query") && x.getFirstNode("query").attribs.get("xmlns").equals("jabber:iq:auth"))
+        p.setAuthStatus(false);
     }
     
     if (xNode.name.equals("query"))
@@ -209,10 +213,10 @@ public class JabberParseXML
     {
       System.out.println("[INFO-JABBER] Send open session request");
       p.fullJid_ = xNode.getFirstNode("jid").value;
-      p.sh_.sendRequest(
-          "<iq type=\"set\" id=\"sess\">" + 
-          "  <session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>" +
-          "</iq>");
+      p.sendRequest(new StringBuffer()
+        .append("<iq type=\"set\" id=\"sess\">") 
+        .append(  "<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>")
+        .append("</iq>").toString());
     }
   }
   
@@ -228,6 +232,17 @@ public class JabberParseXML
       JabberProtocol p, 
       ProtocolInteraction j)
   {
+    String type = (String)x.attribs.get("type");
+    if (type != null && type.equals("error"))
+    {
+      XmlNode xNode = x.getFirstNode("error");
+      System.out.println(
+          "[INFO-JABBER] <IQ> error received: " +
+          "Code=" + xNode.attribs.get("code") + " " +
+          "Value=" + xNode.getFirstNode("text").value);
+      return;
+    }
+    
     String fromFull = (String)x.attribs.get("from");
     String from = "";
     if (Utils.stringContains(fromFull, "/"))
@@ -236,19 +251,18 @@ public class JabberParseXML
     if (fromFull.equals(p.getAccount().getUser()))
       return;
     
-    String type = (String)x.attribs.get("type");
     /* AUTOMATICALLY ACCEPTS INVITATION!!!!! */
     if (type != null && type.equals("subscribe"))
-      p.sh_.sendRequest(
-          "<presence to=\"" + fromFull + "\" type=\"subscribed\"/>" +
-          "<presence from=\"" + p.fullJid_ + "\" to=\"" + fromFull + "\" type=\"subscribe\"/>");
+      p.sendRequest(new StringBuffer()
+        .append("<presence to=\"").append(fromFull).append("\" type=\"subscribed\"/>")
+        .append("<presence from=\"").append(p.fullJid_).append("\" to=\"").append(fromFull).append("\" type=\"subscribe\"/>").toString());
     
     byte status = Byte.MAX_VALUE;
     type = 
         type != null ? 
           type : 
           (x.getFirstNode("show") != null ? 
-              ((XmlNode)x.getFirstNode("show")).value :
+              x.getFirstNode("show").value :
               "");
     
     if(type.equals(""))
@@ -269,7 +283,7 @@ public class JabberParseXML
         null, 
         null, 
         status, 
-        x.getFirstNode("status") == null ? null : ((XmlNode)x.getFirstNode("status")).value,
+        x.getFirstNode("status") == null ? null : x.getFirstNode("status").value,
         p, 
         j);
   }
@@ -330,7 +344,7 @@ public class JabberParseXML
         x2.getFirstNode("method").value.equals("zlib"))
     {
       System.out.println("[INFO-JABBER] Using zlib(NOT IMPLEMENTED YET)");
-//TODO ZLIB compression
+//TODO ZLIB compression algorytm implementation
 //      protocol.sh_.sendRequest("<compress xmlns=\"http://jabber.org/protocol/compress\"><method>zlib</method></compress>");
     }
     
@@ -355,11 +369,13 @@ public class JabberParseXML
       {
         System.out.println("[INFO-JABBER] Using X-GOOGLE-TOKEN");
         p.isGTalk_ = true;
+        int endI = p.getAccount().getUser().indexOf("@");
+        if (endI == -1) endI = p.getAccount().getUser().length();
         auth += "mechanism=\"X-GOOGLE-TOKEN\">";
         auth += getGoogleToken(
             p.getAccount().getUser().substring(
                 0, 
-                p.getAccount().getUser().indexOf("@")),
+                endI),
             p.getAccount().getPassword());
         auth += "</auth>";
       }
@@ -381,7 +397,7 @@ public class JabberParseXML
         p.setAuthStatus(false);
       }
       
-      p.sh_.sendRequest(auth);
+      p.sendRequest(auth);
     }
     
     /* Check for resource bind */
@@ -389,12 +405,12 @@ public class JabberParseXML
     if (x2 != null)
     {
       System.out.println("[INFO-JABBER] Send bind request");
-      p.sh_.sendRequest(
-          "<iq type=\"set\" id=\"bind\">" + 
-          "  <bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">" +
-          "    <resource>" + "JimmyIM" + "</resource>" +
-          "  </bind>" +
-          "</iq>");
+      p.sendRequest(new StringBuffer()
+        .append("<iq type=\"set\" id=\"bind\">") 
+        .append(  "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">")
+        .append(    "<resource>").append("JimmyIM").append("</resource>")
+        .append(  "</bind>")
+        .append("</iq>").toString());
     }
   }
   
@@ -407,8 +423,7 @@ public class JabberParseXML
    */
   private static void parseChallenge(
       XmlNode x,
-      JabberProtocol protocol,
-      ProtocolInteraction jimmy)
+      JabberProtocol protocol)
   {
     System.out.println("[INFO-JABBER] Received challenge");
     String challenge = JabberMD5.decodeBase64(x.value);
@@ -421,10 +436,12 @@ public class JabberParseXML
       String nonce = challenge.substring(nonceIndex, challenge.indexOf('\"', nonceIndex));
       String cnonce = "123456789abcd";
       
+      int endI = protocol.getAccount().getUser().indexOf("@");
+      if (endI == -1) endI = protocol.getAccount().getUser().length();
       String t = responseMd5Digest(
           protocol.getAccount().getUser().substring(
               0, 
-              protocol.getAccount().getUser().indexOf("@")),
+              endI),
           protocol.getAccount().getPassword(), 
           protocol.getAccount().getServer(), 
           "xmpp/" + protocol.getAccount().getServer(), 
@@ -434,7 +451,7 @@ public class JabberParseXML
     }
     
     resp += "</response>";
-    protocol.sh_.sendRequest(resp);
+    protocol.sendRequest(resp);
   }
 
   /**
@@ -487,11 +504,14 @@ public class JabberParseXML
     hResp.updateASCII(hA2.getDigestHex());
     hResp.finish();
 
-    String out = "username=\"" + user + "\",realm=\"" + realm + "\","
-        + "nonce=\"" + nonce + "\",nc=00000001,cnonce=\"" + cnonce + "\","
-        + "qop=auth,digest-uri=\"" + digestUri + "\"," + "response=\""
-        + hResp.getDigestHex() + "\",charset=utf-8";
-    String resp = MD5.toBase64(out.getBytes());
+    String resp = MD5.toBase64(new StringBuffer()
+      .append("username=\"").append(user)
+      .append("\",realm=\"").append(realm)
+      .append("\",nonce=\"").append(nonce)
+      .append("\",nc=00000001,cnonce=\"").append(cnonce)
+      .append("\",qop=auth,digest-uri=\"").append(digestUri)
+      .append("\",response=\"").append(hResp.getDigestHex())
+      .append("\",charset=utf-8").toString().getBytes());
 
     return resp;
   }
@@ -507,8 +527,10 @@ public class JabberParseXML
    */
   private static String getGoogleToken(String userName, String passwd)
   {
-    String first = "Email=" + userName + "&Passwd=" + passwd
-        + "&PersistentCookie=false&source=googletalk";
+    String first = new StringBuffer()
+      .append("Email=").append(userName)
+      .append("&Passwd=").append(passwd)
+      .append("&PersistentCookie=false&source=googletalk").toString();
     try
     {
       HttpsConnection c = (HttpsConnection) Connector
@@ -523,7 +545,10 @@ public class JabberParseXML
         SID = str.substring(4, str.length());
         str = readLine(dis);
         LSID = str.substring(5, str.length());
-        first = "SID=" + SID + "&LSID=" + LSID + "&service=mail&Session=true";
+        first = new StringBuffer()
+          .append("SID=").append(SID)
+          .append("&LSID=").append(LSID)
+          .append("&service=mail&Session=true").toString();
         dis.close();
         c.close();
         c = (HttpsConnection) Connector
@@ -531,8 +556,9 @@ public class JabberParseXML
         System.out.println("[INFO-JABBER] Next www.google.com connection");
         dis = c.openDataInputStream();
         str = readLine(dis);
-        String token = MD5.toBase64(new String("\0" + userName + "\0" + str)
-            .getBytes());
+        String token = MD5.toBase64(new StringBuffer()
+          .append("\0").append(userName)
+          .append("\0").append(str).toString().getBytes());
         dis.close();
         c.close();
         return token;
@@ -605,90 +631,120 @@ public class JabberParseXML
           name);
       c.setStatusMsg(statusText);
       
-      p.addContact(c);
+      p.getContacts().addElement(c);
       j.addContact(c);
     }
     else
     {
-      if (name != null)
-        c.setScreenName(name);
-      if (group != null) 
-        c.setGroupName(group);
-      c.setStatus(status == Byte.MAX_VALUE ? c.status() : status);
-      c.setStatusMsg(statusText);
-      j.changeContactStatus(c);
+      boolean changed = false;
+      if (name != null && !name.equals(c.screenName())) {
+        c.setScreenName(name); changed = true;
+      }
+      if (group != null && !group.equals(c.groupName())) {
+        c.setGroupName(group); changed = true;
+      }
+      if (status != Byte.MAX_VALUE && status != c.status()) {
+        c.setStatus(status); changed = true;
+      }
+      if (statusText != null && !statusText.equals(c.statusMsg())) {
+        c.setStatusMsg(statusText); changed = true;
+      }
+      
+      if (changed)
+        j.changeContactStatus(c);
     }
   }
   
-  /**
-   * Calculates string representation of initial user status
-   * Sets important Google settings
-   * Informs Google Talk that we want to use GTalk features 
-   */
-  protected static String getGTalkOptionsXml()
+  protected static void sendStatus(
+      byte status,
+      JabberProtocol protocol)
   {
-    return 
-      "<iq type=\"get\" id=\"6\">" +
-      "  <query xmlns=\"google:relay\"/>" +
-      "</iq>";
+    StringBuffer presence = new StringBuffer()
+      .append("<presence")
+      .append(" jimmy='send status'>")
+      .append(  "<priority>1</priority>");
+    
+    if (status != Contact.ST_OFFLINE && status != Contact.ST_ONLINE)
+      presence
+        .append(  "<show>")
+        .append(    status == Contact.ST_AWAY ? "away" : "dnd")
+        .append(  "</show>");
+    
+    presence.append("</presence>");
+    
+    protocol.sendRequest(presence.toString());
   }
   
-  /**
-   * Sends mail notification request to GTalk server
-   */
-  protected static String getGTalkMailNotificationReqXml(String fullJid)
-  {
-    return 
-      "<iq type=\"set\" to=\"" + fullJid + "\" id=\"15\">" +
-      "  <usersetting xmlns=\"google:setting\">" +
-      "    <autoacceptrequests value=\"false\"/>" +
-      "    <mailnotifications value=\"true\"/>" +
-      "  </usersetting>" +
-      "</iq>";
-  }
-  
-  /**
-   * Get presence request for GTalk
-   */
-  protected static String getGTalkPresence()
-  {
-    return "<presence><show></show><status></status></presence>";
-  }
-  
-  /**
-   * Get user status request
-   */
-  protected static String getGTalkUserStatusXml(String fullJid)
-  {
-    return 
-      "<iq type=\"get\" id=\"23\">" +
-      "  <query xmlns=\"google:mail:notify\" " +
-      "    q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>" +
-      "</iq>" +
-      "<iq type=\"get\" to=\"" + fullJid + "\" id=\"21\">" +
-      "  <query xmlns=\"google:shared-status\"/>" +
-      "</iq>";
-  }
+//  TODO Uncomment when activating gtalk special features
+//  /**
+//   * Calculates string representation of initial user status
+//   * Sets important Google settings
+//   * Informs Google Talk that we want to use GTalk features 
+//   */
+//  protected static final String getGTalkOptionsXml()
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"get\" id=\"6\">")
+//      .append(  "<query xmlns=\"google:relay\"/>")
+//      .append("</iq>").toString();
+//  }
+//  
+//  /**
+//   * Sends mail notification request to GTalk server
+//   */
+//  protected static final String getGTalkMailNotificationReqXml(String fullJid)
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"set\" to=\"").append(fullJid).append("\" id=\"15\">")
+//      .append(  "<usersetting xmlns=\"google:setting\">")
+//      .append(    "<autoacceptrequests value=\"false\"/>")
+//      .append(    "<mailnotifications value=\"true\"/>")
+//      .append(  "</usersetting>")
+//      .append("</iq>").toString();
+//  }
+//  
+//  /**
+//   * Get presence request for GTalk
+//   */
+//  protected static final String getGTalkPresence()
+//  {
+//    return "<presence><show></show><status></status></presence>";
+//  }
+//  
+//  /**
+//   * Get user status request
+//   */
+//  protected static final String getGTalkUserStatusXml(String fullJid)
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"get\" id=\"23\">")
+//      .append(  "<query xmlns=\"google:mail:notify\" ")
+//      .append(    "q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>")
+//      .append("</iq>")
+//      .append("<iq type=\"get\" to=\"").append(fullJid).append("\" id=\"21\">")
+//      .append(  "<query xmlns=\"google:shared-status\"/>")
+//      .append("</iq>").toString();
+//  }
   
   /**
    * Get roster request
    */
-  protected static String getRosterXml()
+  protected static final String getRosterXml()
   {
-    return 
-      "<iq type=\"get\" id=\"roster\">" +
-      "  <query xmlns=\"jabber:iq:roster\"/>" +
-      "</iq>";
+    return new StringBuffer()
+      .append("<iq type=\"get\" id=\"roster\">")
+      .append(  "<query xmlns=\"jabber:iq:roster\"/>")
+      .append("</iq>").toString();
   }
   
   /**
    * Get open stream request
    */
-  protected static String getOpenStreamXml(String server)
+  protected static final String getOpenStreamXml(String server)
   {
-    return 
-      "<?xml version=\"1.0\"?>" +
-      "<stream:stream to=\"" + server + "\" xmlns=\"jabber:client\" " +
-      "  xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">";
+    return new StringBuffer()
+      .append("<?xml version=\"1.0\"?>")
+      .append("<stream:stream to=\"").append(server).append("\" xmlns=\"jabber:client\" ")
+      .append(  "xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">").toString();
   }
 }

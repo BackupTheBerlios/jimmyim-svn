@@ -3,6 +3,8 @@
  */
 package jimmy.util;
 
+import java.security.DigestException;
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -117,11 +119,11 @@ public class Utils {
 	public static int bytesToUShort(byte[] by, boolean bigendian){
 		int i = 0;
 		if (by.length == 1) {
-            i = (int) (0xff & by[0]);
+            i = (0xff & by[0]);
         } else if (bigendian) {
-            i = (int) (((by[0] & 0xff) << 8) | (0xff & by[1]));
+            i = (((by[0] & 0xff) << 8) | (0xff & by[1]));
         } else {
-            i = (int) (((by[1] & 0xff) << 8) | (0xff & by[0]));
+            i = (((by[1] & 0xff) << 8) | (0xff & by[0]));
         }
 		return i;
 	}
@@ -138,24 +140,24 @@ public class Utils {
 	public static int bytesToInt(byte[] b, boolean bigendian){
 		int i = 0;
 		if (b.length == 1)
-			i = (int)(0xff & b[0]);
+			i = (0xff & b[0]);
 		else if (b.length == 2){
 			if(bigendian){
-				i = (int) (((b[0] & 0xff) << 8) | (0xff & b[1]));
+				i = (((b[0] & 0xff) << 8) | (0xff & b[1]));
 			}else{
-				i = (int) (((b[1] & 0xff) << 8) | (0xff & b[1]));
+				i = (((b[1] & 0xff) << 8) | (0xff & b[1]));
 			}
 		}else if (b.length == 3){
 			if(bigendian){
-				i = (int) (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
+				i = (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
 			}else{
-				i = (int) (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i = (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else{
 			if(bigendian){
-				i = (int) (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
+				i = (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
 			}else{
-				i = (int) (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i = (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}
 		return i;
@@ -173,48 +175,48 @@ public class Utils {
 	public static long bytesToLong(byte[] b, boolean bigendian){
 		int i = 0;
 		if (b.length == 1)
-			i = (int)(0xff & b[0]);
+			i = (0xff & b[0]);
 		else if (b.length == 2){
 			if(bigendian){
-				i = (int) (((b[0] & 0xff) << 8) | (0xff & b[1]));
+				i =  (((b[0] & 0xff) << 8) | (0xff & b[1]));
 			}else{
-				i = (int) (((b[1] & 0xff) << 8) | (0xff & b[1]));
+				i =  (((b[1] & 0xff) << 8) | (0xff & b[1]));
 			}
 		}else if (b.length == 3){
 			if(bigendian){
-				i = (int) (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
+				i =  (((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2]));
 			}else{
-				i = (int) (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  (((((b[2] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else if (b.length == 4){
 			if(bigendian){
-				i = (int) (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
+				i =  (((((((b[0] & 0xff) << 8) | (0xff & b[1])) << 8) | (0xff & b[2])) << 8) | (0xff & b[3]));
 			}else{
-				i = (int) (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  (((((((b[3] & 0xff) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else if (b.length == 5){
 			if(bigendian){
-				i = (int) (((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[3])) << 8) | (0xff & b[4]));
+				i =  (((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[3])) << 8) | (0xff & b[4]));
 			}else{
-				i = (int) (((((((((b[4] & 0xff) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  (((((((((b[4] & 0xff) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else if (b.length == 6){
 			if(bigendian){
-				i = (int) (((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (0xff & b[3])) << 8) | (0xff & b[4])) << 8) | (0xff & b[5]));
+				i =  (((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (0xff & b[3])) << 8) | (0xff & b[4])) << 8) | (0xff & b[5]));
 			}else{
-				i = (int) (((((((((((b[5] & 0xff) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  (((((((((((b[5] & 0xff) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else if (b.length == 7){
 			if(bigendian){
-				i = (int) (((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[4])) << 8) | (0xff & b[5])) << 8) | (0xff & b[6]));
+				i =  (((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[4])) << 8) | (0xff & b[5])) << 8) | (0xff & b[6]));
 			}else{
-				i = (int) ((((((((((((b[6] & 0xff) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  ((((((((((((b[6] & 0xff) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}else if (b.length == 8){
 			if(bigendian){
-				i = (int) (((((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (0xff & b[5])) << 8) | (0xff & b[6])) << 8) | (0xff & b[7]));
+				i =  (((((((((((((((b[0] & 0xff) << 8) | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (0xff & b[5])) << 8) | (0xff & b[6])) << 8) | (0xff & b[7]));
 			}else{
-				i = (int) ((((((((((((((b[7] & 0xff) << 8) | (b[6] & 0xff)) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
+				i =  ((((((((((((((b[7] & 0xff) << 8) | (b[6] & 0xff)) << 8) | ((b[5] & 0xff)) << 8) | (b[4] & 0xff)) << 8) | (b[3] & 0xff)) << 8) | (0xff & b[2])) << 8) | (0xff & b[1])) << 8) | (0xff & b[0]));
 			}
 		}
 		return i;
@@ -236,7 +238,7 @@ public class Utils {
 		{
 			c = s.charAt(i);
 			//System.out.println(c);
-			switch ((char)c)
+			switch (c)
 			{
 			case 48:
 				n[i] = 0;
@@ -303,7 +305,7 @@ public class Utils {
 	 */
 	public static short unsignShort(int s){
 		short b = (short)s;
-		s=(int)b;
+		s=b;
 		s=s+32768;
 		b=(short)(0-s);
 		return b;
@@ -346,11 +348,11 @@ public class Utils {
             ch = (byte) (ch & 0x0F);    
 //     must do this is high order bit is on!
 
-            out.append(pseudo[ (int) ch]); // convert the nibble to a String Character
+            out.append(pseudo[  ch]); // convert the nibble to a String Character
 
             ch = (byte) (in[i] & 0x0F); // Strip off low nibble 
 
-            out.append(pseudo[ (int) ch]); // convert the nibble to a String Character
+            out.append(pseudo[  ch]); // convert the nibble to a String Character
 
             i++;
 
@@ -359,11 +361,11 @@ public class Utils {
         		out.insert(j,' ');
         		j++;
         }
-        for(int j = 24; j < (int)(in.length*3/24)+in.length*3; j=j+24){
+        for(int j = 24; j < (in.length*3/24)+in.length*3; j=j+24){
         		out.insert(j,' ');
         		j++;
         }
-        for(int j = 50; j < (int)(in.length*3/50)+(int)(in.length*3/24)+in.length*3; j=j+50){
+        for(int j = 50; j < (in.length*3/50)+(in.length*3/24)+in.length*3; j=j+50){
         		out.insert(j,'\n');
         		j++;
         }
@@ -376,7 +378,7 @@ public class Utils {
         int at1 = 0;
         int at2 = 16;
         StringBuffer sb = new StringBuffer();
-        for(int j = 0; j < (int)(out.length()/51); j++){
+        for(int j = 0; j < (out.length()/51); j++){
         		sb.append(r.substring(ind1,ind2)+ "   "+txt.substring(at1,at2)+"\n");
         		ind1 = ind2+1;
         		ind2 = ind2+51;
@@ -408,7 +410,7 @@ public class Utils {
     * @param String str entire string to split by separator
 
     */ 
- public static String[] explode(char separator, String str){
+  public static String[] explode(char separator, String str){
     Vector exploded = new Vector(0,1);
     String tmpstr = null;
     int beginIndex=0, endIndex=0;
@@ -450,7 +452,7 @@ public class Utils {
 
     */ 
 
-public static String replace(String[] pattern, String[] replace, String source){
+  public static String replace(String[] pattern, String[] replace, String source){
     String result = "";
     if (pattern.length != replace.length) return source;
     result = source;
@@ -458,7 +460,7 @@ public static String replace(String[] pattern, String[] replace, String source){
         result = replace(pattern[i], replace[i], result);
     }
     return result;
-}
+  }
 
 /**
     * replace all entries of pattern with value replace
@@ -471,7 +473,7 @@ public static String replace(String[] pattern, String[] replace, String source){
 
     */ 
 
-public static String replace(String pattern, String replace, String source){
+  public static String replace(String pattern, String replace, String source){
     String result = "";
     int firstIndex = 0;
     while (source.indexOf(pattern, firstIndex)!=-1){
@@ -483,8 +485,8 @@ public static String replace(String pattern, String replace, String source){
         result += source.substring(firstIndex);
     }
     return result;
-}                
-private static String[][] url_encode_map ={
+  }                
+  private static String[][] url_encode_map ={
             {" ","%20"},{"!","%21"},{"\"","%22"},{"#","%23"},{"$","%24"},{"%","%25"},{"&","%26"},{"'","%27"},{"(","%28"},{")","%29"},
             {"*","%2A"},{"+","%2B"},{",","%2C"},{"-","%2D"},{".","%2E"},{"/","%2F"},
             {"0","%30"},{"1","%31"},{"2","%32"},{"3","%33"},{"4","%34"},{"5","%35"},{"6","%36"},{"7","%37"},{"8","%38"},{"9","%39"},
@@ -499,7 +501,7 @@ private static String[][] url_encode_map ={
             {"w","%77"},{"x","%78"},{"y","%79"},{"z","%7A"},
             {"{","%7B"},{"|","%7C"},{"}","%7D"},{"~","%7E"},
             };
-private static String[][] url_encode_map_unsafe ={
+  private static String[][] url_encode_map_unsafe ={
             {" ","%20"},{"!","%21"},{"\"","%22"},{"#","%23"},{"$","%24"},{"%","%25"},{"&","%26"},{"'","%27"},{"(","%28"},{")","%29"},
             {"*","%2A"},{"+","%2B"},{",","%2C"},{"/","%2F"},
             {":","%3A"},{";","%3B"},{"<","%3C"},{"=","%3D"},
@@ -516,7 +518,7 @@ private static String[][] url_encode_map_unsafe ={
     * @param String s - string to be encode
     */ 
 
-public static String urlEncode(String s){
+  public static String urlEncode(String s){
     String[] patterns = new String[url_encode_map_unsafe.length];
     String[] replaces = new String[url_encode_map_unsafe.length];
     for (int i=0; i<url_encode_map_unsafe.length; i++){
@@ -525,7 +527,7 @@ public static String urlEncode(String s){
     }
     String res = replace(patterns, replaces, s);
     return res;
-}
+  }
 
 /**
     * Simple ASCII url decoder.
@@ -535,7 +537,7 @@ public static String urlEncode(String s){
     * @param String s - string to decode
     */ 
 
-public static String urlDecode(String s){
+  public static String urlDecode(String s){
     String[] patterns = new String[url_encode_map.length];
     String[] replaces = new String[url_encode_map.length];
     for (int i=0; i<url_encode_map.length; i++){
@@ -544,24 +546,24 @@ public static String urlDecode(String s){
     }
     String res = replace(patterns, replaces, s);
     return res;
-}
+  }
 
 /** XML-like easy parser methods*/ 
 
-private static int _fromIndex = 0; //static variable to keep tag search position
+  private static int _fromIndex = 0; //static variable to keep tag search position
 
-public static String getStringForTag(String Tag, String strTmp) {
+  public static String getStringForTag(String Tag, String strTmp) {
     return getStringForTag(Tag,strTmp,true);
-}  
-public static String getStringForTag(String Tag, String strTmp, boolean newSearch){
+  }  
+  public static String getStringForTag(String Tag, String strTmp, boolean newSearch){
     int tag1, tag2;
     String untaggedString = null;
     String beginTag = "<"+Tag+">";
     String endTag = "</"+Tag+">";
     if (newSearch) _fromIndex = 0;
-    tag1 = strTmp.indexOf(beginTag, _fromIndex);
-    tag2 = strTmp.indexOf(endTag, _fromIndex);
     if (strTmp != null){
+      tag1 = strTmp.indexOf(beginTag, _fromIndex);
+      tag2 = strTmp.indexOf(endTag, _fromIndex);
       if (tag1 !=-1 && tag2 !=-1){
         tag1 += beginTag.length();
         untaggedString = strTmp.substring(tag1, tag2);
@@ -569,16 +571,16 @@ public static String getStringForTag(String Tag, String strTmp, boolean newSearc
       }
     }
     return untaggedString;
-}
+  }
 
-public static String getStringBetweenTags(String Tag, String ClosingTag, String strTmp){
+  public static String getStringBetweenTags(String Tag, String ClosingTag, String strTmp){
     int tag1, tag2;
     String untaggedString = null;
     String beginTag = Tag;
     String endTag = ClosingTag;
-    tag1 = strTmp.indexOf(beginTag, 0);
-    tag2 = strTmp.indexOf(endTag, tag1);
     if (strTmp != null){
+      tag1 = strTmp.indexOf(beginTag, 0);
+      tag2 = strTmp.indexOf(endTag, tag1);
       if (tag1 !=-1 && tag2 !=-1){
         tag1 += beginTag.length();
         untaggedString = strTmp.substring(tag1, tag2);
@@ -586,7 +588,7 @@ public static String getStringBetweenTags(String Tag, String ClosingTag, String 
       }
     }
     return untaggedString;
-}
+  }
 
   public static boolean stringContains(String s, String seq)
   {
@@ -629,12 +631,66 @@ public static String getStringBetweenTags(String Tag, String ClosingTag, String 
    */
   public static String getCurrentTimestamp()
   {
+    return formatDate(new Date());
+  }
+  
+  public static String formatDate(Date d)
+  {
     CalendarImpl cal = new CalendarImpl();
-    cal.setTime(new Date());
-    return 
-      cal.get(Calendar.HOUR_OF_DAY) + ":" +
-      cal.get(Calendar.MINUTE) + ":" +
-      cal.get(Calendar.SECOND);
-
+    cal.setTime(d);
+    return new StringBuffer()
+      .append(cal.get(Calendar.HOUR_OF_DAY)).append(":")
+      .append(padInt(cal.get(Calendar.MINUTE))).append(":")
+      .append(padInt(cal.get(Calendar.SECOND))).toString();
+  }
+  
+  private static String padInt(int i)
+  {
+    if (i < 10)
+      return "0" + i;
+    return String.valueOf(i);
+  }
+  
+  public static byte[] subArray(byte[] b, int off, int len)
+  {
+    byte[] sub = new byte[len];
+    System.arraycopy(b, off, sub, 0, len);
+    return sub;
+  }
+  
+  public static final boolean compareByteArray(byte[] b1, byte[] b2)
+  {
+    if (b1.length != b2.length) return false;
+    
+    for (int i = 0; i < b1.length; i++)
+      if (b1[i] != b2[i]) return false;
+    
+    return true;
+  }
+  
+  public static final boolean isLetter(char c)
+  {
+    if (c >= 65 && c <= 90 || c >= 97 && c <= 122)
+      return true;
+    
+    return false;
+  }
+  
+  public static byte[] digest(MessageDigest d)
+  {
+    byte[] res;
+    try
+    {
+      byte[] tmp = new byte[1024];
+      res = new byte[d.digest(tmp, 0, tmp.length)];
+      System.arraycopy(tmp, 0, res, 0, res.length);
+      tmp = null;
+    }
+    catch (DigestException e)
+    {
+      e.printStackTrace();
+      return new byte[0];
+    }
+    return res;
   }
 }
