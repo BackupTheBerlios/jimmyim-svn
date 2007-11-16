@@ -112,7 +112,7 @@ public class JabberProtocol extends Protocol
     sh_ = new ServerHandler(account.getServer(), account.getPort());
     sh_.connect(account.getUseSSL());
     if (!sh_.isConnected()) return false;
-    sh_.sendRequest(JabberParseXML.getOpenStreamXml(domain_));
+    sendRequest(JabberParseXML.getOpenStreamXml(domain_));
     
     /* Authenticate with the server */
     while (status_ == CONNECTING)
@@ -132,19 +132,26 @@ public class JabberProtocol extends Protocol
     thread_.start();
     
     /* Enable special GTalk features */
-    if (isGTalk_)
-    {
-      sh_.sendRequest(JabberParseXML.getGTalkUserStatusXml(fullJid_));
-      sh_.sendRequest(JabberParseXML.getGTalkOptionsXml());
-      sh_.sendRequest(JabberParseXML.getGTalkMailNotificationReqXml(fullJid_));
-      sh_.sendRequest(JabberParseXML.getGTalkPresence());
-    }
+//    TODO Activate google talk features 
+//    FIXME If activated, user status is constantly "dnd" and status message is "Away"
+//    if (isGTalk_)
+//    {
+//      sendRequest(JabberParseXML.getGTalkUserStatusXml(fullJid_));
+//      sendRequest(JabberParseXML.getGTalkOptionsXml());
+//      sendRequest(JabberParseXML.getGTalkMailNotificationReqXml(fullJid_));
+//      sendRequest(JabberParseXML.getGTalkPresence());
+//    }
     
     /* Request roster */
-    sh_.sendRequest(JabberParseXML.getRosterXml());
+    sendRequest(JabberParseXML.getRosterXml());
     
-    sh_.sendRequest(new StringBuffer()
-      .append("<presence from=\"").append(fullJid_).append("\" jimmy=\"login\"/>").toString());
+    JabberParseXML.sendStatus(Contact.ST_ONLINE, this);
+//    sendRequest(new StringBuffer()
+//      .append("<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps'")
+//      .append("node='http://pidgin.im/caps' ver='2.2.1' ext='moodn nickn tunen avatar'/></presence>").toString());
+//    JabberParseXML.sendStatus(Contact.ST_ONLINE, this);
+//    sh_.sendRequest(new StringBuffer()
+//      .append("<presence from=\"").append(fullJid_).append("\" jimmy=\"login\"/>").toString());
     
     return true;
   }
@@ -154,13 +161,12 @@ public class JabberProtocol extends Protocol
    */
   public void logout()
   {
-    for (int i = 0; i < contacts_.size(); i++)
-      sh_.sendRequest(new StringBuffer()
-        .append("<presence")
-        .append(" from=\"").append(fullJid_).append("\"")
-        .append(" to=\"").append(((Contact)contacts_.elementAt(i)).userID()).append("\"")
-        .append(" type='unavailable'")
-        .append(" jimmy=\"logout\"/>").toString());
+    sendRequest("</stream:stream>");
+//    for (int i = 0; i < contacts_.size(); i++)
+//      JabberParseXML.sendStatus(
+//          Contact.ST_OFFLINE, 
+//          ((Contact)contacts_.elementAt(i)).userID(),
+//          this);
 
     stop_ = true;
   }
@@ -175,7 +181,7 @@ public class JabberProtocol extends Protocol
     if (getContact(c.userID()) != null)
       return;
 
-    sh_.sendRequest(new StringBuffer()
+    sendRequest(new StringBuffer()
       .append("<presence")
       .append(" from=\"").append(fullJid_).append("\"")
       .append(" to=\"").append(c.userID()).append("\"")
@@ -195,7 +201,7 @@ public class JabberProtocol extends Protocol
     if (getContact(c.userID()) == null)
       return false;
     
-    sh_.sendRequest(new StringBuffer()
+    sendRequest(new StringBuffer()
       .append("<presence")
       .append(" from=\"").append(fullJid_).append("\"")
       .append(" to=\"").append(c.userID()).append("\"")
@@ -224,7 +230,7 @@ public class JabberProtocol extends Protocol
    */
   public void updateContactProperties(Contact c)
   {
-    sh_.sendRequest(new StringBuffer()
+    sendRequest(new StringBuffer()
       .append("<iq type='set' from='").append(fullJid_).append("'>") 
       .append(  "<query xmlns='jabber:iq:roster'>")
       .append(    "<item jid='").append(c.userID()).append("' subscription='both'") 
@@ -273,7 +279,7 @@ public class JabberProtocol extends Protocol
    */
   private void sendMsg(String msg, String recJid)
   {
-    sh_.sendRequest(new StringBuffer()
+    sendRequest(new StringBuffer()
       .append("<message ")
       .append(" to=\"").append(recJid).append("\"")
       .append(" from=\"").append(fullJid_).append("\"")
@@ -322,6 +328,7 @@ public class JabberProtocol extends Protocol
       if (x != null)
         for (int i = 0; i < x.childs.size(); i++)
         {
+          System.out.println("[JABBER IN XML]:\n" + x.childs.elementAt(i).toString());
           JabberParseXML.parse(
               (XmlNode)x.childs.elementAt(i), 
               this, 
@@ -331,6 +338,8 @@ public class JabberProtocol extends Protocol
 
     sh_.disconnect();
     status_ = DISCONNECTED;
+//    account_.setConnected(false);
+//    jimmy_.stopProtocol(this);
   }
   
   /**
@@ -342,5 +351,14 @@ public class JabberProtocol extends Protocol
   {
     if (s) status_ = CONNECTED;
     else status_ = DISCONNECTED;
+  }
+  
+  /**
+   * Sends request to output stream (debugging purposes).
+   */
+  protected final void sendRequest(String msg)
+  {
+    System.out.println("[JABBER OUT XML]:\n  " + msg);
+    sh_.sendRequest(msg);
   }
 }

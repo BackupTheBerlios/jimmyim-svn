@@ -22,6 +22,7 @@
 
 package jimmy;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Alert;
@@ -181,6 +182,10 @@ public class Jimmy extends MIDlet implements Runnable, ProtocolInteraction {
 	public void stopProtocol(Protocol p) {
 		p.logout();
 		this.protocolList_.removeElement(p);
+//		ui_.setView(JimmyUI.SCR_MAIN);
+//		JimmyUI.jimmyCommand(
+//		    (Command)ui_.getCommands().get(new Integer(JimmyUI.CMD_LOGOUT)), 
+//		    Display.getDisplay(this).getCurrent());
 	}
 	
 	public void setProtocolStatus(Protocol p, byte status) {

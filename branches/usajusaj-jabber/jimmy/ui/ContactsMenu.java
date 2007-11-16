@@ -114,10 +114,7 @@ public class ContactsMenu extends List implements CommandListener {
 	    else
 		name = current.userID();
 	    
-	    j=0;
-	    while( j<group.size() && current.userID().compareTo(((Contact)group.elementAt(j)).userID()) > 0 && current.status() != ((Contact)group.elementAt(j)).status())
-		j++;
-	    
+	    j = findPosition(current, group);
 	    screenIndex += j;
 	    
 	    this.insert(screenIndex,Contact.insertSpaces(name),chooseImage(current));	    
@@ -130,6 +127,44 @@ public class ContactsMenu extends List implements CommandListener {
         Vector contact = new Vector();
         contact.addElement(c);
         this.addContacts(contact);
+    }
+    
+    private int findPosition(Contact c, Vector g)
+    {
+      int j = 0;
+      if (c.status() == Contact.ST_OFFLINE)
+      {
+        for (j = 0; j < g.size(); j++)
+          if (((Contact)g.elementAt(j)).status() == Contact.ST_OFFLINE &&
+              compareContacts(c, (Contact)g.elementAt(j), true) < 0)
+            break;
+      }
+      else
+      {
+        for (j = 0; j < g.size(); j++)
+        {
+          if (((Contact)g.elementAt(j)).status() != Contact.ST_OFFLINE)
+            if (compareContacts((Contact)g.elementAt(j), c, false) < 0)
+              continue;
+            else if (compareContacts((Contact)g.elementAt(j), c, false) == 0)
+            {
+              if (compareContacts(c, (Contact)g.elementAt(j), true) < 0)
+                break;
+            }
+            else break;
+          else break;
+        }
+      }
+      
+      return j;
+    }
+    
+    private int compareContacts(Contact c1, Contact c2, boolean name)
+    {
+      if (name)
+        return (c1.screenName() == null ? c1.userID() : c1.screenName()).toLowerCase().compareTo(
+            (c2.screenName() == null ? c2.userID() : c2.screenName()).toLowerCase());
+      return c1.status() - c2.status();
     }
     
     /**
@@ -191,9 +226,20 @@ public class ContactsMenu extends List implements CommandListener {
                 name = new String(currentContact.screenName());
             else
                 name = new String(currentContact.userID());
+            
+            /* ****** UŠAJ ***********/
+            
+            currentGroup.removeElementAt(j);
+            this.delete(screenIndex);
+            int p = findPosition(currentContact, currentGroup);
+            currentGroup.insertElementAt(currentContact, p);
+            this.insert(screenIndex - j + p, Contact.insertSpaces(name), chooseImage(currentContact));
+            
+            /* ****** UŠAJ ***********/
 
-            this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
+//            this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
             System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
+//            rebuildContactList();
         }
         else{
             System.out.println("[DEBUG] No user found!");            

@@ -54,7 +54,7 @@ public class YahooProtocol extends Protocol
   protected ServerHandler sh_;
   
   /** stop the thread */
-  private boolean stop_;
+  protected boolean stop_;
 
   /**
    * Default constructor
@@ -96,7 +96,7 @@ public class YahooProtocol extends Protocol
     sh_ = new ServerHandler(account_.getServer(), account_.getPort());
     sh_.connect(account.getUseSSL());
     if (!sh_.isConnected()) return false;
-    sh_.sendRequest(
+    sendRequest(
       YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_AUTH)
         .setStatus(YahooConstants.STATUS_AVAILABLE)
@@ -142,7 +142,7 @@ public class YahooProtocol extends Protocol
   public void logout()
   {
     System.out.println("[INFO-YAHOO] LOGOUT");
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_LOGOFF)
         .setStatus(YahooConstants.STATUS_OFFLINE)
         .append("0", account_.getUser()).packPacket());
@@ -159,24 +159,24 @@ public class YahooProtocol extends Protocol
     if (getContact(c.userID()) != null)
       return;
     
-    if (c.groupName() == null || c.groupName().length() == 0)
-      c.setGroupName("JimmyIM");
+//    if (c.groupName() == null || c.groupName().length() == 0)
+//      c.setGroupName("JimmyIM");
     
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_FRIENDADD)
         .setStatus(YahooConstants.STATUS_AVAILABLE)
         .append("1", account_.getUser())
         .append("7", c.userID())
-        .append("65", c.groupName())/* group */
+//        .append("65", c.groupName())/* group */
         .packPacket());
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_CONTACTIGNORE)
         .setStatus(YahooConstants.STATUS_OFFLINE)
         .append("1", account_.getUser())
         .append("7", c.userID())
         .append("13", "2")
         .packPacket());
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_ISBACK)
         .setStatus(YahooConstants.STATUS_AVAILABLE)
         .append("10", Long.toString(YahooConstants.STATUS_AVAILABLE)).packPacket());
@@ -197,27 +197,27 @@ public class YahooProtocol extends Protocol
     if (getContact(c.userID()) == null)
       return false;
     
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_FRIENDREMOVE)
         .setStatus(YahooConstants.STATUS_OFFLINE)
         .append("1", account_.getUser())
         .append("7", c.userID())
-        .append("65", c.groupName() == null ? "JimmyIM" : c.groupName())
+//        .append("65", c.groupName() == null ? "JimmyIM" : c.groupName())
         .packPacket());
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
         .setService(YahooConstants.SERVICE_CONTACTREJECT)
         .setStatus(YahooConstants.STATUS_OFFLINE)
         .append("1", account_.getUser())
         .append("7", c.userID())
         .append("14", "")
         .packPacket());
-    sh_.sendRequest(YahooPacket.createPacket()
-        .setService(YahooConstants.SERVICE_CONTACTIGNORE)
-        .setStatus(YahooConstants.STATUS_OFFLINE)
-        .append("1", account_.getUser())
-        .append("7", c.userID())
-        .append("13", "1")
-        .packPacket());
+//    sendRequest(YahooPacket.createPacket()
+//        .setService(YahooConstants.SERVICE_CONTACTIGNORE)
+//        .setStatus(YahooConstants.STATUS_OFFLINE)
+//        .append("1", account_.getUser())
+//        .append("7", c.userID())
+//        .append("13", "1")
+//        .packPacket());
     
     contacts_.removeElement(c);
 
@@ -272,7 +272,7 @@ public class YahooProtocol extends Protocol
    */
   private void sendMsg(String msg, String to)
   {
-    sh_.sendRequest(YahooPacket.createPacket()
+    sendRequest(YahooPacket.createPacket()
       .setService(YahooConstants.SERVICE_MESSAGE)
       .setStatus(YahooConstants.STATUS_OFFLINE)
       .append("0", account_.getUser())
@@ -317,6 +317,7 @@ public class YahooProtocol extends Protocol
         e.printStackTrace();
       }
       
+      if (stop_) continue;
       byte[] reply = sh_.getReplyBytes();
       if (reply == null)
       {
@@ -338,15 +339,17 @@ public class YahooProtocol extends Protocol
 
       if ((pingCount += 1000) >= PING_TIMEOUT)
       {
-        sh_.sendRequest(YahooPacket.createPacket()
+        sendRequest(YahooPacket.createPacket()
             .setService(YahooConstants.SERVICE_PING)
             .setStatus(YahooConstants.STATUS_AVAILABLE).packPacket());
         pingCount = 0;
       }
     }
-
+    
     sh_.disconnect();
     status_ = DISCONNECTED;
+//    account_.setConnected(false);
+//    jimmy_.stopProtocol(this);
   }
   
   /**
@@ -358,5 +361,14 @@ public class YahooProtocol extends Protocol
   {
     if (s) status_ = CONNECTED;
     else status_ = DISCONNECTED;
+  }
+
+  /**
+   * Sends request to output stream (debugging purposes).
+   */
+  protected final void sendRequest(byte[] msg)
+  {
+    if (!stop_)
+      sh_.sendRequest(msg);
   }
 }

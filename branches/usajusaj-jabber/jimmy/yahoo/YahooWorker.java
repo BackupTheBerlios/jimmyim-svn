@@ -70,7 +70,7 @@ public class YahooWorker extends YahooConstants
       case SERVICE_ISAWAY : System.out.println("[INFO-YAHOO] ISAWAY"); break;
       case SERVICE_ISBACK : System.out.println("[INFO-YAHOO] ISBACK"); break;
       case SERVICE_LIST : System.out.println("[INFO-YAHOO] LIST"); parseList(packet, protocol, jimmy);  break;
-      case SERVICE_LOGOFF : System.out.println("[INFO-YAHOO] LOGOFF"); break;
+      case SERVICE_LOGOFF : System.out.println("[INFO-YAHOO] LOGOFF"); doLogoff(protocol); break;
       case SERVICE_LOGON : System.out.println("[INFO-YAHOO] LOGON"); doLogon(packet, protocol, jimmy);  break;
       case SERVICE_MESSAGE : System.out.println("[INFO-YAHOO] MESSAGE"); parseMessage(packet, protocol, jimmy); break;
       case SERVICE_NOTIFY : System.out.println("[INFO-YAHOO] NOTIFY"); break;
@@ -99,7 +99,7 @@ public class YahooWorker extends YahooConstants
         .append("1", protocol.getAccount().getUser())
         .setService(SERVICE_AUTHRESP)
         .setStatus(STATUS_AVAILABLE).packPacket();
-      protocol.sh_.sendRequest(msg);
+      protocol.sendRequest(msg);
     }
     catch (NoSuchAlgorithmException e)
     {
@@ -235,16 +235,27 @@ public class YahooWorker extends YahooConstants
           id, 
           protocol,
           status == (byte)-1 ? Contact.ST_ONLINE : status,
-          group == null ? "JimmyIM" : group,
+          group,
           screenName);
       protocol.getContacts().addElement(c);
       jimmy.addContact(c);
     }
-    
-    if (status != (byte)-1) c.setStatus(status);
-    if (group != null) c.setGroupName(group);
-    if (screenName != null) c.setScreenName(screenName);
-    jimmy.changeContactStatus(c);
+    else
+    {
+      boolean changed = false;
+      if (screenName != null && !screenName.equals(c.screenName())) {
+        c.setScreenName(screenName); changed = true;
+      }
+      if (group != null && !group.equals(c.groupName())) {
+        c.setGroupName(group); changed = true;
+      }
+      if (status != Byte.MAX_VALUE && status != c.status()) {
+        c.setStatus(status); changed = true;
+      }
+      
+      if (changed)
+        jimmy.changeContactStatus(c);
+    }
   }
   
   private static void doLogon(
@@ -255,10 +266,16 @@ public class YahooWorker extends YahooConstants
     parseContact(packet, protocol, jimmy);
     
     protocol.setAuthStatus(true);
-    protocol.sh_.sendRequest(YahooPacket.createPacket()
+    protocol.sendRequest(YahooPacket.createPacket()
         .setService(SERVICE_ISBACK)
         .setStatus(STATUS_AVAILABLE)
         .append("10", Long.toString(STATUS_AVAILABLE)).packPacket());
+  }
+  
+  private static void doLogoff(
+      YahooProtocol protocol)
+  {
+    protocol.stop_ = true;
   }
   
   private static void parseContact(
@@ -295,12 +312,12 @@ public class YahooWorker extends YahooConstants
       {
         /* Rejected */
         String from = packet.getValue("3");
-        protocol.sh_.sendRequest(YahooPacket.createPacket()
+        protocol.sendRequest(YahooPacket.createPacket()
             .setService(SERVICE_FRIENDREMOVE)
             .setStatus(STATUS_AVAILABLE)
             .append("1", protocol.getAccount().getUser())
             .append("7", from)
-            .append("65", "JimmyIM")/* group */
+//            .append("65", "JimmyIM")/* group */
             .packPacket());
         protocol.removeContact(protocol.getContact(from));
       }
@@ -309,14 +326,14 @@ public class YahooWorker extends YahooConstants
         /* Requested */
         String from = packet.getValue("3");
         if (from == null) return;
-        protocol.sh_.sendRequest(YahooPacket.createPacket()
+        protocol.sendRequest(YahooPacket.createPacket()
             .setService(SERVICE_FRIENDADD)
             .setStatus(STATUS_AVAILABLE)
             .append("1", protocol.getAccount().getUser())
             .append("7", from)
-            .append("65", "JimmyIM")/* group */
+//            .append("65", "JimmyIM")/* group */
             .packPacket());
-        processContact(from, protocol, Contact.ST_ONLINE, "JimmyIM", null, jimmy);
+        processContact(from, protocol, Contact.ST_ONLINE, null, null, jimmy);
       }
     }
   }

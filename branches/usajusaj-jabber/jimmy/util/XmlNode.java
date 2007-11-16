@@ -1,5 +1,6 @@
 package jimmy.util;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -51,7 +52,6 @@ public class XmlNode
   {
     if (in == null || in.equals(""))
       return null;
-    System.out.println("[REC]:" + in);
     
     in = removeXmlHeader(in).trim();
     
@@ -203,5 +203,35 @@ public class XmlNode
   {
     for (int i = 0; i < from.size(); i++)
       to.addElement(from.elementAt(i));
+  }
+  
+  public String toString()
+  {
+    StringBuffer sb = new StringBuffer()
+      .append("<").append(name);
+    if (attribs.size() != 0)
+    {
+      Enumeration e = attribs.keys();
+      while (e.hasMoreElements())
+      {
+        Object k = e.nextElement();
+        sb.append(" ").append(k).append("='").append(attribs.get(k)).append("'");
+      }
+    }
+    sb.append(">");
+    if (childs.size() != 0)
+    {
+      sb.append("\n");
+      for (int i = 0; i < childs.size(); i++)
+      {
+        sb.append("  ").append(childs.elementAt(i).toString()).append("\n");
+      }
+    }
+    else
+    {
+      sb.append(value);
+    }
+    sb.append("</").append(name).append(">");
+    return sb.toString();
   }
 }

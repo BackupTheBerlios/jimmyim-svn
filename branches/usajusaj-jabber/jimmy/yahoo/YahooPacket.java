@@ -143,8 +143,8 @@ public class YahooPacket
     if (yahooPacket.sessionId_ == 0L)
       yahooPacket.sessionId_ = Utils.bytesToInt(Utils.subArray(packet, 16, 4), true);
     /* Check for session ID match */
-    else if (yahooPacket.sessionId_ != Utils.bytesToInt(Utils.subArray(packet, 16, 4), true))
-      return null;
+//    else if (yahooPacket.sessionId_ != Utils.bytesToInt(Utils.subArray(packet, 16, 4), true))
+//      return null;
     
     /* Check body length */
     if (Utils.bytesToInt(Utils.subArray(packet, 8, 2), true) != packet.length - HEAD_LEN)

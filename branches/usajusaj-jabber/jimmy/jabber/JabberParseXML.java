@@ -55,12 +55,14 @@ public class JabberParseXML
       JabberProtocol protocol,
       ProtocolInteraction jimmy)
   {
+    System.out.println("[JABBER IN XML]:\n" + x.toString());
+
     if (x.contains("stream:stream") && 
         !x.contains("stream:features"))
     {
       protocol.isSasl_ = false;
       protocol.fullJid_ = protocol.getAccount().getUser() + "/JimmyIM";
-      protocol.sh_.sendRequest(new StringBuffer()
+      protocol.sendRequest(new StringBuffer()
         .append("<iq type='set'>")
         .append(  "<query xmlns='jabber:iq:auth'>")
         .append(    "<username>") 
@@ -110,7 +112,7 @@ public class JabberParseXML
     }
     else if (x.name.equals("compressed"))
     {
-      //TODO Implement zlib connection
+      //TODO Activate zlib connection
 //      stream.setZlibCompression();
 //      try {
 //        stream.initiateStream(account.getServer(), true, SR.MS_XMLLANG);
@@ -130,7 +132,7 @@ public class JabberParseXML
     else if (x.name.equals("success"))
     {
       System.out.println("[INFO-JABBER] Auth success");
-      protocol.sh_.sendRequest(getOpenStreamXml(protocol.domain_));
+      protocol.sendRequest(getOpenStreamXml(protocol.domain_));
     }
     else if (x.name.equals("iq"))
     {
@@ -178,7 +180,9 @@ public class JabberParseXML
       System.out.println(
           "[INFO-JABBER] <IQ> error received: " +
           "Code=" + xNode.attribs.get("code") + " " +
-          "Value=" + xNode.value);
+          "Value=" + xNode.getFirstNode("text").value);
+      if (x.contains("query") && x.getFirstNode("query").attribs.get("xmlns").equals("jabber:iq:auth"))
+        p.setAuthStatus(false);
     }
     
     if (xNode.name.equals("query"))
@@ -209,7 +213,7 @@ public class JabberParseXML
     {
       System.out.println("[INFO-JABBER] Send open session request");
       p.fullJid_ = xNode.getFirstNode("jid").value;
-      p.sh_.sendRequest(new StringBuffer()
+      p.sendRequest(new StringBuffer()
         .append("<iq type=\"set\" id=\"sess\">") 
         .append(  "<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>")
         .append("</iq>").toString());
@@ -228,6 +232,17 @@ public class JabberParseXML
       JabberProtocol p, 
       ProtocolInteraction j)
   {
+    String type = (String)x.attribs.get("type");
+    if (type != null && type.equals("error"))
+    {
+      XmlNode xNode = x.getFirstNode("error");
+      System.out.println(
+          "[INFO-JABBER] <IQ> error received: " +
+          "Code=" + xNode.attribs.get("code") + " " +
+          "Value=" + xNode.getFirstNode("text").value);
+      return;
+    }
+    
     String fromFull = (String)x.attribs.get("from");
     String from = "";
     if (Utils.stringContains(fromFull, "/"))
@@ -236,10 +251,9 @@ public class JabberParseXML
     if (fromFull.equals(p.getAccount().getUser()))
       return;
     
-    String type = (String)x.attribs.get("type");
     /* AUTOMATICALLY ACCEPTS INVITATION!!!!! */
     if (type != null && type.equals("subscribe"))
-      p.sh_.sendRequest(new StringBuffer()
+      p.sendRequest(new StringBuffer()
         .append("<presence to=\"").append(fromFull).append("\" type=\"subscribed\"/>")
         .append("<presence from=\"").append(p.fullJid_).append("\" to=\"").append(fromFull).append("\" type=\"subscribe\"/>").toString());
     
@@ -330,7 +344,7 @@ public class JabberParseXML
         x2.getFirstNode("method").value.equals("zlib"))
     {
       System.out.println("[INFO-JABBER] Using zlib(NOT IMPLEMENTED YET)");
-//TODO ZLIB compression
+//TODO ZLIB compression algorytm implementation
 //      protocol.sh_.sendRequest("<compress xmlns=\"http://jabber.org/protocol/compress\"><method>zlib</method></compress>");
     }
     
@@ -383,7 +397,7 @@ public class JabberParseXML
         p.setAuthStatus(false);
       }
       
-      p.sh_.sendRequest(auth);
+      p.sendRequest(auth);
     }
     
     /* Check for resource bind */
@@ -391,7 +405,7 @@ public class JabberParseXML
     if (x2 != null)
     {
       System.out.println("[INFO-JABBER] Send bind request");
-      p.sh_.sendRequest(new StringBuffer()
+      p.sendRequest(new StringBuffer()
         .append("<iq type=\"set\" id=\"bind\">") 
         .append(  "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">")
         .append(    "<resource>").append("JimmyIM").append("</resource>")
@@ -437,7 +451,7 @@ public class JabberParseXML
     }
     
     resp += "</response>";
-    protocol.sh_.sendRequest(resp);
+    protocol.sendRequest(resp);
   }
 
   /**
@@ -617,70 +631,100 @@ public class JabberParseXML
           name);
       c.setStatusMsg(statusText);
       
-      p.addContact(c);
+      p.getContacts().addElement(c);
       j.addContact(c);
     }
     else
     {
-      if (name != null)
-        c.setScreenName(name);
-      if (group != null) 
-        c.setGroupName(group);
-      c.setStatus(status == Byte.MAX_VALUE ? c.status() : status);
-      c.setStatusMsg(statusText);
-      j.changeContactStatus(c);
+      boolean changed = false;
+      if (name != null && !name.equals(c.screenName())) {
+        c.setScreenName(name); changed = true;
+      }
+      if (group != null && !group.equals(c.groupName())) {
+        c.setGroupName(group); changed = true;
+      }
+      if (status != Byte.MAX_VALUE && status != c.status()) {
+        c.setStatus(status); changed = true;
+      }
+      if (statusText != null && !statusText.equals(c.statusMsg())) {
+        c.setStatusMsg(statusText); changed = true;
+      }
+      
+      if (changed)
+        j.changeContactStatus(c);
     }
   }
   
-  /**
-   * Calculates string representation of initial user status
-   * Sets important Google settings
-   * Informs Google Talk that we want to use GTalk features 
-   */
-  protected static final String getGTalkOptionsXml()
+  protected static void sendStatus(
+      byte status,
+      JabberProtocol protocol)
   {
-    return new StringBuffer()
-      .append("<iq type=\"get\" id=\"6\">")
-      .append(  "<query xmlns=\"google:relay\"/>")
-      .append("</iq>").toString();
+    StringBuffer presence = new StringBuffer()
+      .append("<presence")
+      .append(" jimmy='send status'>")
+      .append(  "<priority>1</priority>");
+    
+    if (status != Contact.ST_OFFLINE && status != Contact.ST_ONLINE)
+      presence
+        .append(  "<show>")
+        .append(    status == Contact.ST_AWAY ? "away" : "dnd")
+        .append(  "</show>");
+    
+    presence.append("</presence>");
+    
+    protocol.sendRequest(presence.toString());
   }
   
-  /**
-   * Sends mail notification request to GTalk server
-   */
-  protected static final String getGTalkMailNotificationReqXml(String fullJid)
-  {
-    return new StringBuffer()
-      .append("<iq type=\"set\" to=\"").append(fullJid).append("\" id=\"15\">")
-      .append(  "<usersetting xmlns=\"google:setting\">")
-      .append(    "<autoacceptrequests value=\"false\"/>")
-      .append(    "<mailnotifications value=\"true\"/>")
-      .append(  "</usersetting>")
-      .append("</iq>").toString();
-  }
-  
-  /**
-   * Get presence request for GTalk
-   */
-  protected static final String getGTalkPresence()
-  {
-    return "<presence><show></show><status></status></presence>";
-  }
-  
-  /**
-   * Get user status request
-   */
-  protected static final String getGTalkUserStatusXml(String fullJid)
-  {
-    return new StringBuffer()
-      .append("<iq type=\"get\" id=\"23\">")
-      .append(  "<query xmlns=\"google:mail:notify\" ")
-      .append(    "q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>")
-      .append("</iq>")
-      .append("<iq type=\"get\" to=\"").append(fullJid).append("\" id=\"21\">")
-      .append(  "<query xmlns=\"google:shared-status\"/>")
-      .append("</iq>").toString();
-  }
+//  TODO Uncomment when activating gtalk special features
+//  /**
+//   * Calculates string representation of initial user status
+//   * Sets important Google settings
+//   * Informs Google Talk that we want to use GTalk features 
+//   */
+//  protected static final String getGTalkOptionsXml()
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"get\" id=\"6\">")
+//      .append(  "<query xmlns=\"google:relay\"/>")
+//      .append("</iq>").toString();
+//  }
+//  
+//  /**
+//   * Sends mail notification request to GTalk server
+//   */
+//  protected static final String getGTalkMailNotificationReqXml(String fullJid)
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"set\" to=\"").append(fullJid).append("\" id=\"15\">")
+//      .append(  "<usersetting xmlns=\"google:setting\">")
+//      .append(    "<autoacceptrequests value=\"false\"/>")
+//      .append(    "<mailnotifications value=\"true\"/>")
+//      .append(  "</usersetting>")
+//      .append("</iq>").toString();
+//  }
+//  
+//  /**
+//   * Get presence request for GTalk
+//   */
+//  protected static final String getGTalkPresence()
+//  {
+//    return "<presence><show></show><status></status></presence>";
+//  }
+//  
+//  /**
+//   * Get user status request
+//   */
+//  protected static final String getGTalkUserStatusXml(String fullJid)
+//  {
+//    return new StringBuffer()
+//      .append("<iq type=\"get\" id=\"23\">")
+//      .append(  "<query xmlns=\"google:mail:notify\" ")
+//      .append(    "q=\"(!label:^s) (!label:^k) ((label:^u) (label:^i) (!label:^vm))\"/>")
+//      .append("</iq>")
+//      .append("<iq type=\"get\" to=\"").append(fullJid).append("\" id=\"21\">")
+//      .append(  "<query xmlns=\"google:shared-status\"/>")
+//      .append("</iq>").toString();
+//  }
   
   /**
    * Get roster request
