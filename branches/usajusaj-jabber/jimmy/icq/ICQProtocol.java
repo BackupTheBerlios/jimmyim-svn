@@ -37,7 +37,9 @@ import jimmy.ChatSession;
 import jimmy.Contact;
 //import jimmy.Jimmy;
 //import jimmy.net.*;
+import jimmy.icq.ICQPacket.TLV;
 import jimmy.util.*;
+import jimmy.yahoo.YahooPacket;
 import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 
@@ -47,10 +49,11 @@ import jimmy.ProtocolInteraction;
  */
 public class ICQProtocol extends Protocol {
 	
-	private String AUTH_SERVER = "login.oscar.aol.com";
+  private String AUTH_SERVER = "login.icq.com";
+//  private String AUTH_SERVER = "login.oscar.aol.com";
 	private int AUTH_SERVER_PORT = 5190;
 	//private final int AUTH_SERVER_PORT = 6666;
-	private final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
+	protected final String cli_id = new String("ICQ Inc. - Product of ICQ (TM).2003a.5.45.1.3777.85");
 	private String bos = "";
 	private int bos_port = 5190;
 	private short f_seq = 0;
@@ -102,208 +105,163 @@ public class ICQProtocol extends Protocol {
 		if(acc != null && !acc.equals(""))
 			this.AUTH_SERVER = account.getServer();
 		
-		//TODO: Change login sequence to a more dinamic shape
-		
-		//STAGE ONE LOGIN (AUTH)
-		//FIRST PART OF STAGE ONE
-		//Generation of first login package
-		ICQPackage l = ICQLib.getFirstLoginPackage(this.user, this.pass, this.roast(this.pass.getBytes()), this.cli_id, this.f_seq);
-		
-		//auth connection
-		byte[] b = l.getNetPackage();
 		this.conn = new ICQConnector(this.AUTH_SERVER,this.AUTH_SERVER_PORT);
 		this.conn.connect();
+		if (!this.conn.isConnected()) return false;
 		
-		//check the connection acknowledgement
-		if(this.conn.getNextPackage() == null){
-			System.out.println("Error: not responding.");
-			return false;
+		byte[] msg = conn.getReplyBytes();
+		
+		ICQPacket packet = ICQPacket.parsePacket(msg);
+		if (packet == null)
+		{
+		  conn.disconnect();
+		  return false;
 		}
 		
-		//Send the first auth package
-		this.conn.sendPackage(b);
-		
-		this.response = new ICQPackage(this.conn.getNextPackage());
-		
-		//decode BOS TLV
-		this.tlvDecode(this.response.getTlv(2));
-		
-		//decode cookie TLV
-		this.tlvDecode(this.response.getTlv(3));
-		
-		this.conn.disconnect();
-		
-		System.out.println(this.bos);
-		
-		//END STAGE ONE
-		
-		//STAGE TWO
-		ICQTlv t = null;
-		l = new ICQPackage();
-		byte[] ha = new byte[4];
-		ha[3] = 0x01;
-		l.setContent(ha);
-		t = new ICQTlv();
-		t.setContent(this.cookie);
-		t.setHeader((short)0x06,(short)t.getCLen());
-		l.addTlv(t);
-		l.setChannel((byte)0x01);
-		l.setFlap((short)1);
-		ha=null;
-		
-		//Now change the connection server to recieved BOS address
-		
-		try {
-			this.bos_port = Integer.parseInt(this.bos.substring(this.bos
-					.indexOf(':') + 1, this.bos.length()));
-		} catch (NumberFormatException e) {
+    conn.sendRequest(ICQPacket.createAuth1Packet(this).packPacket());
+    
+    msg = conn.getReplyBytes();
+    packet = ICQPacket.parsePacket(msg);
+    
+    if (packet == null || packet.channel != 4)
+    {
+      conn.disconnect();
+      return false;
+    }
+    
+    packet.parseTLVs();
+    
+    String bos = null;
+    TLV tlv = packet.getTLV(5, 1);
+    if (tlv != null)
+      bos = new String(tlv.value);
 
-			// Add exception forwarding
-			System.out
-					.println("[DEBUG] Server response changed or too many connection retries.");
-			return false;
-		}
+    byte[] cookie = null;
+    tlv = packet.getTLV(6, 1);
+    if (tlv != null)
+      cookie = tlv.value;
+    
+    if (bos == null || cookie == null)
+    {
+      conn.disconnect();
+      return false;
+    }
+    
+    conn.disconnect();
+    String[] hp = Utils.explode(':', bos);
+    if (hp == null || hp.length != 2)
+      return false;
+    
+    conn.setURL(hp[0]);
+    conn.setPort(Integer.parseInt(hp[1]));
+    conn.connect();
+    conn.sendRequest(ICQPacket.createLoginPacket(cookie).packPacket());
 		
-		
-		this.bos = this.bos.substring(0,this.bos.indexOf(":"));
-		this.conn.setPort(this.bos_port);
-		this.conn.setURL(this.bos);
-		
-		
-		this.conn.connect();
-		this.conn.sendPackage(l.getNetPackage());
-		
-//		System.out.println(Utils.byteArrayToHexString(this.conn.getNextPackage()));
-		this.conn.getNextPackage();
-//		System.out.println("recieving auth...");
-		byte[] hahaha = this.conn.getNextPackage();
-		ICQPackage in = new ICQPackage(hahaha);
-		this.services = in.getServices();
-		hahaha=null;
-		in = null;
-		this.service_ver = new byte[2*this.services.length];
-		Random rng = new Random();
-		
-		int j = 0;
-		for(int i = 0; i < this.service_ver.length-3; i=i+4){
-			this.service_ver[i] = this.services[j];
-			this.service_ver[i+1] = this.services[j+1];
-			this.service_ver[i+2] = 0;
-			this.service_ver[i+3] = (byte)Math.abs(rng.nextInt());
-			j=j+2;
-		}
-		ICQPackage ver_req = new ICQPackage(this.service_ver.length,(byte)0x02);
-		ver_req.setContent(this.service_ver);
-		ver_req.setSnac(1,23,0,++this.s_seq);
-		ver_req.setFlap(++this.f_seq);
-		byte[] bla = ver_req.getNetPackage();
-		this.conn.sendPackage(bla);
-		
-		b = this.conn.getNextPackage();
+    while (true)
+    {
+      msg = conn.getNextPackage();
+      packet = ICQPacket.parsePacket(msg);
+      
+      if (packet == null || packet.channel == 4)
+      {
+        continue;
+      }
+      
+      short f = packet.getFamily();
+      short st = packet.getSubType();
+      if ((f != 0 && st == 1) || (f == 9 && st == 9))
+        continue;
+      if (f != 1 || st != 3)
+        continue;
+      
+      break;
+    }
+    
+    ICQPacket
+        .createSNAC(0x0001, 0x0017, 0, 0, 0x17)
+        .append(new byte[] {00, 01, 00, 03, 00, 02, 00, 01, 00, 03, 00, 01, 00, (byte) 0x15,
+            00, 01, 00, 04, 00, 01, 00, 06, 00, 01, 00, 0x09, 00, 01, 00, (byte) 0x0A, 00, 01
+            }).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0001, 0x000e, 0, 0, 0xe).sendSNAC(conn);
+        
+    ICQPacket
+        .createSNAC(0x0002, 0x0002, 0, 0, 2).sendSNAC(conn);
 
-		if(b != null){
-//			System.out.println("Service versions");
-			in = new ICQPackage(b);
-			this.pkgDecode(in);
-		}else{
-			return false;
-		}
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		this.pkgDecode(in);
+    ICQPacket
+        .createSNAC(0x0003, 0x0002, 0, 0, 2).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0004, 0x0004, 0, 0, 0x000004).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0009, 0x0002, 0, 0, 2).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0004, 0x0002, 0, 0, 2)
+        .append(new byte[] {00, 00, 00, 00, 00, 03, 0x1F, 0x40, 0x03, (byte) 0xE7, 0x03,
+            (byte) 0xE7, 0x00, 0x00, 0x00, 0x00}).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0002, 0x0004, 0, 0, 4)
+        .append(new byte[] {(byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x20, (byte) 0x09,
+            (byte) 0x46, (byte) 0x13, (byte) 0x49, (byte) 0x4C, (byte) 0x7F, (byte) 0x11, (byte) 0xD1,
+            (byte) 0x82, (byte) 0x22, (byte) 0x44, (byte) 0x45, (byte) 0x53, (byte) 0x54, (byte) 0x00,
+            (byte) 0x00, (byte) 0x09, (byte) 0x46, (byte) 0x13, (byte) 0x44, (byte) 0x4C, (byte) 0x7F,
+            (byte) 0x11, (byte) 0xD1, (byte) 0x82, (byte) 0x22, (byte) 0x44, (byte) 0x45, (byte) 0x53,
+            (byte) 0x54, (byte) 0x00, (byte) 0x00}).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0004, 0x0002, 0, 0, 2)
+        .append(new byte[] {00, 00, 00, 00, 00, 03, 0x1F, 0x40, 0x03, (byte) 0xE7, 0x03,
+            (byte) 0xE7, 0x00, 0x00, 0x00, 0x00}).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0003, 0x0004, 0, 0, 4).sendSNAC(conn);
 
-		/***************************************************/
-		/*	TODO or not: rate info negotiation			   */
-		/* has to use those rates - for now overriden	   */
-		/***************************************************/
-		
-		ICQPackage out = new ICQPackage();
-		out.setSnac(1,6,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		this.pkgDecode(in);
-
-		//END STAGE TWO
-		//STAGE THREE
-		out = new ICQPackage();
-		out.setSnac(2,2,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		this.pkgDecode(in);
-		
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		this.pkgDecode(in);
-		
-		out = new ICQPackage();
-		out.setSnac(19,4,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		
-		//Contact list
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		//System.out.println(Utils.byteArrayToHexString(b));
-		this.pkgDecode(in);
-		
-		
-		out = new ICQPackage();
-		out.setChannel((byte)0x02);
-		byte[] c = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x0B,(byte)0x1F,(byte)0x40,(byte)0x03,(byte)0xE7,(byte)0x03,(byte)0xE7,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
-		out.setContent(c);
-		out.setSnac(4,2,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		c = null;
-		
-		//END STAGE THREE
-		//STAGE FOUR
-
-		
-		out = new ICQPackage();
-		byte[] used_families = ICQLib.getUsedFamilies();
-		
-		out.setChannel((byte)0x02);
-		out.setContent(used_families);
-		out.setSnac(1,2,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		//END STAGE FOUR
-		used_families=null;
-		
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		//System.out.println("Got packet\n"+Utils.byteArrayToHexString(b));
-		this.pkgDecode(in);
-		
-		out = new ICQPackage();
-		out.setSnac(1,30,0,++this.s_seq);
-		t = new ICQTlv();
-		byte[] h = {(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00};
-		t.setContent(h);
-		t.setHeader((short)0x0006,(short)t.getCLen());
-		out.addTlv(t);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		
-		out = new ICQPackage();
-		out.setChannel((byte)0x02);
-		out.setContent(h);
-		out.setSnac(1,17,0,++this.s_seq);
-		out.setFlap(++this.f_seq);
-		this.conn.sendPackage(out.getNetPackage());
-		
-		b = this.conn.getNextPackage();
-		in = new ICQPackage(b);
-		this.pkgDecode(in);
+    ICQPacket
+        .createSNAC(0x0009, 0x0007, 0, 0, 7).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0001, 0x001e, 0, 0, 0x1e)
+        .append(new byte[] {(byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x04, 
+            (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x00, 
+            (byte) 0x08, (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x00, 
+            (byte) 0x00, (byte) 0x0C, (byte) 0x00, (byte) 0x25, (byte) 0xC0, 
+            (byte) 0xA8, (byte) 0x04, (byte) 0x6B, (byte) 0x00, (byte) 0x00, 
+            (byte) 0x73, (byte) 0x74, (byte) 0x04, (byte) 0x00, (byte) 0x07, 
+            (byte) 0x1D, (byte) 0xAE, (byte) 0xF0, (byte) 0x9E, (byte) 0x00, 
+            (byte) 0x00, (byte) 0x00, (byte) 0x50, (byte) 0x00, (byte) 0x00, 
+            (byte) 0x00, (byte) 0x03, (byte) 0x3B, (byte) 0x17, (byte) 0x6B, 
+            (byte) 0x57, (byte) 0x3B, (byte) 0x18, (byte) 0xAC, (byte) 0xE9, 
+            (byte) 0x3B, (byte) 0x17, (byte) 0x6B, (byte) 0x4E, (byte) 0x00, 
+            (byte) 0x00}).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0001, 0x0011, 0, 0, 0x11)
+        .append(new byte[] {0, 0, 0, 0}).sendSNAC(conn);
+    
+    ICQPacket
+        .createSNAC(0x0001, 0x0002, 0, 0, 2)
+        .append(new byte[] {(byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x03, 
+            (byte) 0x00, (byte) 0x04, (byte) 0x06, (byte) 0x86, (byte) 0x00, 
+            (byte) 0x02, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, 
+            (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x03, (byte) 0x00, 
+            (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, 
+            (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, 
+            (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x06, 
+            (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00, 
+            (byte) 0x01, (byte) 0x00, (byte) 0x08, (byte) 0x00, (byte) 0x01, 
+            (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, 
+            (byte) 0x09, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, 
+            (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x0a, (byte) 0x00, 
+            (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, 
+            (byte) 0x00, (byte) 0x0b, (byte) 0x00, (byte) 0x01, (byte) 0x00, 
+            (byte) 0x04, (byte) 0x00, (byte) 0x01}).sendSNAC(conn);
 
 		//send contacts to UI
-		this.jimmy_.addContacts(this.contacts_);
+//		this.jimmy_.addContacts(this.contacts_);
 		
 		//Set the connected status
 		this.status_ = Protocol.CONNECTED;
@@ -1115,5 +1073,8 @@ public class ICQProtocol extends Protocol {
 		return false;
 	}
 
-	
+	public static void main(String[] args)
+  {
+	  System.out.println(0x7e);
+  }
 }

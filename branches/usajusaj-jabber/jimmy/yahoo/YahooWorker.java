@@ -28,17 +28,26 @@ import java.util.Vector;
 
 import jimmy.ChatSession;
 import jimmy.Contact;
-import jimmy.Protocol;
 import jimmy.ProtocolInteraction;
 import jimmy.util.Utils;
 
 /**
+ * Yahoos packet parser
+ * 
  * @author Matej Usaj
  */
 public class YahooWorker extends YahooConstants
 {
+  /** Cached roster list */
   private static YahooPacket list;
   
+  /**
+   * Launch apropriate action for inbound packet
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   protected static void processPacket(
       YahooPacket packet, 
       YahooProtocol protocol,
@@ -47,40 +56,46 @@ public class YahooWorker extends YahooConstants
     switch (packet.service_)
     {
       case SERVICE_AUTH: System.out.println("[INFO-YAHOO] AUTH"); doAuth(packet, protocol); break;
-      case SERVICE_ADDIGNORE : System.out.println("[INFO-YAHOO] ADDIGNORE"); break;
+//      case SERVICE_ADDIGNORE : System.out.println("[INFO-YAHOO] ADDIGNORE"); break;
       case SERVICE_AUTHRESP : System.out.println("[INFO-YAHOO] AUTHRESP"); protocol.setAuthStatus(true); break;
-      case SERVICE_CHATCONNECT : System.out.println("[INFO-YAHOO] CHATCONNECT"); break;
-      case SERVICE_CHATDISCONNECT: System.out.println("[INFO-YAHOO] CHATDISCONNECT"); break;
-      case SERVICE_CHATLOGOFF : System.out.println("[INFO-YAHOO] CHATLOGOFF"); break;
-      case SERVICE_CHATLOGON : System.out.println("[INFO-YAHOO] CHATLOGON"); break;
-      case SERVICE_CHATMSG : System.out.println("[INFO-YAHOO] CHATMSG"); break;
-      case SERVICE_CHATPM : System.out.println("[INFO-YAHOO] CHATPM"); break;
-      case SERVICE_CONFADDINVITE: System.out.println("[INFO-YAHOO] CONFADDINVITE"); break;
-      case SERVICE_CONFDECLINE : System.out.println("[INFO-YAHOO] CONFDECLINE"); break;
-      case SERVICE_CONFINVITE : System.out.println("[INFO-YAHOO] CONFINVITE"); break;
-      case SERVICE_CONFLOGOFF : System.out.println("[INFO-YAHOO] CONFLOGOFF"); break;
-      case SERVICE_CONFLOGON : System.out.println("[INFO-YAHOO] CONFLOGON"); break;
-      case SERVICE_CONFMSG : System.out.println("[INFO-YAHOO] CONFMSG"); break;
-      case SERVICE_CONTACTIGNORE: System.out.println("[INFO-YAHOO] CONTACTIGNORE"); break;
+//      case SERVICE_CHATCONNECT : System.out.println("[INFO-YAHOO] CHATCONNECT"); break;
+//      case SERVICE_CHATDISCONNECT: System.out.println("[INFO-YAHOO] CHATDISCONNECT"); break;
+//      case SERVICE_CHATLOGOFF : System.out.println("[INFO-YAHOO] CHATLOGOFF"); break;
+//      case SERVICE_CHATLOGON : System.out.println("[INFO-YAHOO] CHATLOGON"); break;
+//      case SERVICE_CHATMSG : System.out.println("[INFO-YAHOO] CHATMSG"); break;
+//      case SERVICE_CHATPM : System.out.println("[INFO-YAHOO] CHATPM"); break;
+//      case SERVICE_CONFADDINVITE: System.out.println("[INFO-YAHOO] CONFADDINVITE"); break;
+//      case SERVICE_CONFDECLINE : System.out.println("[INFO-YAHOO] CONFDECLINE"); break;
+//      case SERVICE_CONFINVITE : System.out.println("[INFO-YAHOO] CONFINVITE"); break;
+//      case SERVICE_CONFLOGOFF : System.out.println("[INFO-YAHOO] CONFLOGOFF"); break;
+//      case SERVICE_CONFLOGON : System.out.println("[INFO-YAHOO] CONFLOGON"); break;
+//      case SERVICE_CONFMSG : System.out.println("[INFO-YAHOO] CONFMSG"); break;
+//      case SERVICE_CONTACTIGNORE: System.out.println("[INFO-YAHOO] CONTACTIGNORE"); break;
       case SERVICE_CONTACTNEW : System.out.println("[INFO-YAHOO] CONTACTNEW"); doNewContactRequest(packet, protocol, jimmy); break;
       case SERVICE_FRIENDADD : System.out.println("[INFO-YAHOO] FRIENDADD"); doFriendAdd(packet, protocol, jimmy); break;
-      case SERVICE_FRIENDREMOVE : System.out.println("[INFO-YAHOO] FRIENDREMOVE"); break;
-      case SERVICE_IDACT : System.out.println("[INFO-YAHOO] IDACT"); break;
-      case SERVICE_IDDEACT : System.out.println("[INFO-YAHOO] IDDEACT"); break;
-      case SERVICE_ISAWAY : System.out.println("[INFO-YAHOO] ISAWAY"); break;
-      case SERVICE_ISBACK : System.out.println("[INFO-YAHOO] ISBACK"); break;
+//      case SERVICE_FRIENDREMOVE : System.out.println("[INFO-YAHOO] FRIENDREMOVE"); break;
+//      case SERVICE_IDACT : System.out.println("[INFO-YAHOO] IDACT"); break;
+//      case SERVICE_IDDEACT : System.out.println("[INFO-YAHOO] IDDEACT"); break;
+//      case SERVICE_ISAWAY : System.out.println("[INFO-YAHOO] ISAWAY"); break;
+//      case SERVICE_ISBACK : System.out.println("[INFO-YAHOO] ISBACK"); break;
       case SERVICE_LIST : System.out.println("[INFO-YAHOO] LIST"); parseList(packet, protocol, jimmy);  break;
       case SERVICE_LOGOFF : System.out.println("[INFO-YAHOO] LOGOFF"); doLogoff(protocol); break;
       case SERVICE_LOGON : System.out.println("[INFO-YAHOO] LOGON"); doLogon(packet, protocol, jimmy);  break;
       case SERVICE_MESSAGE : System.out.println("[INFO-YAHOO] MESSAGE"); parseMessage(packet, protocol, jimmy); break;
-      case SERVICE_NOTIFY : System.out.println("[INFO-YAHOO] NOTIFY"); break;
-      case SERVICE_PING : System.out.println("[INFO-YAHOO] PING"); break;
-      case SERVICE_USERSTAT : System.out.println("[INFO-YAHOO] USERSTAT"); break;
+//      case SERVICE_NOTIFY : System.out.println("[INFO-YAHOO] NOTIFY"); break;
+//      case SERVICE_PING : System.out.println("[INFO-YAHOO] PING"); break;
+//      case SERVICE_USERSTAT : System.out.println("[INFO-YAHOO] USERSTAT"); break;
       default:
         break;
     }
   }
   
+  /**
+   * Process authentication packet and generate response packet
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   */
   private static void doAuth(
       YahooPacket packet, 
       YahooProtocol protocol)
@@ -108,11 +123,21 @@ public class YahooWorker extends YahooConstants
     }
   }
   
+  /**
+   * Parse roster list and fill contacts to display
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void parseList(
       YahooPacket packet,
       YahooProtocol protocol,
       ProtocolInteraction jimmy)
   {
+    /*
+     * Merge roster list if there are multiple parts of it
+     */
     if (list == null)
       list = packet.clone();
     else
@@ -166,6 +191,13 @@ public class YahooWorker extends YahooConstants
     }
   }
   
+  /**
+   * Parse and show the message
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void parseMessage(
       YahooPacket packet,
       YahooProtocol protocol,
@@ -201,6 +233,14 @@ public class YahooWorker extends YahooConstants
     }
   }
   
+  /**
+   * Open {@link ChatSession} and show message
+   * 
+   * @param from {@link Contact} name
+   * @param message His message
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void createMessage(
       String from,
       String message,
@@ -220,9 +260,19 @@ public class YahooWorker extends YahooConstants
     jimmy.msgRecieved(cs, c, message);
   }
   
+  /**
+   * Process {@link Contact} info
+   * 
+   * @param id {@link Contact} username
+   * @param protocol {@link YahooProtocol} instace
+   * @param status Contact status
+   * @param group Contact group
+   * @param screenName Contact screen name
+   * @param jimmy {@link ProtocolInteraction} instance
+   */
   protected static void processContact(
       String id,
-      Protocol protocol,
+      YahooProtocol protocol,
       byte status,
       String group,
       String screenName,
@@ -253,11 +303,21 @@ public class YahooWorker extends YahooConstants
         c.setStatus(status); changed = true;
       }
       
+      /*
+       * Update Contacts status only if there was a change
+       */
       if (changed)
         jimmy.changeContactStatus(c);
     }
   }
   
+  /**
+   * Execute logon procedure
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void doLogon(
       YahooPacket packet,
       YahooProtocol protocol,
@@ -272,12 +332,24 @@ public class YahooWorker extends YahooConstants
         .append("10", Long.toString(STATUS_AVAILABLE)).packPacket());
   }
   
+  /**
+   * Execute logoff procedure
+   * 
+   * @param protocol {@link YahooProtocol} instance
+   */
   private static void doLogoff(
       YahooProtocol protocol)
   {
     protocol.stop_ = true;
   }
   
+  /**
+   * Parse {@link Contact} data from packet
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void parseContact(
       YahooPacket packet,
       YahooProtocol protocol,
@@ -299,6 +371,13 @@ public class YahooWorker extends YahooConstants
     }
   }
   
+  /**
+   * Execute new {@link Contact} request action or his rejection
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void doNewContactRequest(
       YahooPacket packet,
       YahooProtocol protocol,
@@ -338,6 +417,13 @@ public class YahooWorker extends YahooConstants
     }
   }
   
+  /**
+   * Add new {@link Contact} 
+   * 
+   * @param packet Data packet
+   * @param protocol {@link YahooProtocol} instance
+   * @param jimmy {@link ProtocolInteraction} instace
+   */
   private static void doFriendAdd(
       YahooPacket packet,
       YahooProtocol protocol,
