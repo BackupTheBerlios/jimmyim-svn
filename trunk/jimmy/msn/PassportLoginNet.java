@@ -101,7 +101,7 @@ public class PassportLoginNet
 		    data = tmpData;
 	     }
              resp = new String(data, "UTF-8");             
-             //System.out.println("[DEBUG] "+resp);[
+             System.out.println("[DEBUG] "+resp);
           } catch(IOException e ){
               e.printStackTrace();
               return null;
@@ -137,11 +137,24 @@ public class PassportLoginNet
             
             //System.out.println("[DEBUG] "+strChallenge);
             
+            /**
+             * Important: order of this parameters is important.
+             * TODO: String tokenizer that parses all parameters from challenge
+             * string and sorts them(if neccessary)
+             */
+            
+            int tmp=strChallenge.indexOf("lc=", 0);
+            String tmp1=strChallenge.substring(tmp);     
+            String tmp2=strChallenge.substring(0,tmp);  
+            //String add = tmp2.substring(0,tmp2.indexOf("rver=")-1);
+            
+            strChallenge = tmp1.concat(","+tmp2);
+            
             int tpfIndex=strChallenge.indexOf("tpf", 0);
             if(tpfIndex!=-1) {
                 strChallenge=strChallenge.substring(0,tpfIndex-1);
             }
-            //System.out.println("[DEBUG] "+strChallenge);
+            System.out.println("[DEBUG] Challenge:"+strChallenge);
             
             strChallenge = Utils.urlDecode(strChallenge);
             strChallenge = Utils.replace(",", "&",strChallenge);
@@ -189,6 +202,8 @@ public class PassportLoginNet
             buf2.append("</Body></Envelope>");
 
             String strAuthBody = buf2.toString();
+            
+            System.out.println("[DEBUG] " + strAuthBody);
             
             String t_twnserver = TWNServer;
             String t_twnpage = TWNPage;
