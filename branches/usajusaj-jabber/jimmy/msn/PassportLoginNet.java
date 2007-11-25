@@ -9,6 +9,7 @@
 
 package jimmy.msn;
 import java.io.*;
+import java.util.Hashtable;
 import javax.microedition.io.*;
 import jimmy.net.ServerHandler;
 import jimmy.util.Utils;
@@ -25,6 +26,7 @@ public class PassportLoginNet
     //Supposed to be official Passport 3.0 login server. Better to use this server to avoid S40 errors
     static final String        TWNServer = "login.live.com"; //possible same as login.live.com
     static final String        TWNPage = "/RST.srf";
+    private static String[] challengeParams ={"lc","id","tw","fs","ru","kpp","kv","ver"};    
     
     private HttpsConnection httpsConn;
     private String loginServerURL;
@@ -101,7 +103,7 @@ public class PassportLoginNet
 		    data = tmpData;
 	     }
              resp = new String(data, "UTF-8");             
-             //System.out.println("[DEBUG] "+resp);[
+             System.out.println("[DEBUG] "+resp);
           } catch(IOException e ){
               e.printStackTrace();
               return null;
@@ -135,15 +137,23 @@ public class PassportLoginNet
             
             strChallenge = strChallenge.substring(0, strChallenge.length()-2);
             
-            //System.out.println("[DEBUG] "+strChallenge);
-            
-            int tpfIndex=strChallenge.indexOf("tpf", 0);
-            if(tpfIndex!=-1) {
-                strChallenge=strChallenge.substring(0,tpfIndex-1);
+            /**
+             * Order of this parameters is important.
+             * String tokenizer first parses all parameters from challenge
+             * string and sorts them(if neccessary)
+             */
+            Hashtable challengeParamsHash = new Hashtable();
+            String[] param=Utils.tokenize(strChallenge,',');
+            String[] tokens;
+            for(int i=0;i<param.length;i++) {
+                tokens=Utils.tokenize(param[i],'=');
+                challengeParamsHash.put(tokens[0],tokens[1]);
             }
-            //System.out.println("[DEBUG] "+strChallenge);
-            
-            strChallenge = Utils.urlDecode(strChallenge);
+            strChallenge="";
+            for(int i=0;i<this.challengeParams.length;i++) {
+                if(challengeParamsHash.containsKey(this.challengeParams[i])) strChallenge=strChallenge.concat(((i==0)?"":",")+this.challengeParams[i]+"="+challengeParamsHash.get(this.challengeParams[i]));
+            }
+            //strChallenge = Utils.urlDecode(strChallenge);
             strChallenge = Utils.replace(",", "&",strChallenge);
             strChallenge = Utils.replace("&", "&amp;",strChallenge);
             
@@ -189,6 +199,8 @@ public class PassportLoginNet
             buf2.append("</Body></Envelope>");
 
             String strAuthBody = buf2.toString();
+            
+            System.out.println("[DEBUG] " + strAuthBody);
             
             String t_twnserver = TWNServer;
             String t_twnpage = TWNPage;
