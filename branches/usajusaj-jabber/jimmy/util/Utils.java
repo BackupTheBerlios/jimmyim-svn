@@ -3,8 +3,6 @@
  */
 package jimmy.util;
 
-import java.security.DigestException;
-import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -676,21 +674,22 @@ public class Utils {
     return false;
   }
   
-  public static byte[] digest(MessageDigest d)
-  {
-    byte[] res;
-    try
-    {
-      byte[] tmp = new byte[1024];
-      res = new byte[d.digest(tmp, 0, tmp.length)];
-      System.arraycopy(tmp, 0, res, 0, res.length);
-      tmp = null;
-    }
-    catch (DigestException e)
-    {
-      e.printStackTrace();
-      return new byte[0];
-    }
-    return res;
-  }
+//  public static byte[] digest(MessageDigest d)
+//  {
+//    byte[] res;
+//    try
+//    {
+//      byte[] tmp = new byte[1024];
+//      res = new byte[d.digest(tmp, 0, tmp.length)];
+//      System.arraycopy(tmp, 0, res, 0, res.length);
+//      tmp = null;
+//      System.out.println("Digested length: " + res.length);
+//    }
+//    catch (DigestException e)
+//    {
+//      e.printStackTrace();
+//      return new byte[0];
+//    }
+//    return res;
+//  }
 }

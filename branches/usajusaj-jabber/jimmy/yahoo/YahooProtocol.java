@@ -81,8 +81,11 @@ public class YahooProtocol extends Protocol
     status_ = CONNECTING;
     account_ = account;
     contacts_ = new Vector();
-
-    account_.setUser(account_.getUser().toLowerCase());
+    
+    account_.setUser((
+        account_.getUser().indexOf("@") >= 0 ?
+          account_.getUser().substring(0, account_.getUser().indexOf("@")) :
+          account_.getUser()).toLowerCase());
     account_.setServer(
         account_.getServer() != null ? 
             account_.getServer() :
@@ -119,7 +122,7 @@ public class YahooProtocol extends Protocol
       }
       if ((t += 10) > AUTH_TIMEOUT)
       {
-        status_ = NO_CONNECTION;
+        status_ = WRONG_PASSWORD;
         break;
       }
     }

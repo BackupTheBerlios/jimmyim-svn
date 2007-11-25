@@ -46,43 +46,25 @@ public final class JabberMD5
   /** containss the computed message digest */
 
   private int state[];
-
   private long count;
-
   private byte buffer[];
-
   private static int transformBuffer[];
 
   private static final int S11 = 7;
-
   private static final int S12 = 12;
-
   private static final int S13 = 17;
-
   private static final int S14 = 22;
-
   private static final int S21 = 5;
-
   private static final int S22 = 9;
-
   private static final int S23 = 14;
-
   private static final int S24 = 20;
-
   private static final int S31 = 4;
-
   private static final int S32 = 11;
-
   private static final int S33 = 16;
-
   private static final int S34 = 23;
-
   private static final int S41 = 6;
-
   private static final int S42 = 10;
-
   private static final int S43 = 15;
-
   private static final int S44 = 21;
 
   /**
@@ -190,10 +172,10 @@ public final class JabberMD5
 
     for (int i = 0; i < 16; i++)
     {
-      x[i] = (int) buf[i * 4 + offset] & 0xff;
+      x[i] = buf[i * 4 + offset] & 0xff;
       for (int j = 1; j < 4; j++)
       {
-        x[i] += ((int) buf[i * 4 + j + offset] & 0xff) << (j * 8);
+        x[i] += (buf[i * 4 + j + offset] & 0xff) << (j * 8);
       }
     }
 
