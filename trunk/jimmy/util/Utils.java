@@ -3,8 +3,6 @@
  */
 package jimmy.util;
 
-import java.security.DigestException;
-import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -676,22 +674,54 @@ public class Utils {
     return false;
   }
   
-  public static byte[] digest(MessageDigest d)
+//  public static byte[] digest(MessageDigest d)
+//  {
+//    byte[] res;
+//    try
+//    {
+//      byte[] tmp = new byte[1024];
+//      res = new byte[d.digest(tmp, 0, tmp.length)];
+//      System.arraycopy(tmp, 0, res, 0, res.length);
+//      tmp = null;
+//      System.out.println("Digested length: " + res.length);
+//    }
+//    catch (DigestException e)
+//    {
+//      e.printStackTrace();
+//      return new byte[0];
+//    }
+//    return res;
+//  }
+    /**
+     * Tokenizes a string with the default delimiter(whitespace).
+     * @return Array of tokens(strings).
+     * @param String s String to be tokenized.
+     * @param char delimiter Character that delimits the string.
+     */
+  public static String[] tokenize(String s) {
+    return Utils.tokenize(s,' ');
+  }
+    /**
+     * Tokenizes a string with the given delimiter.
+     * @return Array of tokens(strings).
+     * @param String s String to be tokenized.
+     * @param char delimiter Character that delimits the string.
+     */
+  public static String[] tokenize(String s, char delimiter) 
   {
-    byte[] res;
-    try
-    {
-      byte[] tmp = new byte[1024];
-      res = new byte[d.digest(tmp, 0, tmp.length)];
-      System.arraycopy(tmp, 0, res, 0, res.length);
-      tmp = null;
+    Vector v = new Vector();
+    int i=s.indexOf(delimiter);
+    if(i==-1) return new String[0];
+    int currentIndex=-1;
+    while(i!=-1) {
+      v.addElement(new String(s.substring(currentIndex+1,i)));
+      currentIndex=i;
+      i=s.indexOf(delimiter,i+1);
     }
-    catch (DigestException e)
-    {
-      e.printStackTrace();
-      return new byte[0];
-    }
-    return res;
+    v.addElement(new String(s.substring(currentIndex+1)));
+    String[] returnArray=new String[v.size()];
+    v.copyInto(returnArray);
+    return returnArray;
   }
     /**
      * Tokenizes a string with the default delimiter(whitespace).

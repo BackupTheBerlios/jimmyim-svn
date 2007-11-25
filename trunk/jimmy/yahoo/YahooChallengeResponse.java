@@ -4,9 +4,8 @@
 package jimmy.yahoo;
 
 import java.io.DataInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
+import jimmy.util.MD5;
 import jimmy.util.Utils;
 
 public class YahooChallengeResponse
@@ -34,7 +33,8 @@ public class YahooChallengeResponse
   public final static int ARG1 = 1;
   public final static int ARG2 = 2;
   
-  protected static MessageDigest md5Obj;
+  protected static MD5 md5Obj;
+//  protected static MessageDigest md5Obj;
   
   public static final char[] TABLE_OFFSETS =
     {0, 256, 512, 544, 800, 832, 1088, 1120, 1376, 1408, // Tables 0 - 9 (1408)
@@ -88,14 +88,15 @@ public class YahooChallengeResponse
   // -----------------------------------------------------------------
   static
   {
-    try
-    {
-      md5Obj = MessageDigest.getInstance("MD5");
-    }
-    catch (NoSuchAlgorithmException e)
-    {
-      e.printStackTrace();
-    }
+//    try
+//    {
+//      md5Obj = MessageDigest.getInstance("MD5");
+      md5Obj = new MD5();
+//    }
+//    catch (NoSuchAlgorithmException e)
+//    {
+//      e.printStackTrace();
+//    }
   }
   
   // -----Five tables, each with 96 entries, each entry of three ints
@@ -504,7 +505,7 @@ public class YahooChallengeResponse
   // Given a username, password and challenge string, this code returns
   // the two valid response strings needed to login to Yahoo
   // -----------------------------------------------------------------
-  static String[] getStrings(String password, String challenge) throws NoSuchAlgorithmException
+  static String[] getStrings(String password, String challenge)
   {
     int operand = 0, i;
     
@@ -752,7 +753,7 @@ public class YahooChallengeResponse
     return sb.toString();
   }
   
-  private static byte[] _part4Hash(String target, byte[] magicValue, boolean hackSha1) throws NoSuchAlgorithmException
+  private static byte[] _part4Hash(String target, byte[] magicValue, boolean hackSha1)
   { // -----Convert string to 64 byte arrays with padding
     byte[] xor1 = _part4Xor(target, 0x36);
     byte[] xor2 = _part4Xor(target, 0x5c);
@@ -858,23 +859,23 @@ public class YahooChallengeResponse
   // for doing lots of hashing inside a tight loop - but remember to
   // mutex lock 'md5Obj' before using it!)
   // -----------------------------------------------------------------
-  static byte[] md5(String s) throws NoSuchAlgorithmException
+  static byte[] md5(String s)
   {
     return md5(s.getBytes());
   }
   
-  static byte[] md5(byte[] buff) throws NoSuchAlgorithmException
+  static byte[] md5(byte[] buff)
   {
-    MessageDigest md = MessageDigest.getInstance("MD5");
-    md.update(buff, 0, buff.length);
-    return Utils.digest(md);
+    MD5 md = new MD5();
+    md.update(buff);
+    return md.doFinal();
   }
   
-  static byte[] md5Singleton(byte[] buff) throws NoSuchAlgorithmException
+  static byte[] md5Singleton(byte[] buff)
   {
-    md5Obj.reset();
-    md5Obj.update(buff, 0, buff.length);
-    return Utils.digest(md5Obj);
+    md5Obj = new MD5();
+    md5Obj.update(buff);
+    return md5Obj.doFinal();
   }
   
   // -----------------------------------------------------------------

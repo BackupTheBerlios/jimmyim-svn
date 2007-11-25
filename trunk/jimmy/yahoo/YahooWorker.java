@@ -22,7 +22,6 @@
 
 package jimmy.yahoo;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -48,7 +47,7 @@ public class YahooWorker extends YahooConstants
     {
       case SERVICE_AUTH: System.out.println("[INFO-YAHOO] AUTH"); doAuth(packet, protocol); break;
       case SERVICE_ADDIGNORE : System.out.println("[INFO-YAHOO] ADDIGNORE"); break;
-      case SERVICE_AUTHRESP : System.out.println("[INFO-YAHOO] AUTHRESP"); protocol.setAuthStatus(true); break;
+      case SERVICE_AUTHRESP : System.out.println("[INFO-YAHOO] AUTHRESP"); protocol.setAuthStatus(false); break;
       case SERVICE_CHATCONNECT : System.out.println("[INFO-YAHOO] CHATCONNECT"); break;
       case SERVICE_CHATDISCONNECT: System.out.println("[INFO-YAHOO] CHATDISCONNECT"); break;
       case SERVICE_CHATLOGOFF : System.out.println("[INFO-YAHOO] CHATLOGOFF"); break;
@@ -86,26 +85,18 @@ public class YahooWorker extends YahooConstants
       YahooProtocol protocol)
   {
     String challenge = packet.getValue("94");
-    try
-    {
-      String[] s = YahooChallengeResponse.getStrings(
-          protocol.getAccount().getPassword(), 
-          challenge);
-      byte[] msg = YahooPacket.createPacket()
-        .append("0", protocol.getAccount().getUser())
-        .append("6", s[0])
-        .append("96", s[1])
-        .append("2", "1")
-        .append("1", protocol.getAccount().getUser())
-        .setService(SERVICE_AUTHRESP)
-        .setStatus(STATUS_AVAILABLE).packPacket();
-      protocol.sendRequest(msg);
-    }
-    catch (NoSuchAlgorithmException e)
-    {
-      e.printStackTrace();
-      return;
-    }
+    String[] s = YahooChallengeResponse.getStrings(
+        protocol.getAccount().getPassword(), 
+        challenge);
+    byte[] msg = YahooPacket.createPacket()
+      .append("0", protocol.getAccount().getUser())
+      .append("6", s[0])
+      .append("96", s[1])
+      .append("2", "1")
+      .append("1", protocol.getAccount().getUser())
+      .setService(SERVICE_AUTHRESP)
+      .setStatus(STATUS_AVAILABLE).packPacket();
+    protocol.sendRequest(msg);
   }
   
   private static void parseList(

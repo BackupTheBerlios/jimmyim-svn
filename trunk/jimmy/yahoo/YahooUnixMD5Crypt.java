@@ -1,8 +1,6 @@
 package jimmy.yahoo;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
+import jimmy.util.MD5;
 import jimmy.util.Utils;
 
 // *********************************************************************
@@ -20,57 +18,40 @@ import jimmy.util.Utils;
 public class YahooUnixMD5Crypt
 {
   public static final String MAGIC = "$1$";
-  public static final byte[] ITOA64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes();
-  
-  public static void to64(StringBuffer sb, int n, int nCount)
-  {
-    while (--nCount >= 0)
-    {
-      sb.append((char)ITOA64[n & 0x3f]);
-      n >>= 6;
-    }
-  }
   
   public static String crypt(String strPassword, String strSalt)
   {
     try
     {
       String[] st = Utils.explode('$', strSalt);
-//      StringTokenizer st = new StringTokenizer(strSalt, "$");
-//      st.nextToken();
       byte[] abyPassword = strPassword.getBytes();
       byte[] abySalt = st[2].getBytes();
       
-      MessageDigest _md = MessageDigest.getInstance("MD5");
+      MD5 _md = new MD5();
       
-      _md.update(abyPassword, 0, abyPassword.length);
-      _md.update(MAGIC.getBytes(), 0, MAGIC.getBytes().length);
-      _md.update(abySalt, 0, abySalt.length);
+      _md.update(abyPassword);
+      _md.update(MAGIC.getBytes());
+      _md.update(abySalt);
       
-      MessageDigest md2 = MessageDigest.getInstance("MD5");
-      md2.update(abyPassword, 0, abyPassword.length);
-      md2.update(abySalt, 0, abySalt.length);
-      md2.update(abyPassword, 0, abyPassword.length);
-      byte[] abyFinal = Utils.digest(md2);
+      MD5 md2 = new MD5();
+      md2.update(abyPassword);
+      md2.update(abySalt);
+      md2.update(abyPassword);
+      byte[] abyFinal = md2.doFinal();
       
       for (int n = abyPassword.length; n > 0; n -= 16)
       {
-        _md.update(abyFinal, 0, n > 16
-          ? 16
-          : n);
+        _md.update(abyFinal);
       }
       abyFinal = new byte[]
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
       
-      // "Something really weird"
-      // Not sure why 'j' is here as it is always zero, but it's in Kamp's code
-      // too
-      for (int j = 0, i = abyPassword.length; i != 0; i >>>= 1)
+      for (int i = abyPassword.length; i != 0; i >>>= 1)
       {
         if ((i & 1) == 1)
-          _md.update(abyFinal, j, 1);
+          _md.update(abyFinal);
         else
-          _md.update(abyPassword, j, 1);
+          _md.update(abyPassword);
       }
       
       // Build the output string
@@ -79,51 +60,37 @@ public class YahooUnixMD5Crypt
       sbPasswd.append(new String(abySalt));
       sbPasswd.append('$');
       
-      abyFinal = Utils.digest(_md);
+      abyFinal = _md.doFinal();
       
       // And now, just to make sure things don't run too fast
       // in C . . . "On a 60 Mhz Pentium this takes 34 msec, so you would
       // need 30 seconds to build a 1000 entry dictionary..."
       for (int n = 0; n < 1000; n++)
       {
-        MessageDigest md3 = MessageDigest.getInstance("MD5");
+        MD5 md3 = new MD5();
         // MD5Init(&ctx1);
         if ((n & 1) != 0)
-          md3.update(abyPassword, 0, abyPassword.length);
+          md3.update(abyPassword);
         else
-          md3.update(abyFinal, 0, abyFinal.length);
+          md3.update(abyFinal);
         
         if ((n % 3) != 0)
-          md3.update(abySalt, 0, abySalt.length);
+          md3.update(abySalt);
         
         if ((n % 7) != 0)
-          md3.update(abyPassword, 0, abyPassword.length);
+          md3.update(abyPassword);
         
         if ((n & 1) != 0)
-          md3.update(abyFinal, 0, abyFinal.length);
+          md3.update(abyFinal);
         else
-          md3.update(abyPassword, 0, abyPassword.length);
+          md3.update(abyPassword);
         
-        abyFinal = Utils.digest(md3);
+        abyFinal = md3.doFinal();
       }
       
-      // Convert to int's so we can do our bit manipulation
-      // it's a bit tricky making the byte act unsigned
-      int[] anFinal = new int[]
-        {(abyFinal[0] & 0x7f) | (abyFinal[0] & 0x80), (abyFinal[1] & 0x7f) | (abyFinal[1] & 0x80), (abyFinal[2] & 0x7f) | (abyFinal[2] & 0x80), (abyFinal[3] & 0x7f) | (abyFinal[3] & 0x80), (abyFinal[4] & 0x7f) | (abyFinal[4] & 0x80), (abyFinal[5] & 0x7f) | (abyFinal[5] & 0x80), (abyFinal[6] & 0x7f)
-            | (abyFinal[6] & 0x80), (abyFinal[7] & 0x7f) | (abyFinal[7] & 0x80), (abyFinal[8] & 0x7f) | (abyFinal[8] & 0x80), (abyFinal[9] & 0x7f) | (abyFinal[9] & 0x80), (abyFinal[10] & 0x7f) | (abyFinal[10] & 0x80), (abyFinal[11] & 0x7f) | (abyFinal[11] & 0x80), (abyFinal[12] & 0x7f)
-            | (abyFinal[12] & 0x80), (abyFinal[13] & 0x7f) | (abyFinal[13] & 0x80), (abyFinal[14] & 0x7f) | (abyFinal[14] & 0x80), (abyFinal[15] & 0x7f) | (abyFinal[15] & 0x80) };
-      
-      to64(sbPasswd, anFinal[0] << 16 | anFinal[6] << 8 | anFinal[12], 4);
-      to64(sbPasswd, anFinal[1] << 16 | anFinal[7] << 8 | anFinal[13], 4);
-      to64(sbPasswd, anFinal[2] << 16 | anFinal[8] << 8 | anFinal[14], 4);
-      to64(sbPasswd, anFinal[3] << 16 | anFinal[9] << 8 | anFinal[15], 4);
-      to64(sbPasswd, anFinal[4] << 16 | anFinal[10] << 8 | anFinal[5], 4);
-      to64(sbPasswd, anFinal[11], 2);
-      
-      return sbPasswd.toString();
+      return sbPasswd.append(MD5.toBase64(abyFinal)).toString();
     }
-    catch (NoSuchAlgorithmException e)
+    catch (Exception e)
     {
       return null;
     }
