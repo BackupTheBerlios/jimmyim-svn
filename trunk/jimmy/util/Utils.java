@@ -723,35 +723,4 @@ public class Utils {
     v.copyInto(returnArray);
     return returnArray;
   }
-    /**
-     * Tokenizes a string with the default delimiter(whitespace).
-     * @return Array of tokens(strings).
-     * @param String s String to be tokenized.
-     * @param char delimiter Character that delimits the string.
-     */
-  public static String[] tokenize(String s) {
-    return Utils.tokenize(s,' ');
-  }
-    /**
-     * Tokenizes a string with the given delimiter.
-     * @return Array of tokens(strings).
-     * @param String s String to be tokenized.
-     * @param char delimiter Character that delimits the string.
-     */
-  public static String[] tokenize(String s, char delimiter) 
-  {
-    Vector v = new Vector();
-    int i=s.indexOf(delimiter);
-    if(i==-1) return new String[0];
-    int currentIndex=-1;
-    while(i!=-1) {
-      v.addElement(new String(s.substring(currentIndex+1,i)));
-      currentIndex=i;
-      i=s.indexOf(delimiter,i+1);
-    }
-    v.addElement(new String(s.substring(currentIndex+1)));
-    String[] returnArray=new String[v.size()];
-    v.copyInto(returnArray);
-    return returnArray;
-  }
 }
