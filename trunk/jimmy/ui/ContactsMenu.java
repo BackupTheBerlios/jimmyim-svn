@@ -227,7 +227,7 @@ public class ContactsMenu extends List implements CommandListener {
             else
                 name = new String(currentContact.userID());
             
-            /* ****** UŠAJ ***********/
+            /* ****** UsAJ ***********/
             
             currentGroup.removeElementAt(j);
             this.delete(screenIndex);
@@ -235,7 +235,7 @@ public class ContactsMenu extends List implements CommandListener {
             currentGroup.insertElementAt(currentContact, p);
             this.insert(screenIndex - j + p, Contact.insertSpaces(name), chooseImage(currentContact));
             
-            /* ****** UŠAJ ***********/
+            /* ****** UsAJ ***********/
 
 //            this.set(screenIndex,Contact.insertSpaces(name),chooseImage(currentContact));	
             System.out.println("[DEBUG] User "+currentContact.userID()+" has status: "+currentContact.status());
