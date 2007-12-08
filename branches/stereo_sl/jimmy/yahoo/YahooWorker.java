@@ -117,7 +117,9 @@ public class YahooWorker extends YahooConstants
       String[] friends = Utils.tokenize(k87,'\n');
       for (int i = 0; i < friends.length; i++)
       {
+        if (friends[i] == null || friends[i].trim().equals("")) continue;
         String[] groupUsers = Utils.tokenize(friends[i],':');
+        if (groupUsers.length != 2 || groupUsers[1].trim().equals("")) continue;
         String[] users = Utils.tokenize(groupUsers[1],',');
         for (int j = 0; j < users.length; j++)
         {
@@ -131,7 +133,8 @@ public class YahooWorker extends YahooConstants
       String[] users = Utils.tokenize(k88,',');
       for (int i = 0; i < users.length; i++)
       {
-        processContact(users[i], protocol, Contact.ST_OFFLINE, null, null, jimmy);
+        if (!users[i].trim().equals(""))
+          processContact(users[i], protocol, Contact.ST_OFFLINE, null, null, jimmy);
       }
     }
     String k89 = list.getValue("89");
