@@ -711,7 +711,6 @@ public class Utils {
   {
     Vector v = new Vector();
     int i=s.indexOf(delimiter);
-    if(i==-1) return new String[0];
     int currentIndex=-1;
     while(i!=-1) {
       v.addElement(new String(s.substring(currentIndex+1,i)));
