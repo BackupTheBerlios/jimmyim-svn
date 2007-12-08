@@ -29,7 +29,6 @@ import jimmy.util.MD5;
 import jimmy.Protocol;
 import jimmy.Account;
 import jimmy.Contact;
-import jimmy.msn.MSNContact;
 import jimmy.ChatSession;
 import jimmy.ProtocolInteraction;
 import jimmy.util.Utils;
@@ -60,15 +59,12 @@ public class MSNProtocol extends Protocol
     private String password;
     private boolean connected_;
     private boolean stop;
-    private int port;
     
-    private PassportNexus pn;
     private MSNTransaction tr;
     private Contact pendingUser = null; //this user is waiting for a chatsession
     private MSNContact movingUser = null;
     private ServerHandler sh;
     private boolean busy = false;
-    private ServerHandler NexusHandler;
     private Hashtable userHashes; 
     private Hashtable userLists;
     private Hashtable contacts_;
@@ -94,7 +90,6 @@ public class MSNProtocol extends Protocol
      */
     protected Hashtable ChatIds_;
     private Hashtable groupID;
-    private String mySwitchboard;    
     
     // definitions of constants
     //const of protocol MSNP10
@@ -127,6 +122,7 @@ public class MSNProtocol extends Protocol
     public MSNProtocol(ProtocolInteraction jimmy)
     {
     	super(jimmy);
+        
         
         this.connected_ = false;
         this.protocolType_ = MSN;
@@ -282,6 +278,7 @@ public class MSNProtocol extends Protocol
                 this.tr.newTransaction();
                 this.tr.setType(CMD_CHG);
                 this.tr.addArgument(CMD_NLN);
+                //this.tr.addArgument("HDN"); //log in as anavailable(for testing)
                 this.tr.addArgument("0");
                 this.sh.sendRequest(this.tr.toString());
                 System.out.println(this.tr.toString());                           
@@ -497,7 +494,7 @@ public class MSNProtocol extends Protocol
         System.out.println("Line:" + line);
 
         //line = ADC 0 RL N=odar_5ra@hotmail.com F=Kalypso
-        String[] atoms = Utils.explode(' ', line);
+        String[] atoms = Utils.tokenize(line);
         //atoms[0] = ADC
         //atoms[1] = cid
         //atoms[2] = FL, AL, RL, BL
@@ -547,6 +544,9 @@ public class MSNProtocol extends Protocol
     }
     private void parseContacts(String data)
     {  
+        /**
+         * TODO: rewrite this with the new string tokenizer in Utils
+         */
         //Normal form:
         //LST N=matevz.jekovec@guest.arnes.si F=Matevz C=d954638f-1963-4e45-b157-2029eae8714f 3 406c6d87-043d-4f20-b569-0450b49ca65d
         //Someone got a reply like this once(repeatedly):
@@ -605,6 +605,10 @@ public class MSNProtocol extends Protocol
         this.userHashes.put(new Integer(person.hashCode()), contactHash);
         this.userLists.put(new Integer(person.hashCode()), lists);            
         this.contacts_.put(person.userID(), person); 
+        
+        //the forward list is 1, the allow list is 2, the block list is 4, 
+        //the reverse list is 8 and the pending list 16.
+        
         switch (list) {
             case 1: //user in my FL list, but i'm not in his/her FL list
                 break;
@@ -730,7 +734,7 @@ public class MSNProtocol extends Protocol
          //data = ILN 11 NLN idanilov@ua.fm Ilya%20Danilov 1342177280
          System.out.println("[DEBUG] parsePresence:data:" + data);
          //this.printContacts();
-         String[] atoms = Utils.explode(' ', data);
+         String[] atoms = Utils.tokenize(data);
          //atoms[0] = ILN or NLN
          //atoms[1] = cid number
          //atoms[2] = status
@@ -770,7 +774,7 @@ public class MSNProtocol extends Protocol
             String line = data.substring(data.indexOf("CHL"), data.indexOf('\r')); //remove \r\n
         
             //data = CHL 0 25270234921473318824
-            String[] atoms = Utils.explode(' ', line);
+            String[] atoms = Utils.tokenize(line);
             //atoms[0] = CHL
             //atoms[1] = ?
             //atoms[2] = challenge

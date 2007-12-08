@@ -58,6 +58,7 @@ public class ServerHandler
     private final int SLEEPTIME_ = 50;	//sleep time per iteration in miliseconds
     private int timeout_ = 5000;	//timeout of getting the reply
     private boolean connected_ = false;	//connection status
+    private boolean isNokia_ = false;   //if app runs on a Nokia phone
 	
     /**
      * The constructor method.
@@ -70,6 +71,7 @@ public class ServerHandler
         url_ = url;
         outPort_ = port;        
         connected_ = false;
+        if(System.getProperty("microedition.platform").toLowerCase().indexOf("nokia")!=-1) this.isNokia_=true;   
     }
 	
     /**
@@ -79,8 +81,7 @@ public class ServerHandler
      */
     public ServerHandler(String url) 
     {
-        url_ = url;
-        outPort_ = 0;        
+        this(url,0);
     }
 	
     /**
@@ -172,8 +173,8 @@ public class ServerHandler
     	
     	try 
         {            
-    			os_.write(message);
-    			os_.flush();
+            os_.write(message);
+            os_.flush();
          
         } catch (IOException ex) 
         {
@@ -221,55 +222,40 @@ public class ServerHandler
      * @return Message from the remote server as a byte[]. null if timeout has occured
      */
     public byte[] getReplyBytes()
-    {          
-            /* #IF(NOKIA)
-         * Nokia patch:
-         * This patch is for Nokia only and it should not be used for other 
-         * devices.
-         */
-        
-        /* try 
-        {
-            StringBuffer result=new StringBuffer();
-            int inputChar;
-            int bs;
-            while ( (inputChar = this.is_.read()) != -1) { //this blocks
-
-                bs = this.is_.available(); //get the amount of characters waiting in the buffer     
-                result.append((char) inputChar);
-                if(bs==0) break;
-            }
-            return result.toString();            
-        } catch (InterruptedIOException ex){
-//        		ex.printStackTrace();
-            return null;	
-        } catch (IOException ex){
-            ex.printStackTrace();
-            return null;
-        }*/
-    
+    {            
         try 
         {
-            byte[] buffer = null;
-            
-            int bs = this.is_.available(); //get the amount of characters waiting in the buffer
-            if (bs!=0) {
-                buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
-                this.is_.read(buffer);	//read the whole buffer in the array
-            } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
-                for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
-                    Thread.sleep(this.SLEEPTIME_);
-                    if ((bs = this.is_.available()) != 0) {
-                        buffer = new byte[bs];
-                        this.is_.read(buffer);
-                        break;
-                    }
+            if(this.isNokia_) { //Nokia needs different procedure
+                StringBuffer result=new StringBuffer();
+                int inputChar;
+                int bs;
+                while ( (inputChar = this.is_.read()) != -1) { //this blocks
+                    bs = this.is_.available(); //get the amount of characters waiting in the buffer     
+                    result.append((char) inputChar);
+                    if(bs==0) break;
                 }
-        	}
-            
-            if (buffer != null)
-            	return buffer; //buffer was get, return the String
-          	return null;	//buffer was not get - timeout occured, return null
+                return result.toString().getBytes();  
+            } else {
+                byte[] buffer = null;
+                int bs = this.is_.available(); //get the amount of characters waiting in the buffer
+                if (bs!=0) {
+                    buffer = new byte[bs];	//create an array of characters of size the ones in the buffer
+                    this.is_.read(buffer);	//read the whole buffer in the array
+                } else {	//if the buffer is empty, wait and recheck every SLEEPTIME_ miliseconds
+                    for (int time=0; time < this.timeout_; time += this.SLEEPTIME_) {
+                        Thread.sleep(this.SLEEPTIME_);
+                        if ((bs = this.is_.available()) != 0) {
+                            buffer = new byte[bs];
+                            this.is_.read(buffer);
+                            break;
+                        }
+                    }
+                    }
+
+                if (buffer != null)
+                    return buffer; //buffer was get, return the String
+                    return null;	//buffer was not get - timeout occured, return null
+            }
         }catch (InterruptedIOException ex){
 //        		ex.printStackTrace();
 

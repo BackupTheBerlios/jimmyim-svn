@@ -23,7 +23,7 @@ public class YahooUnixMD5Crypt
   {
     try
     {
-      String[] st = Utils.explode('$', strSalt);
+      String[] st = Utils.tokenize(strSalt,'$');
       byte[] abyPassword = strPassword.getBytes();
       byte[] abySalt = st[2].getBytes();
       
