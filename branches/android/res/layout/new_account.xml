@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical">
+    
+    <TextView id="@+id/name_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_name"/>
+    <EditText id="@+id/name"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:hint="Name for this account"
+        android:singleLine="true"/>
+
+    <TextView id="@+id/protocol_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_protocol"/>
+    <RadioGroup
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        id="@+id/protocols">
+        <RadioButton
+            android:text="@string/new_acc_proto_icq"
+            id="@+id/icq" />
+        <RadioButton
+            android:text="@string/new_acc_proto_jabber"
+            id="@+id/jabber" />
+        <RadioButton
+            android:text="@string/new_acc_proto_msn"
+            id="@+id/msn" />
+        <RadioButton
+            android:text="@string/new_acc_proto_yahoo"
+            id="@+id/yahoo" />
+    </RadioGroup>
+    
+    <TextView id="@+id/username_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_username"/>
+    <EditText id="@+id/username"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:hint="Accounts username"
+        android:singleLine="true"/>
+    
+    <TextView id="@+id/password_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_pass"/>
+    <EditText id="@+id/password"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:password="true"
+        android:hint="Accounts password"
+        android:singleLine="true"/>
+    
+    <TextView id="@+id/server_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_server"/>
+    <EditText id="@+id/server"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:hint="Servers url (Optional)"
+        android:singleLine="true"/>
+
+    <TextView id="@+id/port_text"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/new_acc_port"/>
+    <EditText id="@+id/port"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:numeric="true"
+        android:hint="Servers port (Optional)"
+        android:singleLine="true"/>
+        
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+        <CheckBox id="@+id/auto_connect"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:singleLine="true"/>
+        <TextView id="@+id/auto_conn_text"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:paddingRight="4dip"
+            android:text="@string/new_acc_auto_conn"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+        <CheckBox id="@+id/ssl"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:nextFocusDown="@+id/new_acc_accept"/>
+        <TextView id="@+id/ssl_text"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:paddingRight="4dip"
+            android:text="@string/new_acc_ssl"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:gravity="center">
+        
+        <Button id="@+id/new_acc_accept" 
+            android:layout_width="wrap_content" 
+            android:layout_height="fill_parent"
+            android:text="@string/button_accept"
+            android:nextFocusUp="@+id/ssl"/>
+<!--        <TextView
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"
+            android:paddingRight="10dip"
+            android:paddingLeft="10dip"
+            android:singleLine="true"/> -->
+        <Button id="@+id/new_acc_discard" 
+            android:layout_width="wrap_content" 
+            android:layout_height="fill_parent"
+            android:text="@string/button_decline"
+            android:nextFocusUp="@+id/ssl"/>
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>

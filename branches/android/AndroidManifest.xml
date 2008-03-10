@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.jimmy.android">
+    
+    <application android:icon="@drawable/jimmyim_splash_small"
+        android:label="@string/app_name">
+        <provider class="AccountProvider"
+                android:authorities="org.jimmy.provider.JimmyIM" />
+                
+        <activity class=".ui.MainMenu" android:label="Main Menu">
+            <intent-filter>
+                <action android:value="android.intent.action.MAIN" />
+                <category android:value="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:value="android.intent.action.VIEW" />
+                <action android:value="android.intent.action.EDIT" />
+                <action android:value="android.intent.action.PICK" />
+                <category android:value="android.intent.category.DEFAULT" />
+                <type android:value="vnd.android.cursor.dir/vnd.jimmy.account" />
+            </intent-filter>
+            <intent-filter>
+                <action android:value="android.intent.action.GET_CONTENT" />
+                <category android:value="android.intent.category.DEFAULT" />
+                <type android:value="vnd.android.cursor.item/vnd.jimmy.account" />
+            </intent-filter>
+        </activity>
+    
+        <activity class=".data.ProtocolManager" android:label="Protocol">
+            <intent-filter android:label="Protocol">
+                <action android:value="android.intent.action.LOGIN" />
+                <category android:value="android.intent.category.DEFAULT" />
+                <type android:value="vnd.android.cursor.item/vnd.jimmy.account" />
+                <type android:value="vnd.android.cursor.dir/vnd.jimmy.account" />
+            </intent-filter>
+        </activity>
+
+        <activity class=".ui.NewAccount" android:label="New Account">
+            <intent-filter android:label="New Account">
+                <action android:value="android.intent.action.VIEW" />
+                <action android:value="android.intent.action.EDIT" />
+                <action android:value="org.jimmy.android.action.EDIT_ACCOUNT" />
+                <category android:value="android.intent.category.DEFAULT" />
+                <type android:value="vnd.android.cursor.item/vnd.jimmy.account" />
+            </intent-filter>
+            <intent-filter>
+                <action android:value="android.intent.action.INSERT" />
+                <category android:value="android.intent.category.DEFAULT" />
+                <type android:value="vnd.android.cursor.dir/vnd.jimmy.account" />
+            </intent-filter>
+        </activity>
+
+        <service class=".data.Protocol" />
+    </application>
+</manifest> 

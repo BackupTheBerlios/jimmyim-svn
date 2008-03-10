@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JimmyIM</string>
+
+    <string name="button_accept">Accept</string>
+    <string name="button_decline">Decline</string>
+    
+    <string name="title_create_account">Create account</string>
+    <string name="title_edit_account">Edit account</string>
+    
+    <string name="menu_acc_new">New account</string>
+    <string name="menu_acc_delete">Delete</string>
+    <string name="menu_acc_edit">Edit</string>
+    <string name="menu_acc_login">Login</string>
+    <string name="menu_acc_logout">Logout</string>
+    <string name="menu_acc_roster">Roster</string>
+
+    <string name="new_acc_protocol">Protocol</string>
+    <string name="new_acc_proto_icq">ICQ</string>
+    <string name="new_acc_proto_msn">MSN</string>
+    <string name="new_acc_proto_jabber">Jabber</string>
+    <string name="new_acc_proto_yahoo">Yahoo</string>
+    
+    <string name="new_acc_name">Name</string>
+    <string name="new_acc_username">Username</string>
+    <string name="new_acc_pass">Password</string>
+    <string name="new_acc_server">Server</string>
+    <string name="new_acc_port">Port</string>
+    <string name="new_acc_auto_conn">Auto connect</string>
+    <string name="new_acc_ssl">Use SSL</string>
+    
+</resources>
