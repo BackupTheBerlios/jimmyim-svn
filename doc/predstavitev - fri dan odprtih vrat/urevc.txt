@@ -1,0 +1,35 @@
+Uvod v predavanje:
+------------------------------------------------------------------
+1. slide: front page
+
+JimmyIM uvod:
+------------------------------------------------------------------
+1. slide:
+Kaj je instant messaging (takojšnje sporočanje)?
+- gre za (praviloma) tekstovno komunikacijo v realnem času preko interneta
+- najbolj razširjeni protokoli: MSN, Jabber, ICQ, Google talk, ....
+- omogoča hitro in poceni komunikacijo
+
+2. slide
+Aplikacije za mobilne naprave
+- mobilnost postaja vse bolj ključnega pomena
+- aplikacije, katerih smo navajeni na osebnih računalnikih, lahko
+uporabljamo tako rekoč kjerkoli in kadarkoli
+- aplikacije za mobilne naprave so v razcvetu
+
+3. slide
+JimmyIM - namen in cilji
+- podpora najbolj razširjenih protokolov za IM
+- med telefonom in strežniki naj se pretaka čim manjša količina podatkov
+(cena!)
+- teče naj na čim večjem številu mobilnih naprav
+
+Jabber:
+------------------------------------------------------------------
+napišeš ti, jaz preštudiram
+
+Če se spomnim še kake pomembne alinee, ti sporočim,
+
+JAnez
+
+
